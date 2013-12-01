@@ -5,7 +5,7 @@ OBJS        := $(patsubst %.S,%.o,$(SOURCES_ASM))
 OBJS        += $(patsubst %.c,%.o,$(SOURCES_C))
  
 DEPENDFLAGS := -MD -MP
-INCLUDES    := -I include
+INCLUDES    := -I$(TOOLCHAIN_DIR)arm-unknown-eabi/include
 BASEFLAGS   := -O2 -fpic -pedantic -pedantic-errors -nostdlib
 BASEFLAGS   += -nostartfiles -ffreestanding -nodefaultlibs
 BASEFLAGS   += -fno-builtin -fomit-frame-pointer -mcpu=arm1176jzf-s
