@@ -28,9 +28,12 @@ ASFLAGS     := $(INCLUDES) $(DEPENDFLAGS) -D__ASSEMBLY__
 CFLAGS      := $(INCLUDES) $(DEPENDFLAGS) $(BASEFLAGS) $(WARNFLAGS)
 CFLAGS      += -std=gnu99
 
-OBJS	:= boot/boot.o \
+OBJS	:= 	asm/head.o \
+			boot/boot.o \
 			drivers/uart.o \
 			kernel/main.o \
+			kernel/interrupts.o \
+			utils/io.o
  
 all: kernel.img
  

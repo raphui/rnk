@@ -2,6 +2,13 @@
 #include <utils.h>
 #include <uart.h>
 
+static void uart_register_functions( void )
+{
+
+	io_functions.write = &uart_printl;	
+
+}
+
 void uart_init( void )
 {
 	/* Disable UART */
@@ -34,6 +41,9 @@ void uart_init( void )
 
 	/* Enable UART0 */
 	writel( UART0_CR , ( 1 << 0 ) | ( 1 << 8 ) | ( 1 << 9 ) );
+
+	/* Register io functions */
+	uart_register_functions();
 }
 
 void uart_print( unsigned char byte )
@@ -48,10 +58,12 @@ void uart_print( unsigned char byte )
 }
 
 
-void uart_printl( const char *string )
+int uart_printl( const char *string )
 {
 	while( *string )
 	{
 		uart_print( *string++ );
 	}
+
+	return 0;
 }
