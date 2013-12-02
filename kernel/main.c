@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "uart.h"
+#include <uart.h>
 
 int main( void )
 {

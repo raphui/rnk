@@ -1,11 +1,13 @@
-SOURCES_ASM := $(wildcard *.S)
-SOURCES_C   := $(wildcard *.c)
+#SOURCES_ASM := $(wildcard *.S)
+#SOURCES_C   := $(wildcard *.c)
  
-OBJS        := $(patsubst %.S,%.o,$(SOURCES_ASM))
-OBJS        += $(patsubst %.c,%.o,$(SOURCES_C))
+#OBJS        := $(patsubst %.S,%.o,$(SOURCES_ASM))
+#OBJS        += $(patsubst %.c,%.o,$(SOURCES_C))
  
 DEPENDFLAGS := -MD -MP
 INCLUDES    := -I$(TOOLCHAIN_DIR)arm-unknown-eabi/include
+INCLUDES 	+= -I$(KERNEL_BASE)/include
+INCLUDES 	+= -I$(KERNEL_BASE)/boards
 BASEFLAGS   := -O2 -fpic -pedantic -pedantic-errors -nostdlib
 BASEFLAGS   += -nostartfiles -ffreestanding -nodefaultlibs
 BASEFLAGS   += -fno-builtin -fomit-frame-pointer -mcpu=arm1176jzf-s
@@ -25,6 +27,10 @@ WARNFLAGS   += -Werror
 ASFLAGS     := $(INCLUDES) $(DEPENDFLAGS) -D__ASSEMBLY__
 CFLAGS      := $(INCLUDES) $(DEPENDFLAGS) $(BASEFLAGS) $(WARNFLAGS)
 CFLAGS      += -std=gnu99
+
+OBJS	:= boot/boot.o \
+			drivers/uart.o \
+			kernel/main.o \
  
 all: kernel.img
  

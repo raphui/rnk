@@ -1,7 +1,6 @@
-#include "board.h"
-#include "uart.h"
-#include "utils.h"
-
+#include <board.h>
+#include <utils.h>
+#include <uart.h>
 
 void uart_init( void )
 {
