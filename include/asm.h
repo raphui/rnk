@@ -4,8 +4,7 @@
 #ifndef ENTRY
 #define ENTRY( name ) \
 	.globl name; \
-	name:
-	//ALIGN; \
+	.ALIGN; \
 	name:
 #endif /* ENTRY */
 
