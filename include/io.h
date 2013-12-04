@@ -3,14 +3,14 @@
 
 #include <stdint.h>
 
-struct io_op
+struct io_operations
 {
 
 	int ( *write )( const char *string );
 };
 
 
-struct io_op io_functions;
+struct io_operations io_op;
 
 
 int printk( const char *fmt , ... );

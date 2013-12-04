@@ -33,6 +33,7 @@ OBJS	:= 	asm/head.o \
 			drivers/uart.o \
 			kernel/main.o \
 			kernel/interrupts.o \
+			kernel/scheduler.o \
 			utils/io.o
  
 all: kernel.img

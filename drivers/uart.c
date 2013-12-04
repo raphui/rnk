@@ -5,9 +5,9 @@
 static void uart_register_functions( void )
 {
 
-	io_functions.write = &uart_printl;	
+        io_op.write = &uart_printl;        
 
-}
+} 
 
 void uart_init( void )
 {
@@ -43,7 +43,7 @@ void uart_init( void )
 	writel( UART0_CR , ( 1 << 0 ) | ( 1 << 8 ) | ( 1 << 9 ) );
 
 	/* Register io functions */
-	uart_register_functions();
+    uart_register_functions();
 }
 
 void uart_print( unsigned char byte )

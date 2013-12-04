@@ -119,5 +119,5 @@ int printk( const char *fmt , ... )
 
 	*p = '\0';
 
-	return io_functions.write( buffer );
+	return io_op.write( buffer );
 }
