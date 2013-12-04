@@ -40,7 +40,7 @@ struct task
 	unsigned int start_code;
 	unsigned int end_code;
 
-	long quantum;
+//	long quantum;
 		
 };
 
