@@ -35,25 +35,34 @@ OBJS	:= 	asm/head.o \
 			kernel/interrupts.o \
 			kernel/scheduler.o \
 			utils/io.o
+
+config:
+	@@echo "CP board-"$(MACH).h" -> board.h"
+	@cp boards/board-$(MACH).h boards/board.h
  
 all: kernel.img
  
 include $(wildcard *.d)
  
 kernel.elf: $(OBJS) link-arm-eabi.ld
-	$(CROSS_COMPILE)ld $(OBJS) -Tlink-arm-eabi.ld -o $@
+	@@echo "LD " $<
+	@$(CROSS_COMPILE)ld $(OBJS) -Tlink-arm-eabi.ld -o $@
  
 kernel.img: kernel.elf
-	$(CROSS_COMPILE)objcopy kernel.elf -O binary kernel.img
+	@@echo "OBJCOPY " $<
+	@$(CROSS_COMPILE)objcopy kernel.elf -O binary kernel.img
  
 clean:
 	$(RM) -f $(OBJS) kernel.elf kernel.img
+	$(RM) boards/board.h
  
 dist-clean: clean
-	$(RM) -f *.d
+	@$(RM) -f *.d
  
-%.o: %.c Makefile
-	$(CROSS_COMPILE)gcc $(CFLAGS) -c $< -o $@
+%.o: %.c
+	@@echo "CC " $<
+	@$(CROSS_COMPILE)gcc $(CFLAGS) -c $< -o $@
  
-%.o: %.S Makefile
-	$(CROSS_COMPILE)gcc $(ASFLAGS) -c $< -o $@
+%.o: %.S
+	@@echo "CC " $<
+	@$(CROSS_COMPILE)gcc $(ASFLAGS) -c $< -o $@

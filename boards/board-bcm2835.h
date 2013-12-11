@@ -1,5 +1,5 @@
-#ifndef BOARD_H
-#define BOARD_H
+#ifndef BOARD_BCM2835_H
+#define BOARD_BCM2835_H
 
 /* GPIO Register address */
 #define GPIO_BASE		0x20200000
@@ -29,4 +29,4 @@
 	#define UART0_TDR		( UART0_BASE + 0x8C	)
 
 
-#endif /* BOARD_H */
+#endif /* BOARD_BCM2835_H */

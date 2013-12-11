@@ -6,17 +6,17 @@
 void schedule( void )
 {
 	int i;
-	long quantum = 150;	/* in ms */
+//	long quantum = 150;	/* in ms */
 
 	while( 1 )
 	{
-		i = NR_TASK;
+		i = NR_TASK - 1;
 
-		current_task = &task[i];
+		current_task = task[i];
 		
 		while( i-- )
 		{
-			if( (*current_task )->state == TASK_RUNNING )
+			if( current_task->state == TASK_RUNNING )
 			{
 
 			}
