@@ -1,15 +1,15 @@
 #include <board.h>
 #include <utils.h>
-#include <uart.h>
+#include <usart.h>
 
-static void uart_register_functions( void )
+static void usart_register_functions( void )
 {
 
-        io_op.write = &uart_printl;        
+        io_op.write = &usart_printl;        
 
 } 
 
-void uart_init( void )
+void usart_init( void )
 {
 	/* Disable UART */
 	writel( UART0_CR , 0x00000000 );
@@ -43,10 +43,10 @@ void uart_init( void )
 	writel( UART0_CR , ( 1 << 0 ) | ( 1 << 8 ) | ( 1 << 9 ) );
 
 	/* Register io functions */
-    uart_register_functions();
+    usart_register_functions();
 }
 
-void uart_print( unsigned char byte )
+void usart_print( unsigned char byte )
 {
 	while( 1 )
 	{
@@ -58,11 +58,11 @@ void uart_print( unsigned char byte )
 }
 
 
-int uart_printl( const char *string )
+int usart_printl( const char *string )
 {
 	while( *string )
 	{
-		uart_print( *string++ );
+		usart_print( *string++ );
 	}
 
 	return 0;

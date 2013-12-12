@@ -37,8 +37,8 @@ OBJS	:= 	asm/head.o \
 			utils/io.o
 
 config:
-	@@echo "CP board-"$(MACH).h" -> board.h"
-	@cp boards/board-$(MACH).h boards/board.h
+	@@echo "CP mach-"$(MACH)/board-"$(SOC).h" -> board.h"
+	@cp boards/mach-$(MACH)/board-$(SOC).h boards/board.h
  
 all: kernel.img
  

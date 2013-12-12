@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <uart.h>
+#include <usart.h>
 #include <io.h>
 
 extern int get_value_cp( void );
@@ -7,7 +7,7 @@ extern int get_value_cp( void );
 int main( void )
 {
 
-	uart_init();
+	usart_init();
 	
 	printk("\r\nHello World from RNK ( Raphio new kernel )\r\n");
 
