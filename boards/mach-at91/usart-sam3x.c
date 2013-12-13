@@ -27,13 +27,13 @@ void usart_init( void )
 
 void usart_print( unsigned char byte )
 {
-	while( 1 )
-	{
-		if( !( readl( UART0_FR ) & ( 1 << 5 ) ) )
-			break;
-	}
-	
-	writel( UART0_DR , byte );
+
+	/* Polling right now */
+
+	while( !( readl( USART3_BASE + US_CSR ) & US_CSR_TXRDY ) )
+		;
+
+	writel( USART3_BASE + US_THR , byte );
 }
 
 

@@ -44,8 +44,39 @@
 	#define US_IDR		0x0C
 	#define US_IMR		0x10
 	#define US_CSR		0x14
+		#define US_CSR_RXRDY	( 1 << 0 )
+		#define US_CSR_TXRDY	( 1 << 1 )
+		#define US_CSR_RXBRK	( 1 << 2 )
+		#define US_CSR_ENDRX	( 1 << 3 )
+		#define US_CSR_ENDTX	( 1 << 4 )
+		#define US_CSR_OVRE		( 1 << 5 )
+		#define US_CSR_FRAME	( 1 << 6 )
+		#define US_CSR_PARE		( 1 << 7 )
+		#define US_CSR_TIMEOUT	( 1 << 8 )
+		#define US_CSR_TXEMPTY	( 1 << 9 )
+		#define US_CSR_ITER		( 1 << 10 )
+		#define US_CSR_TXBUFE	( 1 << 11 )
+		#define US_CSR_RXBUFF	( 1 << 12 )
+		#define US_CSR_NACK		( 1 << 13 )
+		#define US_CSR_LINID	( 1 << 14 )
+		#define US_CSR_LINTC	( 1 << 15 )
+		#define US_CSR_CTSIC	( 1 << 19 )
+		#define US_CSR_CTS		( 1 << 23 )
+		#define US_CSR_MANERR	( 1 << 24 )
+		#define US_CSR_LINBE	( 1 << 25 )
+		#define US_CSR_LINISFE	( 1 << 26 )
+		#define US_CSR_LINIPE	( 1 << 27 )
+		#define US_CSR_LINCE	( 1 << 28 )
+		#define US_CSR_LINSNRE	( 1 << 29 )
+
 	#define US_RHR		0x18
+		#define RXCHR	/* data */ 
+		#define RXSYNH	( 1 << 15 )
+
 	#define US_THR		0x1C
+		#define TXCHR	/* data */
+		#define TXSYNH	( 1 << 15 )
+
 	#define US_BRGR		0x20
 	#define US_RTOR		0x24
 	#define US_TTGR		0x28
