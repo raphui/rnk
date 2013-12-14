@@ -35,7 +35,8 @@ STACK_SIZE =  4K - 4;
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
-ENTRY(ResetException)
+/*ENTRY(ResetException)*/
+ENTRY(main)
 
 /* Vector Definition */
 /* vector is put at very begin adress of SRAM0, the preserved size is 0x100 */

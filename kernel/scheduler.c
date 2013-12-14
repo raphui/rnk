@@ -3,6 +3,7 @@
 
 
 /* At the moment it's a round-robin schedule */
+/* TODO: the timer to schedule task can be based on TC interrupt */
 void schedule( void )
 {
 	int i;

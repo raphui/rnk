@@ -9,7 +9,8 @@ SOC=sam3x
 
 BCM2835_LD=link-arm-eabi.ld
 SAM3X_LD=sam3x.ld
-LD_SCRIPT=$(SAM3X_LD)
+SAM3X8_SRAM_LD=sram.ld
+LD_SCRIPT=$(SAM3X8_SRAM_LD)
  
 DEPENDFLAGS := -MD -MP
 INCLUDES    := -I$(TOOLCHAIN_DIR)arm-unknown-eabi/include
@@ -39,7 +40,7 @@ CFLAGS      += -std=gnu99
 OBJS	:= 	asm/head.o \
 			boards/mach-$(MACH)/$(SOC).o \
 			boards/mach-$(MACH)/uart-$(SOC).o \
-			boot/boot.o \
+			boot/boot-$(SOC).o \
 			drivers/uart.o \
 			kernel/main.o \
 			kernel/interrupts.o \
@@ -67,7 +68,7 @@ clean:
 	$(RM) boards/board.h
  
 dist-clean: clean
-	@$(RM) -f *.d
+	$(RM) -f *.d
  
 %.o: %.c
 	@@echo "CC " $<
