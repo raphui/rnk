@@ -7,7 +7,8 @@ void low_level_init( void )
 {
 	unsigned int timeout;
 
-	/*TODO: setup EFC */
+	writel( EEFC0_BASE + EFFC_FMR , E_FMR_FWS( 4 ) );
+	writel( EEFC1_BASE + EFFC_FMR , E_FMR_FWS( 4 ) );
 
 	if( !( readl( PMC_BASE + PMC_CKGR_MOR ) & P_CKGR_MOR_MOSCSEL ) )
 	{
@@ -34,7 +35,7 @@ void low_level_init( void )
 
 	writel( PMC_BASE + PMC_CKGR_PLLAR , P_CKGR_PLLAR_ONE
 										| P_CKGR_PLLAR_MULA( 13 )
-										| P_CKGR_PLLAR_PLLACOUNT( 2 )
+										| P_CKGR_PLLAR_PLLACOUNT( 2 ) );
 	timeout = 0;
 	while( !( readl( PMC_BASE + PMC_SR ) & P_SR_MOSCXTS ) && ( timeout++ < CLOCK_TIMEOUT ) );
 

@@ -3,6 +3,13 @@
  
 #OBJS        := $(patsubst %.S,%.o,$(SOURCES_ASM))
 #OBJS        += $(patsubst %.c,%.o,$(SOURCES_C))
+
+MACH=at91
+SOC=sam3x
+
+BCM2835_LD=link-arm-eabi.ld
+SAM3X_LD=sam3x.ld
+LD_SCRIPT=$(SAM3X_LD)
  
 DEPENDFLAGS := -MD -MP
 INCLUDES    := -I$(TOOLCHAIN_DIR)arm-unknown-eabi/include
@@ -11,7 +18,8 @@ INCLUDES 	+= -I$(KERNEL_BASE)/boards
 BASEFLAGS   := -O2 -fpic -pedantic -pedantic-errors -nostdlib
 BASEFLAGS   += -nostartfiles -ffreestanding -nodefaultlibs
 BASEFLAGS   += -fno-builtin -fomit-frame-pointer -mcpu=arm1176jzf-s
-WARNFLAGS   := -Wall -Wextra -Wshadow -Wcast-align -Wwrite-strings
+#WARNFLAGS   := -Wall -Wextra -Wshadow -Wcast-align -Wwrite-strings
+WARNFLAGS   := -Wextra -Wshadow -Wcast-align -Wwrite-strings
 WARNFLAGS   += -Wredundant-decls -Winline
 WARNFLAGS   += -Wno-attributes -Wno-deprecated-declarations
 WARNFLAGS   += -Wno-div-by-zero -Wno-endif-labels -Wfloat-equal
@@ -29,6 +37,8 @@ CFLAGS      := $(INCLUDES) $(DEPENDFLAGS) $(BASEFLAGS) $(WARNFLAGS)
 CFLAGS      += -std=gnu99
 
 OBJS	:= 	asm/head.o \
+			boards/mach-$(MACH)/$(SOC).o \
+			boards/mach-$(MACH)/uart-$(SOC).o \
 			boot/boot.o \
 			drivers/uart.o \
 			kernel/main.o \
@@ -37,16 +47,16 @@ OBJS	:= 	asm/head.o \
 			utils/io.o
 
 config:
-	@@echo "CP mach-"$(MACH)/board-"$(SOC).h" -> board.h"
+	@@echo "CP mach-$(MACH)/board-$(SOC).h -> board.h"
 	@cp boards/mach-$(MACH)/board-$(SOC).h boards/board.h
  
 all: kernel.img
  
 include $(wildcard *.d)
  
-kernel.elf: $(OBJS) link-arm-eabi.ld
+kernel.elf: $(OBJS) 
 	@@echo "LD " $<
-	@$(CROSS_COMPILE)ld $(OBJS) -Tlink-arm-eabi.ld -o $@
+	@$(CROSS_COMPILE)ld $(OBJS) -T$(LD_SCRIPT) -o $@
  
 kernel.img: kernel.elf
 	@@echo "OBJCOPY " $<

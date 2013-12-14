@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <board.h>
 #include <uart.h>
 #include <io.h>
 

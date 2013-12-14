@@ -5,11 +5,13 @@
 static void uart_register_functions( void )
 {
 
-        io_op.write = &uart_printl;        
+    uart_ops.init = &uart_init;
+	uart_ops.print = &uart_print;
+	uart_ops.printl = &uart_printl;	
 
 } 
 
-void uart_init( void )
+void sam3x_uart_init( void )
 {
 	unsigned int cd = 0;
 
@@ -25,19 +27,19 @@ void uart_init( void )
     uart_register_functions();
 }
 
-void uart_print( unsigned char byte )
+void sam3x_uart_print( unsigned char byte )
 {
 
 	/* Polling right now */
 
-	while( !( readl( UART_BASE + U_SR ) & US_SR_TXRDY ) )
+	while( !( readl( UART_BASE + U_SR ) & U_SR_TXRDY ) )
 		;
 
 	writel( UART_BASE + U_THR , byte );
 }
 
 
-int uart_printl( const char *string )
+int sam3x_uart_printl( const char *string )
 {
 	while( *string )
 	{
