@@ -64,11 +64,11 @@ kernel.img: kernel.elf
 	@$(CROSS_COMPILE)objcopy kernel.elf -O binary kernel.img
  
 clean:
-	$(RM) -f $(OBJS) kernel.elf kernel.img
+	$(RM) $(OBJS) kernel.elf kernel.img
 	$(RM) boards/board.h
  
 dist-clean: clean
-	$(RM) -f *.d
+	$(RM) `find . -name *.d`
  
 %.o: %.c
 	@@echo "CC " $<
