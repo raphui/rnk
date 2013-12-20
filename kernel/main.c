@@ -12,7 +12,8 @@ int main( void )
 
 	uart_init();
 	
-	printk("\r\nHello World from RNK ( Raphio new kernel )\r\n");
+	while( 1 )
+		printk("\r\nHello World from RNK ( Raphio new kernel )\r\n");
 
 	printk("CP15: %x\r\n" , get_value_cp() );
 
