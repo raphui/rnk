@@ -14,14 +14,27 @@ static void uart_register_functions( void )
 void sam3x_uart_init( void )
 {
 	unsigned int cd = 0;
+	unsigned int mode = 0x0; /* Normal mode */
+	
+	/* Enable clock */
+	writel( PMC_BASE + PMC_PCER0 , ( 1 << 8 ) );
 
 	/* Reset and disable receiver and transmitter */
 	writel( UART_BASE + U_CR , U_CR_RSTRX
 								| U_CR_RSTTX
 								| U_CR_TXDIS
 								| U_CR_RXDIS );
+	/* Configure mode */
+	writel( UART_BASE + U_MR , mode );
 
 	/* Configure baudrate */
+	writel( UART_BASE + U_BRGR , ( BOARD_MCK / UART_BAUDRATE ) / 16 );
+
+	/* Disable PDC channel */
+//	writel( UART_BASE + U_ )
+
+	/* Enable receiver and transmitter */
+	writel( UART_BASE + U_CR , U_CR_RXEN | U_CR_TXEN );
 
 	/* Register io functions */
     uart_register_functions();

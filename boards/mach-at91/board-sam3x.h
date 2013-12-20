@@ -14,6 +14,7 @@ struct uart_operations
 struct uart_operations uart_ops;
 
 #define OSC_12MHZ	12000000
+#define BOARD_MCK   84000000
 
 #define EEFC0_BASE	0x400E0A00
 #define EEFC1_BASE	0x400E0C00
