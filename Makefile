@@ -5,12 +5,14 @@
 #OBJS        += $(patsubst %.c,%.o,$(SOURCES_C))
 
 MACH=at91
-SOC=sam3x
+SOC=sam7s
 
+SAM7S_SRAM_LD=sram_sam7s.lds
+SAM7S_FLASH_LD=flash_sam7s.lds
 BCM2835_LD=link-arm-eabi.ld
 SAM3X_LD=sam3x.ld
 SAM3X8_SRAM_LD=sram.ld
-LD_SCRIPT=$(SAM3X8_SRAM_LD)
+LD_SCRIPT=$(SAM7S_SRAM_LD)
  
 DEPENDFLAGS := -MD -MP
 INCLUDES    := -I$(TOOLCHAIN_DIR)arm-unknown-eabi/include
