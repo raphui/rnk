@@ -2,6 +2,8 @@
 #include <utils.h>
 #include <uart.h>
 
+/* This UART driver is based on DGBU Block */
+
 static void uart_register_functions( void )
 {
 
