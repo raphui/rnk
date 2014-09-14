@@ -67,7 +67,7 @@ all: kernel.img
 include $(wildcard *.d)
  
 kernel.elf: $(OBJS) 
-	@@echo "LD " $<
+	@@echo "LD " $@
 	@$(CROSS_COMPILE)ld $(OBJS) -T$(LD_SCRIPT) -o $@
  
 kernel.img: kernel.elf
