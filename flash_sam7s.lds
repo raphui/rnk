@@ -28,7 +28,7 @@
  */
 
 /*------------------------------------------------------------------------------
- *      Linker script for running in internal Flash on the AT91SAM7X256.
+ *      Linker script for running in internal Flash on the AT91SAM7S256.
  *----------------------------------------------------------------------------*/
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")

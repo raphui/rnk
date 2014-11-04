@@ -22,76 +22,40 @@
 // Master clock prescaler value.
 #define BOARD_PRESCALER         AT91C_PMC_PRES_CLK_2
 
-void default_spurious_handler( void )
+void low_level_init(void)
 {
-    while( 1 )
+	unsigned int base_pmc = 0xFFFFFC00;
+	unsigned int base_aic = 0xFFFFF000;
+	unsigned int tmp = 0;
+
+	/* Initialise the main oscillator */
+	writel(base_pmc + AT91C_PMC_MOR, BOARD_OSCOUNT | AT91C_CKGR_MOSCEN);
+	while ((readl(base_pmc + AT91C_PMC_SR) & AT91C_PMC_MOSCS))
 		;
-}
 
-void default_fiq_handler( void )
-{
-    while( 1 )
+	/* Initliase the PLL at 96MHz and USB clock to 48MHz */
+	writel(base_pmc + AT91C_PMC_PLLR, BOARD_USBDIV | BOARD_CKGR_PLL | BOARD_PLLCOUNT | BOARD_MUL | BOARD_DIV);
+	while ((readl(base_pmc + AT91C_PMC_SR) & AT91C_PMC_LOCK))
 		;
-}
 
-void default_irq_handler( void )
-{
-    while( 1 )
+	/* Wait for the master clock if it was already initialised */
+	while ((readl(base_pmc + AT91C_PMC_SR) & AT91C_PMC_MCKRDY))
 		;
-}
 
-void low_level_init( void )
-{
-    AT91C_BASE_MC->MC_FMR = AT91C_MC_FWS_1FWS;
+	/* Switch to slow clock + prescaler */
+	writel(base_pmc + AT91C_PMC_MCKR, BOARD_PRESCALER);
+	while ((readl(base_pmc + AT91C_PMC_SR) & AT91C_PMC_MCKRDY))
+		;
 
-	// Initialize main oscillator
-    AT91C_BASE_PMC->PMC_MOR = BOARD_OSCOUNT | AT91C_CKGR_MOSCEN;
-    while (!(AT91C_BASE_PMC->PMC_SR & AT91C_PMC_MOSCS));
+	/* Switch to fast clock + prescaler */
+	tmp = readl(base_pmc + AT91C_PMC_MCKR);
+	writel(base_pmc + AT91C_PMC_MCKR, tmp | AT91C_PMC_CSS_PLL_CLK);
+	while ((readl(base_pmc + AT91C_PMC_SR) & AT91C_PMC_MCKRDY))
+		;
 
-    // Initialize PLL at 96MHz (96.109) and USB clock to 48MHz
-    AT91C_BASE_PMC->PMC_PLLR = BOARD_USBDIV | BOARD_CKGR_PLL | BOARD_PLLCOUNT
-                               | BOARD_MUL | BOARD_DIV;
-    while (!(AT91C_BASE_PMC->PMC_SR & AT91C_PMC_LOCK));
+	/* Disable all interrupts */
+	writel(base_aic + AT91C_AIC_IDCR, 0xFFFFFFFF);
 
-    // Wait for the master clock if it was already initialized
-    while (!(AT91C_BASE_PMC->PMC_SR & AT91C_PMC_MCKRDY));
-
-    // Switch to slow clock + prescaler
-    AT91C_BASE_PMC->PMC_MCKR = BOARD_PRESCALER;
-    while (!(AT91C_BASE_PMC->PMC_SR & AT91C_PMC_MCKRDY));
-
-    // Switch to fast clock + prescaler
-    AT91C_BASE_PMC->PMC_MCKR |= AT91C_PMC_CSS_PLL_CLK;
-    while (!(AT91C_BASE_PMC->PMC_SR & AT91C_PMC_MCKRDY));
-
-    // Initialize AIC
-    AT91C_BASE_AIC->AIC_IDCR = 0xFFFFFFFF;
-    AT91C_BASE_AIC->AIC_SVR[0] = (unsigned int) default_fiq_handler;
-    for (i = 1; i < 31; i++) {
-
-        AT91C_BASE_AIC->AIC_SVR[i] = (unsigned int) default_irq_handler;
-    }
-    AT91C_BASE_AIC->AIC_SPU = (unsigned int) default_spurious_handler;
-
-    // Unstack nested interrupts
-    for (i = 0; i < 8 ; i++) {
-
-        AT91C_BASE_AIC->AIC_EOICR = 0;
-    }
-
-    // Enable Debug mode
-    AT91C_BASE_AIC->AIC_DCR = AT91C_AIC_DCR_PROT;
-
-    // Watchdog initialization
-    AT91C_BASE_WDTC->WDTC_WDMR = AT91C_WDTC_WDDIS;
-
-    // Remap the internal SRAM at 0x0
-    BOARD_RemapRam();
-
-    // Disable RTT and PIT interrupts (potential problem when program A
-    // configures RTT, then program B wants to use PIT only, interrupts
-    // from the RTT will still occur since they both use AT91C_ID_SYS)
-    AT91C_BASE_RTTC->RTTC_RTMR &= ~(AT91C_RTTC_ALMIEN | AT91C_RTTC_RTTINCIEN);
-    AT91C_BASE_PITC->PITC_PIMR &= ~AT91C_PITC_PITIEN;
-
+	/* Clear pending interrupts */
+	writel(base_aic + AT91C_AIC_ICCR, 0xFFFFFFFF);
 }
