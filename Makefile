@@ -52,6 +52,9 @@ OBJS	:= 	asm/head.o \
 config:
 	@@echo "CP mach-$(MACH)/board-$(SOC).h -> board.h"
 	@cp boards/mach-$(MACH)/board-$(SOC).h boards/board.h
+
+cscope:
+	@cscope -b -q -k -R
  
 all: kernel.img
  
