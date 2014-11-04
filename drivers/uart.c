@@ -2,19 +2,19 @@
 #include <utils.h>
 #include <uart.h>
 
-void uart_init( void )
+void uart_init(void)
 {
 	/* Register io functions */
-    uart_ops.init();
+	uart_ops.init();
 }
 
-void uart_print( unsigned char byte )
+void uart_print(unsigned char byte)
 {
-	uart_ops.print( byte );
+	uart_ops.print(byte);
 }
 
 
-int uart_printl( const char *string )
+int uart_printl(const char *string)
 {
-	return uart_ops.printl( string );
+	return uart_ops.printl(string);
 }

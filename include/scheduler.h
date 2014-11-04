@@ -8,7 +8,7 @@
 #define TASK_INTERRUPTIBLE	3
 
 #ifndef NULL
-#define NULL	( ( void * ) 0 )
+#define NULL	((void *)0)
 #endif
 
 struct registers
@@ -40,8 +40,8 @@ struct task
 	unsigned int start_code;
 	unsigned int end_code;
 
-//	long quantum;
-		
+	//	long quantum;
+
 };
 
 

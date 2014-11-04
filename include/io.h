@@ -6,13 +6,13 @@
 struct io_operations
 {
 
-	int ( *write )( const char *string );
+	int (*write)(const char *string);
 };
 
 
 struct io_operations io_op;
 
 
-int printk( const char *fmt , ... );
+int printk(const char *fmt, ...);
 
 #endif /* IO_H */
