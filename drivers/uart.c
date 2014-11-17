@@ -18,3 +18,7 @@ int uart_printl(const char *string)
 {
 	return uart_ops.printl(string);
 }
+
+struct io_operations io_op = {
+	.write = uart_printl,
+};
