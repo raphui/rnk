@@ -20,7 +20,7 @@ INCLUDES 	+= -I$(KERNEL_BASE)/include
 INCLUDES 	+= -I$(KERNEL_BASE)/boards
 BASEFLAGS   := -O2 -fpic -pedantic -pedantic-errors -nostdlib
 BASEFLAGS   += -nostartfiles -ffreestanding -nodefaultlibs
-BASEFLAGS   += -fno-builtin -fomit-frame-pointer -mcpu=arm1176jzf-s
+BASEFLAGS   += -fno-builtin -fomit-frame-pointer -mcpu=arm7tdmi #-mcpu=arm1176jzf-s
 #WARNFLAGS   := -Wall -Wextra -Wshadow -Wcast-align -Wwrite-strings
 WARNFLAGS   := -Wextra -Wshadow -Wcast-align -Wwrite-strings
 WARNFLAGS   += -Wredundant-decls -Winline
