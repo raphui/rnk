@@ -7,10 +7,10 @@
 #define BOARD_MCK       48000000
 #define BAUDRATE	115200
 
+static unsigned int base_dbgu = 0xFFFFF200;
+
 static void sam7s_uart_init(void)
 {
-	unsigned int base_dbgu = 0xFFFFF200;
-
 	/* Reset and disable receiver and transmitter */
 	writel(base_dbgu + AT91C_DBGU_CR, AT91C_US_RSTRX | AT91C_US_RSTTX);
 
@@ -29,25 +29,23 @@ static void sam7s_uart_init(void)
 
 static void sam7s_uart_print(unsigned char byte)
 {
-	unsigned int base_dbgu = 0xFFFFF200;
-
 	/* Wait for transmitter to be ready */
-	while ((readl(base_dbgu + AT91C_DBGU_CSR) & AT91C_US_TXEMPTY) == 0)
+	while ((readl(base_dbgu + AT91C_DBGU_CR) & AT91C_US_TXEMPTY) == 0)
 		;
 
 	/* Send byte */
 	writel(base_dbgu + AT91C_DBGU_THR, byte);
 
 	/* Wait for the transfer to complete */
-	while ((readl(base_dbgu + AT91C_DBGU_CSR) & AT91C_US_TXEMPTY) == 0)
+	while ((readl(base_dbgu + AT91C_DBGU_CR) & AT91C_US_TXEMPTY) == 0)
 		;
 }
 
 
 static int sam7s_uart_printl(const char *string)
 {
-	while (*string) {
-		sam7s_uart_print(*string++);
+	while (*string++) {
+		sam7s_uart_print(*string);
 	}
 
 	return 0;
