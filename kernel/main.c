@@ -2,6 +2,7 @@
 #include <board.h>
 #include <uart.h>
 #include <io.h>
+#include <scheduler.h>
 
 extern int get_value_cp(void);
 
@@ -16,6 +17,10 @@ int main(void)
 		printk("\r\nHello World from RNK ( Raphio new kernel )\r\n");
 
 //	printk("CP15: %x\r\n" , get_value_cp());
+
+	aic_disable_it(0);
+	aic_register_handler(1, 0, schedule);
+	aic_enable_it(0);
 
 	while(1)
 		;
