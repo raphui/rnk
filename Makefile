@@ -42,6 +42,8 @@ CFLAGS      += -std=gnu99
 OBJS	:= 	asm/head.o \
 			boards/mach-$(MACH)/$(SOC).o \
 			boards/mach-$(MACH)/uart-$(SOC).o \
+			boards/mach-$(MACH)/aic.o \
+			boards/mach-$(MACH)/pit.o \
 			boot/boot-$(SOC).o \
 			drivers/uart.o \
 			kernel/main.o \

@@ -48,4 +48,6 @@ struct task
 struct task *task[NR_TASK];
 struct task *current_task;
 
+void schedule(void);
+
 #endif /* SCHEDULER_H */

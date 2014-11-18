@@ -1,3 +1,68 @@
+#ifndef SAM7S_REG_H
+#define SAM7S_REG_H
+
+/* DBGU */
+unsigned int base_dbgu = 0xFFFFF200;
+unsigned int dbgu_ptcr = 0xFFFFF320;
+#define DBGU_CR 	(0x00000000) /* (DBGU_CR) Control Register */
+#define DBGU_MR        	(0x00000004) /* (DBGU_MR) Mode Register */
+#define DBGU_IER       	(0x00000008) /* (DBGU_IER) Interrupt Enable Register */
+#define DBGU_IDR       	(0x0000000C) /* (DBGU_IDR) Interrupt Disable Register */
+#define DBGU_IMR       	(0x00000010) /* (DBGU_IMR) Interrupt Mask Register */
+#define DBGU_CSR       	(0x00000014) /* (DBGU_CSR) Channel Status Register */
+#define DBGU_RHR       	(0x00000018) /* (DBGU_RHR) Receiver Holding Register */
+#define DBGU_THR        (0x0000001C) /* (DBGU_THR) Transmitter Holding Register */
+#define DBGU_BRGR       (0x00000020) /* (DBGU_BRGR) Baud Rate Generator Register */
+#define DBGU_CIDR       (0x00000040) /* (DBGU_CIDR) Chip ID Register */
+#define DBGU_EXID       (0x00000044) /* (DBGU_EXID) Chip ID Extension Register */
+#define DBGU_FNTR       (0x00000048) /* (DBGU_FNTR) Force NTRST Register */
+
+/* AIC */
+unsigned int base_aic = 0xFFFFF000;
+#define AIC_SMR         (0x00000000) /* (AIC_SMR) Source Mode Register */
+#define AIC_SVR         (0x00000080) /* (AIC_SVR) Source Vector Register */
+#define AIC_IVR         (0x00000100) /* (AIC_IVR) IRQ Vector Register */
+#define AIC_FVR         (0x00000104) /* (AIC_FVR) FIQ Vector Register */
+#define AIC_ISR         (0x00000108) /* (AIC_ISR) Interrupt Status Register */
+#define AIC_IPR         (0x0000010C) /* (AIC_IPR) Interrupt Pending Register */
+#define AIC_IMR         (0x00000110) /* (AIC_IMR) Interrupt Mask Register */
+#define AIC_CISR        (0x00000114) /* (AIC_CISR) Core Interrupt Status Register */
+#define AIC_IECR        (0x00000120) /* (AIC_IECR) Interrupt Enable Command Register */
+#define AIC_IDCR        (0x00000124) /* (AIC_IDCR) Interrupt Disable Command Register */
+#define AIC_ICCR        (0x00000128) /* (AIC_ICCR) Interrupt Clear Command Register */
+#define AIC_ISCR        (0x0000012C) /* (AIC_ISCR) Interrupt Set Command Register */
+#define AIC_EOICR       (0x00000130) /* (AIC_EOICR) End of Interrupt Command Register */
+#define AIC_SPU         (0x00000134) /* (AIC_SPU) Spurious Vector Register */
+#define AIC_DCR         (0x00000138) /* (AIC_DCR) Debug Control Register (Protect) */
+#define AIC_FFER        (0x00000140) /* (AIC_FFER) Fast Forcing Enable Register */
+#define AIC_FFDR        (0x00000144) /* (AIC_FFDR) Fast Forcing Disable Register */
+#define AIC_FFSR        (0x00000148) /* (AIC_FFSR) Fast Forcing Status Register */
+
+/* PMC */
+unsigned int base_pmc = 0xFFFFFC00;
+#define PMC_SCER        (0x00000000) /* (PMC_SCER) System Clock Enable Register */
+#define PMC_SCDR        (0x00000004) /* (PMC_SCDR) System Clock Disable Register */
+#define PMC_SCSR        (0x00000008) /* (PMC_SCSR) System Clock Status Register */
+#define PMC_PCER        (0x00000010) /* (PMC_PCER) Peripheral Clock Enable Register */
+#define PMC_PCDR        (0x00000014) /* (PMC_PCDR) Peripheral Clock Disable Register */
+#define PMC_PCSR        (0x00000018) /* (PMC_PCSR) Peripheral Clock Status Register */
+#define PMC_CKGR_MOR    (0x00000020) /* (CKGR_MOR) Main Oscillator Register */
+#define PMC_CKGR_MCFR   (0x00000024) /* (CKGR_MCFR) Main Clock  Frequency Register */
+#define PMC_CKGR_PLLR       (0x0000002C) /* (CKGR_PLLR) PLL Register */
+#define PMC_MCKR        (0x00000030) /* (PMC_MCKR) Master Clock Register */
+#define PMC_PCKR        (0x00000040) /* (PMC_PCKR) Programmable Clock Register */
+#define PMC_IER         (0x00000060) /* (PMC_IER) Interrupt Enable Register */
+#define PMC_IDR         (0x00000064) /* (PMC_IDR) Interrupt Disable Register */
+#define PMC_SR          (0x00000068) /* (PMC_SR) Status Register */
+#define PMC_IMR         (0x0000006C) /* (PMC_IMR) Interrupt Mask Register */
+
+/* PIT */
+unsigned int base_pit = 0xFFFFFD30;
+#define PITC_PIMR       (0x00000000) /* (PITC_PIMR) Period Interval Mode Register */
+#define PITC_PISR       (0x00000004)/* (PITC_PISR) Period Interval Status Register */
+#define PITC_PIVR       (0x00000008)/* (PITC_PIVR) Period Interval Value Register */
+#define PITC_PIIR       (0x0000000C)/* (PITC_PIIR) Period Interval Image Register */
+
 //  ----------------------------------------------------------------------------
 //          ATMEL Microcontroller Software Support  -  ROUSSET  -
 //  ----------------------------------------------------------------------------
@@ -2227,3 +2292,4 @@ typedef struct _AT91S_UDP {
 #define AT91C_IFLASH_NB_OF_LOCK_BITS	 (16) // Internal FLASH Number of Lock Bits: 16 bytes
 
 #endif
+#endif /* SAM7S_REG_H */
