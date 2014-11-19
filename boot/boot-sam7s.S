@@ -152,7 +152,7 @@ resetHandler:
         bcc     1b
 
 /* Clear the zero segment */
-	    ldr     r0, =_szero
+	ldr     r0, =_szero
         ldr     r1, =_ezero
         mov     r2, #0
 1:
