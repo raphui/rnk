@@ -1,4 +1,5 @@
 #include <scheduler.h>
+#include <task.h>
 #include <io.h>
 
 
@@ -7,20 +8,11 @@
 void schedule(void)
 {
 	int i;
-	printk("abc\r\n");
-	//	long quantum = 150;	/* in ms */
+	printk(".");
 
-//	while (1) {
-//		i = NR_TASK - 1;
-//
-//		current_task = task[i];
-//
-//		while (i--) {
-//			if (current_task->state == TASK_RUNNING) {
-//
-//			}
-//		}
-//
-//	}
-
+	for (i = 0; i < task_count; i++) {
+		if (task[i].state == TASK_STOPPED) {
+			switch_task(task[i]);
+		}
+	}
 }
