@@ -16,3 +16,8 @@ void schedule(void)
 		}
 	}
 }
+
+void end_task(void)
+{
+
+}
