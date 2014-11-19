@@ -40,6 +40,7 @@ CFLAGS      := $(INCLUDES) $(DEPENDFLAGS) $(BASEFLAGS) $(WARNFLAGS)
 CFLAGS      += -std=gnu99
 
 OBJS	:= 	asm/head.o \
+			arch/arm/kernel/context.o \
 			boards/mach-$(MACH)/$(SOC).o \
 			boards/mach-$(MACH)/uart-$(SOC).o \
 			boards/mach-$(MACH)/aic.o \
