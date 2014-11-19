@@ -42,8 +42,8 @@ static void sam7s_uart_print(unsigned char byte)
 
 static int sam7s_uart_printl(const char *string)
 {
-	while (*string++) {
-		sam7s_uart_print(*string);
+	while (*string) {
+		sam7s_uart_print(*string++);
 	}
 
 	return 0;
