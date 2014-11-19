@@ -8,7 +8,11 @@
 void schedule(void)
 {
 	int i;
-	printk(".");
+
+	if (task_count)
+		printk(".\r\n");
+	else
+		printk(";\r\n");
 
 	for (i = 0; i < task_count; i++) {
 		if (task[i].state == TASK_STOPPED) {
