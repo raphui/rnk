@@ -3,14 +3,26 @@
 #include <uart.h>
 #include <io.h>
 #include <scheduler.h>
+#include <task.h>
 
-extern int get_value_cp(void);
+void first_task(void)
+{
+	printk("\r\nTASK A\r\n");
+}
+
+void second_task(void)
+{
+	printk("\r\nTASK B\r\n");
+}
 
 int main(void)
 {
 	uart_init();
 
 	printk("\r\nHello World from RNK ( Raphio new kernel )\r\n");
+
+	add_task(&first_task, 1);
+	add_task(&second_task, 1);
 
 	while(1)
 		;
