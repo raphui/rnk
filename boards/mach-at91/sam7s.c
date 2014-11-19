@@ -38,27 +38,27 @@ void low_level_init(void)
 
 	/* Initialise the main oscillator */
 	writel(AT91C_BASE_CKGR + CKGR_MOR, BOARD_OSCOUNT | AT91C_CKGR_MOSCEN);
-	while ((readl(AT91C_BASE_PMC + PMC_SR) & AT91C_PMC_MOSCS))
+	while (!(readl(AT91C_BASE_PMC + PMC_SR) & AT91C_PMC_MOSCS))
 		;
 
 	/* Initliase the PLL at 96MHz and USB clock to 48MHz */
 	writel(AT91C_BASE_CKGR + CKGR_PLLR, BOARD_USBDIV | BOARD_CKGR_PLL | BOARD_PLLCOUNT | BOARD_MUL | BOARD_DIV);
-	while ((readl(AT91C_BASE_PMC + PMC_SR) & AT91C_PMC_LOCK))
+	while (!(readl(AT91C_BASE_PMC + PMC_SR) & AT91C_PMC_LOCK))
 		;
 
 	/* Wait for the master clock if it was already initialised */
-	while ((readl(AT91C_BASE_PMC + PMC_SR) & AT91C_PMC_MCKRDY))
+	while (!(readl(AT91C_BASE_PMC + PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 	/* Switch to slow clock + prescaler */
 	writel(AT91C_BASE_PMC + PMC_MCKR, BOARD_PRESCALER);
-	while ((readl(AT91C_BASE_PMC + PMC_SR) & AT91C_PMC_MCKRDY))
+	while (!(readl(AT91C_BASE_PMC + PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 	/* Switch to fast clock + prescaler */
 	tmp = readl(AT91C_BASE_PMC + PMC_MCKR);
 	writel(AT91C_BASE_PMC + PMC_MCKR, tmp | AT91C_PMC_CSS_PLL_CLK);
-	while ((readl(AT91C_BASE_PMC + PMC_SR) & AT91C_PMC_MCKRDY))
+	while (!(readl(AT91C_BASE_PMC + PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 	/* Disable all interrupts */
