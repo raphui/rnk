@@ -17,7 +17,10 @@ void pit_enable(void)
 
 void pit_enable_it(void)
 {
-	writel(AT91C_BASE_PITC + PITC_PIMR, AT91C_PITC_PITIEN);
+	unsigned int tmp = 0;
+	tmp = readl(AT91C_BASE_PITC + PITC_PIMR);
+	tmp |= AT91C_PITC_PITIEN;
+	writel(AT91C_BASE_PITC + PITC_PIMR, tmp);
 }
 
 void pit_disable_it(void)
