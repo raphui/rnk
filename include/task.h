@@ -47,9 +47,8 @@ struct task
 
 
 struct task task[NR_TASK];
-struct task *current_task = NULL;
 
 void add_task(void (*func)(void), unsigned int priority);
-void switch_task(struct task *task);
+void switch_task(struct task _task);
 
 #endif /* TASK_H */
