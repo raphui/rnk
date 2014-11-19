@@ -2,6 +2,7 @@
 #define PIT_H
 
 #include <board.h>
+#include <utils.h>
 
 void pit_init(unsigned int period, unsigned int pit_frequency);
 void pit_enable(void);

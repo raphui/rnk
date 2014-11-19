@@ -18,10 +18,6 @@ int main(void)
 
 //	printk("CP15: %x\r\n" , get_value_cp());
 
-	aic_disable_it(0);
-	aic_register_handler(1, 0, schedule);
-	aic_enable_it(0);
-
 	while(1)
 		;
 

@@ -10,32 +10,32 @@
 static void sam7s_uart_init(void)
 {
 	/* Reset and disable receiver and transmitter */
-	writel(base_dbgu + DBGU_CR, AT91C_US_RSTRX | AT91C_US_RSTTX);
+	writel(AT91C_BASE_DBGU + DBGU_CR, AT91C_US_RSTRX | AT91C_US_RSTTX);
 
 	/* Disable interrupts */
-	writel(base_dbgu + DBGU_IDR, 0xFFFFFFFF);
+	writel(AT91C_BASE_DBGU + DBGU_IDR, 0xFFFFFFFF);
 
 	/* Configure baud rate */
-	writel(base_dbgu + DBGU_BRGR, BOARD_MCK / (BAUDRATE * 16));
+	writel(AT91C_BASE_DBGU + DBGU_BRGR, BOARD_MCK / (BAUDRATE * 16));
 
 	/* Disable DMA channel */
-	writel(dbgu_ptcr, AT91C_PDC_RXTDIS | AT91C_PDC_TXTDIS);
+	writel(AT91C_BASE_PDC_DBGU + PDC_PTCR, AT91C_PDC_RXTDIS | AT91C_PDC_TXTDIS);
 
 	/* Enable receiver and transmitter */
-	writel(base_dbgu + DBGU_CR, AT91C_US_RXEN | AT91C_US_TXEN);
+	writel(AT91C_BASE_DBGU + DBGU_CR, AT91C_US_RXEN | AT91C_US_TXEN);
 }
 
 static void sam7s_uart_print(unsigned char byte)
 {
 	/* Wait for transmitter to be ready */
-	while ((readl(base_dbgu + DBGU_CSR) & AT91C_US_TXEMPTY) == 0)
+	while ((readl(AT91C_BASE_DBGU + DBGU_CSR) & AT91C_US_TXEMPTY) == 0)
 		;
 
 	/* Send byte */
-	writel(base_dbgu + DBGU_THR, byte);
+	writel(AT91C_BASE_DBGU + DBGU_THR, byte);
 
 	/* Wait for the transfer to complete */
-	while ((readl(base_dbgu + DBGU_CSR) & AT91C_US_TXEMPTY) == 0)
+	while ((readl(AT91C_BASE_DBGU + DBGU_CSR) & AT91C_US_TXEMPTY) == 0)
 		;
 }
 

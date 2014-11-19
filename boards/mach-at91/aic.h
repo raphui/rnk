@@ -2,6 +2,7 @@
 #define AIC_H
 
 #include <sam7s-reg.h>
+#include <utils.h>
 
 void aic_register_handler(unsigned int source, unsigned int mode, void (*handler)(void));
 void aic_enable_it(unsigned int source);
