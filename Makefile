@@ -49,6 +49,7 @@ OBJS	:= 	asm/head.o \
 			kernel/main.o \
 			kernel/interrupts.o \
 			kernel/scheduler.o \
+			kernel/task.o \
 			utils/io.o
 
 config:
