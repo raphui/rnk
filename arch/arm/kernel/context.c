@@ -28,5 +28,6 @@ void create_context(struct task _task)
                 /* Input */
                 :[pc] "r" (_task.func), [lr] "r" (end_task), [frame] "r" (TASK_STACK_OFFSET),
                 [zero] "r" (0), [psr] "r" (0x01000000) /* Set the Thumb bit */
+		/* Clobbers */
                 :);
 }
