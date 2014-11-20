@@ -33,6 +33,11 @@ void create_context(struct task _task)
                 :);
 }
 
+void activate_context(struct task _task)
+{
+	svc_activate_context(_task.regs.sp);
+}
+
 void switch_context(struct task _task)
 {
 	svc_switch_context(_task.regs.sp);

@@ -25,11 +25,15 @@ void switch_task(struct task _task)
 		current_task->state = TASK_STOPPED;
 		_task.state = TASK_RUNNING;
 		current_task = &_task;
+
+		/* Switch context */
+		switch_context(*current_task);
 	} else {
 		_task.state = TASK_RUNNING;
 		current_task = &_task;
+		
+		/* Active first task */
+		activate_context(*current_task);
 	}
 
-	/* Switch context */
-	switch_context(*current_task);
 }
