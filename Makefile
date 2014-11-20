@@ -15,7 +15,7 @@ SAM3X8_SRAM_LD=sram.ld
 LD_SCRIPT=$(SAM7S_SRAM_LD)
  
 DEPENDFLAGS := -MD -MP
-INCLUDES    := -I$(TOOLCHAIN_DIR)arm-unknown-eabi/include
+#INCLUDES    := -I$(TOOLCHAIN_DIR)arm-unknown-eabi/include
 INCLUDES 	+= -I$(KERNEL_BASE)/include
 INCLUDES 	+= -I$(KERNEL_BASE)/boards
 BASEFLAGS   := -O2 -fpic -pedantic -pedantic-errors -nostdlib
@@ -46,7 +46,8 @@ OBJS	:= 	asm/head.o \
 			boards/mach-$(MACH)/aic.o \
 			boards/mach-$(MACH)/pit.o \
 			boot/boot-$(SOC).o \
-			drivers/uart.o \
+			drivers/uart-core.o \
+			drivers/pit-core.o \
 			kernel/main.o \
 			kernel/interrupts.o \
 			kernel/scheduler.o \

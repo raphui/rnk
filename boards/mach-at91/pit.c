@@ -1,6 +1,7 @@
-#include "pit.h"
+#include <board.h>
+#include <utils.h>
 
-void pit_init(unsigned int period, unsigned int pit_frequency)
+static void pit_init(unsigned int period, unsigned int pit_frequency)
 {
 	unsigned int tmp = 0;
 	writel(AT91C_BASE_PITC + PITC_PIMR, (period * pit_frequency + 8));
@@ -10,12 +11,12 @@ void pit_init(unsigned int period, unsigned int pit_frequency)
 	writel(AT91C_BASE_PITC + PITC_PIMR, tmp);
 }
 
-void pit_enable(void)
+static void pit_enable(void)
 {
 	writel(AT91C_BASE_PITC + PITC_PIMR, AT91C_PITC_PITEN);
 }
 
-void pit_enable_it(void)
+static void pit_enable_it(void)
 {
 	unsigned int tmp = 0;
 	tmp = readl(AT91C_BASE_PITC + PITC_PIMR);
@@ -23,7 +24,7 @@ void pit_enable_it(void)
 	writel(AT91C_BASE_PITC + PITC_PIMR, tmp);
 }
 
-void pit_disable_it(void)
+static void pit_disable_it(void)
 {
 	unsigned int tmp = 0;
 	
@@ -31,3 +32,10 @@ void pit_disable_it(void)
 	tmp &= ~AT91C_PITC_PITIEN;
 	writel(AT91C_BASE_PITC + PITC_PIMR, tmp);
 }
+
+struct pit_operations pit_ops = {
+	.init = &pit_init,
+	.enable = &pit_enable,
+	.enable_it = &pit_enable_it,
+	.disable_it = &pit_disable_it,
+};
