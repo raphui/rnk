@@ -24,6 +24,8 @@ int main(void)
 	add_task(&first_task, 1);
 	add_task(&second_task, 1);
 
+	start_schedule();
+
 	while(1)
 		;
 
