@@ -1,6 +1,17 @@
 #include <scheduler.h>
 #include <task.h>
 #include <io.h>
+#include <pit.h>
+#include <board.h>
+
+
+void start_schedule(void)
+{
+	/* Initialise and start PIT */
+	pit_init(PIT_PERIOD, BOARD_MCK / 1000000);
+	pit_enable_it();
+	pit_enable();
+}
 
 
 /* At the moment it's a round-robin schedule */

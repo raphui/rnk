@@ -4,6 +4,7 @@
 #include <task.h>
 
 void create_context(struct task _task);
+void start_schedule(void);
 void schedule(void);
 void end_task(void);
 
