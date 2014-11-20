@@ -7,10 +7,19 @@
 
 void start_schedule(void)
 {
+	int i;
+	int task_count = get_task_count();
+
 	/* Initialise and start PIT */
 	pit_init(PIT_PERIOD, BOARD_MCK / 1000000);
 	pit_enable_it();
 	pit_enable();
+
+	for (i = 0; i < task_count; i++) {
+		if (task[i].state == TASK_STOPPED) {
+			first_switch_task(task[i]);
+		}
+	}
 }
 
 
@@ -28,6 +37,7 @@ void schedule(void)
 
 	for (i = 0; i < task_count; i++) {
 		if (task[i].state == TASK_STOPPED) {
+			printk("switching to : %x\r\n", i);
 			switch_task(task[i]);
 		}
 	}

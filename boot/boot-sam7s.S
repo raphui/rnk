@@ -96,6 +96,11 @@ irqHandler:
         mrs     lr, SPSR
         stmfd   sp!, {r0, lr}
 
+/* Save User mode context */
+	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
+	stmdb	sp!, {r0-r12, lr}
+	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT
+
 /* Write in the IVR to support Protect Mode */
         ldr     lr, =AT91C_BASE_AIC
         ldr     r0, [r14, #AIC_IVR]
@@ -112,6 +117,11 @@ irqHandler:
 /* Acknowledge interrupt */
         ldr     lr, =AT91C_BASE_AIC
         str     lr, [r14, #AIC_EOICR]
+
+/* Restore User mode context */
+	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
+	ldmia	sp!, {r0-r12, lr}
+	msr     CPSR_c, #ARM_MODE_IRQ | I_BIT
 
 /* Restore interrupt context and branch back to calling code */
         ldmia   sp!, {r0, lr}

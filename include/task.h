@@ -48,6 +48,7 @@ struct task
 struct task task[NR_TASK];
 
 void add_task(void (*func)(void), unsigned int priority);
+void first_switch_task(struct task _task);
 void switch_task(struct task _task);
 int get_task_count(void);
 
