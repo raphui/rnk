@@ -37,7 +37,6 @@ void schedule(void)
 
 	for (i = 0; i < task_count; i++) {
 		if (task[i].state == TASK_STOPPED) {
-			printk("switching to : %x\r\n", i);
 			switch_task(task[i]);
 		}
 	}

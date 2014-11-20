@@ -8,8 +8,9 @@
 void first_task(void)
 {
 	printk("\r\nTASK A\r\n");
-	while (1)
-		;
+	while (1) {
+		printk("cool\r\n");
+	}
 }
 
 void second_task(void)
