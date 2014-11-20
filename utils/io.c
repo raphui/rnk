@@ -88,9 +88,9 @@ int printk( const char *fmt , ... )
 			
 			switch( *fmt )
 			{
-				case 'd': break;
-				case 'i': break;
-				case 'u': break;
+				case 'd':
+				case 'i':
+				case 'u':
 				case 'x':
 					*p++ = '0';
 					*p++ = 'x';
