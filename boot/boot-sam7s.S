@@ -45,6 +45,7 @@
 #define ARM_MODE_FIQ     0x11
 #define ARM_MODE_IRQ     0x12
 #define ARM_MODE_SVC     0x13
+#define ARM_MODE_SYS	 0x1F
 
 #define I_BIT            0x80
 #define F_BIT            0x40
@@ -135,6 +136,7 @@ resetHandler:
 /* Perform low-level initialization of the chip using LowLevelInit() */
 1:
         ldr     r4, =_sstack
+	ldr	r5, =_ustack
         mov     sp, r4
 	ldr     r0, =low_level_init
         mov     lr, pc
@@ -166,6 +168,10 @@ resetHandler:
         msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
         mov     sp, r4
         sub     r4, r4, #IRQ_STACK_SIZE
+
+/* System mode*/
+	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
+	mov	sp, r5
 
 /* Supervisor mode (interrupts enabled) */
         msr     CPSR_c, #ARM_MODE_SVC | F_BIT
