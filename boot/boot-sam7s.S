@@ -170,7 +170,7 @@ resetHandler:
         sub     r4, r4, #IRQ_STACK_SIZE
 
 /* System mode*/
-	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
+	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
 	mov	sp, r5
 
 /* Supervisor mode (interrupts enabled) */
