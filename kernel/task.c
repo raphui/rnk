@@ -10,6 +10,7 @@ void add_task(void (*func)(void), unsigned int priority)
 	task[task_count].counter = priority;
 	task[task_count].start_stack = TASK_STACK_START + (task_count * TASK_STACK_OFFSET);
 	task[task_count].func = func;
+	task[task_count].regs.sp = task[task_count].start_stack;
 
 	/* Creating task context */
 	create_context(task[task_count]);
@@ -28,4 +29,7 @@ void switch_task(struct task _task)
 		_task.state = TASK_RUNNING;
 		current_task = &_task;
 	}
+
+	/* Switch context */
+	switch_context(*current_task);
 }

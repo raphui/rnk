@@ -43,6 +43,7 @@ struct task
 	unsigned int counter;
 	unsigned int start_stack;
 	void (*func)(void);
+	struct registers regs;
 };
 
 

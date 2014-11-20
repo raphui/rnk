@@ -1,5 +1,6 @@
 #include <task.h>
 #include <scheduler.h>
+#include "svc.h"
 
 void create_context(struct task _task)
 {
@@ -30,4 +31,9 @@ void create_context(struct task _task)
                 [zero] "r" (0), [psr] "r" (0x01000000) /* Set the Thumb bit */
 		/* Clobbers */
                 :);
+}
+
+void switch_context(struct task _task)
+{
+	svc_switch_context(_task.regs.sp);
 }
