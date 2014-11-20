@@ -8,11 +8,15 @@
 void first_task(void)
 {
 	printk("\r\nTASK A\r\n");
+	while (1)
+		;
 }
 
 void second_task(void)
 {
 	printk("\r\nTASK B\r\n");
+	while (1)
+		;
 }
 
 int main(void)
