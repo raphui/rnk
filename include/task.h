@@ -14,8 +14,6 @@
 #define TASK_STACK_START	0x002E0000
 #define TASK_STACK_OFFSET	0x00001000
 
-int task_count = 0;
-
 struct registers
 {
 	unsigned int r0;
@@ -51,5 +49,6 @@ struct task task[NR_TASK];
 
 void add_task(void (*func)(void), unsigned int priority);
 void switch_task(struct task _task);
+int get_task_count(void);
 
 #endif /* TASK_H */

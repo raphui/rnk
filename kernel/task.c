@@ -3,6 +3,8 @@
 #include <io.h>
 
 static struct task *current_task = NULL;
+static int task_count;
+
 
 void add_task(void (*func)(void), unsigned int priority)
 {
@@ -36,4 +38,9 @@ void switch_task(struct task _task)
 		activate_context(*current_task);
 	}
 
+}
+
+int get_task_count(void)
+{
+	return task_count;
 }

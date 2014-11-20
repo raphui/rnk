@@ -19,6 +19,7 @@ void start_schedule(void)
 void schedule(void)
 {
 	int i;
+	int task_count = get_task_count();
 
 	if (task_count)
 		printk(".\r\n");
