@@ -14,11 +14,12 @@ void add_task(void (*func)(void), unsigned int priority)
 	task[task_count].start_stack = TASK_STACK_START - (task_count * TASK_STACK_OFFSET);
 	task[task_count].func = func;
 	task[task_count].regs = &task_regs[task_count];
-	task[task_count].regs->lr = (unsigned int)func;
 	task[task_count].regs->sp = task[task_count].start_stack;
+	task[task_count].regs->lr = (unsigned int)end_task;
+	task[task_count].regs->pc = (unsigned int)func;
 
 	/* Creating task context */
-	create_context(task[task_count]);
+	create_context(task[task_count].regs, task[task_count]);
 
 	task_count++;
 }
