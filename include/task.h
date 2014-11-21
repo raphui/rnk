@@ -12,7 +12,7 @@
 #endif
 
 #define TASK_STACK_START	0x002E0000
-#define TASK_STACK_OFFSET	0x00001000
+#define TASK_STACK_OFFSET	0x00002000
 
 struct registers
 {
