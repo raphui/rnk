@@ -9,10 +9,10 @@ void create_context(struct task _task)
 
 void activate_context(struct task _task)
 {
-	svc_activate_context(&_task.regs);
+	svc_activate_context(_task.regs);
 }
 
-void switch_context(struct registers _current_regs, struct registers _task_regs)
+void switch_context(struct registers *_current_regs, struct registers *_task_regs)
 {
-	svc_switch_context(&_current_regs, &_task_regs);
+	svc_switch_context(_current_regs, _task_regs);
 }

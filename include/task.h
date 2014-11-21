@@ -41,10 +41,10 @@ struct task
 	unsigned int counter;
 	unsigned int start_stack;
 	void (*func)(void);
-	struct registers regs;
+	struct registers *regs;
 };
 
-
+struct registers task_regs[NR_TASK];
 struct task task[NR_TASK];
 
 void add_task(void (*func)(void), unsigned int priority);
