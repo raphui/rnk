@@ -8,14 +8,14 @@
 void first_task(void)
 {
 	while (1) {
-		printk("\r\nTASK A\r\n");
+		printk("A\r\n");
 	}
 }
 
 void second_task(void)
 {
 	while (1) {
-		printk("\r\nTASK B\r\n");
+		printk("B\r\n");
 	}
 }
 
