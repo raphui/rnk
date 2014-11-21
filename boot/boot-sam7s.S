@@ -120,13 +120,17 @@ irqHandler:
 
 /* Restore User mode context */
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	ldmia	sp!, {r0-r12, lr}
+	ldmia	sp!, {r0-r12}
+	add	sp, sp, #0x4
+	ldmia	sp!, {lr}
+	mov	r2, lr
 	msr     CPSR_c, #ARM_MODE_IRQ | I_BIT
 
 /* Restore interrupt context and branch back to calling code */
         ldmia   sp!, {r0, lr}
         msr     SPSR_cxsf, lr
-        ldmia   sp!, {pc}^
+	mov	pc, r2
+/*        ldmia   sp!, {pc}^ */
 
 //------------------------------------------------------------------------------
 /// Initializes the chip and branches to the main() function.

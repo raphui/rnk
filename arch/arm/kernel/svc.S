@@ -10,11 +10,18 @@
 
 .global svc_create_context
 svc_create_context:
-	/* r0: start_stack, r1: func, r2: lr, r3: frame pointer */
+	/* r1: start_stack, r2: func, r3: lr, r4: frame pointer */
+	/* push sp and lr on stack for first context switch */
+	mov	r6, r1
+	add	r6, r6, #0x34
+	str	r1, [r6]
+	add	r6, r6, #0x4
+	str	r2, [r6]
+	mov	r5, r1
+	stmdb	r5!, {r1-r4}
 	/* Switch to sys mode */
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	mov	sp, r0
-	stmdb	sp!, {r1-r3}
+	mov	sp, r1
 	msr	CPSR_c, #ARM_MODE_SVC
 	mov	pc, lr
 
@@ -25,10 +32,10 @@ svc_activate_context:
 	ldr	sp, [r0]
 	/* r0 point to the beginning of the structure */
 	sub	r0, r0, #0x34
-	ldmdb	sp!, {r0-r3} /* r0: xPSR, r1: PC, r2: LR, r3: 0 */
-	mov	lr, r2
+	ldmdb	sp!, {r0-r4} /* r0: xPSR, r1: PC, r2: LR, r3: 0 */
+	mov	lr, r3
 	msr	CPSR_c, #ARM_MODE_USR
-	mov	pc, r1
+	mov	pc, r2
 
 .global svc_switch_context
 svc_switch_context:
