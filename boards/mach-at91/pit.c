@@ -1,6 +1,16 @@
 #include <board.h>
 #include <utils.h>
 
+/*
+
+PIV 4808
+MCK = 48000000 = 48MHz
+MCK/16 = 3000000 = 3 MHz
+1/(MCK/16) = 0.000000333 = 3,33us
+One interruption every => 4808 * 3,33 = 16010.64us = 16ms
+
+*/
+
 static void pit_init(unsigned int period, unsigned int pit_frequency)
 {
 	unsigned int tmp = 0;
