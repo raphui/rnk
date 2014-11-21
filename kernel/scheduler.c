@@ -30,13 +30,19 @@ void schedule(void)
 	int i;
 	int task_count = get_task_count();
 
-	if (task_count)
-		printk(".\r\n");
+	if (task_count == 1)
+		printk(".");
+	else if (task_count == 2)
+		printk(":");
 	else
-		printk(";\r\n");
+		printk(";");
 
 	for (i = 0; i < task_count; i++) {
 		if (task[i].state == TASK_STOPPED) {
+			if (i == 0)
+				printk("idx0\r\n");
+			else if (i == 1)
+				printk("idx1\r\n");
 			switch_task(task[i]);
 		}
 	}
