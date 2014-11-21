@@ -3,6 +3,7 @@
 #include <io.h>
 
 static struct task *current_task = NULL;
+static int index_current_task = -1;
 static int task_count;
 
 
@@ -13,6 +14,7 @@ void add_task(void (*func)(void), unsigned int priority)
 	task[task_count].start_stack = TASK_STACK_START - (task_count * TASK_STACK_OFFSET);
 	task[task_count].func = func;
 	task[task_count].regs = &task_regs[task_count];
+	task[task_count].regs->lr = (unsigned int)func;
 	task[task_count].regs->sp = task[task_count].start_stack;
 
 	/* Creating task context */
@@ -21,26 +23,26 @@ void add_task(void (*func)(void), unsigned int priority)
 	task_count++;
 }
 
-void first_switch_task(struct task _task)
+void first_switch_task(int index_task)
 {
-	_task.state = TASK_RUNNING;
-	current_task = &_task;
+	task[index_task].state = TASK_RUNNING;
+	index_current_task = index_task;
 	/* Active first task */
-	activate_context(*current_task);
+	activate_context(task[index_current_task]);
 }
 
-void switch_task(struct task _task)
+void switch_task(int index_task)
 {
-	if (current_task) {
-		current_task->state = TASK_STOPPED;
-		_task.state = TASK_RUNNING;
+	if (index_current_task > -1) {
+		task[index_current_task].state = TASK_STOPPED;
+		task[index_task].state = TASK_RUNNING;
 
 		/* Switch context */
-		switch_context(current_task->regs, _task.regs);
-		current_task = &_task;
+		switch_context(task[index_current_task].regs, task[index_task].regs);
+		index_current_task = index_task;
 	} else {
-		_task.state = TASK_RUNNING;
-		current_task = &_task;
+		task[index_task].state = TASK_RUNNING;
+		index_current_task = index_task;
 		
 		/* Active first task */
 		activate_context(*current_task);

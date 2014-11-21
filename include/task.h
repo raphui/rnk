@@ -48,8 +48,8 @@ struct registers task_regs[NR_TASK];
 struct task task[NR_TASK];
 
 void add_task(void (*func)(void), unsigned int priority);
-void first_switch_task(struct task _task);
-void switch_task(struct task _task);
+void first_switch_task(int index_task);
+void switch_task(int index_task);
 int get_task_count(void);
 
 #endif /* TASK_H */
