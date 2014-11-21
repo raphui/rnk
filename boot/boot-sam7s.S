@@ -128,9 +128,10 @@ irqHandler:
 
 /* Restore interrupt context and branch back to calling code */
         ldmia   sp!, {r0, lr}
+	stmia	sp!, {r2}
+	sub	sp, sp, #0x4
         msr     SPSR_cxsf, lr
-	mov	pc, r2
-/*        ldmia   sp!, {pc}^ */
+        ldmia   sp!, {pc}^
 
 //------------------------------------------------------------------------------
 /// Initializes the chip and branches to the main() function.
