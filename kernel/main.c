@@ -7,17 +7,16 @@
 
 void first_task(void)
 {
-	printk("\r\nTASK A\r\n");
 	while (1) {
-		printk("cool\r\n");
+		printk("\r\nTASK A\r\n");
 	}
 }
 
 void second_task(void)
 {
-	printk("\r\nTASK B\r\n");
-	while (1)
-		;
+	while (1) {
+		printk("\r\nTASK B\r\n");
+	}
 }
 
 int main(void)
