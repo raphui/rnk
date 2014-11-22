@@ -101,13 +101,14 @@ irqHandler:
 	stmdb	sp!, {r0-r12, lr}
 	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT
 
+
 /* Write in the IVR to support Protect Mode */
         ldr     lr, =AT91C_BASE_AIC
         ldr     r0, [r14, #AIC_IVR]
         str     lr, [r14, #AIC_IVR]
 
 /* Branch to interrupt handler in Supervisor mode */
-        msr     CPSR_c, #ARM_MODE_SVC
+        msr     CPSR_c, #ARM_MODE_SVC | I_BIT | F_BIT
         stmfd   sp!, {r1-r3, r4, r12, lr}
         mov     lr, pc
         bx      r0
@@ -121,15 +122,16 @@ irqHandler:
 /* Restore User mode context */
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
 	ldmia	sp!, {r0-r12}
-	add	sp, sp, #0x4
+	add	sp, sp, #0x8 /* Get PC to set it as LR for interrupt mode */
 	ldmia	sp!, {lr}
 	mov	r2, lr
 	msr     CPSR_c, #ARM_MODE_IRQ | I_BIT
 
+
 /* Restore interrupt context and branch back to calling code */
         ldmia   sp!, {r0, lr}
+	sub	sp, sp, #0x4 
 	stmia	sp!, {r2}
-	sub	sp, sp, #0x4
         msr     SPSR_cxsf, lr
         ldmia   sp!, {pc}^
 
