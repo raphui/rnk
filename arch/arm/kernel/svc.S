@@ -16,20 +16,21 @@ svc_create_context:
 	add	r6, r6, #0x34
 	str	r1, [r6]
 	add	r6, r6, #0x4
+	str	r3, [r6]
+	add	r6, r6, #0x4
 	str	r2, [r6]
 	mov	r5, r1
 	stmdb	r5!, {r1-r4}
-	/* Switch to sys mode */
-	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	mov	sp, r1
-	msr	CPSR_c, #ARM_MODE_SVC
 	mov	pc, lr
 
 .global svc_activate_context
 svc_activate_context:
 	/* r0 point to SP */
 	add	r0, r0, #0x34
+	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
 	ldr	sp, [r0]
+	/*msr	CPSR_c, #ARM_MODE_SVC | I_BIT | F_BIT*/
+	/*ldr	sp, [r0]*/
 	/* r0 point to the beginning of the structure */
 	sub	r0, r0, #0x34
 	ldmdb	sp!, {r0-r4} /* r0: xPSR, r1: PC, r2: LR, r3: 0 */

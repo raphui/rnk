@@ -4,7 +4,7 @@
 
 void create_context(struct registers *_regs, struct task _task)
 {
-	svc_create_context(_regs, _task.start_stack, (unsigned int)_task.func, (unsigned int)end_task, TASK_STACK_OFFSET);
+	svc_create_context(_regs, _task.start_stack, (unsigned int)_task.func, (unsigned int)end_task);
 }
 
 void activate_context(struct task _task)
