@@ -24,3 +24,8 @@ void aic_disable_it(unsigned int source)
 {
 	writel(AT91C_BASE_AIC + AIC_IDCR, (1 << source));
 }
+
+void aic_enable_debug(void)
+{
+	writel(AT91C_BASE_AIC + AIC_DCR, AT91C_AIC_DCR_PROT);
+}
