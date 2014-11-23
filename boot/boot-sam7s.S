@@ -132,6 +132,7 @@ irqHandler:
         ldmia   sp!, {r0, lr}
 	sub	sp, sp, #0x4 
 	stmia	sp!, {r2}
+	sub	sp, sp, #0x4
         msr     SPSR_cxsf, lr
         ldmia   sp!, {pc}^
 
