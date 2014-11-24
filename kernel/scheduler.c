@@ -18,6 +18,7 @@ void start_schedule(void)
 	for (i = 0; i < task_count; i++) {
 		if (task[i].state == TASK_STOPPED) {
 			first_switch_task(i);
+			break;
 		}
 	}
 }
@@ -44,6 +45,7 @@ void schedule(void)
 			else if (i == 1)
 				printk("idx1\r\n");
 			switch_task(i);
+			break;
 		}
 	}
 }
