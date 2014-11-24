@@ -11,7 +11,7 @@
 #define NULL	((void *)0)
 #endif
 
-#define TASK_STACK_START	0x002edddc
+#define TASK_STACK_START	0x002e0000
 #define TASK_STACK_OFFSET	0x00002000
 
 struct registers

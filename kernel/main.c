@@ -7,6 +7,7 @@
 
 void first_task(void)
 {
+	printk("starting task A\r\n");
 	while (1) {
 		printk("A");
 	}
@@ -14,6 +15,7 @@ void first_task(void)
 
 void second_task(void)
 {
+	printk("starting task B\r\n");
 	while (1) {
 		printk("B");
 	}

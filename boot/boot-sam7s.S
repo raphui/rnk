@@ -89,18 +89,64 @@ fiqHandler:
 /// handler, as defined in the AIC. Supports interrupt nesting.
 //------------------------------------------------------------------------------
 irqHandler:
+/* Save User mode context */
+	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
+	stmfd	sp!, {r0-r12, lr}
+	mov	r1, sp
+	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
 /* Save interrupt context on the stack to allow nesting */
         sub     lr, lr, #4
         stmfd   sp!, {lr}
-        mrs     lr, SPSR
+        mrs     r2, SPSR
+        stmfd   r1!, {r2}
+        stmfd   r1!, {lr}
+	mov	lr, r2
         stmfd   sp!, {r0, lr}
 
-/* Save User mode context */
+/*	Update User mode stack */
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	stmdb	sp!, {r0-r12, lr}
-	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT
+	mov	sp, r1
+	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
+/* ATM User stack looks like */
+/*
+	------------------------- SP Origin
+	|	R0		|	
+	-------------------------	
+	|	R1		|
+	-------------------------
+	|	R2		|	|
+	-------------------------	|
+	|	R3		|	|	Desc
+	-------------------------	|
+	|	R4		|	|
+	-------------------------       v
+	|	R5		|	
+	-------------------------
+	|	R6		|
+	-------------------------
+	|	R7		|
+	-------------------------
+	|	R8		|
+	-------------------------
+	|	R9		|
+	-------------------------
+	|	R10		|
+	-------------------------
+	|	R11		|
+	-------------------------
+	|	R12		|
+	-------------------------
+	|	LR		|
+	-------------------------
+	|	SPSR		|
+	-------------------------
+	|	PC		|
+	------------------------- 
+	|	SP Origin	|
+	------------------------- SP
+*/
 
 /* Write in the IVR to support Protect Mode */
         ldr     lr, =AT91C_BASE_AIC
@@ -113,28 +159,54 @@ irqHandler:
         mov     lr, pc
         bx      r0
         ldmia   sp!, {r1-r3, r4, r12, lr}
-        msr     CPSR_c, #ARM_MODE_IRQ | I_BIT
+        msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
 /* Acknowledge interrupt */
         ldr     lr, =AT91C_BASE_AIC
         str     lr, [r14, #AIC_EOICR]
 
-/* Restore User mode context */
-	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	ldmia	sp!, {r0-r12}
-	add	sp, sp, #0x8 /* Get PC to set it as LR for interrupt mode */
-	ldmia	sp!, {lr}
-	mov	r2, lr
-	msr     CPSR_c, #ARM_MODE_IRQ | I_BIT
-
-
 /* Restore interrupt context and branch back to calling code */
         ldmia   sp!, {r0, lr}
-	sub	sp, sp, #0x4 
-	stmia	sp!, {r2}
-	sub	sp, sp, #0x4
         msr     SPSR_cxsf, lr
-        ldmia   sp!, {pc}^
+        ldmia   sp!, {lr}
+
+/* Restore User mode context */
+	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
+	ldr	r1, =.get_pc
+	ldmfd	sp!, {lr}
+	str	lr, [r1]
+	ldr	r1, =.get_spsr
+	ldmfd	sp!, {lr}
+	msr	SPSR, lr
+	str	lr, [r1]
+	ldmfd	sp!, {lr}
+	ldmfd	sp!, {r12}
+	ldmfd	sp!, {r11}
+	ldmfd	sp!, {r10}
+	ldmfd	sp!, {r9}
+	ldmfd	sp!, {r8}
+	ldmfd	sp!, {r7}
+	ldmfd	sp!, {r6}
+	ldmfd	sp!, {r5}
+	ldmfd	sp!, {r4}
+	ldmfd	sp!, {r3}
+	ldmfd	sp!, {r2}
+	ldmfd	sp!, {r1}
+	ldmfd	sp!, {r0}
+        msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
+	ldr	pc, =.get_pc
+/*
+	ldmfd	sp!, {r0-r12, lr}
+	ldmdb	sp!, {lr}
+	msr	SPSR, lr
+	ldmdb	sp!, {pc}^
+*/
+.get_pc:
+	.word 0
+
+.get_spsr:
+	.word 0
+
 
 //------------------------------------------------------------------------------
 /// Initializes the chip and branches to the main() function.
