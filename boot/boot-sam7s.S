@@ -89,20 +89,21 @@ fiqHandler:
 /// handler, as defined in the AIC. Supports interrupt nesting.
 //------------------------------------------------------------------------------
 irqHandler:
+
+/* Save interrupt context on the stack to allow nesting */
+        sub     lr, lr, #4
+        stmfd   sp!, {lr}
+        mrs     r12, SPSR
+        stmfd   sp!, {r0, r12}
+
 /* Save User mode context */
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
 	stmfd	sp!, {r0-r12, lr}
 	mov	r1, sp
 	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
-/* Save interrupt context on the stack to allow nesting */
-        sub     lr, lr, #4
-        stmfd   sp!, {lr}
-        mrs     r2, SPSR
-        stmfd   r1!, {r2}
+        stmfd   r1!, {r12}
         stmfd   r1!, {lr}
-	mov	lr, r2
-        stmfd   sp!, {r0, lr}
 
 /*	Update User mode stack */
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
@@ -143,8 +144,6 @@ irqHandler:
 	|	SPSR		|
 	-------------------------
 	|	PC		|
-	------------------------- 
-	|	SP Origin	|
 	------------------------- SP
 */
 
@@ -177,7 +176,7 @@ irqHandler:
 	str	lr, [r1]
 	ldr	r1, =.get_spsr
 	ldmfd	sp!, {lr}
-	msr	SPSR, lr
+/*	msr	SPSR, lr*/
 	str	lr, [r1]
 	ldmfd	sp!, {lr}
 	ldmfd	sp!, {r12}
@@ -194,7 +193,22 @@ irqHandler:
 	ldmfd	sp!, {r1}
 	ldmfd	sp!, {r0}
         msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
-	ldr	pc, =.get_pc
+/*
+	ldr	lr, =.get_spsr
+	ldr	lr, [lr]
+	msr	SPSR_cxsf, lr
+*/
+
+/* Clear interruption */
+	ldr	lr, =AT91C_BASE_AIC
+	ldr	r12, [r14, #AIC_IPR]
+	str	r12, [r14, #AIC_ICCR]
+
+	mrs	lr, SPSR
+	msr	CPSR_c, lr
+	ldr	lr, =.get_pc
+	ldr	lr, [lr]
+	mov	pc, lr
 /*
 	ldmfd	sp!, {r0-r12, lr}
 	ldmdb	sp!, {lr}
@@ -264,7 +278,7 @@ resetHandler:
 	mov	sp, r5
 
 /* Supervisor mode (interrupts enabled) */
-        msr     CPSR_c, #ARM_MODE_SVC | F_BIT
+        msr     CPSR_c, #ARM_MODE_SVC | I_BIT | F_BIT
         mov     sp, r4
 
 /* Branch to main()
