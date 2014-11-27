@@ -98,7 +98,20 @@ irqHandler:
 
 /* Save User mode context */
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	stmfd	sp!, {r0-r12, lr}
+	stmfd	sp!, {r0}
+	stmfd	sp!, {r1}
+	stmfd	sp!, {r2}
+	stmfd	sp!, {r3}
+	stmfd	sp!, {r4}
+	stmfd	sp!, {r5}
+	stmfd	sp!, {r6}
+	stmfd	sp!, {r7}
+	stmfd	sp!, {r8}
+	stmfd	sp!, {r9}
+	stmfd	sp!, {r10}
+	stmfd	sp!, {r11}
+	stmfd	sp!, {r12}
+	stmfd	sp!, {lr}
 	mov	r1, sp
 	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
@@ -160,10 +173,6 @@ irqHandler:
         ldmia   sp!, {r1-r3, r4, r12, lr}
         msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
-/* Acknowledge interrupt */
-        ldr     lr, =AT91C_BASE_AIC
-        str     lr, [r14, #AIC_EOICR]
-
 /* Restore interrupt context and branch back to calling code */
         ldmia   sp!, {r0, lr}
         msr     SPSR_cxsf, lr
@@ -199,10 +208,9 @@ irqHandler:
 	msr	SPSR_cxsf, lr
 */
 
-/* Clear interruption */
-	ldr	lr, =AT91C_BASE_AIC
-	ldr	r12, [r14, #AIC_IPR]
-	str	r12, [r14, #AIC_ICCR]
+/* Acknowledge interrupt */
+        ldr     lr, =AT91C_BASE_AIC
+        str     lr, [r14, #AIC_EOICR]
 
 	mrs	lr, SPSR
 	msr	CPSR_c, lr
