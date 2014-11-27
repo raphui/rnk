@@ -52,7 +52,10 @@ void schedule(void)
 	}
 }
 
+/* Since tasks cannot end, if we jump into this functions it's mean that the context switch is buggy */
 void end_task(void)
 {
+	void (*func)(void) = (void (*)())0xfffffd39;
 
+	func();
 }
