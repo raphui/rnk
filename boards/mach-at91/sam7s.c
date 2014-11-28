@@ -5,8 +5,9 @@
 
 void default_spurious_handler(void)
 {
-	while (1)
-		;
+	writel(AT91C_BASE_AIC + AIC_EOICR, 0x0);
+//	while (1)
+//		;
 }
 
 void default_irq_handler(void)
@@ -77,5 +78,5 @@ void low_level_init(void)
 //	aic_enable_debug();
 
 	/* Remap RAM to 0x0 */
-//	writel(AT91C_BASE_MC + MC_RCR, AT91C_MC_RCB);
+	writel(AT91C_BASE_MC + MC_RCR, AT91C_MC_RCB);
 }
