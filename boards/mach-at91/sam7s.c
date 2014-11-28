@@ -75,7 +75,7 @@ void low_level_init(void)
 	aic_enable_it(AT91C_ID_SYS);
 
 	/* Enable Debug mode */
-//	aic_enable_debug();
+	aic_enable_debug();
 
 	/* Remap RAM to 0x0 */
 	writel(AT91C_BASE_MC + MC_RCR, AT91C_MC_RCB);
