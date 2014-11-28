@@ -31,6 +31,8 @@ void schedule(void)
 	int i;
 	int task_count = get_task_count();
 
+	pit_read_pivr();
+
 	if (task_count == 1)
 		printk(".");
 	else if (task_count == 2)
