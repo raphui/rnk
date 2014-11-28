@@ -181,6 +181,7 @@
 // -------- PDC_PTSR : (PDC Offset: 0x24) PDC Transfer Status Register --------
 
 /* PIO */
+#define PIO_PER         ( 	0x00000000) // (PIO_PER) PIO Enable Register
 #define PIO_PDR         (  	0x00000004) // (PIO_PDR) PIO Disable Register
 #define PIO_PSR         (  	0x00000008) // (PIO_PSR) PIO Status Register
 #define PIO_OER         (  	0x00000010) // (PIO_OER) Output Enable Register

@@ -46,9 +46,11 @@ OBJS	:= 	asm/head.o \
 			boards/mach-$(MACH)/uart-$(SOC).o \
 			boards/mach-$(MACH)/aic.o \
 			boards/mach-$(MACH)/pit.o \
+			boards/mach-$(MACH)/pio.o \
 			boot/boot-$(SOC).o \
 			drivers/uart-core.o \
 			drivers/pit-core.o \
+			drivers/pio-core.o \
 			kernel/main.o \
 			kernel/interrupts.o \
 			kernel/scheduler.o \
