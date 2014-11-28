@@ -3,6 +3,9 @@
 
 static void pio_set_output(unsigned int port, unsigned int mask)
 {
+	writel(port + PIO_IDR, mask);
+	writel(port + PIO_PPUDR, mask);
+	writel(port + PIO_MDDR, mask);
 	writel(port + PIO_OER, mask);
 	writel(port + PIO_PER, mask);
 }
