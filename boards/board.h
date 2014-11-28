@@ -48,6 +48,7 @@ struct pit_operations
 	void (*enable)(void);
 	void (*enable_it)(void);
 	void (*disable_it)(void);
+	void (*read_pivr)(void);
 };
 
 struct pit_operations pit_ops;

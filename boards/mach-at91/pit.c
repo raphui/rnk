@@ -46,9 +46,18 @@ static void pit_disable_it(void)
 	writel(AT91C_BASE_PITC + PITC_PIMR, tmp);
 }
 
+
+void pit_read_pivr(void)
+{
+	if (readl(AT91C_BASE_PITC + PITC_PISR) & AT91C_PITC_PITS) {
+		readl(AT91C_BASE_PITC + PITC_PIVR);
+	}
+}
+
 struct pit_operations pit_ops = {
 	.init = &pit_init,
 	.enable = &pit_enable,
 	.enable_it = &pit_enable_it,
 	.disable_it = &pit_disable_it,
+	.read_pivr = &pit_read_pivr,
 };
