@@ -93,8 +93,8 @@ irqHandler:
 /* Save interrupt context on the stack to allow nesting */
         sub     lr, lr, #4
         stmfd   sp!, {lr}
-        mrs     r12, SPSR
-        stmfd   sp!, {r0, r12}
+        mrs     r8, SPSR
+        stmfd   sp!, {r0, r8}
 
 /* Save User mode context */
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
@@ -112,15 +112,15 @@ irqHandler:
 	stmfd	sp!, {r11}
 	stmfd	sp!, {r12}
 	stmfd	sp!, {lr}
-	mov	r1, sp
+	mov	r7, sp
 	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
-        stmfd   r1!, {r12}
-        stmfd   r1!, {lr}
+        stmfd   r7!, {r8}
+        stmfd   r7!, {lr}
 
 /*	Update User mode stack */
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	mov	sp, r1
+	mov	sp, r7
 	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
 /* ATM User stack looks like */
@@ -211,6 +211,11 @@ irqHandler:
 /* Acknowledge interrupt */
         ldr     lr, =AT91C_BASE_AIC
         str     lr, [r14, #AIC_EOICR]
+
+/* Clear interruption */
+	ldr	lr, =AT91C_BASE_AIC
+	ldr	r7, [r14, #AIC_IPR]
+	str	r7, [r14, #AIC_ICCR]
 
 	mrs	lr, SPSR
 	msr	CPSR_c, lr
