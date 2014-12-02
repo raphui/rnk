@@ -11,7 +11,6 @@ void start_schedule(void)
 	int i;
 	int task_count = get_task_count();
 
-	/* Initialise and start PIT */
 	pit_init(PIT_PERIOD, BOARD_MCK / 1000000);
 	pit_enable_it();
 	pit_enable();
@@ -25,8 +24,6 @@ void start_schedule(void)
 }
 
 
-/* At the moment it's a round-robin schedule */
-/* TODO: the timer to schedule task can be based on TC interrupt */
 void schedule(void)
 {
 	int i;
