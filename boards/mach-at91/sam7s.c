@@ -22,6 +22,30 @@ void default_fiq_handler(void)
 		;
 }
 
+#define BOARD_FLASH	0
+#define BOARD_RAM	1
+#define AT91C_ISRAM	0x00200000
+
+static unsigned char get_remap( void )
+{
+    unsigned int *remap = (unsigned int *)0;
+    unsigned int *ram = (unsigned int *)AT91C_ISRAM;
+
+    // Try to write in 0 and see if this affects the RAM
+    unsigned int temp = *ram;
+
+    *ram = temp + 1;
+    if (*remap == *ram) {
+
+        *ram = temp;
+        return BOARD_RAM;
+    } else {
+
+        *ram = temp;
+        return BOARD_FLASH;
+    }
+}
+
 void low_level_init(void)
 {
 	unsigned int tmp = 0;
@@ -78,5 +102,6 @@ void low_level_init(void)
 	aic_enable_debug();
 
 	/* Remap RAM to 0x0 */
-	writel(AT91C_BASE_MC + MC_RCR, AT91C_MC_RCB);
+	if (get_remap() != BOARD_RAM)
+		writel(AT91C_BASE_MC + MC_RCR, AT91C_MC_RCB);
 }
