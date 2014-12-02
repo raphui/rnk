@@ -1,7 +1,10 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-static inline void writel(unsigned int reg, unsigned int val)
+#define writel(r,v)	__writel(r,v)
+#define readl(r)	__readl(r)
+
+static inline void __writel(unsigned int reg, unsigned int val)
 {
 	unsigned int *p = (unsigned int *)reg;
 
@@ -10,7 +13,7 @@ static inline void writel(unsigned int reg, unsigned int val)
 }
 
 
-static inline unsigned int readl(unsigned int reg)
+static inline unsigned int __readl(unsigned int reg)
 {
 	unsigned int *p = (unsigned int *)reg;
 	unsigned int val;
