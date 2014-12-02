@@ -9,18 +9,13 @@ int task_switching = 0;
 void start_schedule(void)
 {
 	int i;
-	int task_count = get_task_count();
 
 	pit_init(PIT_PERIOD, BOARD_MCK / 1000000);
 	pit_enable_it();
 	pit_enable();
 
-	for (i = 0; i < task_count; i++) {
-		if (task[i].state == TASK_STOPPED) {
-			first_switch_task(i);
-			break;
-		}
-	}
+	i = find_next_task();
+	first_switch_task(i);
 }
 
 
@@ -39,14 +34,10 @@ void schedule(void)
 		printk(";");
 
 	printk("choosing/");
-	for (i = 0; i < task_count; i++) {
-		printk(".");
-		if (task[i].state == TASK_STOPPED) {
-			switch_task(i);
-			task_switching = 1;
-			break;
-		}
-	}
+
+	i = find_next_task();
+	switch_task(i);
+	task_switching = 1;
 }
 
 /* Since tasks cannot end, if we jump into this functions it's mean that the context switch is buggy */

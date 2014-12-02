@@ -51,5 +51,6 @@ void add_task(void (*func)(void), unsigned int priority);
 void first_switch_task(int index_task);
 void switch_task(int index_task);
 int get_task_count(void);
+int find_next_task(void);
 
 #endif /* TASK_H */
