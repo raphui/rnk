@@ -11,32 +11,24 @@ void first_task(void)
 {
 
 	printk("starting task A\r\n");
-//	pio_set_output(AT91C_BASE_PIOA, (1 << 0));
-//			pio_set_value(AT91C_BASE_PIOA, (1 << 0));
 	while (1) {
-		if (toogle) {
-			pio_clear_value(AT91C_BASE_PIOA, (1 << 0));
-		} else {
-			pio_set_value(AT91C_BASE_PIOA, (1 << 0));
-		}
-//
-		toogle != toogle;
-//		printk("A");
+		printk("A");
 	}
 }
 
 void second_task(void)
 {
-//	int toogle = 0;
 	printk("starting task B\r\n");
 	while (1) {
-		if (toogle) {
-			pio_clear_value(AT91C_BASE_PIOA, (1 << 2));
-		} else {
-			pio_set_value(AT91C_BASE_PIOA, (1 << 2));
-		}
-		toogle != toogle;
-//		printk("B");
+		printk("B");
+	}
+}
+
+void third_task(void)
+{
+	printk("starting task C\r\n");
+	while (1) {
+		printk("C");
 	}
 }
 
@@ -50,7 +42,8 @@ int main(void)
 	printk("Hello World from RNK ( Raphio new kernel )\r\n");
 
 	add_task(&first_task, 1);
-	add_task(&second_task, 1);
+	add_task(&second_task, 6);
+	add_task(&third_task, 20);
 
 	start_schedule();
 
