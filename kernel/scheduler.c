@@ -4,6 +4,7 @@
 #include <pit.h>
 #include <board.h>
 
+int task_switching = 0;
 
 void start_schedule(void)
 {
