@@ -108,3 +108,95 @@ svc_switch_context:
 
 	ldmia	sp!, {r0-r12, lr}
 	mov	pc, lr
+
+.global svc_save_user_context
+svc_save_user_context:
+	/* Save mode */
+	mrs	r0, CPSR
+
+	/* Save User mode context */
+	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
+	stmfd	sp!, {r0}
+	stmfd	sp!, {r1}
+	stmfd	sp!, {r2}
+	stmfd	sp!, {r3}
+	stmfd	sp!, {r4}
+	stmfd	sp!, {r5}
+	stmfd	sp!, {r6}
+	stmfd	sp!, {r7}
+	stmfd	sp!, {r8}
+	stmfd	sp!, {r9}
+	stmfd	sp!, {r10}
+	stmfd	sp!, {r11}
+	stmfd	sp!, {r12}
+	stmfd	sp!, {lr}
+	mov	r7, sp
+
+	/* Restore mode */
+	msr	CPSR_c, r0
+
+	stmfd   r7!, {r8}
+        stmfd   r7!, {r10}
+
+/*	Update User mode stack */
+	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
+	mov	sp, r7
+
+	msr	CPSR_c, r0
+	mov	pc, lr
+
+.global svc_get_user_context
+svc_get_user_context:
+	ldr	r1, =task_switching
+	ldr	r2, [r1]
+	cmp	r2, #0
+	beq	skip_user_restore
+	mov	r2, #0
+	str	r2, [r1]
+
+	/* Save mode */
+	mrs	r1, CPSR
+
+	/* Get User mode context */
+	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
+
+	ldr	r1, =.get_pc
+	ldmfd	sp!, {lr}
+	str	lr, [r1]
+	ldr	r1, =.get_spsr
+	ldmfd	sp!, {lr}
+	str	lr, [r1]
+
+	ldmfd	sp!, {lr}
+	ldmfd	sp!, {r12}
+	ldmfd	sp!, {r11}
+	ldmfd	sp!, {r10}
+	ldmfd	sp!, {r9}
+	ldmfd	sp!, {r8}
+	ldmfd	sp!, {r7}
+	ldmfd	sp!, {r6}
+	ldmfd	sp!, {r5}
+	ldmfd	sp!, {r4}
+	ldmfd	sp!, {r3}
+	ldmfd	sp!, {r2}
+	ldmfd	sp!, {r1}
+	ldmfd	sp!, {r0}
+
+	/* Restore mode */
+	msr	CPSR_c, r1
+
+	mrs	lr, SPSR
+	msr	CPSR_c, lr
+	ldr	lr, =.get_pc
+	ldr	lr, [lr]
+	mov	pc, lr
+
+skip_user_restore:
+	mov	pc, lr
+
+.get_pc:
+	.word 0
+
+.get_spsr:
+	.word 0
+

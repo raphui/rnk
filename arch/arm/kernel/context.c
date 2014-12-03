@@ -16,3 +16,13 @@ void switch_context(struct registers *_current_regs, struct registers *_task_reg
 {
 	svc_switch_context(_current_regs, _task_regs);
 }
+
+void save_user_context(void)
+{
+	svc_save_user_context();
+}
+
+void get_user_context(void)
+{
+	svc_get_user_context();
+}
