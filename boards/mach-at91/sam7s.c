@@ -24,7 +24,6 @@ void default_fiq_handler(void)
 
 #define BOARD_FLASH	0
 #define BOARD_RAM	1
-#define AT91C_ISRAM	0x00200000
 
 static unsigned char get_remap( void )
 {

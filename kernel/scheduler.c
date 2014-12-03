@@ -45,11 +45,8 @@ void schedule(void)
 	for (i = 0; i < task_count; i++) {
 		printk(".");
 		if (task[i].state == TASK_STOPPED) {
-			if (i == 0)
-				printk("idx0\r\n");
-			else if (i == 1)
-				printk("idx1\r\n");
 			switch_task(i);
+			task_switching = 1;
 			break;
 		}
 	}
