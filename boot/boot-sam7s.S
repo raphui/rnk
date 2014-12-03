@@ -46,6 +46,8 @@
 #define ARM_MODE_IRQ     0x12
 #define ARM_MODE_SVC     0x13
 #define ARM_MODE_SYS	 0x1F
+#define ARM_MODE_USR	 0x10
+#define ARM_MODE	 0x1F
 
 #define I_BIT            0x80
 #define F_BIT            0x40
@@ -96,69 +98,11 @@ irqHandler:
         mrs     r8, SPSR
         stmfd   sp!, {r0, r8}
 
-/* Save User mode context */
-	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	stmfd	sp!, {r0}
-	stmfd	sp!, {r1}
-	stmfd	sp!, {r2}
-	stmfd	sp!, {r3}
-	stmfd	sp!, {r4}
-	stmfd	sp!, {r5}
-	stmfd	sp!, {r6}
-	stmfd	sp!, {r7}
-	stmfd	sp!, {r8}
-	stmfd	sp!, {r9}
-	stmfd	sp!, {r10}
-	stmfd	sp!, {r11}
-	stmfd	sp!, {r12}
-	stmfd	sp!, {lr}
-	mov	r7, sp
-	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
-
-        stmfd   r7!, {r8}
-        stmfd   r7!, {lr}
-
-/*	Update User mode stack */
-	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	mov	sp, r7
-	msr	CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
-
-/* ATM User stack looks like */
-/*
-	------------------------- SP Origin
-	|	R0		|	
-	-------------------------	
-	|	R1		|
-	-------------------------
-	|	R2		|	|
-	-------------------------	|
-	|	R3		|	|	Desc
-	-------------------------	|
-	|	R4		|	|
-	-------------------------       v
-	|	R5		|	
-	-------------------------
-	|	R6		|
-	-------------------------
-	|	R7		|
-	-------------------------
-	|	R8		|
-	-------------------------
-	|	R9		|
-	-------------------------
-	|	R10		|
-	-------------------------
-	|	R11		|
-	-------------------------
-	|	R12		|
-	-------------------------
-	|	LR		|
-	-------------------------
-	|	SPSR		|
-	-------------------------
-	|	PC		|
-	------------------------- SP
-*/
+	mov	r1, r8
+	and	r1, r1, #ARM_MODE
+	teq	r1, #ARM_MODE_USR
+	mov	r10, lr
+	bleq	svc_save_user_context
 
 /* Write in the IVR to support Protect Mode */
         ldr     lr, =AT91C_BASE_AIC
@@ -173,67 +117,23 @@ irqHandler:
         ldmia   sp!, {r1-r3, r4, r12, lr}
         msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
-/* Restore interrupt context and branch back to calling code */
-        ldmia   sp!, {r0, lr}
-        msr     SPSR_cxsf, lr
-        ldmia   sp!, {lr}
-
-/* Restore User mode context */
-	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	ldr	r1, =.get_pc
-	ldmfd	sp!, {lr}
-	str	lr, [r1]
-	ldr	r1, =.get_spsr
-	ldmfd	sp!, {lr}
-/*	msr	SPSR, lr*/
-	str	lr, [r1]
-	ldmfd	sp!, {lr}
-	ldmfd	sp!, {r12}
-	ldmfd	sp!, {r11}
-	ldmfd	sp!, {r10}
-	ldmfd	sp!, {r9}
-	ldmfd	sp!, {r8}
-	ldmfd	sp!, {r7}
-	ldmfd	sp!, {r6}
-	ldmfd	sp!, {r5}
-	ldmfd	sp!, {r4}
-	ldmfd	sp!, {r3}
-	ldmfd	sp!, {r2}
-	ldmfd	sp!, {r1}
-	ldmfd	sp!, {r0}
-        msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
-/*
-	ldr	lr, =.get_spsr
-	ldr	lr, [lr]
-	msr	SPSR_cxsf, lr
-*/
-
 /* Acknowledge interrupt */
         ldr     lr, =AT91C_BASE_AIC
         str     lr, [r14, #AIC_EOICR]
 
 /* Clear interruption */
 	ldr	lr, =AT91C_BASE_AIC
-	ldr	r7, [r14, #AIC_IPR]
-	str	r7, [r14, #AIC_ICCR]
+	ldr	r0, [r14, #AIC_IPR]
+	str	r0, [r14, #AIC_ICCR]
 
-	mrs	lr, SPSR
-	msr	CPSR_c, lr
-	ldr	lr, =.get_pc
-	ldr	lr, [lr]
-	mov	pc, lr
-/*
-	ldmfd	sp!, {r0-r12, lr}
-	ldmdb	sp!, {lr}
-	msr	SPSR, lr
-	ldmdb	sp!, {pc}^
-*/
-.get_pc:
-	.word 0
+	and	r1, r1, #ARM_MODE
+	teq	r1, #ARM_MODE_USR
+	beq	svc_get_user_context
 
-.get_spsr:
-	.word 0
-
+/* Restore interrupt context and branch back to calling code */
+        ldmia   sp!, {r0, lr}
+        msr     SPSR_cxsf, lr
+        ldmia   sp!, {pc}^
 
 //------------------------------------------------------------------------------
 /// Initializes the chip and branches to the main() function.
