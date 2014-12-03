@@ -17,7 +17,8 @@ LD_SCRIPT=$(SAM7S_SRAM_LD)
 INCLUDES	:= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__
-CFLAGS  :=  -Wall -mlong-calls -fpic -ffunction-sections -mcpu=arm7tdmi -g $(INCLUDES)
+CFLAGS  :=  -Wall -mlong-calls -fpic -ffunction-sections -mcpu=arm7tdmi -nostdlib -g $(INCLUDES)
+#CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles #-Wl,--gc-sections
 
 OBJS	:= 	asm/head.o \
@@ -36,7 +37,8 @@ OBJS	:= 	asm/head.o \
 			kernel/interrupts.o \
 			kernel/scheduler.o \
 			kernel/task.o \
-			utils/io.o
+			utils/io.o \
+			utils/utils.o
 
 config:
 	@@echo "CP mach-$(MACH)/board-$(SOC).h -> board.h"

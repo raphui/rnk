@@ -1,19 +1,21 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#define writel(r,v)	__writel(r,v)
-#define readl(r)	__readl(r)
+//#define writel(r,v)	__writel(r,v)
+//#define readl(r)	__readl(r)
 
-static inline void __writel(unsigned int reg, unsigned int val)
+void writel(unsigned int reg, unsigned int val);
+/*
 {
 	unsigned int *p = (unsigned int *)reg;
 
 	asm volatile("str %[val], [%[reg]]"
 			: : [reg]"r"(p), [val]"r"(val));
 }
+*/
 
-
-static inline unsigned int __readl(unsigned int reg)
+unsigned int readl(unsigned int reg);
+/*
 {
 	unsigned int *p = (unsigned int *)reg;
 	unsigned int val;
@@ -23,6 +25,7 @@ static inline unsigned int __readl(unsigned int reg)
 
 	return val;
 }
+*/
 
 static void delay(int count) 
 {
