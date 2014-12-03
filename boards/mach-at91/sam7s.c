@@ -101,6 +101,9 @@ void low_level_init(void)
 	/* Enable Debug mode */
 	aic_enable_debug();
 
+	/* Disable watchdog */
+	writel(AT91C_BASE_WDTC + WDTC_WDMR, AT91C_WDTC_WDDIS);
+
 	/* Remap RAM to 0x0 */
 	if (get_remap() != BOARD_RAM)
 		writel(AT91C_BASE_MC + MC_RCR, AT91C_MC_RCB);
