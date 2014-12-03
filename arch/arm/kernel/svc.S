@@ -69,19 +69,6 @@ svc_create_context:
 	str	r1, [r0]
 	mov	pc, lr
 
-/*
-	mov	r6, r1
-	add	r6, r6, #0x34
-	str	r1, [r6]
-	add	r6, r6, #0x4
-	str	r3, [r6]
-	add	r6, r6, #0x4
-	str	r2, [r6]
-	mov	r5, r1
-	stmdb	r5!, {r1-r4}
-	mov	pc, lr
-*/
-
 .global svc_activate_context
 svc_activate_context:
 	/* r0 point to SP */
@@ -93,7 +80,8 @@ svc_activate_context:
 	ldmfd	sp!, {r0}
 	ldmfd	sp!, {r1}
 	ldmfd	sp!, {r2}
-	ldmfd	sp!, {r3}/* r0: PC, r1: SPSR, r2: LR, r3: 0 */
+	/* r0: PC, r1: SPSR, r2: LR, r3: 0 */
+	ldmfd	sp!, {r3}
 	mov	lr, r2
 	msr	CPSR_c, #ARM_MODE_USR | F_BIT
 	mov	pc, r0
