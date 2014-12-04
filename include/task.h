@@ -19,15 +19,14 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include <list.h>
+#include <stddef.h>
+
 #define NR_TASK	8
 
 #define TASK_RUNNING		0
 #define TASK_STOPPED		1
 #define TASK_INTERRUPTIBLE	3
-
-#ifndef NULL
-#define NULL	((void *)0)
-#endif
 
 #define TASK_STACK_START	0x002bbdd0
 #define TASK_STACK_OFFSET	0x00022000

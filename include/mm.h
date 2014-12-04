@@ -23,5 +23,6 @@
 
 extern void init_heap(void);
 extern void *kmalloc(size_t size);
+extern void free(void);
 
 #endif /* MM_H */

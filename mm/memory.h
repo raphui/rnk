@@ -24,8 +24,8 @@
 #define MAGIC			0xABCD
 #define BLOCK_SIZE		(CHUNK_PER_BLOCK * CHUNK_SIZE)
 
-#define KERNEL_HEAP_START	0x220000
-#define KERNEL_HEAP_END		0x230000
+#define KERNEL_HEAP_START	0x22ddd0
+#define KERNEL_HEAP_END		0x23ccc0
 #define KERNEL_NUM_BLOCKS	((KERNEL_HEAP_END - KERNEL_HEAP_START) / BLOCK_SIZE)
 #define MAX_KERNEL_SIZE		(KERNEL_HEAP_END - KERNEL_HEAP_START)
 
@@ -44,6 +44,11 @@ struct memory_block
 };
 
 struct memory_block kernel_heap[KERNEL_NUM_BLOCKS];
+
+static inline int addr_to_chunks_offset(void *addr, void *base)
+{
+	return (((unsigned int *)addr - (unsigned int *)base) % BLOCK_SIZE) / CHUNK_SIZE;
+}
 
 static inline int is_free(unsigned int free_mask, unsigned int mask)
 {

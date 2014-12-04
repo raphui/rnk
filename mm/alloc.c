@@ -24,8 +24,11 @@ static void *alloc(struct memory_block *heap, unsigned int heap_size, unsigned i
 {
 	void *ret = NULL;
 	int i = 0;
+	int j = 0;
 	int off;
 	unsigned int mask;
+	unsigned free_blocks = 0;
+	unsigned int blocks;
 	struct alloc_header *header = NULL;
 
 	if (chunks < CHUNK_PER_BLOCK) {
@@ -46,7 +49,32 @@ static void *alloc(struct memory_block *heap, unsigned int heap_size, unsigned i
 
 		}
 	} else {
-		printk("cannot allocate more than 32 bytes for now\n");
+		blocks = chunks / CHUNK_PER_BLOCK;
+		chunks = chunks % CHUNK_PER_BLOCK;
+		mask = MASK(chunks);
+
+		for (i = 0; i < heap_size; i++) {
+			if (free_blocks < blocks) {
+				if (!heap[i].free_mask)
+					free_blocks++;
+				else
+					free_blocks = 0;
+			} else if (free_blocks == blocks) {
+				if (!(heap[i].free_mask & mask)) {
+					for (j = 1; j < free_blocks; j++) {
+						heap[i - j].free_mask = -1;
+						heap[i - j].free_chunks = 0;
+					}
+					heap[i].free_mask |= mask;
+					heap[i].free_chunks -= chunks;
+
+					ret = to_addr(i - free_blocks, 0, base);
+				}
+			} else {
+				free_blocks = 0;
+			}
+			
+		}	
 	}
 
 	if (!ret)
