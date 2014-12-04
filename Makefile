@@ -38,6 +38,7 @@ OBJS	:= 	asm/head.o \
 			kernel/scheduler.o \
 			kernel/task.o \
 			mm/alloc.o \
+			mm/init.o \
 			mm/free.o \
 			utils/io.o \
 			utils/utils.o

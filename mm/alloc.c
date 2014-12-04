@@ -16,9 +16,64 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <stddef.h>
+#include <io.h>
 #include "memory.h"
 
-static void *alloc(struct memory_block heap, unsigned int heap_size, unsigned int grains, void *base)
+static void *alloc(struct memory_block *heap, unsigned int heap_size, unsigned int chunks, void *base)
 {
 	void *ret = NULL;
+	int i = 0;
+	int off;
+	unsigned int mask;
+	struct alloc_header *header = NULL;
+
+	if (chunks < CHUNK_PER_BLOCK) {
+		mask = MASK(chunks);
+
+		for (i = 0; i < heap_size; i++) {
+			if (heap[i].free_chunks >= chunks) {
+				for (off = 0; off <= (CHUNK_PER_BLOCK - chunks); off++) {
+					if (is_free(heap[i].free_mask, (mask << off))) {
+						heap[i].free_mask |= (mask << off);
+						heap[i].free_chunks -= chunks;
+						ret = to_addr(i, off, base);
+					}
+				}
+			} else {
+				printk("not enough free space\n");
+			}
+
+		}
+	} else {
+		printk("cannot allocate more than 32 bytes for now\n");
+	}
+
+	if (!ret)
+		return ret;
+
+	header = (struct alloc_header *)ret;
+	header->magic = MAGIC;
+	header->chunks = chunks;
+	ret = (void *)((unsigned int *)ret + sizeof(struct alloc_header));
+
+	return ret;
+}
+
+void *kmalloc(size_t size)
+{
+	void *mem = NULL;
+	int chunks;
+	
+	if (size > MAX_KERNEL_SIZE)
+		return NULL;
+
+	size += sizeof(struct alloc_header);
+	
+	chunks = size + CHUNK_SIZE - 1;
+	chunks = chunks / CHUNK_SIZE;
+
+	mem = alloc(kernel_heap, KERNEL_NUM_BLOCKS, chunks, (void *)KERNEL_HEAP_START);
+
+	return mem;
 }
