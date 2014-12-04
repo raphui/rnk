@@ -24,8 +24,6 @@
 void default_spurious_handler(void)
 {
 	writel(AT91C_BASE_AIC + AIC_EOICR, 0x0);
-//	while (1)
-//		;
 }
 
 void default_irq_handler(void)

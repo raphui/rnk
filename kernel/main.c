@@ -24,7 +24,6 @@
 #include <task.h>
 #include <pio.h>
 
-int toogle = 0;
 void first_task(void)
 {
 
