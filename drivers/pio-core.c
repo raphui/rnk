@@ -38,3 +38,13 @@ void pio_clear_value(unsigned int port, unsigned int mask)
 {
 	pio_ops.clear_value(port, mask);
 }
+
+void pio_enable_interrupt(unsigned int port, unsigned int mask)
+{
+	pio_ops.enable_interrupt(port, mask);
+}
+
+void pio_disable_interrupt(unsigned int port, unsigned int mask)
+{
+	pio_ops.disable_interrupt(port, mask);
+}

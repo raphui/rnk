@@ -23,5 +23,7 @@ void pio_set_output(unsigned int port, unsigned int mask);
 void pio_set_input(unsigned int port, unsigned int mask);
 void pio_set_value(unsigned int port, unsigned int mask);
 void pio_clear_value(unsigned int port, unsigned int mask);
+void pio_enable_interrupt(unsigned int port, unsigned int mask);
+void pio_disable_interrupt(unsigned int port, unsigned int mask);
 
 #endif /* PIO_H */
