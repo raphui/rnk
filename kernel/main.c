@@ -22,7 +22,9 @@
 #include <io.h>
 #include <scheduler.h>
 #include <task.h>
+#include <interrupt.h>
 #include <pio.h>
+#include <aic.h>
 
 void first_task(void)
 {
@@ -52,7 +54,7 @@ void third_task(void)
 int main(void)
 {
 	uart_init();
-	pio_set_output(AT91C_BASE_PIOA, (1 << 0) | (1 << 2));
+	pio_set_output(AT91C_BASE_PIOA, (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3));
 	pio_set_value(AT91C_BASE_PIOA, (1 << 0) | (1 << 2));
 	pio_clear_value(AT91C_BASE_PIOA, (1 << 0) | (1 << 2));
 
@@ -61,6 +63,10 @@ int main(void)
 	add_task(&first_task, 1);
 	add_task(&second_task, 6);
 	add_task(&third_task, 20);
+
+	aic_disable_it(AT91C_ID_PIOA);
+	aic_register_handler(AT91C_ID_PIOA, AT91C_AIC_PRIOR_LOWEST, pio_isr);
+	aic_enable_it(AT91C_ID_PIOA);
 
 	start_schedule();
 

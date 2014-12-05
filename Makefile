@@ -34,7 +34,7 @@ OBJS	:= 	asm/head.o \
 			drivers/pit-core.o \
 			drivers/pio-core.o \
 			kernel/main.o \
-			kernel/interrupts.o \
+			kernel/interrupt.o \
 			kernel/scheduler.o \
 			kernel/task.o \
 			mm/alloc.o \

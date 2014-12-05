@@ -16,6 +16,24 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <stdint.h>
+#include <board.h>
+#include <io.h>
+#include <interrupt.h>
 
+void pio_isr(void)
+{
+	unsigned int mask = readl(AT91C_BASE_PIOA + PIO_ISR);
 
+	/* Clear all led value */
+	pio_clear_value(AT91C_BASE_PIOA, 0xf);
+	
+	/* Set led depending on button pressed */
+	if (mask & (1 << 19))
+		pio_set_value(AT91C_BASE_PIOA, (1 << 0));
+	else if (mask & (1 << 20))
+		pio_set_value(AT91C_BASE_PIOA, (1 << 1));
+	else if (mask & (1 << 15))
+		pio_set_value(AT91C_BASE_PIOA, (1 << 2));
+	else if (mask & (1 << 14))
+		pio_set_value(AT91C_BASE_PIOA, (1 << 3));
+}
