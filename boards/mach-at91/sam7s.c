@@ -119,6 +119,9 @@ void low_level_init(void)
 	/* Disable watchdog */
 	writel(AT91C_BASE_WDTC + WDTC_WDMR, AT91C_WDTC_WDDIS);
 
+	/* Enable PIOA clock */
+	writel(AT91C_BASE_PMC + PMC_PCER, (1 << AT91C_ID_PIOA));
+
 	/* Remap RAM to 0x0 */
 	if (get_remap() != BOARD_RAM)
 		writel(AT91C_BASE_MC + MC_RCR, AT91C_MC_RCB);
