@@ -122,6 +122,9 @@ void low_level_init(void)
 	/* Enable PIOA clock */
 	writel(AT91C_BASE_PMC + PMC_PCER, (1 << AT91C_ID_PIOA));
 
+	/* Clear all pending interrupt */
+	readl(AT91C_BASE_PIOA + PIO_ISR);
+
 	/* Remap RAM to 0x0 */
 	if (get_remap() != BOARD_RAM)
 		writel(AT91C_BASE_MC + MC_RCR, AT91C_MC_RCB);

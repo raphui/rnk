@@ -146,7 +146,7 @@ irqHandler:
 
 	and	r1, r1, #ARM_MODE
 	teq	r1, #ARM_MODE_USR
-	beq	svc_get_user_context
+	bleq	svc_get_user_context
 
 /* Restore interrupt context and branch back to calling code */
         ldmia   sp!, {r0, lr}
@@ -209,7 +209,7 @@ resetHandler:
 	mov	sp, r5
 
 /* Supervisor mode (interrupts enabled) */
-        msr     CPSR_c, #ARM_MODE_SVC | I_BIT | F_BIT
+        msr     CPSR_c, #ARM_MODE_SVC | F_BIT
         mov     sp, r4
 
 /* Branch to main()

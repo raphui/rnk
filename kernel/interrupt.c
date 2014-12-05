@@ -26,18 +26,20 @@ void pio_isr(void)
 {
 	unsigned int mask = readl(AT91C_BASE_PIOA + PIO_ISR);
 
-	printk("pio_isr\n");
+	printk("pio_isr\r\n");
 
 	/* Clear all led value */
-	pio_clear_value(AT91C_BASE_PIOA, 0xf);
+	pio_set_value(AT91C_BASE_PIOA, 0xf);
 	
 	/* Set led depending on button pressed */
 	if (mask & (1 << 19))
-		pio_set_value(AT91C_BASE_PIOA, (1 << 0));
+		pio_clear_value(AT91C_BASE_PIOA, (1 << 0));
 	else if (mask & (1 << 20))
-		pio_set_value(AT91C_BASE_PIOA, (1 << 1));
+		pio_clear_value(AT91C_BASE_PIOA, (1 << 1));
 	else if (mask & (1 << 15))
-		pio_set_value(AT91C_BASE_PIOA, (1 << 2));
+		pio_clear_value(AT91C_BASE_PIOA, (1 << 2));
 	else if (mask & (1 << 14))
-		pio_set_value(AT91C_BASE_PIOA, (1 << 3));
+		pio_clear_value(AT91C_BASE_PIOA, (1 << 3));
+
+	printk("good bye\n\r");
 }

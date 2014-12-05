@@ -40,18 +40,8 @@ void start_schedule(void)
 void schedule(void)
 {
 	int i;
-	int task_count = get_task_count();
 
 	pit_read_pivr();
-
-	if (task_count == 1)
-		printk(".");
-	else if (task_count == 2)
-		printk(":");
-	else
-		printk(";");
-
-	printk("choosing/");
 
 	i = find_next_task();
 	switch_task(i);
