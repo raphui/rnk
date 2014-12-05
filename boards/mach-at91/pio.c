@@ -19,17 +19,27 @@
 #include <board.h>
 #include <utils.h>
 
-static void pio_set_output(unsigned int port, unsigned int mask)
+static void pio_set_output(unsigned int port, unsigned int mask, int pull_up)
 {
 	writel(port + PIO_IDR, mask);
-	writel(port + PIO_PPUDR, mask);
+
+	if (pull_up)
+		writel(port + PIO_PPUER, mask);
+	else
+		writel(port + PIO_PPUDR, mask);
+
 	writel(port + PIO_MDDR, mask);
 	writel(port + PIO_OER, mask);
 	writel(port + PIO_PER, mask);
 }
 
-static void pio_set_input(unsigned int port, unsigned int mask)
+static void pio_set_input(unsigned int port, unsigned int mask, int pull_up)
 {
+	if (pull_up)
+		writel(port + PIO_PPUER, mask);
+	else
+		writel(port + PIO_PPUDR, mask);
+
 	writel(port + PIO_ODR, mask);
 	writel(port + PIO_PER, mask);
 }

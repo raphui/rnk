@@ -19,14 +19,14 @@
 #include <board.h>
 #include <pio.h>
 
-void pio_set_output(unsigned int port, unsigned int mask)
+void pio_set_output(unsigned int port, unsigned int mask, int pull_up)
 {
-	pio_ops.set_output(port, mask);
+	pio_ops.set_output(port, mask, pull_up);
 }
 
-void pio_set_input(unsigned int port, unsigned int mask)
+void pio_set_input(unsigned int port, unsigned int mask, int pull_up)
 {
-	pio_ops.set_input(port, mask);
+	pio_ops.set_input(port, mask, pull_up);
 }
 
 void pio_set_value(unsigned int port, unsigned int mask)

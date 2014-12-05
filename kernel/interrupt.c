@@ -18,11 +18,15 @@
 
 #include <board.h>
 #include <io.h>
+#include <pio.h>
+#include <utils.h>
 #include <interrupt.h>
 
 void pio_isr(void)
 {
 	unsigned int mask = readl(AT91C_BASE_PIOA + PIO_ISR);
+
+	printk("pio_isr\n");
 
 	/* Clear all led value */
 	pio_clear_value(AT91C_BASE_PIOA, 0xf);

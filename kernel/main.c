@@ -54,7 +54,7 @@ void third_task(void)
 int main(void)
 {
 	uart_init();
-	pio_set_output(AT91C_BASE_PIOA, (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3));
+	pio_set_output(AT91C_BASE_PIOA, (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3), 0);
 	pio_set_value(AT91C_BASE_PIOA, (1 << 0) | (1 << 2));
 	pio_clear_value(AT91C_BASE_PIOA, (1 << 0) | (1 << 2));
 
@@ -68,7 +68,10 @@ int main(void)
 	aic_register_handler(AT91C_ID_PIOA, AT91C_AIC_PRIOR_LOWEST, pio_isr);
 	aic_enable_it(AT91C_ID_PIOA);
 
-	start_schedule();
+	pio_set_input(AT91C_BASE_PIOA, (1 << 14) | (1 << 15) | (1 << 19) | (1 << 20), 1);
+	pio_enable_interrupt(AT91C_BASE_PIOA, (1 << 14) | (1 << 15) | (1 << 19) | (1 << 20));
+
+//	start_schedule();
 
 	while(1)
 		;
