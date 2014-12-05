@@ -33,12 +33,17 @@ static void pio_set_output(unsigned int port, unsigned int mask, int pull_up)
 	writel(port + PIO_PER, mask);
 }
 
-static void pio_set_input(unsigned int port, unsigned int mask, int pull_up)
+static void pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter)
 {
 	if (pull_up)
 		writel(port + PIO_PPUER, mask);
 	else
 		writel(port + PIO_PPUDR, mask);
+
+	if (filter)
+		writel(port + PIO_IFER, mask);
+	else
+		writel(port + PIO_IFDR, mask);
 
 	writel(port + PIO_ODR, mask);
 	writel(port + PIO_PER, mask);

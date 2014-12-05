@@ -74,7 +74,7 @@ struct pit_operations pit_ops;
 struct pio_operations
 {
 	void (*set_output)(unsigned int port, unsigned int mask, int pull_up);
-	void (*set_input)(unsigned int port, unsigned int mask, int pull_up);
+	void (*set_input)(unsigned int port, unsigned int mask, int pull_up, int filter);
 	void (*set_value)(unsigned int port, unsigned int mask);
 	void (*clear_value)(unsigned int port, unsigned int mask);
 	void (*enable_interrupt)(unsigned int port, unsigned int mask);

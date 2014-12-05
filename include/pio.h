@@ -20,7 +20,7 @@
 #define PIO_H
 
 void pio_set_output(unsigned int port, unsigned int mask, int pull_up);
-void pio_set_input(unsigned int port, unsigned int mask, int pull_up);
+void pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter);
 void pio_set_value(unsigned int port, unsigned int mask);
 void pio_clear_value(unsigned int port, unsigned int mask);
 void pio_enable_interrupt(unsigned int port, unsigned int mask);
