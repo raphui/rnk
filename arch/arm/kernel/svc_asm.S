@@ -22,6 +22,7 @@
 #define ARM_MODE_SVC    0x13
 #define ARM_MODE_ABT    0x17
 #define ARM_MODE_SYS	0x1F
+#define ARM_MODE	0x1F
 
 #define I_BIT            0x80
 #define F_BIT            0x40
