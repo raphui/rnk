@@ -72,6 +72,7 @@ SECTIONS
     } >sram
     
     _sstack = 0x210000;
+    _ustack = 0x2E0000;
 }
 end = .;
 
