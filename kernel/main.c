@@ -25,6 +25,9 @@
 #include <pio.h>
 #include <aic.h>
 #include <utils.h>
+#include <mm.h>
+
+char *array;
 
 void first_task(void)
 {
@@ -51,6 +54,21 @@ void third_task(void)
 	}
 }
 
+void fourth_task(void)
+{
+	array = kmalloc(64 *sizeof(char));
+	int i = 0;
+
+	printk("starting task D\r\n");
+
+	while (1) {
+		for (i = 0; i < 64; i++) {
+			array[i] = 0xfa;
+			printk("%x ", array[i]);
+		}
+	}
+}
+
 int main(void)
 {
 	uart_init();
@@ -59,9 +77,10 @@ int main(void)
 
 	printk("Hello World from RNK ( Raphio new kernel )\r\n");
 
-	add_task(&first_task, 1);
-	add_task(&second_task, 6);
-	add_task(&third_task, 20);
+//	add_task(&first_task, 1);
+//	add_task(&second_task, 6);
+//	add_task(&third_task, 20);
+	add_task(&fourth_task, 20);
 
 	aic_disable_it(AT91C_ID_PIOA);
 	aic_register_handler(AT91C_ID_PIOA, AT91C_AIC_PRIOR_LOWEST, pio_isr);
