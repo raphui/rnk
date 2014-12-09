@@ -27,7 +27,7 @@
 #include <utils.h>
 #include <mm.h>
 
-char *array;
+unsigned int **array;
 
 void first_task(void)
 {
@@ -56,15 +56,18 @@ void third_task(void)
 
 void fourth_task(void)
 {
-	array = kmalloc(64 *sizeof(char));
+	unsigned int size = sizeof(unsigned int);
+	array = (unsigned int *)kmalloc(size);
 	int i = 0;
 
 	printk("starting task D\r\n");
 
 	while (1) {
-		for (i = 0; i < 64; i++) {
-			array[i] = 0xfa;
-			printk("%x ", array[i]);
+		for (i = 0; i < size; i++) {
+			array[i] = (unsigned int *)kmalloc(sizeof(unsigned int));
+			printk("D");
+//			array[i][i] = 0xaabbccdd;
+//			printk("%x ", array[i][i]);
 		}
 	}
 }
