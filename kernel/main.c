@@ -78,7 +78,8 @@ int main(void)
 	pio_set_output(AT91C_BASE_PIOA, (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3), 0);
 	pio_clear_value(AT91C_BASE_PIOA, (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3));
 
-	printk("Hello World from RNK ( Raphio new kernel )\r\n");
+	printk("Welcome to RNK ( Raphio new kernel )\r\n");
+	printk("- Add task to scheduler\r\n");
 
 //	add_task(&first_task, 1);
 //	add_task(&second_task, 6);
@@ -92,6 +93,7 @@ int main(void)
 	pio_set_input(AT91C_BASE_PIOA, (1 << 14) | (1 << 15) | (1 << 19) | (1 << 20), 1, 1);
 	pio_enable_interrupt(AT91C_BASE_PIOA, (1 << 14) | (1 << 15) | (1 << 19) | (1 << 20));
 
+	printk("- Start scheduling...\r\n");
 	start_schedule();
 
 	while(1)
