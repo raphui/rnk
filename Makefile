@@ -42,7 +42,7 @@ OBJS	:= 	asm/head.o \
 			mm/alloc.o \
 			mm/init.o \
 			mm/free.o \
-			utils/io.o \
+			utils/stdio.o \
 			utils/utils.o
 
 config:

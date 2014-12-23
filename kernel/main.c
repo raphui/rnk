@@ -18,7 +18,7 @@
 
 #include <board.h>
 #include <uart.h>
-#include <io.h>
+#include <stdio.h>
 #include <scheduler.h>
 #include <task.h>
 #include <interrupt.h>
@@ -66,8 +66,8 @@ void fourth_task(void)
 		for (i = 0; i < size; i++) {
 			array[i] = (unsigned int *)kmalloc(sizeof(unsigned int));
 			printk("D");
-//			array[i][i] = 0xaabbccdd;
-//			printk("%x ", array[i][i]);
+			array[i][i] = 0xaabbccdd;
+			printk("%x ", array[i][i]);
 		}
 	}
 }

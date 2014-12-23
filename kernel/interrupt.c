@@ -17,7 +17,7 @@
  */
 
 #include <board.h>
-#include <io.h>
+#include <stdio.h>
 #include <pio.h>
 #include <utils.h>
 #include <interrupt.h>

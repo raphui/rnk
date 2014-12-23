@@ -18,7 +18,7 @@
 
 #include <scheduler.h>
 #include <task.h>
-#include <io.h>
+#include <stdio.h>
 #include <pit.h>
 #include <board.h>
 

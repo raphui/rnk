@@ -32,5 +32,6 @@ struct io_operations io_op;
 
 
 int printk(const char *fmt, ...);
+void vprintf(const char *fmt, va_list va);
 
 #endif /* IO_H */

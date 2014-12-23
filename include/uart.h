@@ -19,7 +19,7 @@
 #ifndef UART_H
 #define UART_H
 
-#include <io.h>
+#include <stdio.h>
 
 void uart_init(void);
 void uart_print(unsigned char byte);

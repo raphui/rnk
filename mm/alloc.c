@@ -17,7 +17,7 @@
  */
 
 #include <stddef.h>
-#include <io.h>
+#include <stdio.h>
 #include "memory.h"
 
 static void *alloc(struct memory_block *heap, unsigned int heap_size, unsigned int chunks, void *base)

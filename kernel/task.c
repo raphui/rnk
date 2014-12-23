@@ -18,7 +18,7 @@
 
 #include <task.h>
 #include <scheduler.h>
-#include <io.h>
+#include <stdio.h>
 
 static int index_current_task = -1;
 static int task_count;
