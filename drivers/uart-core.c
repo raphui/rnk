@@ -38,5 +38,6 @@ int uart_printl(const char *string)
 }
 
 struct io_operations io_op = {
-	.write = uart_printl,
+	.write = uart_print,
+	.write_string = uart_printl,
 };

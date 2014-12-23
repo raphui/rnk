@@ -16,22 +16,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef IO_H
-#define IO_H
+#ifndef STDIO_H
+#define STDIO_H
 
+#include <stdarg.h>
 #include <stdint.h>
 
 struct io_operations
 {
-
-	int (*write)(const char *string);
+	void (*write)(unsigned char c);
+	int (*write_string)(const char *string);
 };
-
 
 struct io_operations io_op;
 
+void printk(char *fmt, ...);
+void vprintf(char *fmt, va_list va);
 
-int printk(const char *fmt, ...);
-void vprintf(const char *fmt, va_list va);
-
-#endif /* IO_H */
+#endif /* STDIO_H */
