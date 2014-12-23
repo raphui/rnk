@@ -18,7 +18,7 @@ LD_SCRIPT=$(SAM7S_SRAM_LD)
 INCLUDES	:= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__
-CFLAGS  :=  -Wall -mlong-calls -ffunction-sections -mcpu=arm7tdmi -nostdlib -g $(INCLUDES)
+CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=arm7tdmi -nostdlib -g $(INCLUDES)
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffunction-sections -mcpu=arm7tdmi -nostdlib -g $(INCLUDES)
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles #-Wl,--gc-sections
@@ -58,7 +58,7 @@ include $(wildcard *.d)
  
 kernel.elf: $(OBJS) 
 	@@echo "LD " $@
-	@$(CROSS_COMPILE)ld $(LDFLAGS) $(OBJS) -T$(LD_SCRIPT) -o $@
+	@$(CROSS_COMPILE)gcc $(LDFLAGS) $(OBJS) -T$(LD_SCRIPT) -o $@
  
 kernel.img: kernel.elf
 	@@echo "OBJCOPY " $<
