@@ -27,8 +27,6 @@
 #include <utils.h>
 #include <mm.h>
 
-unsigned int **array;
-
 void first_task(void)
 {
 
@@ -57,17 +55,27 @@ void third_task(void)
 void fourth_task(void)
 {
 	unsigned int size = sizeof(unsigned int);
-	array = (unsigned int *)kmalloc(size);
+	unsigned char *p;
+	unsigned int *array = (unsigned int *)kmalloc(size);
 	int i = 0;
 
 	printk("starting task D\r\n");
+	printk("array (%x)\r\n", array);
+
+	p = (unsigned char *)kmalloc(24);
+	*p = 0xea;
+	printk("p(%x): %x\r\n", p, *p);
+	kfree(p);
 
 	while (1) {
 		for (i = 0; i < size; i++) {
-			array[i] = (unsigned int *)kmalloc(sizeof(unsigned int));
 			printk("D");
-			array[i][i] = 0xaabbccdd;
-			printk("%x ", array[i][i]);
+			array[i] = (1 << i);
+			printk("%x ", array[i]);
+		}
+
+		for (i = 0; i < size; i++) {
+			kfree(array);
 		}
 	}
 }
@@ -79,6 +87,10 @@ int main(void)
 	pio_clear_value(AT91C_BASE_PIOA, (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3));
 
 	printk("Welcome to RNK ( Raphio new kernel )\r\n");
+	printk("- Initialise heap...\r\n");
+
+	init_heap();
+
 	printk("- Add task to scheduler\r\n");
 
 //	add_task(&first_task, 1);
