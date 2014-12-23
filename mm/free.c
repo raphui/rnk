@@ -47,7 +47,7 @@ static void free_mem(void *mem, struct memory_block *heap, void *base)
 	}
 }
 
-void free(void *mem)
+void kfree(void *mem)
 {
 	free_mem(mem, kernel_heap, (void *)KERNEL_HEAP_START);
 }
