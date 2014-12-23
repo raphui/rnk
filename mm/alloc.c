@@ -41,6 +41,7 @@ static void *alloc(struct memory_block *heap, unsigned int heap_size, unsigned i
 						heap[i].free_mask |= (mask << off);
 						heap[i].free_chunks -= chunks;
 						ret = to_addr(i, off, base);
+						goto out;
 					}
 				}
 			} else {
@@ -69,6 +70,7 @@ static void *alloc(struct memory_block *heap, unsigned int heap_size, unsigned i
 					heap[i].free_chunks -= chunks;
 
 					ret = to_addr(i - free_blocks, 0, base);
+					goto out;
 				}
 			} else {
 				free_blocks = 0;
@@ -77,6 +79,7 @@ static void *alloc(struct memory_block *heap, unsigned int heap_size, unsigned i
 		}	
 	}
 
+out:
 	if (!ret)
 		return ret;
 
