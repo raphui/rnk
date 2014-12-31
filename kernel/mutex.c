@@ -72,4 +72,6 @@ void mutex_unlock(struct mutex *mutex)
 			schedule_task(task);
 		}
 	}
+
+	printk("mutex (%x) unlock\r\n", mutex);
 }
