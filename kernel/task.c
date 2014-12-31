@@ -81,7 +81,12 @@ int get_task_count(void)
 	return task_count;
 }
 
-int get_current_task(void)
+struct task *get_current_task(void)
+{
+	return &task[index_current_task];
+}
+
+int get_current_task_index(void)
 {
 	return index_current_task;
 }
