@@ -65,7 +65,7 @@ void first_switch_task(int index_task)
 
 void switch_task(int index_task)
 {
-	task[index_current_task].state = TASK_STOPPED;
+	task[index_current_task].state = TASK_RUNNABLE;
 	task[index_task].state = TASK_RUNNING;
 
 	/* Switch context */

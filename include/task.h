@@ -25,7 +25,8 @@
 #define NR_TASK	8
 
 #define TASK_RUNNING		0
-#define TASK_STOPPED		1
+#define TASK_RUNNABLE		1
+#define TASK_STOPPED		2
 #define TASK_INTERRUPTIBLE	3
 
 #define TASK_STACK_START	0x002bbdd0
