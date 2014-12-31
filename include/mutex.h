@@ -32,4 +32,4 @@ struct mutex {
 void mutex_lock(struct mutex *mutex);
 void mutex_unlock(struct mutex *mutex);
 
-#endif /* MUTEX_H */>
+#endif /* MUTEX_H */
