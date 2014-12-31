@@ -55,6 +55,7 @@ struct registers
 struct task
 {
 	int state;
+	unsigned int pid;
 	unsigned int counter;
 	unsigned int start_stack;
 	void (*func)(void);

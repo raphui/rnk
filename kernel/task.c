@@ -38,6 +38,7 @@ static void increment_task_counter(void)
 void add_task(void (*func)(void), unsigned int priority)
 {
 	task[task_count].state = TASK_STOPPED;
+	task[task_count].pid = task_count;
 	task[task_count].counter = priority;
 	task[task_count].start_stack = TASK_STACK_START - (task_count * TASK_STACK_OFFSET);
 	task[task_count].func = func;
