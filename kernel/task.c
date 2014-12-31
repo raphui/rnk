@@ -80,6 +80,11 @@ int get_task_count(void)
 	return task_count;
 }
 
+int get_current_task(void)
+{
+	return index_current_task;
+}
+
 int find_next_task(void)
 {
 	int i;
