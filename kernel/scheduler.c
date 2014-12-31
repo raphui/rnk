@@ -48,6 +48,20 @@ void schedule(void)
 	task_switching = 1;
 }
 
+void schedule_task(struct task *task)
+{
+	int i;
+
+	if (task)
+		switch_task(task->pid);
+	else {
+		i = find_next_task();
+		switch_task(i);
+	}
+	
+	task_switching = 1;
+}
+
 /* Since tasks cannot end, if we jump into this functions it's mean that the context switch is buggy */
 void end_task(void)
 {

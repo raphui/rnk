@@ -30,6 +30,7 @@ void save_user_context(void);
 void get_user_context(void);
 void start_schedule(void);
 void schedule(void);
+void schedule_task(struct task *task);
 void end_task(void);
 
 #endif /* SCHEDULER_H */
