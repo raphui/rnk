@@ -3,6 +3,8 @@
 #include <errno.h>
 #include <scheduler.h>
 
+#include <arch/svc.h>
+
 static int __mutex_lock(struct mutex *mutex)
 {
 	int ret = 0;
@@ -69,7 +71,8 @@ void mutex_unlock(struct mutex *mutex)
 			task = mutex->waiting;
 			mutex->waiting = NULL;
 
-			schedule_task(task);
+//			schedule_task(task);
+			SVC(SVC_TASK_SWITCH);
 		}
 	}
 
