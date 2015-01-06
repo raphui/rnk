@@ -19,6 +19,52 @@
 #ifndef SVC_H
 #define SVC_H
 
+/*
+ * We need to make sure that we get the return value
+ * without screwing up r0, since GCC doesn't understand that
+ * SVC has a return value.
+ *
+ * Save the LR to prevent clobbering it with reentrant SVC calls.
+ */
+#define SVC(call)  ({ \
+    uint32_t ret = 0;   \
+    asm volatile ("push {lr}     \n"    \
+                  "svc  %[code]  \n"    \
+                  "pop  {lr}     \n"    \
+                  "mov  %[ret], r0  \n" \
+                  :[ret] "+r" (ret)     \
+                  :[code] "I" (call)    \
+                  :"r0");               \
+    ret;    \
+})
+
+#define SVC_ARG(call, arg)  ({ \
+    uint32_t ret = 0;   \
+    asm volatile ("mov  r0, %[ar]  \n"  \
+                  "push {lr}     \n"    \
+                  "svc  %[code]  \n"    \
+                  "pop  {lr}     \n"    \
+                  "mov  %[ret], r0  \n" \
+                  :[ret] "+r" (ret)     \
+                  :[code] "I" (call), [ar] "r" (arg)     \
+                  :"r0");               \
+    ret;    \
+})
+
+#define SVC_ARG2(call, arg1, arg2)  ({ \
+    uint32_t ret = 0;   \
+    asm volatile ("mov  r0, %[ar1]  \n"  \
+                  "mov  r1, %[ar2]  \n"  \
+                  "push {lr}     \n"    \
+                  "svc  %[code]  \n"    \
+                  "pop  {lr}     \n"    \
+                  "mov  %[ret], r0  \n" \
+                  :[ret] "+r" (ret)     \
+                  :[code] "I" (call), [ar1] "r" (arg1), [ar2] "r" (arg2)     \
+                  :"r0", "r1");               \
+    ret;    \
+})
+
 void svc_create_context(struct registers *_reg, unsigned int sp, unsigned int func, unsigned int end);
 void svc_activate_context(struct registers *_reg);
 void svc_switch_context(struct registers *_curr_reg, struct registers *_reg);
