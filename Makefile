@@ -70,6 +70,7 @@ kernel.img: kernel.elf
 clean:
 	$(RM) $(OBJS) kernel.elf kernel.img
 	$(RM) boards/board.h
+	$(RM) include/arch
  
 dist-clean: clean
 	$(RM) `find . -name *.d`
