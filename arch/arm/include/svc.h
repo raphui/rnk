@@ -19,6 +19,12 @@
 #ifndef SVC_H
 #define SVC_H
 
+#include <task.h>
+
+enum service_calls {
+    SVC_TASK_SWITCH,
+};
+
 /*
  * We need to make sure that we get the return value
  * without screwing up r0, since GCC doesn't understand that
