@@ -108,19 +108,29 @@ fiqHandler:
 
 swiHandler:
 	stmfd   sp!, {r0-r12, lr}
-
+	mrs	r0, SPSR
+	stmfd	sp!, {r0}
+/*
+	mrs	r0, CPSR
+	orr	r0, r0, #(1 << 7)
+	msr	CPSR, r0
+*/
+/*
 	mov	r1, r8
 	and	r1, r1, #ARM_MODE
 	teq	r1, #ARM_MODE_USR
 	mov	r10, lr
 	bleq	svc_save_user_context
+*/
 
         b       svc_handler               /* Software interrupt */
-
+/*
 	and	r1, r1, #ARM_MODE
 	teq	r1, #ARM_MODE_USR
 	bleq	svc_get_user_context
-
+*/
+	ldmia	sp!, {r0}
+	msr	SPSR, r0
         ldmia   sp!, {r0-r12, lr}
 	mov	pc, lr
 
