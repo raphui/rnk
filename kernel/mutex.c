@@ -43,9 +43,19 @@ void mutex_lock(struct mutex *mutex)
 
 	ret = __mutex_lock(mutex);
 	if (ret < 0) {
+		printk(".........................................\r\n");
+		printk(".........................................\r\n");
+		printk(".........................................\r\n");
+		printk("mutex_lock FAILED !\r\n");
+		printk(".........................................\r\n");
+		printk(".........................................\r\n");
+		printk(".........................................\r\n");
 
-		if (mutex->owner->state == TASK_RUNNABLE)
-			SVC_ARG(SVC_TASK_SWITCH, mutex->owner);
+		if (mutex->owner)
+			if (mutex->owner->state == TASK_RUNNABLE)
+				SVC_ARG(SVC_TASK_SWITCH, mutex->owner);
+			else
+				SVC_ARG(SVC_TASK_SWITCH, NULL);
 		else
 			SVC_ARG(SVC_TASK_SWITCH, NULL);
 
