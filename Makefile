@@ -53,6 +53,7 @@ config:
 	@ln -s $(KERNEL_BASE)/arch/arm/include $(KERNEL_BASE)/include/arch
 
 cscope:
+	@@echo "GEN " $@
 	@cscope -b -q -k -R
  
 all: kernel.img
