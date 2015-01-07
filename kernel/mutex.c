@@ -45,9 +45,9 @@ void mutex_lock(struct mutex *mutex)
 	if (ret < 0) {
 
 		if (mutex->owner->state == TASK_RUNNABLE)
-			schedule_task(mutex->owner);
+			SVC_ARG(SVC_TASK_SWITCH, mutex->owner);
 		else
-			schedule_task(NULL);
+			SVC_ARG(SVC_TASK_SWITCH, NULL);
 
 	} else {
 		printk("mutex (%x) lock\r\n", mutex);
@@ -71,8 +71,7 @@ void mutex_unlock(struct mutex *mutex)
 			task = mutex->waiting;
 			mutex->waiting = NULL;
 
-//			schedule_task(task);
-			SVC(SVC_TASK_SWITCH);
+			SVC_ARG(SVC_TASK_SWITCH, task);
 		}
 	}
 
