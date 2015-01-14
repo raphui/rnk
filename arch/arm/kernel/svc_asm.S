@@ -127,12 +127,24 @@ svc_switch_context:
 	ldmia	sp!, {r0-r12, lr}
 	mov	pc, lr
 
+/*
+ *	Call with struct task *task in r0
+ */
 .global svc_save_user_context
 svc_save_user_context:
+	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
+	stmia	r0!, {r0-r12}
+	msr	CPSR_c, #ARM_MODE_SVC | I_BIT | F_BIT
 	mov	pc, lr
 
+/*
+ *	Call with struct task *task in r0
+ */
 .global svc_get_user_context
 svc_get_user_context:
+	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
+	stmia	r0!, {r0-r12}
+	msr	CPSR_c, #ARM_MODE_SVC | I_BIT | F_BIT
 	mov	pc, lr
 
 .global __svc_save_user_context
