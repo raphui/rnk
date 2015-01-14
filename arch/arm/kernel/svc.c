@@ -20,7 +20,7 @@
 
 #include <arch/svc.h>
 
-void svc_handler(unsigned int call)
+void svc_handler(unsigned int call, void *arg)
 {
-	printk("svc_handler: got call %d\r\n", call);
+	printk("svc_handler: got call %d with arg (%x)\r\n", call, arg);
 }
