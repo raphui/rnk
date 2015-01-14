@@ -14,7 +14,7 @@ static int __mutex_lock(struct mutex *mutex)
 		printk("mutex already locked\r\n");
 		ret = -EDEADLOCK;
 
-		if (mutex->owner != NULL) {
+		if (mutex->owner) {
 
 			if (mutex->waiting) {
 				/* Make task waiting if higher counter */
