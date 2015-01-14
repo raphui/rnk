@@ -213,3 +213,15 @@ skip_user_restore:
 .get_spsr:
 	.word 0
 
+/*
+ *	Call with r0, to retrieve SVC instruction: (LR - 4)
+ */
+.global __svc_handler
+__svc_handler:
+	ldr	r0, [r0, #-4]		/* Load the SVC instruction in r0 */
+	bic	r0, r0, #0xFF000000	/* Get the SVC value */
+	stmfd	sp!, {lr}
+	bl svc_handler
+	ldmia	sp!, {lr}
+	mov	pc, lr
+
