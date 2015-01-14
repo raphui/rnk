@@ -129,6 +129,14 @@ svc_switch_context:
 
 .global svc_save_user_context
 svc_save_user_context:
+	mov	pc, lr
+
+.global svc_get_user_context
+svc_get_user_context:
+	mov	pc, lr
+
+.global __svc_save_user_context
+__svc_save_user_context:
 	/* Save User mode context */
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
 	stmfd	sp!, {r0}
@@ -160,8 +168,8 @@ svc_save_user_context:
 	msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 	mov	pc, lr
 
-.global svc_get_user_context
-svc_get_user_context:
+.global __svc_get_user_context
+__svc_get_user_context:
 	ldr	r1, =task_switching
 	ldr	r2, [r1]
 	cmp	r2, #0
