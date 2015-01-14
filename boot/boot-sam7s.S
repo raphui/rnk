@@ -110,8 +110,9 @@ swiHandler:
 	stmfd   sp!, {r0-r12, lr}
 	mrs	r8, SPSR
 	stmfd	sp!, {r8}
+	mov	r0, lr		/* Put the SVC instruction (lr - 4) in r0 */
 
-        bl       svc_handler               /* Software interrupt */
+        bl       __svc_handler               /* Software interrupt */
 
 	ldmia	sp!, {r8}
 	msr	SPSR, r8
