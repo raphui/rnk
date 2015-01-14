@@ -17,10 +17,21 @@
  */
 
 #include <stdio.h>
+#include <scheduler.h>
 
 #include <arch/svc.h>
 
 void svc_handler(unsigned int call, void *arg)
 {
 	printk("svc_handler: got call %d with arg (%x)\r\n", call, arg);
+
+	switch (call) {
+	case SVC_TASK_SWITCH:
+		printk("SVC call ask for a task switch\r\n");
+		schedule_task((struct task *)arg);
+		break;
+	default:
+		printk("Invalid svc call\r\n");
+		break;
+	}
 }
