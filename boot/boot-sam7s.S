@@ -135,7 +135,7 @@ irqHandler:
 	and	r1, r1, #ARM_MODE
 	teq	r1, #ARM_MODE_USR
 	mov	r10, lr
-	bleq	svc_save_user_context
+	bleq	__svc_save_user_context
 
 /* Write in the IVR to support Protect Mode */
         ldr     lr, =AT91C_BASE_AIC
@@ -161,7 +161,7 @@ irqHandler:
 
 	and	r1, r1, #ARM_MODE
 	teq	r1, #ARM_MODE_USR
-	bleq	svc_get_user_context
+	bleq	__svc_get_user_context
 
 /* Restore interrupt context and branch back to calling code */
         ldmia   sp!, {r0, lr}
