@@ -150,6 +150,9 @@ svc_get_user_context:
 
 .global __svc_save_user_context
 __svc_save_user_context:
+	mrs	r9, CPSR
+	and	r9, r9, #ARM_MODE
+
 	/* Save User mode context */
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
 	stmfd	sp!, {r0}
@@ -168,8 +171,10 @@ __svc_save_user_context:
 	stmfd	sp!, {lr}
 	mov	r7, sp
 
-	/* Restore mode */
-	msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
+	mrs	r6, CPSR
+	bic	r6, r6, #ARM_MODE
+	orr	r6, r6, r9
+	msr	CPSR_c, r6
 
 	stmfd   r7!, {r8}
         stmfd   r7!, {r10}
@@ -178,11 +183,16 @@ __svc_save_user_context:
 	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
 	mov	sp, r7
 
-	msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
+	msr	CPSR_c, r6
 	mov	pc, lr
 
 .global __svc_get_user_context
 __svc_get_user_context:
+	mrs	r2, CPSR
+	and	r2, r2, #ARM_MODE
+	ldr	r1, =.current_cpsr
+	str	r2, [r1]
+
 	ldr	r1, =task_switching
 	ldr	r2, [r1]
 	cmp	r2, #0
@@ -215,8 +225,14 @@ __svc_get_user_context:
 	ldmfd	sp!, {r1}
 	ldmfd	sp!, {r0}
 
-	/* Restore mode */
-	msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
+/*
+	ldr	r8, .current_cpsr
+	ldr	r9, [r8]
+	mrs	r8, CPSR
+	bic	r8, r8, #ARM_MODE
+	orr	r8, r8, r9
+	msr	CPSR_c, r8
+*/
 
 	ldr	r8, =.get_spsr
 	ldr	r8, [r8]
@@ -232,6 +248,9 @@ skip_user_restore:
 	.word 0
 
 .get_spsr:
+	.word 0
+
+.current_cpsr:
 	.word 0
 
 /*
