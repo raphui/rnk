@@ -107,17 +107,43 @@ fiqHandler:
         b       fiqHandler
 
 swiHandler:
+	mrs	r8, SPSR
+	add	r8, r8, #ARM_MODE
+	teq	r8, #ARM_MODE_USR
+	beq	1f
 	stmfd   sp!, {r0-r12, lr}
 	mrs	r8, SPSR
 	stmfd	sp!, {r8}
 	mov	r0, lr		/* Put the SVC instruction (lr - 4) in r0 */
 
         bl       __svc_handler               /* Software interrupt */
-
+	
 	ldmia	sp!, {r8}
 	msr	SPSR, r8
         ldmia   sp!, {r0-r12, lr}
 	subs	pc, lr, #0
+
+1:
+        stmfd   sp!, {lr}
+        mrs     r8, SPSR
+        stmfd   sp!, {r0, r8}
+	mov	r0, lr
+
+	mov	r1, r8
+	and	r1, r1, #ARM_MODE
+	teq	r1, #ARM_MODE_USR
+	bleq	__svc_save_user_context
+
+        bl       __svc_handler               /* Software interrupt */
+
+	and	r1, r1, #ARM_MODE
+	teq	r1, #ARM_MODE_USR
+	bleq	__svc_get_user_context
+
+
+        ldmia   sp!, {r0, lr}
+        msr     SPSR_cxsf, lr
+        ldmia   sp!, {pc}^
 
 //------------------------------------------------------------------------------
 /// Handles incoming interrupt requests by branching to the corresponding
