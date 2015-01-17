@@ -133,9 +133,16 @@ svc_switch_context:
  */
 .global svc_save_user_context
 svc_save_user_context:
-	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	stmia	r0!, {r0-r12}
-	msr	CPSR_c, #ARM_MODE_SVC | I_BIT | F_BIT
+	mov	r1, r8
+	and	r1, r1, #ARM_MODE
+	teq	r1, #ARM_MODE_USR
+	beq	1f
+	stmfd	sp!, {r0-r12, lr}
+	mov	pc, lr
+1:	
+	stmfd	sp!, {lr}
+	bl	__svc_save_user_context
+	ldmia	sp!, {lr}
 	mov	pc, lr
 
 /*
@@ -143,9 +150,16 @@ svc_save_user_context:
  */
 .global svc_get_user_context
 svc_get_user_context:
-	msr	CPSR_c, #ARM_MODE_SYS | I_BIT | F_BIT
-	stmia	r0!, {r0-r12}
-	msr	CPSR_c, #ARM_MODE_SVC | I_BIT | F_BIT
+	mov	r1, r8
+	and	r1, r1, #ARM_MODE
+	teq	r1, #ARM_MODE_USR
+	beq	1f
+	ldmia	sp!, {r0-r12, lr}
+	mov	pc, lr
+1:
+	stmfd	sp!, {lr}
+	bl	__svc_save_user_context
+	ldmia	sp!, {lr}
 	mov	pc, lr
 
 .global __svc_save_user_context
