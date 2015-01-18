@@ -18,7 +18,7 @@
 
 #include <task.h>
 #include <scheduler.h>
-#include <arch/svc.h>
+#include <armv7m/svc.h>
 
 void create_context(struct registers *_regs, struct task *_task)
 {

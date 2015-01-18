@@ -18,28 +18,44 @@
 
 #include <board.h>
 #include <stdio.h>
-#include <pio.h>
 #include <utils.h>
 #include <interrupt.h>
+#include <scheduler.h>
+#include <armv7m/system.h>
 
-void pio_isr(void)
+
+void hardfault_handler(void)
 {
-	unsigned int mask = readl(AT91C_BASE_PIOA + PIO_ISR);
+	while (1)
+		;
+}
 
-	printk("pio_isr\r\n");
+void memmanage_handler(void)
+{
+	while (1)
+		;
+}
 
-	/* Clear all led value */
-	pio_set_value(AT91C_BASE_PIOA, 0xf);
-	
-	/* Set led depending on button pressed */
-	if (mask & (1 << 19))
-		pio_clear_value(AT91C_BASE_PIOA, (1 << 0));
-	else if (mask & (1 << 20))
-		pio_clear_value(AT91C_BASE_PIOA, (1 << 1));
-	else if (mask & (1 << 15))
-		pio_clear_value(AT91C_BASE_PIOA, (1 << 2));
-	else if (mask & (1 << 14))
-		pio_clear_value(AT91C_BASE_PIOA, (1 << 3));
+void busfault_handler(void)
+{
+	while (1)
+		;
+}
 
-	printk("good bye\n\r");
+void usagefault_handler(void)
+{
+	while (1)
+		;
+}
+
+void systick_handler(void)
+{
+	unsigned int val = readl(SCB_BASE + SCB_ICSR);
+	val |= SCB_ICSR_PENDSVSET;
+	writel(SCB_BASE + SCB_ICSR, val);
+}
+
+void pendsv_handler(void)
+{
+	schedule_task(NULL);
 }

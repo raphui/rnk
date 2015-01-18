@@ -16,9 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <stdint.h>
-#include <arch/system.h>
-#include <dev/hw/systick.h>
+#include <armv7m/system.h>
 
 #define SYS_CLOCK	84000000
 #define SYSTICK_FREQ	4000

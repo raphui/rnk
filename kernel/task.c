@@ -20,6 +20,7 @@
 #include <scheduler.h>
 #include <stdio.h>
 #include <mm.h>
+#include <arch/svc.h>
 
 static int index_current_task = -1;
 static int task_count;
@@ -62,7 +63,8 @@ void first_switch_task(int index_task)
 	index_current_task = index_task;
 
 	/* Active first task */
-	activate_context(task[index_current_task]);
+//	activate_context(task[index_current_task]);
+	SVC_ARG(SVC_TASK_SWITCH, NULL);
 }
 
 void switch_task(int index_task)
@@ -71,7 +73,8 @@ void switch_task(int index_task)
 	task[index_task]->state = TASK_RUNNING;
 
 	/* Switch context */
-	switch_context(task[index_current_task]->regs, task[index_task]->regs);
+	SVC_ARG(SVC_TASK_SWITCH, task[index_task]);
+//	switch_context(task[index_current_task]->regs, task[index_task]->regs);
 
 	index_current_task = index_task;
 

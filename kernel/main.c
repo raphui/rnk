@@ -143,10 +143,10 @@ int main(void)
 
 	printk("- Add task to scheduler\r\n");
 
-	add_task(&first_task, 1);
-	add_task(&second_task, 6);
-//	add_task(&third_task, 20);
-//	add_task(&fourth_task, 20);
+//	add_task(&first_task, 1);
+//	add_task(&second_task, 6);
+	add_task(&third_task, 20);
+	add_task(&fourth_task, 20);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();

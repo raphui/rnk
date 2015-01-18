@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014  Raphaël Poggi <poggi.raph@gmail.com>
+ * Copyright (C) 2015  Raphaël Poggi <poggi.raph@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,14 +16,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef INTERRUPT_H
-#define INTERRUPT_H
+.global __svc
+__svc:
+	mrs r0, psp
 
-void hardfault_handler(void);
-void memmanage_handler(void);
-void busfault_handler(void);
-void usagefault_handler(void);
-void systick_handler(void);
-void pendsv_handler(void);
+	push {lr}
+	push {r0}
+	bl save_context
+	pop {r0}
+	bl svc_handler
+	bl restore_context
+	pop {pc}
 
-#endif /* INTERRUPT_H */
+
+.global __pendsv
+__pendsv:
+	push {lr}
+	bl save_context
+	bl pendsv_handler
+	bl restore_context
+	pop {pc}

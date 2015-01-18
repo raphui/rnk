@@ -19,6 +19,8 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+extern void init_systick(void);
+
 static inline void READ_AND_DISCARD(volatile unsigned int *reg) {
     asm volatile ("" : "=m" (*reg) : "r" (*reg));
 }

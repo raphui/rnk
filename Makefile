@@ -31,12 +31,15 @@ OBJS	:= 	asm/head.o \
 		arch/arm/$(ARMV)/kernel/svc_asm.o \
 		arch/arm/$(ARMV)/kernel/svc.o \
 		arch/arm/$(ARMV)/kernel/context.o \
+		arch/arm/$(ARMV)/systick.o \
+		arch/arm/$(ARMV)/handlers.o \
 		boards/mach-$(MACH)/$(SOC).o \
 		boot/boot-$(SOC).o \
 		drivers/uart-core.o \
 		kernel/main.o \
 		kernel/mutex.o \
 		kernel/scheduler.o \
+		kernel/interrupt.o \
 		kernel/task.o \
 		mm/alloc.o \
 		mm/init.o \
