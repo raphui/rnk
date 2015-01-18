@@ -15,3 +15,48 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+.global save_context
+save_context:
+	mrs r0, psp
+	stmfd r0!, {r4-r11}
+	msr psp, r0
+	b lr
+
+
+.gloval restore_context
+restore_context:
+	mrs r0, psp
+	ldmfd r0!, {r4-r11}
+	msr psp, r0
+	b lr
+
+
+.global switch_to_privilege_mode
+switch_to_privilege_mode:
+	mrs r0, control
+	bic r0, r0, #1
+	msr r0, control
+	dsb
+	isb
+	b lr
+
+
+.global enable_psp
+enable_psp:
+	mrs r0, control
+	orr r0, r0, #2
+	msr control, r0
+	dsb
+	isb
+	b lr
+
+.global disable_psp
+disable_psp:
+	mrs r0, control
+	bic r0, r0, #2
+	msr control, r0
+	dsb
+	isb
+	b lr
+
