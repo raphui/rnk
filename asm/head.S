@@ -15,12 +15,3 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-#include <asm.h>
-
-ENTRY( get_value_cp )
-
-	mrc p15, 0, r0, c1, c0, 0
-	mov pc, lr
-
-END( get_value_cp )

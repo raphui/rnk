@@ -134,8 +134,6 @@ void fourth_task(void)
 int main(void)
 {
 	uart_init();
-	pio_set_output(AT91C_BASE_PIOA, (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3), 0);
-	pio_clear_value(AT91C_BASE_PIOA, (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3));
 
 	printk("Welcome to RNK ( Raphio new kernel )\r\n");
 	printk("- Initialise heap...\r\n");
@@ -149,13 +147,6 @@ int main(void)
 	add_task(&second_task, 6);
 //	add_task(&third_task, 20);
 //	add_task(&fourth_task, 20);
-
-	aic_disable_it(AT91C_ID_PIOA);
-	aic_register_handler(AT91C_ID_PIOA, AT91C_AIC_PRIOR_LOWEST, pio_isr);
-	aic_enable_it(AT91C_ID_PIOA);
-
-	pio_set_input(AT91C_BASE_PIOA, (1 << 14) | (1 << 15) | (1 << 19) | (1 << 20), 1, 1);
-	pio_enable_interrupt(AT91C_BASE_PIOA, (1 << 14) | (1 << 15) | (1 << 19) | (1 << 20));
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();

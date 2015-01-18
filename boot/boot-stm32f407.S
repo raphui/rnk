@@ -81,9 +81,9 @@ LoopFillZerobss:
   bcc  FillZerobss
 
 /* Call the clock system intitialization function.*/
-  bl  SystemInit   
+  bl  low_level_init
 /* Call static constructors */
-    bl __libc_init_array
+ /*   bl __libc_init_array*/
 /* Call the application's entry point.*/
   bl  main
   bx  lr    
@@ -491,4 +491,4 @@ g_pfnVectors:
    .thumb_set HASH_RNG_IRQHandler,Default_Handler   
 
    .weak      FPU_IRQHandler                  
-   .thumb_set FPU_IRQHandler,Default_Handler  ]
+   .thumb_set FPU_IRQHandler,Default_Handler

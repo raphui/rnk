@@ -16,30 +16,44 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+.syntax unified
+.thumb
+
+.cpu cortex-m4
+.arch armv7e-m
+
+.global __activate_context
+__activate_context:
+	bx lr
+
+.global __switch_context
+__switch_context:
+	bx lr
+
 .global save_context
 save_context:
 	mrs r0, psp
 	stmfd r0!, {r4-r11}
 	msr psp, r0
-	b lr
+	bx lr
 
 
-.gloval restore_context
+.global restore_context
 restore_context:
 	mrs r0, psp
 	ldmfd r0!, {r4-r11}
 	msr psp, r0
-	b lr
+	bx lr
 
 
 .global switch_to_privilege_mode
 switch_to_privilege_mode:
 	mrs r0, control
 	bic r0, r0, #1
-	msr r0, control
+	msr control, r0
 	dsb
 	isb
-	b lr
+	bx lr
 
 
 .global enable_psp
@@ -49,7 +63,7 @@ enable_psp:
 	msr control, r0
 	dsb
 	isb
-	b lr
+	bx lr
 
 .global disable_psp
 disable_psp:
@@ -58,5 +72,5 @@ disable_psp:
 	msr control, r0
 	dsb
 	isb
-	b lr
+	bx lr
 
