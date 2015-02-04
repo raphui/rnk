@@ -134,7 +134,9 @@ swiHandler:
 	teq	r1, #ARM_MODE_USR
 	bleq	__svc_save_user_context
 
+        stmfd   sp!, {r1-r3, r4, r12, lr}
         bl       __svc_handler               /* Software interrupt */
+        ldmia   sp!, {r1-r3, r4, r12, lr}
 
 	and	r1, r1, #ARM_MODE
 	teq	r1, #ARM_MODE_USR
