@@ -26,13 +26,40 @@
 #include <aic.h>
 #include <utils.h>
 #include <mm.h>
+#include <mutex.h>
+
+struct mutex mutex;
 
 void first_task(void)
 {
 
 	printk("starting task A\r\n");
 	while (1) {
+		mutex_lock(&mutex);
 		printk("A");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		mutex_unlock(&mutex);
 	}
 }
 
@@ -40,7 +67,31 @@ void second_task(void)
 {
 	printk("starting task B\r\n");
 	while (1) {
+		mutex_lock(&mutex);
 		printk("B");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		printk(".");
+		mutex_unlock(&mutex);
 	}
 }
 
@@ -90,13 +141,14 @@ int main(void)
 	printk("- Initialise heap...\r\n");
 
 	init_heap();
+	init_mutex(&mutex);
 
 	printk("- Add task to scheduler\r\n");
 
-//	add_task(&first_task, 1);
-//	add_task(&second_task, 6);
+	add_task(&first_task, 1);
+	add_task(&second_task, 6);
 //	add_task(&third_task, 20);
-	add_task(&fourth_task, 20);
+//	add_task(&fourth_task, 20);
 
 	aic_disable_it(AT91C_ID_PIOA);
 	aic_register_handler(AT91C_ID_PIOA, AT91C_AIC_PRIOR_LOWEST, pio_isr);
