@@ -109,6 +109,9 @@ svc_activate_context:
 svc_switch_context:
 	/* r0: current reg structure */
 	/* r1: new reg structure */
+	/* r9: current CPSR */
+	mrs	r9, CPSR
+	and	r9, r9, #ARM_MODE
 
 	/* Save SVC context */
 	stmdb	sp!, {r0-r12, lr}
@@ -123,7 +126,10 @@ svc_switch_context:
 	add	r1, r1, #0x34
 	ldr	sp, [r1]
 
-	msr	CPSR_c, #ARM_MODE_SVC | I_BIT | F_BIT
+	mrs	r6, CPSR
+	bic	r6, r6, #ARM_MODE
+	orr	r6, r6, r9
+	msr	CPSR_c, r6
 
 	ldmia	sp!, {r0-r12, lr}
 	mov	pc, lr
