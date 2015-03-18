@@ -20,14 +20,14 @@
 #include <scheduler.h>
 #include <arch/svc.h>
 
-void create_context(struct registers *_regs, struct task _task)
+void create_context(struct registers *_regs, struct task *_task)
 {
-	svc_create_context(_regs, _task.start_stack, (unsigned int)_task.func, (unsigned int)end_task);
+	svc_create_context(_regs, _task->start_stack, (unsigned int)_task->func, (unsigned int)end_task);
 }
 
-void activate_context(struct task _task)
+void activate_context(struct task *_task)
 {
-	svc_activate_context(_task.regs);
+	svc_activate_context(_task->regs);
 }
 
 void switch_context(struct registers *_current_regs, struct registers *_task_regs)

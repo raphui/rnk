@@ -64,7 +64,7 @@ struct task
 };
 
 struct registers task_regs[NR_TASK];
-struct task task[NR_TASK];
+struct task *task[NR_TASK];
 
 void add_task(void (*func)(void), unsigned int priority);
 void first_switch_task(int index_task);
