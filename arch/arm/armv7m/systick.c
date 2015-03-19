@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014  Raphaël Poggi <poggi.raph@gmail.com>
+ * Copyright (C) 2015 Raphaël Poggi <poggi.raph@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,3 +15,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+#include <stdint.h>
+#include <arch/system.h>
+#include <dev/hw/systick.h>
+
+#define SYS_CLOCK	84000000
+#define SYSTICK_FREQ	4000
+
+void init_systick(void) {
+    *SYSTICK_RELOAD = SYS_CLOCK / SYSTICK_FREQ;
+    *SYSTICK_VAL = 0;
+    *SYSTICK_CTL = 0x00000007;
+
+    /* Set PendSV and SVC to lowest priority.
+     * This means that both will be deferred
+     * until all other exceptions have executed.
+     * Additionally, PendSV will not interrupt
+     * an SVC. */
+    *NVIC_IPR(11) = 0xFF;
+    *NVIC_IPR(14) = 0xFF;
+}
+
