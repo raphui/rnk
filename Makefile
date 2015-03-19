@@ -4,6 +4,7 @@
 #OBJS        := $(patsubst %.S,%.o,$(SOURCES_ASM))
 #OBJS        += $(patsubst %.c,%.o,$(SOURCES_C))
 
+ARMV=arm7tdmi
 MACH=at91
 SOC=sam7s
 
@@ -24,9 +25,9 @@ CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=arm7tdmi -
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles #-Wl,--gc-sections
 
 OBJS	:= 	asm/head.o \
-		arch/arm/kernel/svc_asm.o \
-		arch/arm/kernel/svc.o \
-		arch/arm/kernel/context.o \
+		arch/arm/$(ARMV)/kernel/svc_asm.o \
+		arch/arm/$(ARMV)/kernel/svc.o \
+		arch/arm/$(ARMV)/kernel/context.o \
 		boards/mach-$(MACH)/$(SOC).o \
 		boards/mach-$(MACH)/uart-$(SOC).o \
 		boards/mach-$(MACH)/aic.o \
