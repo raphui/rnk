@@ -19,16 +19,6 @@
 #include <armv7m/system.h>
 #include <utils.h>
 
-#define VECT_TAB_SRAM
-#define VECT_TAB_OFFSET  0x00
-#define PLL_M      25
-#define PLL_Q      7
-#define PLL_N      360
-/* SYSCLK = PLL_VCO / PLL_P */
-#define PLL_P      2
-#define HSE_STARTUP_TIMEOUT    0x05000
-#define RESET	0
-
 void set_sys_clock(void)
 {
 	/******************************************************************************/
