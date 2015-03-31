@@ -131,6 +131,14 @@ void fourth_task(void)
 	}
 }
 
+void fifth_task(void)
+{
+	printk("starting task E\r\n");
+	while (1) {
+		printk("E");
+	}
+}
+
 int main(void)
 {
 	uart_init();
@@ -146,7 +154,8 @@ int main(void)
 //	add_task(&first_task, 1);
 //	add_task(&second_task, 6);
 	add_task(&third_task, 20);
-	add_task(&fourth_task, 20);
+//	add_task(&fourth_task, 20);
+	add_task(&fifth_task, 20);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();
