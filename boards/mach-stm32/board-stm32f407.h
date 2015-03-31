@@ -32,7 +32,7 @@
 #define APB2_PRES	2
 #define HSE		25000000
 
-#define VECT_TAB_SRAM
+/*#define VECT_TAB_SRAM */
 #define VECT_TAB_OFFSET 0x00
 #define PLL_M		25
 #define PLL_Q		7
