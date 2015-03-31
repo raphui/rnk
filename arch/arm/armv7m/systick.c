@@ -18,8 +18,8 @@
 
 #include <armv7m/system.h>
 
-#define SYS_CLOCK	84000000
-#define SYSTICK_FREQ	4000
+#define SYS_CLOCK	168000000
+#define SYSTICK_FREQ	10000
 
 void init_systick(void) {
     *SYSTICK_RELOAD = SYS_CLOCK / SYSTICK_FREQ;
