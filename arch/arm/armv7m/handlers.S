@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+.thumb_func
 .global __svc
 __svc:
 	mrs r0, psp
@@ -29,6 +30,7 @@ __svc:
 	pop {pc}
 
 
+.thumb_func
 .global __pendsv
 __pendsv:
 	push {lr}
