@@ -50,9 +50,9 @@ void usagefault_handler(void)
 
 void systick_handler(void)
 {
-	unsigned int val = readl(SCB_BASE + SCB_ICSR);
+	unsigned int val = readl(SCB_ICSR);
 	val |= SCB_ICSR_PENDSVSET;
-	writel(SCB_BASE + SCB_ICSR, val);
+	writel(SCB_ICSR, val);
 }
 
 void pendsv_handler(void)
