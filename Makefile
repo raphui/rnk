@@ -68,7 +68,7 @@ kernel.elf: $(OBJS)
  
 kernel.img: kernel.elf
 	@@echo "OBJCOPY " $<
-	@$(CROSS_COMPILE)objcopy kernel.elf -O binary kernel.img
+	@$(CROSS_COMPILE)objcopy kernel.elf -O binary kernel.bin
  
 clean:
 	$(RM) $(OBJS) kernel.elf kernel.img
