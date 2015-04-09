@@ -19,6 +19,8 @@
 #ifndef SVC_H
 #define SVC_H
 
+#include <armv7m/system.h>
+
 #include <task.h>
 
 enum service_calls {

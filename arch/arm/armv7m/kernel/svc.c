@@ -32,6 +32,7 @@ void svc_handler(unsigned int call, void *arg)
 		break;
 	default:
 		printk("Invalid svc call\r\n");
+		schedule_task((struct task *)arg);
 		break;
 	}
 }

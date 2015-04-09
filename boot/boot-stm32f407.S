@@ -51,6 +51,9 @@ defined in linker script */
   .type  Reset_Handler, %function
 Reset_Handler:  
   ldr   sp, =_estack     /* set stack pointer */
+  sub r0, sp, #512
+  msr psp, r0
+  bl enable_psp
 
 /* Copy the data segment initializers from flash to SRAM */  
   movs  r1, #0
