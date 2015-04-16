@@ -25,7 +25,7 @@ struct semaphore {
 	unsigned int value;
 	unsigned int count;
 	unsigned int waiting;
-	struct list waiting_tasks;
+	LIST_HEAD(list, semaphore) waiting_tasks;
 };
 
 void init_semaphore(struct semaphore *sem, unsigned int value);

@@ -62,10 +62,10 @@ struct task
 	unsigned int start_stack;
 	void (*func)(void);
 	struct registers *regs;
-	struct entry list_entry;
+	LIST_ENTRY(task) next;
 };
 
-struct list runnable_tasks;
+LIST_HEAD(list, task) runnable_tasks = LIST_HEAD_INITIALIZER(runnable_tasks);
 
 struct registers task_regs[NR_TASK];
 struct task *task[NR_TASK];

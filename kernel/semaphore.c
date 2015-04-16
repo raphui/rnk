@@ -23,18 +23,12 @@
 
 static void insert_waiting_task(struct semaphore *sem, struct task *t)
 {
-	struct entry *e = (struct entry *)&(sem->waiting_tasks.head);
 	struct task *task;
 
-	while (e->next) {
-		task = (struct task *)container_of(e, struct task, list_entry);
+	LIST_FOREACH(task, &sem->waiting_tasks, next) {
+		if (t->priority > task->priority)
+			LIST_INSERT_BEFORE(&task->next, &t, t->next);
 
-		if (t->priority > task->priority) {
-			list_insert_before(&task->list_entry, &t->list_entry);
-			break;
-		}
-
-		e = e->next;
 	}
 }
 
@@ -43,6 +37,9 @@ void init_semaphore(struct semaphore *sem, unsigned int value)
 	sem->value = value;
 	sem->count = 0;
 	sem->waiting = 0;
+
+	LIST_HEAD_INITIALIZER(waiting_tasks);
+	LIST_INIT(&waiting_tasks);
 }
 
 void sem_wait(struct semaphore *sem)
@@ -73,8 +70,8 @@ void sem_post(struct semaphore *sem)
 	if (sem->waiting) {
 		debug_printk("tasks are waiting for sem (%x)\r\n", sem);
 
-		e = list_get_head(&(sem->waiting_tasks));
-		task = (struct task *)container_of(e, struct task, list_entry);
+		task = LIST_HEAD(&runnable_tasks);
+		LIST_REMOVE(task, next);
 		task->state = TASK_RUNNABLE;
 		sem->waiting--;
 		sem->count++;

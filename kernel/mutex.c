@@ -8,25 +8,13 @@
 
 static void insert_waiting_task(struct mutex *m, struct task *t)
 {
-	struct entry *e = (struct entry *)&(m->waiting_tasks.head);
 	struct task *task;
 
-	if (m->waiting) {
-		while (e->next) {
-			task = (struct task *)container_of(e, struct task, list_entry);
+	LIST_FOREACH(task, &m->waiting_tasks, next) {
+		if (t->priority > task->priority)
+			LIST_INSERT_BEFORE(&task->next, &t, t->next);
 
-			if (t->priority > task->priority) {
-				list_insert_before(&task->list_entry, &t->list_entry);
-				break;
-			}
-
-			e = e->next;
-		}
-	} else {
-		list_insert_head(&m->waiting_tasks, &t->list_entry);
 	}
-
-
 }
 
 static int __mutex_lock(struct mutex *mutex)
@@ -65,7 +53,8 @@ void init_mutex(struct mutex *mutex) {
 	mutex->owner = NULL;
 	mutex->waiting = 0;
 
-	list_init(&mutex->waiting_tasks);
+	LIST_HEAD_INITIALIZER(waiting_tasks);
+	LIST_INIT(&waiting_tasks);
 }
 
 void mutex_lock(struct mutex *mutex)
@@ -103,8 +92,8 @@ void mutex_unlock(struct mutex *mutex)
 		mutex->owner = NULL;
 
 		if (mutex->waiting) {
-			e = list_get_head(&(mutex->waiting_tasks));
-			task = (struct task *)container_of(e, struct task, list_entry);
+			task = LIST_HEAD(&runnable_tasks);
+			LIST_REMOVE(task, next);
 			task->state = TASK_RUNNABLE;
 			mutex->waiting--;
 

@@ -30,36 +30,26 @@ static int task_count = 0;
 
 static void increment_task_priority(void)
 {
-	struct entry *e = (struct entry *)&runnable_tasks.head;
 	struct task *task;
 
-	while (e->next) {
-		task = (struct task *)container_of(e, struct task, list_entry);
+	LIST_FOREACH(task, &runnable_tasks, next)
 		task->priority++;
-		e = e->next;
-	}
 }
 
 static void insert_task(struct task *t)
 {
-	struct entry *e = (struct entry *)&runnable_tasks.head;
 	struct task *task;
 
-	while (e->next) {
-		task = (struct task *)container_of(e, struct task, list_entry);
+	LIST_FOREACH(task, &runnable_tasks, next) {
+		if (t->priority > task->priority)
+			LIST_INSERT_BEFORE(&task->next, &t, t->next);
 
-		if (t->priority > task->priority) {
-			list_insert_before(&task->list_entry, &t->list_entry);
-			break;
-		}
-
-		e = e->next;
 	}
 }
 
 void task_init(void)
 {
-	list_init(&runnable_tasks);
+	LIST_INIT(&runnable_tasks);
 }
 
 void add_task(void (*func)(void), unsigned int priority)
@@ -78,10 +68,7 @@ void add_task(void (*func)(void), unsigned int priority)
 	/* Creating task context */
 	create_context(task->regs, task);
 
-	if (task_count)
-		insert_task(task);
-	else
-		list_insert_head(&runnable_tasks, task);
+	insert_task(task);
 
 	task_count++;
 }
@@ -114,11 +101,12 @@ struct task *get_current_task(void)
 
 struct task *find_next_task(void)
 {
-	struct entry *e;
-	struct task *task;
+	struct task *task = NULL;
 
-	e = list_get_head(&runnable_tasks);
-	task = (struct task *)container_of(e, struct task, list_entry);
+	task = LIST_HEAD(&runnable_tasks);
+	LIST_REMOVE(task, next);
+
+	printk("next task: %x\r\n", task);
 
 	return task;
 }
@@ -130,5 +118,5 @@ void insert_runnable_task(struct task *task)
 
 void remove_runnable_task(struct task *task)
 {
-	list_remove(&task->list_entry);
+	LIST_REMOVE(task, next);
 }
