@@ -19,10 +19,14 @@ static int __mutex_lock(struct mutex *mutex)
 
 			if (mutex->waiting) {
 				/* Make task waiting if higher counter */
-				if (mutex->waiting->counter < current_task->counter)
+				if (mutex->waiting->counter < current_task->counter) {
 					mutex->waiting = current_task;
+					current_task->state = TASK_BLOCKED;
+				}
+
 			} else {
-				mutex->waiting = get_current_task();
+				mutex->waiting = current_task;
+				current_task->state = TASK_BLOCKED;
 			}
 
 		} else {
@@ -31,7 +35,7 @@ static int __mutex_lock(struct mutex *mutex)
 
 	} else {
 		mutex->lock = 1;
-		mutex->owner = get_current_task();
+		mutex->owner = current_task;
 		mutex->waiting = NULL;
 	}
 
@@ -73,6 +77,7 @@ void mutex_unlock(struct mutex *mutex)
 	if (mutex->waiting) {
 		if (mutex->waiting->counter > current_task->counter) {
 			task = mutex->waiting;
+			task->state = TASK_RUNNABLE;
 			mutex->waiting = NULL;
 
 			SVC_ARG(SVC_TASK_SWITCH, task);
