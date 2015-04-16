@@ -49,7 +49,7 @@ void second_task(void)
 	SVC_ARG(SVC_ACQUIRE_MUTEX, &mutex);
 	while (1) {
 		printk("B");
-		if (count == 500)
+		if (count++ == 500)
 			SVC_ARG(SVC_RELEASE_MUTEX, &mutex);
 	}
 }

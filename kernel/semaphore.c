@@ -28,7 +28,6 @@ static void insert_waiting_task(struct semaphore *sem, struct task *t)
 	LIST_FOREACH(task, &sem->waiting_tasks, next) {
 		if (t->priority > task->priority)
 			LIST_INSERT_BEFORE(&task->next, &t, t->next);
-
 	}
 }
 

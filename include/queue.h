@@ -191,7 +191,6 @@
 #define SLIST_FIRST(head)   ((head)->slh_first)
 #define SLIST_NEXT(elm, field)  ((elm)->field.sle_next)
 
-
 /*
  * Singly-linked Tail queue declarations.
  */

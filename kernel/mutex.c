@@ -13,7 +13,6 @@ static void insert_waiting_task(struct mutex *m, struct task *t)
 	LIST_FOREACH(task, &m->waiting_tasks, next) {
 		if (t->priority > task->priority)
 			LIST_INSERT_BEFORE(&task->next, &t, t->next);
-
 	}
 }
 

@@ -43,7 +43,6 @@ static void insert_task(struct task *t)
 	LIST_FOREACH(task, &runnable_tasks, next) {
 		if (t->priority > task->priority)
 			LIST_INSERT_BEFORE(&task->next, &t, t->next);
-
 	}
 }
 
@@ -80,17 +79,15 @@ void first_switch_task(void)
 
 void switch_task(struct task *task)
 {
+	if (current_task) {
+		current_task->regs->sp = PSP();
+		current_task->state = TASK_RUNNABLE;
+		insert_task(current_task);
+	}
+
 	task->state = TASK_RUNNING;
-
-	current_task->regs->sp = PSP();
 	SET_PSP((void *)task->regs->sp);
-
-	current_task->state = TASK_RUNNABLE;
-
-	increment_task_priority();
-
-	insert_task(current_task);
-
+//	increment_task_priority();
 	current_task = task;
 }
 
