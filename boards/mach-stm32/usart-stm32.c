@@ -40,9 +40,15 @@ static void stm32_usart_init(struct usart *usart)
 	RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
 #endif /* STM32_F429 */
 
-	USART->CR1 &= (1 << 12);
-	USART->CR1 &= (3 << 12);
+	USART->CR1 &= ~USART_CR1_M;
+	USART->CR1 &= ~USART_CR1_UE;
+
+#ifdef STM32_F429
+	USART->BRR = stm32_baud_rate(APB2_CLK, usart->baud_rate);
+#else
 	USART->BRR = stm32_baud_rate(APB1_CLK, usart->baud_rate);
+#endif /* STM32_F429 */
+
 	USART->CR1 |= USART_CR1_RE;
 	USART->CR1 |= USART_CR1_TE;
 	USART->CR1 |= USART_CR1_UE;
