@@ -21,9 +21,11 @@
 
 #include <stm32f429.h>
 #include <usart.h>
+#include <pio.h>
 #include <timer.h>
 #include <ltdc.h>
 #include <spi.h>
+#include <dma.h>
 
 
 /* SYSCLK = PLL_VCO / PLL_P =======> 168000000*/
@@ -99,5 +101,15 @@ struct lcd_operations
 };
 
 struct lcd_operations lcd_ops;
+
+struct dma_operations
+{
+	void (*init)(struct dma *dma);
+	void (*transfer)(struct dma *dma, struct dma_transfer *dma_trans);
+	void (*enable)(struct dma *dma);
+	void (*disable)(struct dma *dma);
+};
+
+struct dma_operations dma_ops;
 
 #endif /* BOARD_STM32F429_H */

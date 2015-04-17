@@ -82,3 +82,19 @@ void i2c1_event_handler(void)
 void i2c1_error_handler(void)
 {
 }
+
+void dma2_stream0_handler(void)
+{
+	if (DMA2->LISR & DMA_LISR_TCIF0) {
+		debug_printk("transfert complete\r\n");
+
+	} else if (DMA2->LISR & DMA_LISR_HTIF0) {
+		debug_printk("half transfer interrupt\r\n");
+
+	} else if (DMA2->LISR & DMA_LISR_TEIF0) {
+		debug_printk("transfert error\r\n");
+
+	} else if (DMA2->LISR & DMA_LISR_DMEIF0) {
+		debug_printk("direct mode error\r\n");
+	}
+}

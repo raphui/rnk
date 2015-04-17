@@ -44,6 +44,7 @@ OBJS	:= 	asm/head.o \
 		boards/mach-$(MACH)/timer-$(MACH).o \
 		boards/mach-$(MACH)/i2c-$(MACH).o \
 		boards/mach-$(MACH)/spi-$(MACH).o \
+		boards/mach-$(MACH)/dma-$(MACH).o \
 		boards/mach-$(MACH)/ltdc-$(MACH).o \
 		boards/mach-$(MACH)/fmc-$(MACH).o \
 		boot/boot-$(SOC).o \
@@ -52,6 +53,7 @@ OBJS	:= 	asm/head.o \
 		drivers/timer.o \
 		drivers/i2c.o \
 		drivers/spi.o \
+		drivers/dma.o \
 		drivers/lcd.o \
 		kernel/main.o \
 		kernel/mutex.o \
