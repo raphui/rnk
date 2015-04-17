@@ -87,14 +87,22 @@ void dma2_stream0_handler(void)
 {
 	if (DMA2->LISR & DMA_LISR_TCIF0) {
 		debug_printk("transfert complete\r\n");
+		DMA2->LIFCR = DMA_LIFCR_CTCIF0;
+	}
 
-	} else if (DMA2->LISR & DMA_LISR_HTIF0) {
+	if (DMA2->LISR & DMA_LISR_HTIF0) {
 		debug_printk("half transfer interrupt\r\n");
+		DMA2->LIFCR = DMA_LIFCR_CHTIF0;
+	}
 
-	} else if (DMA2->LISR & DMA_LISR_TEIF0) {
+	if (DMA2->LISR & DMA_LISR_TEIF0) {
 		debug_printk("transfert error\r\n");
+		DMA2->LIFCR = DMA_LIFCR_CTEIF0;
 
-	} else if (DMA2->LISR & DMA_LISR_DMEIF0) {
+	}
+	
+	if (DMA2->LISR & DMA_LISR_DMEIF0) {
 		debug_printk("direct mode error\r\n");
+		DMA2->LIFCR = DMA_LIFCR_CDMEIF0;
 	}
 }
