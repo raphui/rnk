@@ -31,6 +31,7 @@
 #include <arch/svc.h>
 #include <time.h>
 #include <spi.h>
+#include <dma.h>
 
 #ifdef STM32_F429
 #include <ltdc.h>
@@ -44,6 +45,8 @@ struct queue queue;
 
 struct usart usart;
 struct spi spi;
+struct dma dma;
+struct dma_transfer dma_trans;
 
 static int count = 0;
 
@@ -357,18 +360,39 @@ static void ltdc_init(void)
 #define YELLOW   0xFFE0
 #define WHITE    0xFFFF
 
+#define MAX_DMA_SIZE	0xFFFF
+
+unsigned short color = 0;
+
 void lcd_rgb565_fill(unsigned short rgb)
 {
 	int size = ltdc.width * ltdc.height * ltdc.bpp;
 	int i = 0;
-	unsigned short *p = ltdc.fb_addr;
+	int num = 0;
+	int remain = 0;
+	unsigned int *p = ltdc.fb_addr;
 
-	for (i = 0; i < size; i++) {
-		*p = rgb;
-		p++;
+	color = rgb;
+
+	dma_trans.src_addr = &color;
+
+	dma_enable(&dma);
+
+	num = size / MAX_DMA_SIZE;
+	remain = size % MAX_DMA_SIZE;
+
+	for (i = 0; i < num; i++) {
+		dma_trans.dest_addr = p;
+		dma_trans.size = MAX_DMA_SIZE;
+		dma_transfer(&dma, &dma_trans);
+		p += MAX_DMA_SIZE;
 	}
+
+	dma_trans.dest_addr = p;
+	dma_trans.size = remain;
 }
 #endif /* STM32_F429 */
+
 
 void ninth_task(void)
 {
@@ -410,6 +434,7 @@ void ninth_task(void)
 	ili9341_init_lcd();
 	ltdc_init();
 #endif /* STM32_F429 */
+
 	while (1) {
 		printk("I");
 		lcd_rgb565_fill(BLACK);
@@ -464,6 +489,21 @@ int main(void)
 	spi.mode = 1;
 
 	spi_init(&spi);
+
+	dma.num = 2;
+	dma.stream_base = DMA2_Stream0_BASE;
+	dma.stream_num = 0;
+	dma.channel = 0;
+	dma.dir = DMA_M_M;
+	dma.mdata_size = DATA_SIZE_HALF_WORD;
+	dma.pdata_size = DATA_SIZE_HALF_WORD;
+	dma.mburst = INCR0;
+	dma.pburst = INCR0;
+	dma.minc = 1;
+	dma.pinc = 0;
+	dma.use_fifo = 0;
+
+	dma_init(&dma);
 
 	/* User button */
 	pio_set_input(GPIOA_BASE, 0, 0, 0);
