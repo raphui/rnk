@@ -25,8 +25,8 @@
 #define INCR16	0x3
 
 #define DATA_SIZE_BYTE		0x0
-#define DATA_SIZE_HALF_WORD	0x0
-#define DATA_SIZE_WORD		0x0
+#define DATA_SIZE_HALF_WORD	0x1
+#define DATA_SIZE_WORD		0x2
 
 #define DMA_P_M		0x0
 #define DMA_M_P		0x1
