@@ -197,7 +197,9 @@ void lcd_rgb565_fill(unsigned short rgb)
 	int i = 0;
 	int num = 0;
 	int remain = 0;
-	unsigned int *p = ltdc.fb_addr;
+	unsigned int p = ltdc.fb_addr;
+
+	debug_printk("lcd_rgb565_fill\r\n");
 
 	color = rgb;
 
@@ -208,8 +210,11 @@ void lcd_rgb565_fill(unsigned short rgb)
 	num = size / MAX_DMA_SIZE;
 	remain = size % MAX_DMA_SIZE;
 
+	debug_printk("transfer: ");
+
 	for (i = 0; i < num; i++) {
 		sem_wait(&sem);
+		debug_printk("%d ", i);
 		dma_trans.dest_addr = p;
 		dma_trans.size = MAX_DMA_SIZE;
 		dma_transfer(&dma, &dma_trans);
