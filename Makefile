@@ -39,6 +39,7 @@ OBJS	:= 	asm/head.o \
 		boards/mach-$(MACH)/pio-$(MACH).o \
 		boards/mach-$(MACH)/timer-$(MACH).o \
 		boards/mach-$(MACH)/i2c-$(MACH).o \
+		boards/mach-$(MACH)/fsmc-$(MACH).o \
 		boot/boot-$(SOC).o \
 		drivers/pio.o \
 		drivers/usart.o \
