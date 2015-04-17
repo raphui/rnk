@@ -105,4 +105,9 @@ void dma2_stream0_handler(void)
 		debug_printk("direct mode error\r\n");
 		DMA2->LIFCR = DMA_LIFCR_CDMEIF0;
 	}
+
+	if (DMA2->LISR & DMA_LISR_FEIF0) {
+		debug_printk("fifo error\r\n");
+		DMA2->LIFCR = DMA_LIFCR_CFEIF0;
+	}
 }
