@@ -14,3 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Frrestore * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+#include <board.h>
+#include <utils.h>
+
+static unsigned int i2c_rcc_bit[] = {
+	RCC_APB1ENR_I2C1EN,
+	RCC_APB1ENR_I2C2EN,
+	RCC_APB1ENR_I2C3EN,
+};
+
+void stm32_i2c_init(unsigned int bus, unsigned int mode)
+{
+	RCC->APB1ENR |= i2c_rcc_bit[bus - 1];
+}
