@@ -24,7 +24,9 @@ static unsigned int i2c_rcc_bit[] = {
 	RCC_APB1ENR_I2C3EN,
 };
 
-void stm32_i2c_init(unsigned int bus, unsigned int mode)
+void stm32_i2c_init(struct i2c *i2c)
 {
-	RCC->APB1ENR |= i2c_rcc_bit[bus - 1];
+	unsigned int rcc_off = i2c->bus - 1;
+
+	RCC->APB1ENR |= i2c_rcc_bit[rcc_off];
 }

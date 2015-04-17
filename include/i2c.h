@@ -14,3 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Frrestore * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+#ifndef I2C_H
+#define I2C_H
+
+struct i2c {
+	unsigned char bus;
+	unsigned char mode;
+	unsigned long clk_rate;
+};
+
+#endif /* I2C_H */
