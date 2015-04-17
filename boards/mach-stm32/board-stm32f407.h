@@ -47,7 +47,7 @@
  
 struct usart_operations
 {
-	void (*init)(void);
+	void (*init)(struct usart *usart);
 	void (*print)(unsigned char byte);
 	int (*printl)(const char *string);
 };

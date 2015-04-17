@@ -20,10 +20,10 @@
 #include <utils.h>
 #include <usart.h>
 
-void usart_init(void)
+void usart_init(struct usart *usart)
 {
 	/* Register io functions */
-	usart_ops.init();
+	usart_ops.init(usart);
 }
 
 void usart_print(unsigned char byte)

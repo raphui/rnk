@@ -21,7 +21,13 @@
 
 #include <stdio.h>
 
-void usart_init(void);
+struct usart {
+	unsigned int num;
+	unsigned int base_reg;
+	unsigned int baud_rate;
+};
+
+void usart_init(struct usart *usart);
 void usart_print(unsigned char byte);
 int usart_printl(const char *string);
 

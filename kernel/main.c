@@ -34,6 +34,8 @@
 struct mutex mutex;
 struct semaphore sem;
 
+struct usart usart;
+
 void first_task(void)
 {
 
@@ -121,7 +123,7 @@ void sixth_task(void)
 
 int main(void)
 {
-	usart_init();
+	usart_init(&usart);
 
 	printk("Welcome to rnk\r\n");
 	printk("- Initialise heap...\r\n");

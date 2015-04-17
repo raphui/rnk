@@ -28,7 +28,7 @@ static unsigned short stm32_baud_rate(long clock, unsigned int baud)
 	return (mantissa << 4) | (fraction & 0xf);
 }
 
-static void stm32_usart_init(void)
+static void stm32_usart_init(struct usart *usart)
 {
 	/* Enable USART3 Clock */
 	RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
