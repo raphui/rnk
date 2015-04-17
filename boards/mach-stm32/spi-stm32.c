@@ -95,6 +95,8 @@ unsigned short stm32_spi_write(struct spi *spi, unsigned short data)
 		;
 
 	data = SPI->DR;
+
+	return data;
 }
 
 unsigned short stm32_spi_read(struct spi *spi)
