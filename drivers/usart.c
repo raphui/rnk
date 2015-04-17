@@ -18,26 +18,26 @@
 
 #include <board.h>
 #include <utils.h>
-#include <uart.h>
+#include <usart.h>
 
-void uart_init(void)
+void usart_init(void)
 {
 	/* Register io functions */
-	uart_ops.init();
+	usart_ops.init();
 }
 
-void uart_print(unsigned char byte)
+void usart_print(unsigned char byte)
 {
-	uart_ops.print(byte);
+	usart_ops.print(byte);
 }
 
 
-int uart_printl(const char *string)
+int usart_printl(const char *string)
 {
-	return uart_ops.printl(string);
+	return usart_ops.printl(string);
 }
 
 struct io_operations io_op = {
-	.write = uart_print,
-	.write_string = uart_printl,
+	.write = usart_print,
+	.write_string = usart_printl,
 };

@@ -17,7 +17,7 @@
  */
 
 #include <board.h>
-#include <uart.h>
+#include <usart.h>
 #include <stdio.h>
 #include <scheduler.h>
 #include <task.h>
@@ -121,7 +121,7 @@ void sixth_task(void)
 
 int main(void)
 {
-	uart_init();
+	usart_init();
 
 	printk("Welcome to rnk\r\n");
 	printk("- Initialise heap...\r\n");

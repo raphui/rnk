@@ -28,7 +28,7 @@ static unsigned short stm32_baud_rate(long clock, unsigned int baud)
 	return (mantissa << 4) | (fraction & 0xf);
 }
 
-static void stm32_uart_init(void)
+static void stm32_usart_init(void)
 {
 	/* Enable USART3 Clock */
 	RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
@@ -53,7 +53,7 @@ static void stm32_uart_init(void)
 
 }
 
-static void stm32_uart_print(unsigned char byte)
+static void stm32_usart_print(unsigned char byte)
 {
 	while(!(USART3->SR & USART_SR_TXE))
 		;
@@ -61,16 +61,16 @@ static void stm32_uart_print(unsigned char byte)
 	USART3->DR = byte;
 }
 
-static int stm32_uart_printl(const char *string)
+static int stm32_usart_printl(const char *string)
 {
 	while (*string)
-		stm32_uart_print(*string++);
+		stm32_usart_print(*string++);
 
 	return 0;
 }
 
-struct uart_operations uart_ops = {
-	.init = stm32_uart_init,
-	.print = stm32_uart_print,
-	.printl = stm32_uart_printl,
+struct usart_operations usart_ops = {
+	.init = stm32_usart_init,
+	.print = stm32_usart_print,
+	.printl = stm32_usart_printl,
 };

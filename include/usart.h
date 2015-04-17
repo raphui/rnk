@@ -16,13 +16,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef UART_H
-#define UART_H
+#ifndef USART_H
+#define USART_H
 
 #include <stdio.h>
 
-void uart_init(void);
-void uart_print(unsigned char byte);
-int uart_printl(const char *string);
+void usart_init(void);
+void usart_print(unsigned char byte);
+int usart_printl(const char *string);
 
-#endif /* UART_H */
+#endif /* USART_H */

@@ -45,14 +45,14 @@
 #define APB1_CLK	(SYSCLK / AHB_PRES) / APB1_PRES
 #define APB2_CLK	(SYSCLK / AHB_PRES) / APB2_PRES
  
-struct uart_operations
+struct usart_operations
 {
 	void (*init)(void);
 	void (*print)(unsigned char byte);
 	int (*printl)(const char *string);
 };
 
-struct uart_operations uart_ops;
+struct usart_operations usart_ops;
 
 struct pio_operations
 {
