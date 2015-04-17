@@ -28,7 +28,6 @@ static unsigned short stm32_baud_rate(long clock, unsigned int baud)
 	return (mantissa << 4) | (fraction & 0xf);
 }
 
-/* TODO: init GPIO */
 static void stm32_uart_init(void)
 {
 	/* Enable USART3 Clock */
