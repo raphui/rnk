@@ -155,3 +155,10 @@ void stm32_dma_disable(struct dma *dma)
 	nvic_clear_interrupt(nvic);
 	nvic_disable_interrupt(nvic);
 }
+
+struct dma_operations dma_ops = {
+	.init = stm32_dma_init,
+	.transfer = stm32_dma_transfer,
+	.enable = stm32_dma_enable,
+	.disable = stm32_dma_disable,
+};
