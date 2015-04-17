@@ -106,11 +106,12 @@ void stm32_dma_init(struct dma *dma)
 
 	DMA_STREAM->CR = (dma->channel << 25) | (dma->mburst << 23)
 			| (dma->pburst << 21) | (dma->mdata_size << 13)
-			| (dma->pdata_size << 11) | (dma->inc_mode << 10) 
-			| (dma->dir << 6);
+			| (dma->pdata_size << 11) | (dma->minc << 10) 
+			| (dma->pinc << 9) | (dma->dir << 6);
 
 	if (dma->use_fifo) {
 		DMA_STREAM->FCR &= DMA_SxFCR_DMDIS;
+		DMA_STREAM->FCR |= DMA_SxFCR_FTH;
 	}
 
 }
@@ -146,6 +147,11 @@ void stm32_dma_enable(struct dma *dma)
 
 	DMA_STREAM->CR |= (1 <<  4) | (1 << 3) | (1 << 2) | (1 << 1);
 
+	if (dma->use_fifo) {
+		DMA2->LIFCR = DMA_LIFCR_CFEIF0;
+		DMA_STREAM->FCR |= (1 << 7);
+	}
+
 	DMA_STREAM->CR |= (1 << 0);
 }
 
@@ -157,6 +163,10 @@ void stm32_dma_disable(struct dma *dma)
 	DMA_STREAM->CR &= ~(1 << 0);
 
 	DMA_STREAM->CR &= ~((1 <<  4) | (1 << 3) | (1 << 2) | (1 << 1));
+
+	if (dma->use_fifo) {
+		DMA_STREAM->FCR &= ~(1 << 7);
+	}
 
 	nvic_clear_interrupt(nvic);
 	nvic_disable_interrupt(nvic);

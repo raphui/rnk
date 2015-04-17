@@ -42,7 +42,8 @@ struct dma {
 	unsigned char pdata_size;
 	unsigned char mburst;
 	unsigned char pburst;
-	unsigned char inc_mode;	
+	unsigned char minc;	
+	unsigned char pinc;	
 	unsigned char use_fifo;
 };
 
