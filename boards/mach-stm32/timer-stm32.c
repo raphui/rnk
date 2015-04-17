@@ -79,14 +79,14 @@ static short stm32_timer_find_best_pres(unsigned long parent_rate, unsigned long
 		if (curr_rate < rate)
 			diff = rate - curr_rate;
 		else
-			diff = curr_rate;
+			diff = curr_rate - rate;
 
 		if (diff < best_diff) {
 			best_pres = pres;
 			best_diff = diff;
 		}
 
-		if (!best_diff || curr_rate <= rate)
+		if (!best_diff || curr_rate < rate)
 			break;
 	}
 
