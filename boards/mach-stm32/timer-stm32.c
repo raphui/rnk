@@ -21,7 +21,7 @@
 #include <stddef.h>
 #include <arch/nvic.h>
 
-static int stm32_get_nvic_number(struct timer *timer)
+static int stm32_timer_get_nvic_number(struct timer *timer)
 {
 	int nvic = 0;
 
@@ -140,7 +140,7 @@ static void stm32_timer_set_counter(struct timer *timer, unsigned short counter)
 static void stm32_timer_enable(struct timer *timer)
 {
 	TIM_TypeDef *tim = NULL;
-	int nvic = stm32_get_nvic_number(timer);
+	int nvic = stm32_timer_get_nvic_number(timer);
 
 	tim = (TIM_TypeDef *)timer->base_reg;
 
@@ -164,7 +164,7 @@ static void stm32_timer_enable(struct timer *timer)
 static void stm32_timer_disable(struct timer *timer)
 {
 	TIM_TypeDef *tim = NULL;
-	int nvic = stm32_get_nvic_number(timer);
+	int nvic = stm32_timer_get_nvic_number(timer);
 
 	tim = (TIM_TypeDef *)timer->base_reg;
 
