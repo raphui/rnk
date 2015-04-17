@@ -136,6 +136,8 @@ void stm32_dma_enable(struct dma *dma)
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma->stream_base;
 	int nvic = stm32_dma_get_nvic_number(dma);
 
+	DMA2->LIFCR = DMA_LIFCR_CTCIF0 | DMA_LIFCR_CHTIF0 | DMA_LIFCR_CTEIF0 | DMA_LIFCR_CDMEIF0;
+
 	nvic_enable_interrupt(nvic);
 
 	DMA_STREAM->CR |= (1 <<  4) | (1 << 3) | (1 << 2) | (1 << 1);
