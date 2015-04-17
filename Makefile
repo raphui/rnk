@@ -38,10 +38,12 @@ OBJS	:= 	asm/head.o \
 		boards/mach-$(MACH)/usart-$(MACH).o \
 		boards/mach-$(MACH)/pio-$(MACH).o \
 		boards/mach-$(MACH)/timer-$(MACH).o \
+		boards/mach-$(MACH)/i2c-$(MACH).o \
 		boot/boot-$(SOC).o \
 		drivers/pio.o \
 		drivers/usart.o \
 		drivers/timer.o \
+		drivers/i2c.o \
 		kernel/main.o \
 		kernel/mutex.o \
 		kernel/scheduler.o \
