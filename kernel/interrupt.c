@@ -73,3 +73,12 @@ void timer2_handler(void)
 //	pio_toggle_value(GPIOE_BASE, 6);
 	decrease_task_delay();
 }
+
+
+void i2c1_event_handler(void)
+{
+}
+
+void i2c1_error_handler(void)
+{
+}

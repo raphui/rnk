@@ -166,8 +166,8 @@ g_pfnVectors:
   .word     timer2_handler	/* TIM2                         */
   .word     0	/* TIM3                         */                   
   .word     0	/* TIM4                         */                   
-  .word     0	/* I2C1 Event                   */                          
-  .word     0	/* I2C1 Error                   */                          
+  .word     i2c1_event_handler	/* I2C1 Event                   */                          
+  .word     i2c1_error_handler	/* I2C1 Error                   */                          
   .word     0	/* I2C2 Event                   */                          
   .word     0	/* I2C2 Error                   */                            
   .word     0	/* SPI1                         */                   
