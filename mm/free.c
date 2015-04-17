@@ -38,8 +38,8 @@ static void free_mem(void *mem, struct memory_block *heap, void *base)
 		chunks = chunks % CHUNK_PER_BLOCK;
 
 		for (i = 0; i < block_to_free; i++) {
-			heap[i].free_mask = 0;
-			heap[i].free_chunks = CHUNK_PER_BLOCK;
+			heap[index_block + i].free_mask = 0;
+			heap[index_block + i].free_chunks = CHUNK_PER_BLOCK;
 		}
 
 		heap[index_block + block_to_free].free_mask &= ~MASK(chunks);
