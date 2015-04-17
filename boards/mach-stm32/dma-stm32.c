@@ -109,6 +109,10 @@ void stm32_dma_init(struct dma *dma)
 			| (dma->pdata_size << 11) | (dma->inc_mode << 10) 
 			| (dma->dir << 6);
 
+	if (dma->use_fifo) {
+		DMA_STREAM->FCR &= DMA_SxFCR_DMDIS;
+	}
+
 }
 
 void stm32_dma_transfer(struct dma *dma, struct dma_transfer *dma_trans)

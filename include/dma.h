@@ -43,6 +43,7 @@ struct dma {
 	unsigned char mburst;
 	unsigned char pburst;
 	unsigned char inc_mode;	
+	unsigned char use_fifo;
 };
 
 struct dma_transfer {
