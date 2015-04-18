@@ -223,12 +223,14 @@ void lcd_rgb565_fill(unsigned short rgb)
 
 	dma_trans.dest_addr = p;
 	dma_trans.size = remain;
+	dma_transfer(&dma, &dma_trans);
 }
 #endif /* STM32_F429 */
 
 
 void ninth_task(void)
 {
+	int timeout = 0;
 	printk("starting task I\r\n");
 
 #ifdef STM32_F429
@@ -240,20 +242,44 @@ void ninth_task(void)
 	while (1) {
 		printk("I");
 		lcd_rgb565_fill(BLACK);
-		usleep(1000);
+		timeout = 1000000;
+		while (timeout--)
+			;
+//		usleep(1000);
 		lcd_rgb565_fill(BLUE);
-		usleep(1000);
+		timeout = 1000000;
+		while (timeout--)
+			;
+//		usleep(1000);
 		lcd_rgb565_fill(RED);
-		usleep(1000);
+		timeout = 1000000;
+		while (timeout--)
+			;
+//		usleep(1000);
 		lcd_rgb565_fill(GREEN);
-		usleep(1000);
+		timeout = 1000000;
+		while (timeout--)
+			;
+//		usleep(1000);
 		lcd_rgb565_fill(CYAN);
-		usleep(1000);
+		timeout = 1000000;
+		while (timeout--)
+			;
+//		usleep(1000);
 		lcd_rgb565_fill(MAGENTA);
-		usleep(1000);
+		timeout = 1000000;
+		while (timeout--)
+			;
+//		usleep(1000);
 		lcd_rgb565_fill(YELLOW);
-		usleep(1000);
+		timeout = 1000000;
+		while (timeout--)
+			;
+//		usleep(1000);
 		lcd_rgb565_fill(WHITE);
+		timeout = 1000000;
+		while (timeout--)
+			;
 	}
 }
 
