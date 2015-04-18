@@ -79,9 +79,8 @@ void decrease_task_delay(void)
 	struct task *curr = get_current_task();
 
 	LIST_FOREACH(task, &sleeping_tasks, next) {
-		task->delay--;
-		debug_printk("%d: %d usec remaining\r\n", task->pid, task->delay);
 		if (!task->delay) {
+			task->state = TASK_RUNNABLE;
 			remove_sleeping_task(task);
 			insert_runnable_task(task);
 
@@ -90,6 +89,10 @@ void decrease_task_delay(void)
 
 			if (curr->priority < task->priority)
 				schedule_from_interrupt();
+		} else {
+
+			task->delay--;
+			debug_printk("%d: %d usec remaining\r\n", task->pid, task->delay);
 		}
 	}
 }
