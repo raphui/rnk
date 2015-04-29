@@ -59,7 +59,6 @@ void add_task(void (*func)(void), unsigned int priority)
 
 void first_switch_task(int index_task)
 {
-	init_systick();
 	SVC_ARG(SVC_TASK_SWITCH, NULL);
 }
 
