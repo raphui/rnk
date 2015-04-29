@@ -21,18 +21,13 @@
 #include <stdio.h>
 #include <pit.h>
 #include <board.h>
+#include <arch/svc.h>
 
 int task_switching = 0;
 
 void start_schedule(void)
 {
 	int i;
-
-/*
-	pit_init(PIT_PERIOD, BOARD_MCK / 1000000);
-	pit_enable_it();
-	pit_enable();
-*/
 
 	i = find_next_task();
 	first_switch_task(i);
@@ -42,8 +37,6 @@ void start_schedule(void)
 void schedule(void)
 {
 	int i;
-
-/*	pit_read_pivr();*/
 
 	i = find_next_task();
 	switch_task(i);
