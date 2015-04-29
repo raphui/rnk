@@ -46,30 +46,21 @@ void add_task(void (*func)(void), unsigned int priority)
 	task[task_count]->counter = priority;
 	task[task_count]->start_stack = TASK_STACK_START + (task_count * TASK_STACK_OFFSET);
 	task[task_count]->func = func;
-	task[task_count]->regs = &task_regs[task_count];
+	task[task_count]->regs = (struct registers *)kmalloc(sizeof(struct registers));
 	task[task_count]->regs->sp = task[task_count]->start_stack;
 	task[task_count]->regs->lr = (unsigned int)end_task;
 	task[task_count]->regs->pc = (unsigned int)func;
 
-	printk("task %d: start_stack 0x%x, sp: 0x%x\r\n", task_count, task[task_count]->start_stack, task[task_count]->regs->sp);
 	/* Creating task context */
 	create_context(task[task_count]->regs, task[task_count]);
 
 	task_count++;
-	printk("task %d: start_stack 0x%x, sp: 0x%x\r\n", task_count - 1, task[task_count - 1]->start_stack, task[task_count - 1]->regs->sp);
 }
 
 void first_switch_task(int index_task)
 {
-//	task[index_task]->state = TASK_RUNNING;
-//
-//	index_current_task = index_task;
-//
-//	/* Active first task */
-////	activate_context(task[index_current_task]);
-	SET_PSP(task[index_task]->regs->sp);
-//	SVC_ARG(SVC_TASK_SWITCH, NULL);
 	init_systick();
+	SVC_ARG(SVC_TASK_SWITCH, NULL);
 }
 
 void switch_task(int index_task)
@@ -79,9 +70,6 @@ void switch_task(int index_task)
 
 	task[index_current_task]->regs->sp = PSP();
 	SET_PSP(task[index_task]->regs->sp);
-	/* Switch context */
-//	SVC_ARG(SVC_TASK_SWITCH, task[index_task]);
-//	switch_context(task[index_current_task]->regs, task[index_task]->regs);
 
 	index_current_task = index_task;
 
