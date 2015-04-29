@@ -41,7 +41,7 @@ void create_context(struct registers *_regs, struct task *_task)
                   stmdb   %[stack]!, {%[zero]}  /* R5 */                        \n\
                   stmdb   %[stack]!, {%[zero]}  /* R4 */                        \n"
                   /* Output */
-                  :[stack] "+r" (_task->start_stack)
+                  :[stack] "+r" (_task->regs->sp)
                   /* Input */
                   :[pc] "r" (_task->func), [lr] "r" (_task->regs->lr), [frame] "r" (_task->start_stack + 2000),
                    [zero] "r" (0), [psr] "r" (0x01000000) /* Set the Thumb bit */
