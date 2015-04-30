@@ -22,9 +22,11 @@ __svc:
 	mrs r0, psp
 
 	push {lr}
+	mov r3, r0
 	push {r0}
 	bl save_context
 	pop {r0}
+	mov r0, r3
 	bl svc_handler
 	bl restore_context
 	pop {pc}
