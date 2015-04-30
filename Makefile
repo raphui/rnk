@@ -35,6 +35,7 @@ OBJS	:= 	asm/head.o \
 		arch/arm/$(ARMV)/handlers.o \
 		boards/mach-$(MACH)/$(SOC).o \
 		boards/mach-$(MACH)/usart-$(MACH).o \
+		boards/mach-$(MACH)/pio-$(MACH).o \
 		boot/boot-$(SOC).o \
 		drivers/uart-core.o \
 		kernel/main.o \
