@@ -29,6 +29,11 @@ void pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter
 	pio_ops.set_input(port, mask, pull_up, filter);
 }
 
+void pio_set_alternate(unsigned int port, unsigned int mask)
+{
+	pio_ops.set_alternate(port, mask);
+}
+
 void pio_set_value(unsigned int port, unsigned int mask)
 {
 	pio_ops.set_value(port, mask);
