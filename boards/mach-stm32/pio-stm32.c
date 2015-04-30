@@ -26,7 +26,7 @@ static void pio_set_input(unsigned int port, unsigned int mask, int pull_up, int
 {
 }
 
-static void pio_set_alternate(unsigned int port, unsigned int mask)
+static void pio_set_alternate(unsigned int port, unsigned int mask, unsigned int num)
 {
 }
 
