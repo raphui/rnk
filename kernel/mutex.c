@@ -44,13 +44,7 @@ void mutex_lock(struct mutex *mutex)
 
 	ret = __mutex_lock(mutex);
 	if (ret < 0) {
-		printk(".........................................\r\n");
-		printk(".........................................\r\n");
-		printk(".........................................\r\n");
 		printk("mutex_lock FAILED !\r\n");
-		printk(".........................................\r\n");
-		printk(".........................................\r\n");
-		printk(".........................................\r\n");
 
 		if (mutex->owner)
 			if (mutex->owner->state == TASK_RUNNABLE)
