@@ -27,6 +27,7 @@
 #include <utils.h>
 #include <mm.h>
 #include <mutex.h>
+#include <arch/svc.h>
 
 struct mutex mutex;
 
@@ -35,31 +36,9 @@ void first_task(void)
 
 	printk("starting task A\r\n");
 	while (1) {
-		mutex_lock(&mutex);
+		SVC_ARG(SVC_ACQUIRE_MUTEX, &mutex);
 		printk("A");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		mutex_unlock(&mutex);
+		SVC_ARG(SVC_RELEASE_MUTEX, &mutex);
 	}
 }
 
@@ -67,31 +46,9 @@ void second_task(void)
 {
 	printk("starting task B\r\n");
 	while (1) {
-		mutex_lock(&mutex);
+		SVC_ARG(SVC_ACQUIRE_MUTEX, &mutex);
 		printk("B");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		printk(".");
-		mutex_unlock(&mutex);
+		SVC_ARG(SVC_RELEASE_MUTEX, &mutex);
 	}
 }
 
@@ -151,11 +108,11 @@ int main(void)
 
 	printk("- Add task to scheduler\r\n");
 
-//	add_task(&first_task, 1);
-//	add_task(&second_task, 6);
-	add_task(&third_task, 20);
+	add_task(&first_task, 1);
+	add_task(&second_task, 6);
+//	add_task(&third_task, 20);
 //	add_task(&fourth_task, 20);
-	add_task(&fifth_task, 20);
+//	add_task(&fifth_task, 20);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();
