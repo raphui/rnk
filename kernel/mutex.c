@@ -52,13 +52,10 @@ void mutex_lock(struct mutex *mutex)
 
 		if (mutex->owner)
 			if (mutex->owner->state == TASK_RUNNABLE)
-				//SVC_ARG(SVC_TASK_SWITCH, mutex->owner);
 				schedule_task(mutex->owner);
 			else
-				//SVC_ARG(SVC_TASK_SWITCH, NULL);
 				schedule_task(NULL);
 		else
-			//SVC_ARG(SVC_TASK_SWITCH, NULL);
 			schedule_task(NULL);
 
 	} else {
@@ -74,26 +71,29 @@ void mutex_unlock(struct mutex *mutex)
 	if (!mutex->lock)
 		printk("mutex already unlock\r\n");
 
-	mutex->lock = 0;
-	mutex->owner = NULL;
+	if (mutex->owner == current_task) {
+		mutex->lock = 0;
+		mutex->owner = NULL;
 
-	if (mutex->waiting) {
-		if (mutex->waiting->counter > current_task->counter) {
-			task = mutex->waiting;
-			task->state = TASK_RUNNABLE;
-			mutex->waiting = NULL;
+		if (mutex->waiting) {
+			if (mutex->waiting->counter > current_task->counter) {
+				task = mutex->waiting;
+				task->state = TASK_RUNNABLE;
+				mutex->waiting = NULL;
 
-			//SVC_ARG(SVC_TASK_SWITCH, task);
-			schedule_task(task);
-		} else {
-			task = mutex->waiting;
-			task->state = TASK_RUNNABLE;
-			mutex->waiting = NULL;
+				schedule_task(task);
+			} else {
+				task = mutex->waiting;
+				task->state = TASK_RUNNABLE;
+				mutex->waiting = NULL;
 
-			//SVC_ARG(SVC_TASK_SWITCH, NULL);
-			schedule_task(NULL);
+				schedule_task(NULL);
+			}
 		}
-	}
 
-	printk("mutex (%x) unlock\r\n", mutex);
+		printk("mutex (%x) unlock\r\n", mutex);
+
+	} else {
+		printk("mutex cannot be unlock, task is not the owner\r\n");
+	}
 }
