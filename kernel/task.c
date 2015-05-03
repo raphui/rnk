@@ -64,15 +64,18 @@ void first_switch_task(int index_task)
 
 void switch_task(int index_task)
 {
-	task[index_current_task]->state = TASK_RUNNABLE;
-	task[index_task]->state = TASK_RUNNING;
+	if (task[index_task]->state != TASK_BLOCKED) {
+		task[index_current_task]->state = TASK_RUNNABLE;
+		task[index_task]->state = TASK_RUNNING;
 
-	task[index_current_task]->regs->sp = PSP();
-	SET_PSP(task[index_task]->regs->sp);
+		task[index_current_task]->regs->sp = PSP();
+		SET_PSP(task[index_task]->regs->sp);
 
-	index_current_task = index_task;
+		index_current_task = index_task;
 
-	increment_task_counter();
+		increment_task_counter();
+	}
+
 }
 
 int get_task_count(void)
@@ -98,7 +101,7 @@ int find_next_task(void)
 	int task_count = get_task_count();
 
 	for (i = 0; i < task_count; i++) {
-		if (task[i]->counter > t) {
+		if (task[i]->counter > t && task[i]->state != TASK_BLOCKED) {
 			t = task[i]->counter;
 			next = i;
 		}
