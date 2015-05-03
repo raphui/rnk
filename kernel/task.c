@@ -20,6 +20,7 @@
 #include <scheduler.h>
 #include <stdio.h>
 #include <mm.h>
+#include <utils.h>
 #include <arch/svc.h>
 #include <armv7m/system.h>
 
@@ -41,7 +42,7 @@ static void increment_task_counter(void)
 void add_task(void (*func)(void), unsigned int priority)
 {
 	task[task_count] = (struct task *)kmalloc(sizeof(struct task));
-	task[task_count]->state = TASK_STOPPED;
+	task[task_count]->state = TASK_RUNNABLE;
 	task[task_count]->pid = task_count;
 	task[task_count]->counter = priority;
 	task[task_count]->start_stack = TASK_STACK_START + (task_count * TASK_STACK_OFFSET);
@@ -65,7 +66,6 @@ void first_switch_task(int index_task)
 void switch_task(int index_task)
 {
 	if (task[index_task]->state != TASK_BLOCKED) {
-		task[index_current_task]->state = TASK_RUNNABLE;
 		task[index_task]->state = TASK_RUNNING;
 
 		task[index_current_task]->regs->sp = PSP();
@@ -100,8 +100,11 @@ int find_next_task(void)
 	int t = 0;
 	int task_count = get_task_count();
 
+	for (i = 0; i < task_count; i++)
+		t = max(t, task[i]->counter);
+
 	for (i = 0; i < task_count; i++) {
-		if (task[i]->counter > t && task[i]->state != TASK_BLOCKED) {
+		if (task[i]->counter >= t && task[i]->state != TASK_BLOCKED) {
 			t = task[i]->counter;
 			next = i;
 		}
