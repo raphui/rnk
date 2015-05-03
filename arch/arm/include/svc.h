@@ -24,7 +24,9 @@
 #include <task.h>
 
 enum service_calls {
-    SVC_TASK_SWITCH,
+	SVC_TASK_SWITCH,
+	SVC_ACQUIRE_MUTEX,
+	SVC_RELEASE_MUTEX,
 };
 
 /*

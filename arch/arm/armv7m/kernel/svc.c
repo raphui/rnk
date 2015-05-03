@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <scheduler.h>
+#include <mutex.h>
 
 #include <arch/svc.h>
 
@@ -33,6 +34,14 @@ void svc_handler(unsigned int call, void *arg)
 	case SVC_TASK_SWITCH:
 		printk("SVC call ask for a task switch\r\n");
 		schedule_task((struct task *)arg);
+		break;
+	case SVC_ACQUIRE_MUTEX:
+		printk("SVC call ask for acquiring mutex\r\n");
+		mutex_lock(arg);
+		break;
+	case SVC_RELEASE_MUTEX:
+		printk("SVC call ask for releasing mutex\r\n");
+		mutex_unlock(arg);
 		break;
 	default:
 		printk("Invalid svc call\r\n");
