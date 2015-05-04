@@ -102,7 +102,7 @@ int main(void)
 {
 	uart_init();
 
-	printk("Welcome to RNK ( Raphio new kernel )\r\n");
+	printk("Welcome to rnk\r\n");
 	printk("- Initialise heap...\r\n");
 
 	init_heap();
