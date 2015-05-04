@@ -45,7 +45,7 @@ static void *alloc(struct memory_block *heap, unsigned int heap_size, unsigned i
 					}
 				}
 			} else {
-				printk("not enough free space\r\n");
+				debug_printk("not enough free space\r\n");
 			}
 
 		}

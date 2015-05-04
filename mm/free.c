@@ -28,7 +28,7 @@ static void free_mem(void *mem, struct memory_block *heap, void *base)
 	int i;
 
 	if (header->magic != MAGIC)
-		printk("Corrupted or invalid object to be free !\n");
+		debug_printk("Corrupted or invalid object to be free !\n");
 
 	if (chunks < CHUNK_PER_BLOCK) {
 		heap[index_block].free_mask &= ~(MASK(chunks) << addr_to_chunks_offset((void *)header, base));

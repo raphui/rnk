@@ -29,23 +29,23 @@ void svc_handler(unsigned int call, void *arg)
 
 	svc_number = ((char *)psp[6])[-2];
 
-//	printk("svc_handler: got call %d with arg (%x)\r\n", svc_number, arg);
+	debug_printk("svc_handler: got call %d with arg (%x)\r\n", svc_number, arg);
 
 	switch (svc_number) {
 	case SVC_TASK_SWITCH:
-//		printk("SVC call ask for a task switch\r\n");
+		debug_printk("SVC call ask for a task switch\r\n");
 		schedule_task((struct task *)arg);
 		break;
 	case SVC_ACQUIRE_MUTEX:
-//		printk("SVC call ask for acquiring mutex\r\n");
+		debug_printk("SVC call ask for acquiring mutex\r\n");
 		mutex_lock((struct mutex *)arg);
 		break;
 	case SVC_RELEASE_MUTEX:
-//		printk("SVC call ask for releasing mutex\r\n");
+		debug_printk("SVC call ask for releasing mutex\r\n");
 		mutex_unlock((struct mutex *)arg);
 		break;
 	default:
-		printk("Invalid svc call\r\n");
+		debug_printk("Invalid svc call\r\n");
 		break;
 	}
 }

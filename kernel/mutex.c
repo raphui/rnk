@@ -11,11 +11,11 @@ static int __mutex_lock(struct mutex *mutex)
 	struct task *current_task = get_current_task();
 
 	if (mutex->lock) {
-		printk("mutex already locked\r\n");
+		debug_printk("mutex already locked\r\n");
 		ret = -EDEADLOCK;
 
 		if (mutex->owner) {
-			printk("mutex has owner\r\n");
+			debug_printk("mutex has owner\r\n");
 
 			if (mutex->waiting) {
 				/* Make task waiting if higher priority */
@@ -30,7 +30,7 @@ static int __mutex_lock(struct mutex *mutex)
 			}
 
 		} else {
-			printk("No owner for mutex (%x)\r\n", mutex);
+			debug_printk("No owner for mutex (%x)\r\n", mutex);
 		}
 
 	} else {
@@ -48,7 +48,7 @@ void mutex_lock(struct mutex *mutex)
 
 	ret = __mutex_lock(mutex);
 	if (ret < 0) {
-		printk("mutex_lock FAILED !\r\n");
+		debug_printk("mutex_lock FAILED !\r\n");
 
 		if (mutex->owner)
 			if (mutex->owner->state == TASK_RUNNABLE)
@@ -59,7 +59,7 @@ void mutex_lock(struct mutex *mutex)
 			schedule_task(NULL);
 
 	} else {
-		printk("mutex (%x) lock\r\n", mutex);
+		debug_printk("mutex (%x) lock\r\n", mutex);
 	}
 }
 
@@ -69,7 +69,7 @@ void mutex_unlock(struct mutex *mutex)
 	struct task *task;
 
 	if (!mutex->lock)
-		printk("mutex already unlock\r\n");
+		debug_printk("mutex already unlock\r\n");
 
 	if (mutex->owner == current_task) {
 		mutex->lock = 0;
@@ -91,9 +91,9 @@ void mutex_unlock(struct mutex *mutex)
 			}
 		}
 
-		printk("mutex (%x) unlock\r\n", mutex);
+		debug_printk("mutex (%x) unlock\r\n", mutex);
 
 	} else {
-		printk("mutex cannot be unlock, task is not the owner\r\n");
+		debug_printk("mutex cannot be unlock, task is not the owner\r\n");
 	}
 }
