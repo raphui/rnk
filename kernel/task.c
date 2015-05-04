@@ -27,14 +27,14 @@
 static int index_current_task = -1;
 static int task_count = 0;
 
-static void increment_task_counter(void)
+static void increment_task_priority(void)
 {
 	int i;
 	int task_count = get_task_count();
 
 	for (i = 0; i < task_count; i++) {
 		if (i != index_current_task)
-			task[i]->counter++;
+			task[i]->priority++;
 	}
 }
 
@@ -44,7 +44,7 @@ void add_task(void (*func)(void), unsigned int priority)
 	task[task_count] = (struct task *)kmalloc(sizeof(struct task));
 	task[task_count]->state = TASK_RUNNABLE;
 	task[task_count]->pid = task_count;
-	task[task_count]->counter = priority;
+	task[task_count]->priority = priority;
 	task[task_count]->start_stack = TASK_STACK_START + (task_count * TASK_STACK_OFFSET);
 	task[task_count]->func = func;
 	task[task_count]->regs = (struct registers *)kmalloc(sizeof(struct registers));
@@ -73,7 +73,7 @@ void switch_task(int index_task)
 
 		index_current_task = index_task;
 
-		increment_task_counter();
+		increment_task_priority();
 	}
 
 }
@@ -101,11 +101,11 @@ int find_next_task(void)
 	int task_count = get_task_count();
 
 	for (i = 0; i < task_count; i++)
-		t = max(t, task[i]->counter);
+		t = max(t, task[i]->priority);
 
 	for (i = 0; i < task_count; i++) {
-		if (task[i]->counter >= t && task[i]->state != TASK_BLOCKED) {
-			t = task[i]->counter;
+		if (task[i]->priority >= t && task[i]->state != TASK_BLOCKED) {
+			t = task[i]->priority;
 			next = i;
 		}
 	}

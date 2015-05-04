@@ -58,7 +58,7 @@ struct task
 {
 	unsigned int state;
 	unsigned int pid;
-	unsigned int counter;
+	unsigned int priority;
 	unsigned int start_stack;
 	void (*func)(void);
 	struct registers *regs;

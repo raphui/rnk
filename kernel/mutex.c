@@ -18,8 +18,8 @@ static int __mutex_lock(struct mutex *mutex)
 			printk("mutex has owner\r\n");
 
 			if (mutex->waiting) {
-				/* Make task waiting if higher counter */
-				if (mutex->waiting->counter < current_task->counter) {
+				/* Make task waiting if higher priority */
+				if (mutex->waiting->priority < current_task->priority) {
 					mutex->waiting = current_task;
 					current_task->state = TASK_BLOCKED;
 				}
@@ -76,7 +76,7 @@ void mutex_unlock(struct mutex *mutex)
 		mutex->owner = NULL;
 
 		if (mutex->waiting) {
-			if (mutex->waiting->counter > current_task->counter) {
+			if (mutex->waiting->priority > current_task->priority) {
 				task = mutex->waiting;
 				task->state = TASK_RUNNABLE;
 				mutex->waiting = NULL;
