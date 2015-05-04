@@ -71,4 +71,24 @@ static inline void list_remove(struct entry *e)
 	e->next->prev = e->prev;
 }
 
+static inline struct entry *list_get_head(struct list *l)
+{
+	struct entry *e = l->head;
+
+	l->head = l->head->next;
+	l->head->prev = NULL;
+
+	return e;
+}
+
+static inline struct entry *list_get_tail(struct list *l)
+{
+	struct entry *e = l->tail;
+
+	l->tail = l->tail->prev;
+	l->tail->next = NULL;
+
+	return e;
+}
+
 #endif /* QUEUE_H */
