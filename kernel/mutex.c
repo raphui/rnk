@@ -11,16 +11,22 @@ static void insert_waiting_task(struct mutex *m, struct task *t)
 	struct entry *e = (struct entry *)&(m->waiting_tasks.head);
 	struct task *task;
 
-	while (e->next) {
-		task = (struct task *)container_of(e, struct task, list_entry);
+	if (m->waiting) {
+		while (e->next) {
+			task = (struct task *)container_of(e, struct task, list_entry);
 
-		if (t->priority > task->priority) {
-			list_insert_before(&task->list_entry, &t->list_entry);
-			break;
+			if (t->priority > task->priority) {
+				list_insert_before(&task->list_entry, &t->list_entry);
+				break;
+			}
+
+			e = e->next;
 		}
-
-		e = e->next;
+	} else {
+		list_insert_head(&m->waiting_tasks, &t->list_entry);
 	}
+
+
 }
 
 static int __mutex_lock(struct mutex *mutex)
@@ -52,6 +58,14 @@ static int __mutex_lock(struct mutex *mutex)
 	}
 
 	return ret;
+}
+
+void init_mutex(struct mutex *mutex) {
+	mutex->lock = 0;
+	mutex->owner = NULL;
+	mutex->waiting = 0;
+
+	list_init(&mutex->waiting_tasks);
 }
 
 void mutex_lock(struct mutex *mutex)

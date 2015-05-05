@@ -31,11 +31,6 @@ struct mutex {
 
 void mutex_lock(struct mutex *mutex);
 void mutex_unlock(struct mutex *mutex);
-
-static inline void init_mutex(struct mutex *mutex) {
-    mutex->lock = 0;
-    mutex->owner = NULL;
-    mutex->waiting = 0;
-}
+void init_mutex(struct mutex *mutex);
 
 #endif /* MUTEX_H */
