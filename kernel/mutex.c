@@ -36,6 +36,8 @@ static int __mutex_lock(struct mutex *mutex)
 			debug_printk("mutex has owner\r\n");
 
 			current_task->state = TASK_BLOCKED;
+			remove_runnable_task(current_task);
+
 			insert_waiting_task(mutex, current_task);
 			mutex->waiting++;
 
@@ -91,6 +93,8 @@ void mutex_unlock(struct mutex *mutex)
 			task = (struct task *)container_of(e, struct task, list_entry);
 			task->state = TASK_RUNNABLE;
 			mutex->waiting--;
+
+			insert_runnable_task(task);
 			schedule_task(task);
 		}
 
