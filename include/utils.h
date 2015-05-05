@@ -19,8 +19,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-//#define writel(r,v)	__writel(r,v)
-//#define readl(r)	__readl(r)
 
 void writel(unsigned int reg, unsigned int val);
 unsigned int readl(unsigned int reg);
@@ -36,5 +34,16 @@ unsigned int readl(unsigned int reg);
 	typeof(y) _max2 = (y);                  \
 	(void) (&_max1 == &_max2);              \
 	 _max1 > _max2 ? _max1 : _max2; })
+
+/**
+ * container_of - cast a member of a structure out to the containing structure
+ * @ptr:        the pointer to the member.
+ * @type:       the type of the container struct this is embedded in.
+ * @member:     the name of the member within the struct.
+ *
+ */
+#define container_of(ptr, type, member) ({                      \
+        const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+        (type *)( (char *)__mptr - offsetof(type,member) );})
 
 #endif /* UTILS_H */
