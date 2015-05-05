@@ -20,13 +20,15 @@
 #define MUTEX_H
 
 #include <task.h>
+#include <queue.h>
 
 #define NR_MUTEX_HOLD	10
 
 struct mutex {
 	unsigned char lock;
 	struct task *owner;
-	struct task *waiting;
+	unsigned int waiting;
+	struct list waiting_tasks;
 };
 
 void mutex_lock(struct mutex *mutex);

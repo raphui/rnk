@@ -2,8 +2,26 @@
 #include <mutex.h>
 #include <errno.h>
 #include <scheduler.h>
+#include <utils.h>
 
 #include <arch/svc.h>
+
+static void insert_waiting_task(struct mutex *m, struct task *t)
+{
+	struct entry *e = (struct entry *)&(m->waiting_tasks.head);
+	struct task *task;
+
+	while (e->next) {
+		task = (struct task *)container_of(e, struct task, list_entry);
+
+		if (t->priority > task->priority) {
+			list_insert_before(&task->list_entry, &t->list_entry);
+			break;
+		}
+
+		e = e->next;
+	}
+}
 
 static int __mutex_lock(struct mutex *mutex)
 {
@@ -17,17 +35,9 @@ static int __mutex_lock(struct mutex *mutex)
 		if (mutex->owner) {
 			debug_printk("mutex has owner\r\n");
 
-			if (mutex->waiting) {
-				/* Make task waiting if higher priority */
-				if (mutex->waiting->priority < current_task->priority) {
-					mutex->waiting = current_task;
-					current_task->state = TASK_BLOCKED;
-				}
-
-			} else {
-				mutex->waiting = current_task;
-				current_task->state = TASK_BLOCKED;
-			}
+			current_task->state = TASK_BLOCKED;
+			insert_waiting_task(mutex, current_task);
+			mutex->waiting++;
 
 		} else {
 			debug_printk("No owner for mutex (%x)\r\n", mutex);
@@ -36,7 +46,7 @@ static int __mutex_lock(struct mutex *mutex)
 	} else {
 		mutex->lock = 1;
 		mutex->owner = current_task;
-		mutex->waiting = NULL;
+		mutex->waiting = 0;
 	}
 
 	return ret;
@@ -67,6 +77,7 @@ void mutex_unlock(struct mutex *mutex)
 {
 	struct task *current_task = get_current_task();
 	struct task *task;
+	struct entry *e;
 
 	if (!mutex->lock)
 		debug_printk("mutex already unlock\r\n");
@@ -76,19 +87,11 @@ void mutex_unlock(struct mutex *mutex)
 		mutex->owner = NULL;
 
 		if (mutex->waiting) {
-			if (mutex->waiting->priority > current_task->priority) {
-				task = mutex->waiting;
-				task->state = TASK_RUNNABLE;
-				mutex->waiting = NULL;
-
-				schedule_task(task);
-			} else {
-				task = mutex->waiting;
-				task->state = TASK_RUNNABLE;
-				mutex->waiting = NULL;
-
-				schedule_task(NULL);
-			}
+			e = list_get_head(&(mutex->waiting_tasks));
+			task = (struct task *)container_of(e, struct task, list_entry);
+			task->state = TASK_RUNNABLE;
+			mutex->waiting--;
+			schedule_task(task);
 		}
 
 		debug_printk("mutex (%x) unlock\r\n", mutex);

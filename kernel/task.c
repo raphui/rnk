@@ -113,7 +113,7 @@ struct task *find_next_task(void)
 	struct entry *e;
 	struct task *task;
 
-	e = (struct entry *)&runnable_tasks.head;
+	e = list_get_head(&runnable_tasks);
 	task = (struct task *)container_of(e, struct task, list_entry);
 
 	return task;
