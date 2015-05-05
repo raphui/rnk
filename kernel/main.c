@@ -106,6 +106,10 @@ int main(void)
 	printk("- Initialise heap...\r\n");
 
 	init_heap();
+
+	printk("- Initialise scheduler...\r\n");
+	schedule_init();
+
 	init_mutex(&mutex);
 
 	printk("- Add task to scheduler\r\n");
