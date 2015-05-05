@@ -119,3 +119,12 @@ struct task *find_next_task(void)
 	return task;
 }
 
+void insert_runnable_task(struct task *task)
+{
+	insert_task(task);
+}
+
+void remove_runnable_task(struct task *task)
+{
+	list_remove(&task->list_entry);
+}
