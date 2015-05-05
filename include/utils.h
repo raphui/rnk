@@ -35,6 +35,9 @@ unsigned int readl(unsigned int reg);
 	(void) (&_max1 == &_max2);              \
 	 _max1 > _max2 ? _max1 : _max2; })
 
+
+#define offset_of(type, member) __builtin_offsetof(type, member)
+
 /**
  * container_of - cast a member of a structure out to the containing structure
  * @ptr:        the pointer to the member.

@@ -55,7 +55,7 @@ static inline unsigned int *PSP(void) {
     return val;
 }
 
-static inline void *SET_PSP(void *addr) {
+static inline void SET_PSP(void *addr) {
     asm volatile ("msr    psp, %[addr]"
         ::[addr] "r" (addr)
         :);

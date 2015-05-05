@@ -25,13 +25,12 @@
 #include <arch/svc.h>
 #include <armv7m/system.h>
 
-static int index_current_task = -1;
-static int task_count = 0;
 static struct task *current_task;
+static int task_count = 0;
 
 static void increment_task_priority(void)
 {
-	struct entry *e = &runnable_tasks.head;
+	struct entry *e = (struct entry *)&runnable_tasks.head;
 	struct task *task;
 
 	while (e->next) {
@@ -43,14 +42,14 @@ static void increment_task_priority(void)
 
 static void insert_task(struct task *t)
 {
-	struct entry *e = &runnable_tasks.head;
+	struct entry *e = (struct entry *)&runnable_tasks.head;
 	struct task *task;
 
 	while (e->next) {
 		task = (struct task *)container_of(e, struct task, list_entry);
 
 		if (t->priority > task->priority) {
-			list_insert_before(task, t);
+			list_insert_before(&task->list_entry, &t->list_entry);
 			break;
 		}
 
@@ -72,19 +71,19 @@ void add_task(void (*func)(void), unsigned int priority)
 	task->start_stack = TASK_STACK_START + (task_count * TASK_STACK_OFFSET);
 	task->func = func;
 	task->regs = (struct registers *)kmalloc(sizeof(struct registers));
-	task->regs->sp = task[task_count]->start_stack;
+	task->regs->sp = task->start_stack;
 	task->regs->lr = (unsigned int)end_task;
 	task->regs->pc = (unsigned int)func;
 
 	/* Creating task context */
-	create_context(task[task_count]->regs, task[task_count]);
+	create_context(task->regs, task);
 
-	insert_task(&runnable_tasks, &task->list_entry);
+	insert_task(task);
 
 	task_count++;
 }
 
-void first_switch_task(int index_task)
+void first_switch_task(void)
 {
 	SVC_ARG(SVC_TASK_SWITCH, NULL);
 }
@@ -94,14 +93,14 @@ void switch_task(struct task *task)
 	task->state = TASK_RUNNING;
 
 	current_task->regs->sp = PSP();
-	SET_PSP(task->regs->sp);
+	SET_PSP((void *)task->regs->sp);
 
 	current_task->state = TASK_RUNNABLE;
 	current_task = task;
 
 	increment_task_priority();
 
-	insert_task(&runnable_tasks, &current_task->list_entry);
+	insert_task(current_task);
 }
 
 struct task *get_current_task(void)
@@ -111,13 +110,10 @@ struct task *get_current_task(void)
 
 struct task *find_next_task(void)
 {
-	int i;
-	int next = 0;
-	int max_priority = 0;
 	struct entry *e;
 	struct task *task;
 
-	e = &runnable_tasks.head;
+	e = (struct entry *)&runnable_tasks.head;
 	task = (struct task *)container_of(e, struct task, list_entry);
 
 	return task;

@@ -19,7 +19,6 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include <list.h>
 #include <queue.h>
 #include <stddef.h>
 
@@ -73,7 +72,7 @@ struct task *task[NR_TASK];
 
 void task_init(void);
 void add_task(void (*func)(void), unsigned int priority);
-void first_switch_task(int index_task);
+void first_switch_task(void);
 void switch_task(struct task *task);
 struct task *get_current_task(void);
 struct task *find_next_task(void);

@@ -32,10 +32,7 @@ void schedule_init(void)
 
 void start_schedule(void)
 {
-	struct task *t;
-
-	t = find_next_task();
-	first_switch_task(t);
+	first_switch_task();
 }
 
 
