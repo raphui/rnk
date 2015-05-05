@@ -20,6 +20,7 @@
 #define TASK_H
 
 #include <list.h>
+#include <queue.h>
 #include <stddef.h>
 
 #define NR_TASK	8
@@ -62,7 +63,10 @@ struct task
 	unsigned int start_stack;
 	void (*func)(void);
 	struct registers *regs;
+	struct entry list_entry;
 };
+
+struct list runnable_tasks;
 
 struct registers task_regs[NR_TASK];
 struct task *task[NR_TASK];

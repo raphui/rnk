@@ -21,20 +21,40 @@
 #include <stdio.h>
 #include <mm.h>
 #include <utils.h>
+#include <queue.h>
 #include <arch/svc.h>
 #include <armv7m/system.h>
 
 static int index_current_task = -1;
 static int task_count = 0;
+static struct task *current_task;
 
 static void increment_task_priority(void)
 {
-	int i;
-	int task_count = get_task_count();
+	struct entry *e = &runnable_tasks.head;
+	struct task *task;
 
-	for (i = 0; i < task_count; i++) {
-		if (i != index_current_task)
-			task[i]->priority++;
+	while (e->next) {
+		task = (struct task *)container_of(e, struct task, list_entry);
+		task->priority++;
+		e = e->next;
+	}
+}
+
+static void insert_task(struct task *t)
+{
+	struct entry *e = &runnable_tasks.head;
+	struct task *task;
+
+	while (e->next) {
+		task = (struct task *)container_of(e, struct task, list_entry);
+
+		if (t->priority > task->priority) {
+			list_insert_before(task, t);
+			break;
+		}
+
+		e = e->next;
 	}
 }
 
@@ -45,19 +65,21 @@ void task_init(void)
 
 void add_task(void (*func)(void), unsigned int priority)
 {
-	task[task_count] = (struct task *)kmalloc(sizeof(struct task));
-	task[task_count]->state = TASK_RUNNABLE;
-	task[task_count]->pid = task_count;
-	task[task_count]->priority = priority;
-	task[task_count]->start_stack = TASK_STACK_START + (task_count * TASK_STACK_OFFSET);
-	task[task_count]->func = func;
-	task[task_count]->regs = (struct registers *)kmalloc(sizeof(struct registers));
-	task[task_count]->regs->sp = task[task_count]->start_stack;
-	task[task_count]->regs->lr = (unsigned int)end_task;
-	task[task_count]->regs->pc = (unsigned int)func;
+	struct task *task = (struct task *)kmalloc(sizeof(struct task));
+	task->state = TASK_RUNNABLE;
+	task->pid = task_count;
+	task->priority = priority;
+	task->start_stack = TASK_STACK_START + (task_count * TASK_STACK_OFFSET);
+	task->func = func;
+	task->regs = (struct registers *)kmalloc(sizeof(struct registers));
+	task->regs->sp = task[task_count]->start_stack;
+	task->regs->lr = (unsigned int)end_task;
+	task->regs->pc = (unsigned int)func;
 
 	/* Creating task context */
 	create_context(task[task_count]->regs, task[task_count]);
+
+	insert_task(&runnable_tasks, &task->list_entry);
 
 	task_count++;
 }
@@ -69,17 +91,22 @@ void first_switch_task(int index_task)
 
 void switch_task(int index_task)
 {
-	if (task[index_task]->state != TASK_BLOCKED) {
-		task[index_task]->state = TASK_RUNNING;
+	struct task *task;
+	struct entry *e = list_get_head(&runnable_tasks);
 
-		task[index_current_task]->regs->sp = PSP();
-		SET_PSP(task[index_task]->regs->sp);
+	task = (struct task *)container_of(e, struct task, list_entry);
 
-		index_current_task = index_task;
+	task->state = TASK_RUNNING;
 
-		increment_task_priority();
-	}
+	current_task->regs->sp = PSP();
+	SET_PSP(task->regs->sp);
 
+	current_task->state = TASK_RUNNABLE;
+	current_task = task;
+
+	increment_task_priority();
+
+	insert_task(&runnable_tasks, &current_task->list_entry);
 }
 
 int get_task_count(void)
@@ -89,7 +116,7 @@ int get_task_count(void)
 
 struct task *get_current_task(void)
 {
-	return task[index_current_task];
+	return current_task;
 }
 
 int get_current_task_index(void)
