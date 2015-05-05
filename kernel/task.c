@@ -96,11 +96,12 @@ void switch_task(struct task *task)
 	SET_PSP((void *)task->regs->sp);
 
 	current_task->state = TASK_RUNNABLE;
-	current_task = task;
 
 	increment_task_priority();
 
 	insert_task(current_task);
+
+	current_task = task;
 }
 
 struct task *get_current_task(void)
