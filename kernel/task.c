@@ -89,13 +89,8 @@ void first_switch_task(int index_task)
 	SVC_ARG(SVC_TASK_SWITCH, NULL);
 }
 
-void switch_task(int index_task)
+void switch_task(struct task *task)
 {
-	struct task *task;
-	struct entry *e = list_get_head(&runnable_tasks);
-
-	task = (struct task *)container_of(e, struct task, list_entry);
-
 	task->state = TASK_RUNNING;
 
 	current_task->regs->sp = PSP();
@@ -124,23 +119,17 @@ int get_current_task_index(void)
 	return index_current_task;
 }
 
-int find_next_task(void)
+struct task *find_next_task(void)
 {
 	int i;
 	int next = 0;
-	int t = 0;
-	int task_count = get_task_count();
+	int max_priority = 0;
+	struct entry *e;
+	struct task *task;
 
-	for (i = 0; i < task_count; i++)
-		t = max(t, task[i]->priority);
+	e = &runnable_tasks.head;
+	task = (struct task *)container_of(e, struct task, list_entry);
 
-	for (i = 0; i < task_count; i++) {
-		if (task[i]->priority >= t && task[i]->state != TASK_BLOCKED) {
-			t = task[i]->priority;
-			next = i;
-		}
-	}
-
-	return next;
+	return task;
 }
 

@@ -32,31 +32,31 @@ void schedule_init(void)
 
 void start_schedule(void)
 {
-	int i;
+	struct task *t;
 
-	i = find_next_task();
-	first_switch_task(i);
+	t = find_next_task();
+	first_switch_task(t);
 }
 
 
 void schedule(void)
 {
-	int i;
+	struct task *t;
 
-	i = find_next_task();
-	switch_task(i);
+	t = find_next_task();
+	switch_task(t);
 	task_switching = 1;
 }
 
 void schedule_task(struct task *task)
 {
-	int i;
+	struct task *t;
 
 	if (task)
-		switch_task(task->pid);
+		switch_task(task);
 	else {
-		i = find_next_task();
-		switch_task(i);
+		t = find_next_task();
+		switch_task(t);
 	}
 	
 	task_switching = 1;

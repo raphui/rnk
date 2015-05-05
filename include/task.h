@@ -74,10 +74,10 @@ struct task *task[NR_TASK];
 void task_init(void);
 void add_task(void (*func)(void), unsigned int priority);
 void first_switch_task(int index_task);
-void switch_task(int index_task);
+void switch_task(struct task *task);
 int get_task_count(void);
 struct task *get_current_task(void);
 int get_current_task_index(void);
-int find_next_task(void);
+struct task *find_next_task(void);
 
 #endif /* TASK_H */
