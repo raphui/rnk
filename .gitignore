@@ -20,3 +20,12 @@
 #Others
 *.d
 *.img
+*.bin
+*.elf
+
+
+boards/board.h
+arch/arm/armv7m/include/include
+arch/arm/include/include
+include/armv7m
+include/arch
