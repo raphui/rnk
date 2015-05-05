@@ -37,16 +37,28 @@ static inline void list_init(struct list *l)
 
 static inline void list_insert_tail(struct list *l, struct entry *e)
 {
-	l->tail->next = e;
-	e->prev = l->tail;
+	if (!l->head) {
+		l->head = e;
+	}
+
+	if (l->tail) {
+		l->tail->next = e;
+		e->prev = l->tail;
+	}
 
 	l->tail = e;
 }
 
 static inline void list_insert_head(struct list *l, struct entry *e)
 {
-	l->head->prev = e;
-	e->next = l->head;
+	if (!l->tail) {
+		l->tail = e;
+	}
+
+	if (l->head) {
+		l->head->prev = e;
+		e->next = l->head;
+	}
 
 	l->head = e;
 }
