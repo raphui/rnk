@@ -104,19 +104,9 @@ void switch_task(struct task *task)
 	insert_task(&runnable_tasks, &current_task->list_entry);
 }
 
-int get_task_count(void)
-{
-	return task_count;
-}
-
 struct task *get_current_task(void)
 {
 	return current_task;
-}
-
-int get_current_task_index(void)
-{
-	return index_current_task;
 }
 
 struct task *find_next_task(void)
