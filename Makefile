@@ -48,6 +48,7 @@ OBJS	:= 	asm/head.o \
 		mm/init.o \
 		mm/free.o \
 		utils/stdio.o \
+		utils/time.o \
 		utils/utils.o
 
 config:
