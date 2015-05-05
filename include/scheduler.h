@@ -22,6 +22,7 @@
 #include <task.h>
 
 extern int task_switching;
+extern unsigned int system_tick;
 
 void create_context(struct registers *_regs, struct task *_task);
 void activate_context(struct task *_task);

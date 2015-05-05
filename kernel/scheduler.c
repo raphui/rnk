@@ -24,6 +24,7 @@
 #include <arch/svc.h>
 
 int task_switching = 0;
+unsigned int system_tick = 0;
 
 void schedule_init(void)
 {

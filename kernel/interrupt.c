@@ -51,6 +51,9 @@ void usagefault_handler(void)
 void systick_handler(void)
 {
 	unsigned int val = readl(SCB_ICSR);
+
+	system_tick++;
+
 	val |= SCB_ICSR_PENDSVSET;
 	writel(SCB_ICSR, val);
 }
