@@ -19,10 +19,12 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
+#include <stddef.h>
+
 struct entry {
 	struct entry *prev;
 	struct entry *next;
-}
+};
 
 struct list {
 	struct entry *head;
