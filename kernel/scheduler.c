@@ -25,6 +25,11 @@
 
 int task_switching = 0;
 
+void schedule_init(void)
+{
+	task_init();
+}
+
 void start_schedule(void)
 {
 	int i;

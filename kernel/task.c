@@ -38,6 +38,10 @@ static void increment_task_priority(void)
 	}
 }
 
+void task_init(void)
+{
+	list_init(&runnable_tasks);
+}
 
 void add_task(void (*func)(void), unsigned int priority)
 {
