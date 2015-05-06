@@ -30,7 +30,7 @@ static void insert_waiting_task(struct semaphore *sem, struct task *t)
 		task = (struct task *)container_of(e, struct task, list_entry);
 
 		if (t->priority > task->priority) {
-			list_insert_before(&task->list_entry, &t->list_entry);
+			list_insert_before(&sem->waiting_tasks, &task->list_entry, &t->list_entry);
 			break;
 		}
 

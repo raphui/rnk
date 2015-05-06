@@ -33,7 +33,7 @@ static void increment_task_priority(void)
 	struct entry *e = (struct entry *)&runnable_tasks.head;
 	struct task *task;
 
-	while (e->next) {
+	while (e && e->next) {
 		task = (struct task *)container_of(e, struct task, list_entry);
 		task->priority++;
 		e = e->next;
@@ -45,11 +45,11 @@ static void insert_task(struct task *t)
 	struct entry *e = (struct entry *)&runnable_tasks.head;
 	struct task *task;
 
-	while (e->next) {
+	while (e && e->next) {
 		task = (struct task *)container_of(e, struct task, list_entry);
 
 		if (t->priority > task->priority) {
-			list_insert_before(&task->list_entry, &t->list_entry);
+			list_insert_before(&runnable_tasks, &task->list_entry, &t->list_entry);
 			break;
 		}
 
@@ -81,7 +81,7 @@ void add_task(void (*func)(void), unsigned int priority)
 	if (task_count)
 		insert_task(task);
 	else
-		list_insert_head(&runnable_tasks, task);
+		list_insert_head(&runnable_tasks, &task->list_entry);
 
 	task_count++;
 }
@@ -93,17 +93,15 @@ void first_switch_task(void)
 
 void switch_task(struct task *task)
 {
+	if (current_task) {
+		current_task->regs->sp = PSP();
+		current_task->state = TASK_RUNNABLE;
+		insert_task(current_task);
+	}
+
 	task->state = TASK_RUNNING;
-
-	current_task->regs->sp = PSP();
 	SET_PSP((void *)task->regs->sp);
-
-	current_task->state = TASK_RUNNABLE;
-
 	increment_task_priority();
-
-	insert_task(current_task);
-
 	current_task = task;
 }
 
@@ -130,5 +128,5 @@ void insert_runnable_task(struct task *task)
 
 void remove_runnable_task(struct task *task)
 {
-	list_remove(&task->list_entry);
+	list_remove(&runnable_tasks, &task->list_entry);
 }

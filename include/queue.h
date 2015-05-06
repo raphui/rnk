@@ -65,22 +65,34 @@ static inline void list_insert_head(struct list *l, struct entry *e)
 	l->head = e;
 }
 
-static inline void list_insert_before(struct entry *p, struct entry *e)
+static inline void list_insert_before(struct list *l, struct entry *p, struct entry *e)
 {
 	e->prev = p->prev;
 	e->next = p;
 	p->prev = e;
+
+	if (l->head == p)
+		l->head = e;
 }
 
-static inline void list_insert_after(struct entry *p, struct entry *e)
+static inline void list_insert_after(struct list *l, struct entry *p, struct entry *e)
 {
 	e->prev = p;
 	e->next = p->next;
 	p->next = e;
+
+	if (l->tail == p)
+		l->tail = e;
 }
 
-static inline void list_remove(struct entry *e)
+static inline void list_remove(struct list *l, struct entry *e)
 {
+	if (l->head == e)
+		l->head = e->prev;
+
+	if (l->tail == e)
+		l->tail = e->prev;
+
 	e->prev->next = e->next;
 	e->next->prev = e->prev;
 }
