@@ -20,8 +20,30 @@
 
 static int stm32_timer_init(unsigned int num)
 {
+	TIM_TypeDef *tim = NULL;
+	unsigned int rcc_en = 0;
+
 	if (num < 2 || num > 5)
 		return -EINVAL;
 
-	
+	switch (num) {
+		case 2:
+			tim = TIM2;
+			rcc_en = RCC_APB1ENR_TIM2EN;
+			break;
+		case 3:
+			tim = TIM3;
+			rcc_en = RCC_APB1ENR_TIM3EN;
+			break;
+		case 4:
+			tim = TIM4;
+			rcc_en = RCC_APB1ENR_TIM4EN;
+			break;
+		case 5:
+			tim = TIM5;
+			rcc_en = RCC_APB1ENR_TIM5EN;
+			break;
+	}
+
+	RCC->APB1ENR |= rcc_en;
 }
