@@ -45,10 +45,16 @@ static void insert_task(struct task *t)
 	struct entry *e = (struct entry *)&runnable_tasks.head;
 	struct task *task;
 
+	if (!e) {
+		list_insert_head(&runnable_tasks, &t->list_entry);
+		return;
+	}
+
 	while (e && e->next) {
 		task = (struct task *)container_of(e, struct task, list_entry);
 
 		if (t->priority > task->priority) {
+			printk("insert: %x before %x\r\n", task->list_entry, t->list_entry);
 			list_insert_before(&runnable_tasks, &task->list_entry, &t->list_entry);
 			break;
 		}
@@ -101,7 +107,7 @@ void switch_task(struct task *task)
 
 	task->state = TASK_RUNNING;
 	SET_PSP((void *)task->regs->sp);
-	increment_task_priority();
+//	increment_task_priority();
 	current_task = task;
 }
 
@@ -114,7 +120,7 @@ struct task *find_next_task(void)
 {
 	struct entry *e;
 	struct task *task;
-
+	printk("head: %x, tail: %x\r\n", runnable_tasks.head, runnable_tasks.tail);
 	e = list_get_head(&runnable_tasks);
 	task = (struct task *)container_of(e, struct task, list_entry);
 

@@ -105,8 +105,10 @@ static inline struct entry *list_get_head(struct list *l)
 {
 	struct entry *e = l->head;
 
-	l->head = l->head->next;
-	l->head->prev = NULL;
+//	l->head = l->head->next;
+//	l->head->prev = NULL;
+
+	list_remove(l, l->head);
 
 	return e;
 }
