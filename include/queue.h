@@ -49,6 +49,7 @@ static inline void list_insert_tail(struct list *l, struct entry *e)
 	}
 
 	l->tail = e;
+	l->tail->next = NULL;
 }
 
 static inline void list_insert_head(struct list *l, struct entry *e)
@@ -63,11 +64,13 @@ static inline void list_insert_head(struct list *l, struct entry *e)
 	}
 
 	l->head = e;
+	l->head->prev = NULL;
 }
 
 static inline void list_insert_before(struct list *l, struct entry *p, struct entry *e)
 {
 	e->prev = p->prev;
+	e->prev->next = e;
 	e->next = p;
 	p->prev = e;
 
@@ -79,6 +82,7 @@ static inline void list_insert_after(struct list *l, struct entry *p, struct ent
 {
 	e->prev = p;
 	e->next = p->next;
+	p->next->prev = e;
 	p->next = e;
 
 	if (l->tail == p)
