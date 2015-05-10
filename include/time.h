@@ -20,8 +20,9 @@
 #define TIME_H
 
 #include <queue.h>
+#include <task.h>
 
-struct list timer_list;
+LIST_HEAD(, task) sleeping_tasks = LIST_HEAD_INITIALIZER(sleeping_tasks);
 
 void usleep(unsigned int usec);
 

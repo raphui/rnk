@@ -27,6 +27,8 @@
 
 static struct task *current_task;
 static int task_count = 0;
+LIST_HEAD(, task) runnable_tasks = LIST_HEAD_INITIALIZER(runnable_tasks);
+
 
 static void increment_task_priority(void)
 {
@@ -42,7 +44,7 @@ static void insert_task(struct task *t)
 
 	LIST_FOREACH(task, &runnable_tasks, next) {
 		if (t->priority > task->priority)
-			LIST_INSERT_BEFORE(&task->next, &t, t->next);
+			LIST_INSERT_BEFORE(task, t, next);
 	}
 }
 
@@ -87,7 +89,7 @@ void switch_task(struct task *task)
 
 	task->state = TASK_RUNNING;
 	SET_PSP((void *)task->regs->sp);
-//	increment_task_priority();
+	increment_task_priority();
 	current_task = task;
 }
 
@@ -100,7 +102,7 @@ struct task *find_next_task(void)
 {
 	struct task *task = NULL;
 
-	task = LIST_HEAD(&runnable_tasks);
+	task = LIST_FIRST(&runnable_tasks);
 	LIST_REMOVE(task, next);
 
 	printk("next task: %x\r\n", task);

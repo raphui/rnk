@@ -12,7 +12,7 @@ static void insert_waiting_task(struct mutex *m, struct task *t)
 
 	LIST_FOREACH(task, &m->waiting_tasks, next) {
 		if (t->priority > task->priority)
-			LIST_INSERT_BEFORE(&task->next, &t, t->next);
+			LIST_INSERT_BEFORE(task, t, next);
 	}
 }
 
@@ -52,8 +52,7 @@ void init_mutex(struct mutex *mutex) {
 	mutex->owner = NULL;
 	mutex->waiting = 0;
 
-	LIST_HEAD_INITIALIZER(waiting_tasks);
-	LIST_INIT(&waiting_tasks);
+	LIST_INIT(&mutex->waiting_tasks);
 }
 
 void mutex_lock(struct mutex *mutex)
@@ -91,7 +90,7 @@ void mutex_unlock(struct mutex *mutex)
 		mutex->owner = NULL;
 
 		if (mutex->waiting) {
-			task = LIST_HEAD(&runnable_tasks);
+			task = LIST_FIRST(&mutex->waiting_tasks);
 			LIST_REMOVE(task, next);
 			task->state = TASK_RUNNABLE;
 			mutex->waiting--;

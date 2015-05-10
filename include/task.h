@@ -65,8 +65,6 @@ struct task
 	LIST_ENTRY(task) next;
 };
 
-LIST_HEAD(list, task) runnable_tasks = LIST_HEAD_INITIALIZER(runnable_tasks);
-
 struct registers task_regs[NR_TASK];
 struct task *task[NR_TASK];
 
