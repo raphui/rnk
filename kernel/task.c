@@ -48,6 +48,14 @@ static void insert_task(struct task *t)
 {
 	struct task *task;
 
+	task = LIST_FIRST(&runnable_tasks);
+
+	if (!task) {
+		debug_printk("runnable list is empty\r\n");
+		LIST_INSERT_HEAD(&runnable_tasks, task, next);
+		return;
+	}
+
 	LIST_FOREACH(task, &runnable_tasks, next) {
 		if (t->priority > task->priority)
 			LIST_INSERT_BEFORE(task, t, next);
