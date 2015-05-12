@@ -40,8 +40,13 @@ static void increment_task_priority(void)
 {
 	struct task *task;
 
-	LIST_FOREACH(task, &runnable_tasks, next)
-		task->priority++;
+	LIST_FOREACH(task, &runnable_tasks, next) {
+		debug_printk("task %d with priority %d\r\n", task->pid, task->priority);
+		if ((task->func != &idle_task)) {
+			debug_printk("increasing priority of task %d\r\n", task->pid);
+			task->priority++;
+		}
+	}
 }
 
 static void insert_task(struct task *t)
@@ -57,6 +62,7 @@ static void insert_task(struct task *t)
 	}
 
 	LIST_FOREACH(task, &runnable_tasks, next) {
+//		debug_printk("t->priority: %d, task->priority; %d\r\n", t->priority, task->priority);
 		if (t->priority > task->priority)
 			LIST_INSERT_BEFORE(task, t, next);
 	}
@@ -102,12 +108,12 @@ void switch_task(struct task *task)
 	if (current_task) {
 		current_task->regs->sp = PSP();
 		current_task->state = TASK_RUNNABLE;
+		increment_task_priority();
 		insert_task(current_task);
 	}
 
 	task->state = TASK_RUNNING;
 	SET_PSP((void *)task->regs->sp);
-	increment_task_priority();
 	current_task = task;
 }
 
