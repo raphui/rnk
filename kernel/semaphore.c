@@ -20,15 +20,21 @@
 #include <task.h>
 #include <stdio.h>
 
-
 static void insert_waiting_task(struct semaphore *sem, struct task *t)
 {
 	struct task *task;
 
-	LIST_FOREACH(task, &sem->waiting_tasks, next) {
-		if (t->priority > task->priority)
-			LIST_INSERT_BEFORE(task, t, next);
+	if (sem->waiting) {
+		LIST_FOREACH(task, &sem->waiting_tasks, next) {
+			if (t->priority > task->priority)
+				LIST_INSERT_BEFORE(task, t, next);
+		}
+
+	} else {
+		LIST_INSERT_HEAD(&sem->waiting_tasks, t, next);
 	}
+
+
 }
 
 void init_semaphore(struct semaphore *sem, unsigned int value)

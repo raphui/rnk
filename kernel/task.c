@@ -69,7 +69,10 @@ void add_task(void (*func)(void), unsigned int priority)
 	/* Creating task context */
 	create_context(task->regs, task);
 
-	insert_task(task);
+	if (task_count)
+		insert_task(task);
+	else
+		LIST_INSERT_HEAD(&runnable_tasks, task, next);
 
 	task_count++;
 }

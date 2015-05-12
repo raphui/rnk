@@ -26,7 +26,7 @@ struct mutex {
 	unsigned char lock;
 	struct task *owner;
 	unsigned int waiting;
-	LIST_HEAD(, mutex) waiting_tasks;
+	LIST_HEAD(, task) waiting_tasks;
 };
 
 void mutex_lock(struct mutex *mutex);

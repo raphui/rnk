@@ -10,10 +10,17 @@ static void insert_waiting_task(struct mutex *m, struct task *t)
 {
 	struct task *task;
 
-	LIST_FOREACH(task, &m->waiting_tasks, next) {
-		if (t->priority > task->priority)
-			LIST_INSERT_BEFORE(task, t, next);
+	if (m->waiting) {
+		LIST_FOREACH(task, &m->waiting_tasks, next) {
+			if (t->priority > task->priority)
+				LIST_INSERT_BEFORE(task, t, next);
+		}
+
+	} else {
+		LIST_INSERT_HEAD(&m->waiting_tasks, t, next);
 	}
+
+
 }
 
 static int __mutex_lock(struct mutex *mutex)
