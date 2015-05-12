@@ -29,6 +29,12 @@ static struct task *current_task;
 static int task_count = 0;
 LIST_HEAD(, task) runnable_tasks = LIST_HEAD_INITIALIZER(runnable_tasks);
 
+static void idle_task(void)
+{
+	while(1)
+		;
+}
+
 
 static void increment_task_priority(void)
 {
@@ -51,6 +57,7 @@ static void insert_task(struct task *t)
 void task_init(void)
 {
 	LIST_INIT(&runnable_tasks);
+	add_task(&idle_task, 0);
 }
 
 void add_task(void (*func)(void), unsigned int priority)
