@@ -127,7 +127,12 @@ struct task *find_next_task(void)
 	struct task *task = NULL;
 
 	task = LIST_FIRST(&runnable_tasks);
-	LIST_REMOVE(task, next);
+
+	/* don't remove idle task ! */
+	if (task->func != &idle_task) {
+		debug_printk("not idle task, remove it for runnable\r\n");
+		LIST_REMOVE(task, next);
+	}
 
 	printk("next task: %x\r\n", task);
 
