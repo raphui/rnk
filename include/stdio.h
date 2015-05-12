@@ -22,7 +22,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-#define DEBUG	1
+#define DEBUG	0
 
 #define debug_printk(...) do{ if(DEBUG){ printk(__VA_ARGS__); } }while(0)
 

@@ -42,7 +42,7 @@ static void increment_task_priority(void)
 
 	LIST_FOREACH(task, &runnable_tasks, next) {
 		debug_printk("task %d with priority %d\r\n", task->pid, task->priority);
-		if ((task->func != &idle_task)) {
+		if (task->func != &idle_task) {
 			debug_printk("increasing priority of task %d\r\n", task->pid);
 			task->priority++;
 		}
@@ -55,7 +55,7 @@ static void insert_task(struct task *t)
 
 	task = LIST_FIRST(&runnable_tasks);
 
-	if (!task) {
+	if (!task_count) {
 		debug_printk("runnable list is empty\r\n");
 		LIST_INSERT_HEAD(&runnable_tasks, task, next);
 		return;
@@ -63,8 +63,11 @@ static void insert_task(struct task *t)
 
 	LIST_FOREACH(task, &runnable_tasks, next) {
 //		debug_printk("t->priority: %d, task->priority; %d\r\n", t->priority, task->priority);
-		if (t->priority > task->priority)
+		if (t->priority > task->priority) {
+			debug_printk("inserting task %d\r\n", t->pid);
 			LIST_INSERT_BEFORE(task, t, next);
+			return;
+		}
 	}
 }
 
