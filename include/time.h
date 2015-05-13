@@ -22,6 +22,7 @@
 #include <queue.h>
 #include <task.h>
 
+void time_init(void);
 void usleep(unsigned int usec);
 void decrease_task_delay(void);
 

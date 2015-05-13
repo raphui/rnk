@@ -26,22 +26,31 @@ LIST_HEAD(, task) sleeping_tasks = LIST_HEAD_INITIALIZER(sleeping_tasks);
 
 struct timer timer;
 
+static void remove_sleeping_task(struct task *task)
+{
+	LIST_REMOVE(task, next);
+}
+
+void time_init(void)
+{
+	LIST_INIT(&sleeping_tasks);
+}
+
 void usleep(unsigned int usec)
 {
 	struct task *first = NULL;
 	struct task *task = NULL;
 
-	first = LIST_FIRST(&sleeping_tasks);
-	if (!first) {
-		first = get_current_task();
-		first->delay = usec;
+	task = get_current_task();
+	task->delay = usec;
+
+	remove_runnable_task(task);
+
+	if (LIST_EMPTY(&sleeping_tasks))
 		LIST_INSERT_HEAD(&sleeping_tasks, task, next);
-		remove_runnable_task(first);
-	} else {
-		task = get_current_task();
-		task->delay = usec;
+	else {
+		first = LIST_FIRST(&sleeping_tasks);
 		LIST_INSERT_AFTER(first, task, next);
-		remove_runnable_task(task);
 	}
 
 	timer.num = 2;
