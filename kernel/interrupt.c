@@ -22,6 +22,7 @@
 #include <interrupt.h>
 #include <scheduler.h>
 #include <armv7m/system.h>
+#include <time.h>
 
 
 void hardfault_handler(void)
@@ -61,4 +62,17 @@ void systick_handler(void)
 void pendsv_handler(void)
 {
 	schedule_task(NULL);
+}
+
+void timer2_handler(void)
+{
+	struct task *task;
+
+	LIST_FOREACH(task, &runnable_tasks, next) {
+		task->delay--;
+		if (!task->delay) {
+			LIST_REMOVE(task, next);
+			SVC_ARG(SVC_TASK_SWITCH, task);
+		}
+	}
 }

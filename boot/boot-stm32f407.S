@@ -163,7 +163,7 @@ g_pfnVectors:
   .word     0	/* TIM1 Update and TIM10        */         
   .word     0	/* TIM1 Trigger and Commutation and TIM11 */
   .word     0	/* TIM1 Capture Compare         */                          
-  .word     0	/* TIM2                         */                   
+  .word     timer2_handler	/* TIM2                         */
   .word     0	/* TIM3                         */                   
   .word     0	/* TIM4                         */                   
   .word     0	/* I2C1 Event                   */                          
