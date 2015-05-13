@@ -15,25 +15,30 @@
  * along with this program; if not, write to the Frrestore * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef TIMER_H
-#define TIMER_H
+#include <board.h>
+#include <timer.h>
 
-struct timer
+int timer_init(struct timer *timer)
 {
-	unsigned int num;
-	unsigned int base_reg;
-	unsigned long rate;
-	unsigned int prescaler;
-	unsigned int rcc_base;
-	unsigned char one_pulse:1;
-	unsigned char count_up:1;
-	unsigned short counter;
-};
+	tim_ops.init(timer);
+}
 
-int timer_init(struct timer *timer);
-void timer_set_rate(struct timer *timer, unsigned long rate);
-void timer_set_counter(struct timer *timer, unsigned short counter);
-void timer_enable(struct timer *timer);
-void timer_disable(struct timer *timer);
+void timer_set_rate(struct timer *timer, unsigned long rate)
+{
+	tim_ops.set_rate(timer, rate);
+}
 
-#endif /* TIMER_H*/
+void timer_set_counter(struct timer *timer, unsigned short counter)
+{
+	tim_ops.set_counter(timer, counter);
+}
+
+void timer_enable(struct timer *timer)
+{
+	tim_ops.enable(timer);
+}
+
+void timer_disable(struct timer *timer)
+{
+	tim_ops.disable(timer);
+}

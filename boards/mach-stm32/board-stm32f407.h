@@ -20,6 +20,7 @@
 #define BOARD_STM32F407_H
 
 #include <stm32f407.h>
+#include <timer.h>
 
 
 /* SYSCLK = PLL_VCO / PLL_P =======> 168000000*/
@@ -65,5 +66,17 @@ struct pio_operations
 };
 
 struct pio_operations pio_ops;
+
+struct timer_operations
+{
+	int (*init)(struct timer *timer);
+	void (*set_rate)(struct timer *timer, unsigned long rate);
+	void (*set_counter)(struct timer *timer, unsigned short counter);
+	void (*enable)(struct timer *timer);
+	void (*disable)(struct timer *timer);
+
+};
+
+struct timer_operations tim_ops;
 
 #endif /* BOARD_STM32F407_H */
