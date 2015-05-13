@@ -31,6 +31,7 @@ OBJS	:= 	asm/head.o \
 		arch/arm/$(ARMV)/kernel/svc_asm.o \
 		arch/arm/$(ARMV)/kernel/svc.o \
 		arch/arm/$(ARMV)/kernel/context.o \
+		arch/arm/$(ARMV)/nvic.o \
 		arch/arm/$(ARMV)/systick.o \
 		arch/arm/$(ARMV)/handlers.o \
 		boards/mach-$(MACH)/$(SOC).o \

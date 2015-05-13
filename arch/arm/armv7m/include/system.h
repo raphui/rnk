@@ -95,10 +95,15 @@ static inline unsigned int *MSP(void) {
 #define NVIC_ICER0                      (volatile unsigned int *) (NVIC_BASE + 0x080)               /* Interrupt clear-enable register 0 */
 #define NVIC_ICER1                      (volatile unsigned int *) (NVIC_BASE + 0x084)               /* Interrupt clear-enable register 1 */
 #define NVIC_ICER2                      (volatile unsigned int *) (NVIC_BASE + 0x088)               /* Interrupt clear-enable register 2 */
+#define NVIC_ICER3                      (volatile unsigned int *) (NVIC_BASE + 0x08C)               /* Interrupt clear-enable register 3 */
 #define NVIC_ISPR0                      (volatile unsigned int *) (NVIC_BASE + 0x100)               /* Interrupt set-pending register 0 */
+#define NVIC_ISPR1                      (volatile unsigned int *) (NVIC_BASE + 0x104)               /* Interrupt set-pending register 1 */
+#define NVIC_ISPR2                      (volatile unsigned int *) (NVIC_BASE + 0x108)               /* Interrupt set-pending register 2 */
+#define NVIC_ISPR3                      (volatile unsigned int *) (NVIC_BASE + 0x10C)               /* Interrupt set-pending register 3 */
 #define NVIC_ICPR0                      (volatile unsigned int *) (NVIC_BASE + 0x180)               /* Interrupt clear-pending register 0 */
 #define NVIC_ICPR1                      (volatile unsigned int *) (NVIC_BASE + 0x184)               /* Interrupt clear-pending register 1 */
 #define NVIC_ICPR2                      (volatile unsigned int *) (NVIC_BASE + 0x188)               /* Interrupt clear-pending register 2 */
+#define NVIC_ICPR3                      (volatile unsigned int *) (NVIC_BASE + 0x18C)               /* Interrupt clear-pending register 3 */
 #define NVIC_IPR(n)                     (volatile unsigned char *)  (NVIC_BASE + 0x300 + n)           /* Interrupt n priority register */
 
 /* System Control Block (SCB) */
