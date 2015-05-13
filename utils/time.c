@@ -20,6 +20,8 @@
 #include <time.h>
 #include <timer.h>
 
+LIST_HEAD(, task) sleeping_tasks = LIST_HEAD_INITIALIZER(sleeping_tasks);
+
 struct timer timer;
 
 void usleep(unsigned int usec)
@@ -40,7 +42,7 @@ void usleep(unsigned int usec)
 		remove_runnable_task(task);
 	}
 
-	timer.num = 2
+	timer.num = 2;
 	timer.one_pulse = 1;
 	timer.count_up = 0;
 

@@ -22,9 +22,6 @@
 #include <queue.h>
 #include <task.h>
 
-LIST_HEAD(, task) sleeping_tasks = LIST_HEAD_INITIALIZER(sleeping_tasks);
-
 void usleep(unsigned int usec);
-
 
 #endif /* TIME_H */
