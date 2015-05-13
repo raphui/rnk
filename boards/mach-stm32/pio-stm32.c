@@ -60,10 +60,14 @@ static void pio_set_alternate(unsigned int port, unsigned int mask, unsigned int
 
 static void pio_set_value(unsigned int port, unsigned int mask)
 {
+	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
+	base->ODR |= (1 << mask);
 }
 
 static void pio_clear_value(unsigned int port, unsigned int mask)
 {
+	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
+	base->ODR &= ~(1 << mask);
 }
 
 static void pio_enable_interrupt(unsigned int port, unsigned int mask)
