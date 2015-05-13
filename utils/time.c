@@ -45,6 +45,7 @@ void usleep(unsigned int usec)
 	task->delay = usec;
 
 	remove_runnable_task(task);
+	task->state = TASK_BLOCKED;
 
 	if (LIST_EMPTY(&sleeping_tasks))
 		LIST_INSERT_HEAD(&sleeping_tasks, task, next);
