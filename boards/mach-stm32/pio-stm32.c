@@ -18,39 +18,88 @@
 #include <board.h>
 #include <utils.h>
 
-/* TODO: Output mode opendrain / push-pull */
+#define GPIO_MODER(pin)			(3 << (pin * 2))
+#define GPIO_MODER_OUTPUT(pin)		(1 << (pin * 2))
+#define GPIO_MODER_ALTERNATE(pin)	(2 << (pin * 2))
 
-#define GPIO_MODER(pin)			(3 << (pin * 4))
-#define GPIO_MODER_OUTPUT(pin)		(1 << (pin * 4))
-#define GPIO_MODER_ALTERNATE(pin)	(2 << (pin * 4))
+#define GPIO_PUPDR_PULLUP(pin)		(1 << (pin * 2))
 
-#define GPIO_PUPDR_PULLUP(pin)		(1 << (pin * 4))
+static void stm32_pio_set_clock(unsigned int port)
+{
+	unsigned int rcc_en;
 
-static void pio_set_output(unsigned int port, unsigned int mask, int pull_up)
+	switch (port) {
+		case GPIOA_BASE:
+			rcc_en = RCC_AHB1ENR_GPIOAEN;
+			break;
+
+		case GPIOB_BASE:
+			rcc_en = RCC_AHB1ENR_GPIOBEN;
+			break;
+
+		case GPIOC_BASE:
+			rcc_en = RCC_AHB1ENR_GPIOCEN;
+			break;
+
+		case GPIOD_BASE:
+			rcc_en = RCC_AHB1ENR_GPIODEN;
+			break;
+
+		case GPIOE_BASE:
+			rcc_en = RCC_AHB1ENR_GPIOEEN;
+			break;
+
+		case GPIOF_BASE:
+			rcc_en = RCC_AHB1ENR_GPIOFEN;
+			break;
+
+		case GPIOG_BASE:
+			rcc_en = RCC_AHB1ENR_GPIOGEN;
+			break;
+
+		case GPIOH_BASE:
+			rcc_en = RCC_AHB1ENR_GPIOHEN;
+			break;
+
+		case GPIOI_BASE:
+			rcc_en = RCC_AHB1ENR_GPIOIEN;
+			break;
+	}
+
+	RCC->AHB1ENR |= rcc_en;
+
+}
+
+static void stm32_pio_set_output(unsigned int port, unsigned int mask, int pull_up)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 
-	base->MODER = GPIO_MODER_OUTPUT(mask);
+	stm32_pio_set_clock(port);
+
+	base->MODER |= GPIO_MODER_OUTPUT(mask);
 
 	if (pull_up)
-		base->PUPDR = GPIO_PUPDR_PULLUP(mask);
+		base->PUPDR |= GPIO_PUPDR_PULLUP(mask);
 	else
 		base->PUPDR &= ~(GPIO_PUPDR_PULLUP(mask));
 }
 
-static void pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter)
+static void stm32_pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
+	stm32_pio_set_clock(port);
 	base->MODER &= ~(GPIO_MODER(mask));
 }
 
-static void pio_set_alternate(unsigned int port, unsigned int mask, unsigned int num)
+static void stm32_pio_set_alternate(unsigned int port, unsigned int mask, unsigned int num)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 	unsigned int afr_high_base = 8;
 	unsigned int afr_low_base = 0;
 
-	base->MODER = GPIO_MODER_ALTERNATE(mask);
+	stm32_pio_set_clock(port);
+
+	base->MODER |= GPIO_MODER_ALTERNATE(mask);
 
 	if (mask > 7)
 		base->AFR[1] |= (num << ((mask - afr_high_base) * 4));
@@ -58,33 +107,33 @@ static void pio_set_alternate(unsigned int port, unsigned int mask, unsigned int
 		base->AFR[0] |= (num << (mask * 4));
 }
 
-static void pio_set_value(unsigned int port, unsigned int mask)
+static void stm32_pio_set_value(unsigned int port, unsigned int mask)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 	base->ODR |= (1 << mask);
 }
 
-static void pio_clear_value(unsigned int port, unsigned int mask)
+static void stm32_pio_clear_value(unsigned int port, unsigned int mask)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 	base->ODR &= ~(1 << mask);
 }
 
-static void pio_enable_interrupt(unsigned int port, unsigned int mask)
+static void stm32_pio_enable_interrupt(unsigned int port, unsigned int mask)
 {
 	
 }
 
-static void pio_disable_interrupt(unsigned int port, unsigned int mask)
+static void stm32_pio_disable_interrupt(unsigned int port, unsigned int mask)
 {
 }
 
 struct pio_operations pio_ops = {
-	.set_output = pio_set_output,
-	.set_input = pio_set_input,
-	.set_alternate = pio_set_alternate,
-	.set_value = pio_set_value,
-	.clear_value = pio_clear_value,
-	.enable_interrupt = pio_enable_interrupt,
-	.disable_interrupt = pio_disable_interrupt,
+	.set_output = stm32_pio_set_output,
+	.set_input = stm32_pio_set_input,
+	.set_alternate = stm32_pio_set_alternate,
+	.set_value = stm32_pio_set_value,
+	.clear_value = stm32_pio_clear_value,
+	.enable_interrupt = stm32_pio_enable_interrupt,
+	.disable_interrupt = stm32_pio_disable_interrupt,
 };
