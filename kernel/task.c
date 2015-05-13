@@ -108,7 +108,7 @@ void first_switch_task(void)
 
 void switch_task(struct task *task)
 {
-	if (current_task) {
+	if (current_task && (current_task->state != TASK_BLOCKED)) {
 		current_task->regs->sp = PSP();
 		current_task->state = TASK_RUNNABLE;
 		increment_task_priority();
