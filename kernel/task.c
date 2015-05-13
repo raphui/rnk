@@ -84,6 +84,7 @@ void add_task(void (*func)(void), unsigned int priority)
 	task->pid = task_count;
 	task->priority = priority;
 	task->start_stack = TASK_STACK_START + (task_count * TASK_STACK_OFFSET);
+	task->delay = 0;
 	task->func = func;
 	task->regs = (struct registers *)kmalloc(sizeof(struct registers));
 	task->regs->sp = task->start_stack;

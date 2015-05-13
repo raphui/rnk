@@ -60,6 +60,7 @@ struct task
 	unsigned int pid;
 	unsigned int priority;
 	unsigned int start_stack;
+	unsigned int delay;
 	void (*func)(void);
 	struct registers *regs;
 	LIST_ENTRY(task) next;
