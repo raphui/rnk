@@ -71,7 +71,7 @@ static int stm32_uart_printl(const char *string)
 }
 
 struct uart_operations uart_ops = {
-	.init = &stm32_uart_init,
-	.print = &stm32_uart_print,
-	.printl = &stm32_uart_printl,
+	.init = stm32_uart_init,
+	.print = stm32_uart_print,
+	.printl = stm32_uart_printl,
 };

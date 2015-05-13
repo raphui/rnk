@@ -76,11 +76,11 @@ static void pio_disable_interrupt(unsigned int port, unsigned int mask)
 }
 
 struct pio_operations pio_ops = {
-	.set_output = &pio_set_output,
-	.set_input = &pio_set_input,
-	.set_alternate = &pio_set_alternate,
-	.set_value = &pio_set_value,
-	.clear_value = &pio_clear_value,
-	.enable_interrupt = &pio_enable_interrupt,
-	.disable_interrupt = &pio_disable_interrupt,
+	.set_output = pio_set_output,
+	.set_input = pio_set_input,
+	.set_alternate = pio_set_alternate,
+	.set_value = pio_set_value,
+	.clear_value = pio_clear_value,
+	.enable_interrupt = pio_enable_interrupt,
+	.disable_interrupt = pio_disable_interrupt,
 };
