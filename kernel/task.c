@@ -49,6 +49,19 @@ static void increment_task_priority(void)
 	}
 }
 
+void decrease_task_delay(void)
+{
+	struct task *task;
+
+	LIST_FOREACH(task, &runnable_tasks, next) {
+		task->delay--;
+		if (!task->delay) {
+			LIST_REMOVE(task, next);
+			SVC_ARG(SVC_TASK_SWITCH, task);
+		}
+	}
+}
+
 static void insert_task(struct task *t)
 {
 	struct task *task;

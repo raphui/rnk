@@ -66,13 +66,5 @@ void pendsv_handler(void)
 
 void timer2_handler(void)
 {
-	struct task *task;
-
-	LIST_FOREACH(task, &runnable_tasks, next) {
-		task->delay--;
-		if (!task->delay) {
-			LIST_REMOVE(task, next);
-			SVC_ARG(SVC_TASK_SWITCH, task);
-		}
-	}
+	decrease_task_delay();
 }
