@@ -122,15 +122,18 @@ static void stm32_timer_enable(struct timer *timer)
 	tim = (TIM_TypeDef *)timer->base_reg;
 
 	if (timer->one_pulse)
-		tim->CR1 |= (1 << TIM_CR1_OPM);
+		tim->CR1 |= TIM_CR1_OPM;
 
 	if (!timer->count_up)
-		tim->CR1 |= (1 << TIM_CR1_DIR);
+		tim->CR1 |= TIM_CR1_DIR;
 	else
-		tim->CR1 &= ~(1 << TIM_CR1_DIR);
+		tim->CR1 &= ~TIM_CR1_DIR;
+
+	/* and interrupt */
+	tim->DIER |= TIM_DIER_UIE | TIM_DIER_TIE;
 
 	/* finally, enable counter */
-	tim->CR1 |= (1 << TIM_CR1_CEN);
+	tim->CR1 |= TIM_CR1_CEN | TIM_CR1_ARPE;
 }
 
 static void stm32_timer_disable(struct timer *timer)
@@ -140,7 +143,7 @@ static void stm32_timer_disable(struct timer *timer)
 	tim = (TIM_TypeDef *)timer->base_reg;
 
 	if (!timer->one_pulse)
-		tim->CR1 &= ~(1 << TIM_CR1_CEN);
+		tim->CR1 &= ~TIM_CR1_CEN;
 }
 
 struct timer_operations tim_ops = {
