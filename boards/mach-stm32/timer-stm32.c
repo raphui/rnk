@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <timer.h>
 #include <stddef.h>
+#include <arch/nvic.h>
 
 static int stm32_timer_init(struct timer *timer)
 {
@@ -134,6 +135,8 @@ static void stm32_timer_enable(struct timer *timer)
 
 	/* finally, enable counter */
 	tim->CR1 |= TIM_CR1_CEN | TIM_CR1_ARPE;
+
+	nvic_enable_interrupt(28);
 }
 
 static void stm32_timer_disable(struct timer *timer)
