@@ -32,10 +32,12 @@ void usleep(unsigned int usec)
 		first = get_current_task();
 		first->delay = usec;
 		LIST_INSERT_HEAD(&sleeping_tasks, task, next);
+		remove_runnable_task(first);
 	} else {
 		task = get_current_task();
 		task->delay = usec;
 		LIST_INSERT_AFTER(first, task, next);
+		remove_runnable_task(task);
 	}
 
 	timer.num = 2
