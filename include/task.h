@@ -75,7 +75,6 @@ void first_switch_task(void);
 void switch_task(struct task *task);
 struct task *get_current_task(void);
 struct task *find_next_task(void);
-void decrease_task_delay(void);
 void insert_runnable_task(struct task *task);
 void remove_runnable_task(struct task *task);
 

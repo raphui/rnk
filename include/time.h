@@ -23,5 +23,6 @@
 #include <task.h>
 
 void usleep(unsigned int usec);
+void decrease_task_delay(void);
 
 #endif /* TIME_H */

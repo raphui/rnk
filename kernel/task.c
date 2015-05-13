@@ -35,7 +35,6 @@ static void idle_task(void)
 		;
 }
 
-
 static void increment_task_priority(void)
 {
 	struct task *task;
@@ -45,19 +44,6 @@ static void increment_task_priority(void)
 		if (task->func != &idle_task) {
 			debug_printk("increasing priority of task %d\r\n", task->pid);
 			task->priority++;
-		}
-	}
-}
-
-void decrease_task_delay(void)
-{
-	struct task *task;
-
-	LIST_FOREACH(task, &runnable_tasks, next) {
-		task->delay--;
-		if (!task->delay) {
-			LIST_REMOVE(task, next);
-			SVC_ARG(SVC_TASK_SWITCH, task);
 		}
 	}
 }
@@ -151,7 +137,7 @@ struct task *find_next_task(void)
 		LIST_REMOVE(task, next);
 	}
 
-	printk("next task: %x\r\n", task);
+	printk("next task: %d\r\n", task->pid);
 
 	return task;
 }

@@ -19,6 +19,8 @@
 #include <task.h>
 #include <time.h>
 #include <timer.h>
+#include <arch/svc.h>
+#include <stdio.h>
 
 LIST_HEAD(, task) sleeping_tasks = LIST_HEAD_INITIALIZER(sleeping_tasks);
 
@@ -50,4 +52,20 @@ void usleep(unsigned int usec)
 	timer_set_rate(&timer, 1000000);
 	timer_set_counter(&timer, usec);
 	timer_enable(&timer);
+
+	SVC_ARG(SVC_TASK_SWITCH, NULL);
+}
+
+void decrease_task_delay(void)
+{
+	struct task *task;
+
+	LIST_FOREACH(task, &sleeping_tasks, next) {
+		task->delay--;
+		printk("%d: %d usec remaining\r\n", task->pid, task->delay);
+		if (!task->delay) {
+			remove_sleeping_task(task);
+			SVC_ARG(SVC_TASK_SWITCH, task);
+		}
+	}
 }
