@@ -16,9 +16,34 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <task.h>
 #include <time.h>
+#include <timer.h>
+
+struct timer timer;
 
 void usleep(unsigned int usec)
 {
+	struct task *first = NULL;
+	struct task *task = NULL;
 
+	first = LIST_FIRST(&sleeping_tasks);
+	if (!first) {
+		first = get_current_task();
+		first->delay = usec;
+		LIST_INSERT_HEAD(&sleeping_tasks, task, next);
+	} else {
+		task = get_current_task();
+		task->delay = usec;
+		LIST_INSERT_AFTER(first, task, next);
+	}
+
+	timer.num = 2
+	timer.one_pulse = 1;
+	timer.count_up = 0;
+
+	timer_init(&timer);
+	timer_set_rate(&timer, 1000000);
+	timer_set_counter(&timer, usec);
+	timer_enable(&timer);
 }
