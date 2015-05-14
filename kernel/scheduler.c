@@ -22,6 +22,7 @@
 #include <pit.h>
 #include <board.h>
 #include <arch/svc.h>
+#include <armv7m/system.h>
 
 int task_switching = 0;
 unsigned int system_tick = 0;
@@ -58,6 +59,11 @@ void schedule_task(struct task *task)
 	}
 	
 	task_switching = 1;
+}
+
+void schedule_from_interrupt(void)
+{
+	pendsv_request();
 }
 
 /* Since tasks cannot end, if we jump into this functions it's mean that the context switch is buggy */

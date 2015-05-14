@@ -33,6 +33,7 @@ void start_schedule(void);
 void schedule_init(void);
 void schedule(void);
 void schedule_task(struct task *task);
+void schedule_from_interrupt(void);
 void end_task(void);
 
 #endif /* SCHEDULER_H */
