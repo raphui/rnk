@@ -100,6 +100,9 @@ static void stm32_timer_set_rate(struct timer *timer, unsigned long rate)
 
 	pres = stm32_timer_find_best_pres(timer->rate, rate);
 
+	/* The counter clock frequency CK_CNT is equal to fCK_PSC / (PSC[15:0] + 1) */
+	pres -= 1;
+
 	tim = (TIM_TypeDef *)timer->base_reg;
 
 	tim->PSC = pres;
@@ -112,8 +115,6 @@ static void stm32_timer_set_counter(struct timer *timer, unsigned short counter)
 	tim = (TIM_TypeDef *)timer->base_reg;
 
 	tim->ARR = counter;
-
-	timer->counter = counter;
 }
 
 static void stm32_timer_enable(struct timer *timer)
