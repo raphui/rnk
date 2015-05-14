@@ -48,11 +48,11 @@ OBJS	:= 	asm/head.o \
 		kernel/semaphore.o \
 		kernel/interrupt.o \
 		kernel/task.o \
+		kernel/time.o \
 		mm/alloc.o \
 		mm/init.o \
 		mm/free.o \
 		utils/stdio.o \
-		utils/time.o \
 		utils/utils.o
 
 config:
