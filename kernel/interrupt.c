@@ -24,6 +24,7 @@
 #include <armv7m/system.h>
 #include <arch/nvic.h>
 #include <time.h>
+#include <pio.h>
 
 
 void hardfault_handler(void)
@@ -69,5 +70,6 @@ void timer2_handler(void)
 {
 	nvic_clear_interrupt(28);
 	debug_printk("timer2 trig\r\n");
+//	pio_toggle_value(GPIOE_BASE, 6);
 	decrease_task_delay();
 }
