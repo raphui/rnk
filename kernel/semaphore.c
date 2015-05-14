@@ -53,7 +53,7 @@ void svc_sem_wait(struct semaphore *sem)
 
 	if (sem->count < sem->value) {
 		debug_printk("sem (%x) got\r\n", sem);
-		sem->count--;
+		sem->count++;
 	} else {
 		debug_printk("unable to got sem (%x)\r\n", sem);
 
@@ -64,12 +64,14 @@ void svc_sem_wait(struct semaphore *sem)
 		insert_waiting_task(sem, current_task);
 
 		sem->waiting++;
+		
+		schedule_task(NULL);
 	}
 }
 
 void sem_wait(struct semaphore *sem)
 {
-	SVC_ARG(SVC_WAIT_SEM, &sem);
+	SVC_ARG(SVC_WAIT_SEM, sem);
 }
 
 void svc_sem_post(struct semaphore *sem)
@@ -84,16 +86,16 @@ void svc_sem_post(struct semaphore *sem)
 		LIST_REMOVE(task, next);
 		task->state = TASK_RUNNABLE;
 		sem->waiting--;
-		sem->count++;
+		sem->count--;
 
 		insert_runnable_task(task);
 		schedule_task(task);
 
 	} else {
-		if (sem->count == sem->value)
+		if (sem->count == 0)
 			debug_printk("all sem (%x) token has been post\r\n", sem);
 		else
-			sem->count++;
+			sem->count--;
 
 		debug_printk("sem (%x) post\r\n", sem);
 	}
@@ -101,5 +103,5 @@ void svc_sem_post(struct semaphore *sem)
 
 void sem_post(struct semaphore *sem)
 {
-	SVC_ARG(SVC_POST_SEM, &sem);
+	SVC_ARG(SVC_POST_SEM, sem);
 }
