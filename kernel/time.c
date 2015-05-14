@@ -59,7 +59,7 @@ void svc_usleep(struct timer *timer)
 	timer_set_counter(timer, timer->counter);
 	timer_enable(timer);
 
-	switch_task(NULL);
+	schedule_task(NULL);
 }
 
 void usleep(unsigned int usec)
@@ -75,6 +75,7 @@ void usleep(unsigned int usec)
 void decrease_task_delay(void)
 {
 	struct task *task;
+	struct task *curr = get_current_task();
 
 	LIST_FOREACH(task, &sleeping_tasks, next) {
 		task->delay--;
@@ -82,8 +83,10 @@ void decrease_task_delay(void)
 		if (!task->delay) {
 			remove_sleeping_task(task);
 			insert_runnable_task(task);
-			if (LIST_EMPTY(&sleeping_tasks))
+			if (LIST_EMPTY(&sleeping_tasks)) {
 				timer_disable(&timer);
+				break;
+			}
 		}
 	}
 }
