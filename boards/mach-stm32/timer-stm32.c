@@ -131,7 +131,7 @@ static void stm32_timer_enable(struct timer *timer)
 		tim->CR1 &= ~TIM_CR1_DIR;
 
 	/* and interrupt */
-	tim->DIER |= TIM_DIER_UIE | TIM_DIER_TIE;
+	tim->DIER |= TIM_DIER_UIE;
 
 	/* finally, enable counter */
 	tim->CR1 |= TIM_CR1_CEN | TIM_CR1_ARPE;
@@ -145,8 +145,10 @@ static void stm32_timer_disable(struct timer *timer)
 
 	tim = (TIM_TypeDef *)timer->base_reg;
 
-	if (!timer->one_pulse)
-		tim->CR1 &= ~TIM_CR1_CEN;
+	tim->CR1 &= ~TIM_CR1_CEN;
+
+	nvic_clear_interrupt(28);
+	nvic_disable_interrupt(28);
 }
 
 struct timer_operations tim_ops = {
