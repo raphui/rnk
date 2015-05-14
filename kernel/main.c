@@ -28,6 +28,7 @@
 #include <mm.h>
 #include <mutex.h>
 #include <arch/svc.h>
+#include <time.h>
 
 struct mutex mutex;
 
@@ -98,6 +99,18 @@ void fifth_task(void)
 	}
 }
 
+void sixth_task(void)
+{
+	printk("starting task F\r\n");
+	pio_set_output(GPIOE_BASE, 6, 0);
+	while (1) {
+		pio_set_value(GPIOE_BASE, 6);
+		usleep(500);
+		printk("F");
+		pio_clear_value(GPIOE_BASE, 6);
+	}
+}
+
 int main(void)
 {
 	uart_init();
@@ -111,14 +124,16 @@ int main(void)
 	schedule_init();
 
 	init_mutex(&mutex);
+	time_init();
 
 	printk("- Add task to scheduler\r\n");
 
-	add_task(&first_task, 1);
-	add_task(&second_task, 6);
+//	add_task(&first_task, 1);
+//	add_task(&second_task, 6);
 //	add_task(&third_task, 20);
 //	add_task(&fourth_task, 20);
-//	add_task(&fifth_task, 20);
+	add_task(&fifth_task, 1);
+	add_task(&sixth_task, 1);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();
