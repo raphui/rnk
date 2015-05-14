@@ -22,6 +22,7 @@
 #include <interrupt.h>
 #include <scheduler.h>
 #include <armv7m/system.h>
+#include <arch/nvic.h>
 #include <time.h>
 
 
@@ -66,5 +67,7 @@ void pendsv_handler(void)
 
 void timer2_handler(void)
 {
+	nvic_clear_interrupt(28);
+	debug_printk("timer2 trig\r\n");
 	decrease_task_delay();
 }
