@@ -41,7 +41,7 @@ static void increment_task_priority(void)
 
 	LIST_FOREACH(task, &runnable_tasks, next) {
 		debug_printk("task %d with priority %d\r\n", task->pid, task->priority);
-		if (task->func != &idle_task) {
+		if (task->pid != 0) {
 			debug_printk("increasing priority of task %d\r\n", task->pid);
 			task->priority++;
 		}
