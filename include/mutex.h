@@ -29,6 +29,8 @@ struct mutex {
 	LIST_HEAD(, task) waiting_tasks;
 };
 
+void svc_mutex_lock(struct mutex *mutex);
+void svc_mutex_unlock(struct mutex *mutex);
 void mutex_lock(struct mutex *mutex);
 void mutex_unlock(struct mutex *mutex);
 void init_mutex(struct mutex *mutex);

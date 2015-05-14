@@ -40,11 +40,11 @@ void svc_handler(unsigned int call, void *arg)
 		break;
 	case SVC_ACQUIRE_MUTEX:
 		debug_printk("SVC call ask for acquiring mutex\r\n");
-		mutex_lock((struct mutex *)arg);
+		svc_mutex_lock((struct mutex *)arg);
 		break;
 	case SVC_RELEASE_MUTEX:
 		debug_printk("SVC call ask for releasing mutex\r\n");
-		mutex_unlock((struct mutex *)arg);
+		svc_mutex_unlock((struct mutex *)arg);
 		break;
 	case SVC_WAIT_SEM:
 		debug_printk("SVC call ask for wait semaphore\r\n");

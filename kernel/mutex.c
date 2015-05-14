@@ -62,7 +62,7 @@ void init_mutex(struct mutex *mutex) {
 	LIST_INIT(&mutex->waiting_tasks);
 }
 
-void mutex_lock(struct mutex *mutex)
+void svc_mutex_lock(struct mutex *mutex)
 {
 	int ret;
 
@@ -83,7 +83,12 @@ void mutex_lock(struct mutex *mutex)
 	}
 }
 
-void mutex_unlock(struct mutex *mutex)
+void mutex_lock(struct mutex *mutex)
+{
+	SVC_ARG(SVC_ACQUIRE_MUTEX, &mutex);
+}
+
+void svc_mutex_unlock(struct mutex *mutex)
 {
 	struct task *current_task = get_current_task();
 	struct task *task;
@@ -111,4 +116,9 @@ void mutex_unlock(struct mutex *mutex)
 	} else {
 		debug_printk("mutex cannot be unlock, task is not the owner\r\n");
 	}
+}
+
+void mutex_unlock(struct mutex *mutex)
+{
+	SVC_ARG(SVC_RELEASE_MUTEX, &mutex);
 }
