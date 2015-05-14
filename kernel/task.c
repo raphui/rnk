@@ -118,7 +118,9 @@ void switch_task(struct task *task)
 	task->state = TASK_RUNNING;
 	SET_PSP((void *)task->regs->sp);
 	current_task = task;
-	remove_runnable_task(task);
+
+	if (task->pid != 0)
+		remove_runnable_task(task);
 }
 
 struct task *get_current_task(void)
