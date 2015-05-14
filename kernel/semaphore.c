@@ -19,6 +19,7 @@
 #include <semaphore.h>
 #include <task.h>
 #include <stdio.h>
+#include <arch/svc.h>
 
 static void insert_waiting_task(struct semaphore *sem, struct task *t)
 {
@@ -46,7 +47,7 @@ void init_semaphore(struct semaphore *sem, unsigned int value)
 	LIST_INIT(&sem->waiting_tasks);
 }
 
-void sem_wait(struct semaphore *sem)
+void svc_sem_wait(struct semaphore *sem)
 {
 	struct task *current_task;
 
@@ -66,7 +67,12 @@ void sem_wait(struct semaphore *sem)
 	}
 }
 
-void sem_post(struct semaphore *sem)
+void sem_wait(struct semaphore *sem)
+{
+	SVC_ARG(SVC_WAIT_SEM, &sem);
+}
+
+void svc_sem_post(struct semaphore *sem)
 {
 	struct task *task;
 	struct entry *e;
@@ -91,5 +97,9 @@ void sem_post(struct semaphore *sem)
 
 		debug_printk("sem (%x) post\r\n", sem);
 	}
+}
 
+void sem_post(struct semaphore *sem)
+{
+	SVC_ARG(SVC_POST_SEM, &sem);
 }

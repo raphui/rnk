@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <scheduler.h>
 #include <mutex.h>
+#include <semaphore.h>
 #include <timer.h>
 
 #include <arch/svc.h>
@@ -44,6 +45,14 @@ void svc_handler(unsigned int call, void *arg)
 	case SVC_RELEASE_MUTEX:
 		debug_printk("SVC call ask for releasing mutex\r\n");
 		mutex_unlock((struct mutex *)arg);
+		break;
+	case SVC_WAIT_SEM:
+		debug_printk("SVC call ask for wait semaphore\r\n");
+		svc_sem_wait((struct semaphore *)arg);
+		break;
+	case SVC_POST_SEM:
+		debug_printk("SVC call ask for post semaphore\r\n");
+		svc_sem_post((struct semaphore *)arg);
 		break;
 	case SVC_USLEEP:
 		debug_printk("SVC call ask for usleep\r\n");
