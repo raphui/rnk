@@ -36,9 +36,9 @@ void first_task(void)
 
 	printk("starting task A\r\n");
 	while (1) {
-		SVC_ARG(SVC_ACQUIRE_MUTEX, &mutex);
+		mutex_lock(&mutex);
 		printk("A");
-		SVC_ARG(SVC_RELEASE_MUTEX, &mutex);
+		mutex_unlock(&mutex);
 	}
 }
 
@@ -46,11 +46,11 @@ static int count = 0;
 void second_task(void)
 {
 	printk("starting task B\r\n");
-	SVC_ARG(SVC_ACQUIRE_MUTEX, &mutex);
+	mutex_lock(&mutex);
 	while (1) {
 		printk("B");
 		if (count++ == 500)
-			SVC_ARG(SVC_RELEASE_MUTEX, &mutex);
+			mutex_unlock(&mutex);
 	}
 }
 
