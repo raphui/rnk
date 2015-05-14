@@ -33,7 +33,7 @@ static int __mutex_lock(struct mutex *mutex)
 		ret = -EDEADLOCK;
 
 		if (mutex->owner) {
-			debug_printk("mutex has owner\r\n");
+			debug_printk("mutex has owner: %d\r\n", mutex->owner->pid);
 
 			current_task->state = TASK_BLOCKED;
 			remove_runnable_task(current_task);
@@ -85,7 +85,7 @@ void svc_mutex_lock(struct mutex *mutex)
 
 void mutex_lock(struct mutex *mutex)
 {
-	SVC_ARG(SVC_ACQUIRE_MUTEX, &mutex);
+	SVC_ARG(SVC_ACQUIRE_MUTEX, mutex);
 }
 
 void svc_mutex_unlock(struct mutex *mutex)
@@ -120,5 +120,5 @@ void svc_mutex_unlock(struct mutex *mutex)
 
 void mutex_unlock(struct mutex *mutex)
 {
-	SVC_ARG(SVC_RELEASE_MUTEX, &mutex);
+	SVC_ARG(SVC_RELEASE_MUTEX, mutex);
 }
