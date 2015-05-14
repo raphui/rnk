@@ -42,3 +42,8 @@ void timer_disable(struct timer *timer)
 {
 	tim_ops.disable(timer);
 }
+
+void timer_clear_it_flags(struct timer *timer, unsigned int flags)
+{
+	tim_ops.clear_it_flags(timer, flags);
+}

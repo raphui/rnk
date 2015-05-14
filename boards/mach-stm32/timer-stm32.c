@@ -152,10 +152,20 @@ static void stm32_timer_disable(struct timer *timer)
 	nvic_disable_interrupt(28);
 }
 
+static void stm32_timer_clear_it_flags(struct timer *timer, unsigned int flags)
+{
+	TIM_TypeDef *tim = NULL;
+
+	tim = (TIM_TypeDef *)timer->base_reg;
+
+	tim->SR &= ~flags;	
+}
+
 struct timer_operations tim_ops = {
 	.init = stm32_timer_init,
 	.set_rate = stm32_timer_set_rate,
 	.set_counter = stm32_timer_set_counter,
 	.enable = stm32_timer_enable,
 	.disable = stm32_timer_disable,
+	.clear_it_flags = stm32_timer_clear_it_flags,
 };
