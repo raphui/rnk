@@ -36,16 +36,16 @@ void time_init(void)
 	LIST_INIT(&sleeping_tasks);
 }
 
-void usleep(unsigned int usec)
+void svc_usleep(struct timer *timer)
 {
 	struct task *first = NULL;
 	struct task *task = NULL;
 
 	task = get_current_task();
-	task->delay = usec;
+	task->delay = timer->counter;
 
-	remove_runnable_task(task);
 	task->state = TASK_BLOCKED;
+	remove_runnable_task(task);
 
 	if (LIST_EMPTY(&sleeping_tasks))
 		LIST_INSERT_HEAD(&sleeping_tasks, task, next);
@@ -54,16 +54,22 @@ void usleep(unsigned int usec)
 		LIST_INSERT_AFTER(first, task, next);
 	}
 
+	timer_init(timer);
+	timer_set_rate(timer, 1000000);
+	timer_set_counter(timer, timer->counter);
+	timer_enable(timer);
+
+	switch_task(NULL);
+}
+
+void usleep(unsigned int usec)
+{
 	timer.num = 2;
 	timer.one_pulse = 1;
 	timer.count_up = 0;
+	timer.counter = usec;
 
-	timer_init(&timer);
-	timer_set_rate(&timer, 1000000);
-	timer_set_counter(&timer, usec);
-	timer_enable(&timer);
-
-	SVC_ARG(SVC_TASK_SWITCH, NULL);
+	SVC_ARG(SVC_USLEEP, &timer);
 }
 
 void decrease_task_delay(void)
@@ -72,10 +78,12 @@ void decrease_task_delay(void)
 
 	LIST_FOREACH(task, &sleeping_tasks, next) {
 		task->delay--;
-		printk("%d: %d usec remaining\r\n", task->pid, task->delay);
+		debug_printk("%d: %d usec remaining\r\n", task->pid, task->delay);
 		if (!task->delay) {
 			remove_sleeping_task(task);
-			SVC_ARG(SVC_TASK_SWITCH, task);
+			insert_runnable_task(task);
+			if (LIST_EMPTY(&sleeping_tasks))
+				timer_disable(&timer);
 		}
 	}
 }

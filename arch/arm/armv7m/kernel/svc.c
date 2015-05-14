@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <scheduler.h>
 #include <mutex.h>
+#include <timer.h>
 
 #include <arch/svc.h>
 
@@ -43,6 +44,10 @@ void svc_handler(unsigned int call, void *arg)
 	case SVC_RELEASE_MUTEX:
 		debug_printk("SVC call ask for releasing mutex\r\n");
 		mutex_unlock((struct mutex *)arg);
+		break;
+	case SVC_USLEEP:
+		debug_printk("SVC call ask for usleep\r\n");
+		svc_usleep((struct timer *)arg);
 		break;
 	default:
 		debug_printk("Invalid svc call\r\n");
