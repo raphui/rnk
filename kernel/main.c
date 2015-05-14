@@ -139,10 +139,10 @@ int main(void)
 
 //	add_task(&first_task, 1);
 //	add_task(&second_task, 6);
-	add_task(&third_task, 2);
+//	add_task(&third_task, 2);
 //	add_task(&fourth_task, 20);
-	add_task(&fifth_task, 1);
-//	add_task(&sixth_task, 1);
+//	add_task(&fifth_task, 1);
+	add_task(&sixth_task, 1);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();
