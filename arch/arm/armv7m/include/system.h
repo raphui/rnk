@@ -19,6 +19,8 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+#include <utils.h>
+
 extern void init_systick(void);
 
 static inline void READ_AND_DISCARD(volatile unsigned int *reg) {
@@ -69,14 +71,6 @@ static inline unsigned int *MSP(void) {
         ::);
 
     return val;
-}
-
-static inline void pendsv_request(void)
-{
-	unsigned int val = readl(SCB_ICSR);
-
-	val |= SCB_ICSR_PENDSVSET;
-	writel(SCB_ICSR, val);
 }
 
 /* Cortex M4 General Registers */
@@ -210,5 +204,13 @@ static inline void pendsv_request(void)
 /* Floating Point Unit (FPU)
  * ST PM0214 (Cortex M4 Programming Manual) pg. 236 */
 #define FPU_CCR_ASPEN                   (unsigned int) (1 << 31)                                    /* FPU Automatic State Preservation */
+
+static inline void pendsv_request(void)
+{
+	unsigned int val = readl(SCB_ICSR);
+
+	val |= SCB_ICSR_PENDSVSET;
+	writel(SCB_ICSR, val);
+}
 
 #endif /* SYSTEM_H */
