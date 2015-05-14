@@ -117,6 +117,7 @@ void nvic_clear_interrupt(unsigned int num)
 	writel(nvic_reg, (1 << off));
 }
 
-void nvic_set_priority_interrup(unsigned int num)
+void nvic_set_priority_interrup(unsigned int numi, unsigned short priority)
 {
+	writel(NVIC_IPR(28), priority);
 }
