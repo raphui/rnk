@@ -83,10 +83,12 @@ void decrease_task_delay(void)
 		if (!task->delay) {
 			remove_sleeping_task(task);
 			insert_runnable_task(task);
-			if (LIST_EMPTY(&sleeping_tasks)) {
+
+			if (LIST_EMPTY(&sleeping_tasks))
 				timer_disable(&timer);
-				break;
-			}
+
+			if (curr->priority < task->priority)
+				schedule_from_interrupt();
 		}
 	}
 }
