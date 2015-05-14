@@ -71,6 +71,14 @@ static inline unsigned int *MSP(void) {
     return val;
 }
 
+static inline void pendsv_request(void)
+{
+	unsigned int val = readl(SCB_ICSR);
+
+	val |= SCB_ICSR_PENDSVSET;
+	writel(SCB_ICSR, val);
+}
+
 /* Cortex M4 General Registers */
 
 /* System Control Map */
