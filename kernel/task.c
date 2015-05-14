@@ -145,9 +145,11 @@ struct task *find_next_task(void)
 void insert_runnable_task(struct task *task)
 {
 	insert_task(task);
+	task->state = TASK_RUNNABLE;
 }
 
 void remove_runnable_task(struct task *task)
 {
+	current_task->regs->sp = PSP();
 	LIST_REMOVE(task, next);
 }
