@@ -44,6 +44,11 @@ void pio_clear_value(unsigned int port, unsigned int mask)
 	pio_ops.clear_value(port, mask);
 }
 
+void pio_toggle_value(unsigned int port, unsigned int mask)
+{
+	pio_ops.toggle_value(port, mask);
+}
+
 void pio_enable_interrupt(unsigned int port, unsigned int mask)
 {
 	pio_ops.enable_interrupt(port, mask);

@@ -61,6 +61,7 @@ struct pio_operations
 	void (*set_alternate)(unsigned int port, unsigned int mask, unsigned int num);
 	void (*set_value)(unsigned int port, unsigned int mask);
 	void (*clear_value)(unsigned int port, unsigned int mask);
+	void (*toggle_value)(unsigned int port, unsigned int mask);
 	void (*enable_interrupt)(unsigned int port, unsigned int mask);
 	void (*disable_interrupt)(unsigned int port, unsigned int mask);
 };

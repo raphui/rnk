@@ -119,6 +119,12 @@ static void stm32_pio_clear_value(unsigned int port, unsigned int mask)
 	base->ODR &= ~(1 << mask);
 }
 
+static void stm32_pio_toggle_value(unsigned int port, unsigned int mask)
+{
+	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
+	base->ODR ^= (1 << mask);
+}
+
 static void stm32_pio_enable_interrupt(unsigned int port, unsigned int mask)
 {
 	
@@ -134,6 +140,7 @@ struct pio_operations pio_ops = {
 	.set_alternate = stm32_pio_set_alternate,
 	.set_value = stm32_pio_set_value,
 	.clear_value = stm32_pio_clear_value,
+	.toggle_value = stm32_pio_toggle_value,
 	.enable_interrupt = stm32_pio_enable_interrupt,
 	.disable_interrupt = stm32_pio_disable_interrupt,
 };

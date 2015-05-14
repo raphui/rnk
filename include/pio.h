@@ -24,6 +24,7 @@ void pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter
 void pio_set_alternate(unsigned int port, unsigned int mask, unsigned int num);
 void pio_set_value(unsigned int port, unsigned int mask);
 void pio_clear_value(unsigned int port, unsigned int mask);
+void pio_toggle_value(unsigned int port, unsigned int mask);
 void pio_enable_interrupt(unsigned int port, unsigned int mask);
 void pio_disable_interrupt(unsigned int port, unsigned int mask);
 
