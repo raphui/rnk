@@ -145,6 +145,6 @@ void insert_runnable_task(struct task *task)
 
 void remove_runnable_task(struct task *task)
 {
-	current_task->regs->sp = PSP();
+	task->regs->sp = PSP();
 	LIST_REMOVE(task, next);
 }
