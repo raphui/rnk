@@ -27,10 +27,12 @@
 #include <utils.h>
 #include <mm.h>
 #include <mutex.h>
+#include <semaphore.h>
 #include <arch/svc.h>
 #include <time.h>
 
 struct mutex mutex;
+struct semaphore sem;
 
 void first_task(void)
 {
@@ -58,8 +60,12 @@ void second_task(void)
 void third_task(void)
 {
 	printk("starting task C\r\n");
+	sem_wait(&sem);
+	count = 0;
 	while (1) {
 		printk("C");
+		if (count++ == 4000)
+			sem_post(&sem);
 	}
 }
 
@@ -95,7 +101,9 @@ void fifth_task(void)
 {
 	printk("starting task E\r\n");
 	while (1) {
+		sem_wait(&sem);
 		printk("E");
+		sem_post(&sem);
 	}
 }
 
@@ -124,16 +132,17 @@ int main(void)
 	schedule_init();
 
 	init_mutex(&mutex);
+	init_semaphore(&sem, 1);
 	time_init();
 
 	printk("- Add task to scheduler\r\n");
 
 //	add_task(&first_task, 1);
 //	add_task(&second_task, 6);
-//	add_task(&third_task, 20);
+	add_task(&third_task, 2);
 //	add_task(&fourth_task, 20);
 	add_task(&fifth_task, 1);
-	add_task(&sixth_task, 1);
+//	add_task(&sixth_task, 1);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();
