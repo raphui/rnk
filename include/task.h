@@ -19,7 +19,7 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include <queue.h>
+#include <list.h>
 #include <stddef.h>
 
 #define NR_TASK	8

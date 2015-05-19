@@ -16,12 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <task.h>
 #include <scheduler.h>
 #include <stdio.h>
 #include <mm.h>
 #include <utils.h>
-#include <queue.h>
 #include <arch/svc.h>
 #include <armv7m/system.h>
 

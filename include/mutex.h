@@ -20,7 +20,7 @@
 #define MUTEX_H
 
 #include <task.h>
-#include <queue.h>
+#include <list.h>
 
 struct mutex {
 	unsigned char lock;

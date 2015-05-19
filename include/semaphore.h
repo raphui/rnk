@@ -19,7 +19,7 @@
 #ifndef SEMAPHORE_H
 #define SEMAPHORE_H
 
-#include <queue.h>
+#include <list.h>
 
 struct semaphore {
 	unsigned int value;
