@@ -17,6 +17,7 @@
 
 #include <board.h>
 #include <utils.h>
+#include <i2c.h>
 
 static unsigned int i2c_rcc_bit[] = {
 	RCC_APB1ENR_I2C1EN,
@@ -24,7 +25,7 @@ static unsigned int i2c_rcc_bit[] = {
 	RCC_APB1ENR_I2C3EN,
 };
 
-static unsigned int i2c_base[] = {
+static unsigned int i2c_bus_base[] = {
 	I2C1_BASE,
 	I2C2_BASE,
 	I2C3_BASE,
@@ -32,8 +33,9 @@ static unsigned int i2c_base[] = {
 
 void stm32_i2c_init(struct i2c *i2c)
 {
-	unsigned int rcc_off = i2c->bus - 1;
-	unsigned int i2c_base = i2c_base[i2c->bus - 1];
+	unsigned char bus_index = i2c->bus - 1;
+	unsigned int rcc_off = bus_index;
+	unsigned int i2c_base = i2c_bus_base[bus_index];
 	I2C_TypeDef *i2c_reg = (I2C_TypeDef *)i2c_base;
 
 	RCC->APB1ENR |= i2c_rcc_bit[rcc_off];
