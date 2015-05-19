@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef LIST_H
+#define LIST_H
 
 /*
  * This file defines five types of data structures: singly-linked lists,
@@ -540,4 +540,4 @@
 	 ? ((head)->cqh_last)                    \
 	 : (elm->field.cqe_prev))
 
-#endif  /* QUEUE_H */
+#endif  /* LIST_H */
