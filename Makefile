@@ -49,6 +49,7 @@ OBJS	:= 	asm/head.o \
 		kernel/scheduler.o \
 		kernel/semaphore.o \
 		kernel/interrupt.o \
+		kernel/queue.o \
 		kernel/task.o \
 		kernel/time.o \
 		mm/alloc.o \
