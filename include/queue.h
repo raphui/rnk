@@ -30,5 +30,10 @@ struct queue {
 	LIST_HEAD(, task) waiting_post_task;
 };
 
+void init_queue(struct queue *queue, unsigned int size, unsigned int item_size);
+void svc_queue_post(struct queue *queue, void *item);
+void svc_queue_receive(struct queue *queue, void *item);
+void queue_post(struct queue *queue, void *item);
+void queue_receive(struct queue *queue, void *item);
 
 #endif /* QUEUE_H */
