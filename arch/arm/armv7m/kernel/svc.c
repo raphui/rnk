@@ -61,11 +61,11 @@ void svc_handler(unsigned int call, void *arg)
 		break;
 	case SVC_QUEUE_POST:
 		debug_printk("SVC call ask for post in queue\r\n");
-		svc_queue_post((struct queue *)psp[0], (void *)psp[1]);
+		svc_queue_post((struct queue *)psp[1], (void *)psp[2]);
 		break;
 	case SVC_QUEUE_RECEIVE:
 		debug_printk("SVC call ask for receive from queue\r\n");
-		svc_queue_receive((struct queue *)psp[0], (void *)psp[1]);
+		svc_queue_receive((struct queue *)psp[1], (void *)psp[2]);
 		break;
 	default:
 		debug_printk("Invalid svc call\r\n");

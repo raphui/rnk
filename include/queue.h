@@ -24,6 +24,7 @@ struct queue {
 	unsigned int *head;
 	unsigned int *tail;
 	unsigned int *curr;
+	unsigned int *wr;
 	unsigned int item_queued;
 	unsigned int size;
 	unsigned int item_size;
@@ -36,7 +37,7 @@ struct queue {
 void init_queue(struct queue *queue, unsigned int size, unsigned int item_size);
 void svc_queue_post(struct queue *queue, void *item);
 void svc_queue_receive(struct queue *queue, void *item);
-void queue_post(struct queue *queue, void *item);
-void queue_receive(struct queue *queue, void *item);
+void queue_post(struct queue *queue, void *item, unsigned int timeout);
+void queue_receive(struct queue *queue, void *item, unsigned int timeout);
 
 #endif /* QUEUE_H */

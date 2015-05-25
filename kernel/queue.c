@@ -22,6 +22,7 @@
 #include <arch/svc.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 static void insert_waiting_receive_task(struct queue *queue, struct task *t)
 {
@@ -65,6 +66,7 @@ void init_queue(struct queue *queue, unsigned int size, unsigned int item_size)
 
 	queue->head = (unsigned int *)kmalloc(size * item_size);
 	queue->curr = queue->head;
+	queue->wr = queue->head;
 	queue->tail = queue->head + (size * item_size);
 
 	queue->waiting_receive = 0;
@@ -75,78 +77,56 @@ void init_queue(struct queue *queue, unsigned int size, unsigned int item_size)
 
 void svc_queue_post(struct queue *queue, void *item)
 {
-	struct task *current_task;
-	struct task *task;
-
 	if (queue->item_queued < queue->item_size) {
-		if ((queue->curr + queue->item_size) <= queue->tail) {
-			memcpy(queue->curr, item, queue->item_size);
-			queue->curr += queue->item_size;
+		if ((queue->wr + queue->item_size) <= queue->tail) {
+			memcpy(queue->wr, item, queue->item_size);
+			printk("wr: %x, v: %d\r\n", queue->wr, *(int *)item);
+			queue->wr += queue->item_size;
 			queue->item_queued++;
 		}
-
-		if (queue->waiting_receive) {
-			task = LIST_FIRST(&queue->waiting_receive_tasks);
-			LIST_REMOVE(task, next);
-			task->state = TASK_RUNNABLE;
-			queue->waiting_receive--;
-
-			insert_runnable_task(task);
-			schedule_task(task);
-		}
-	} else {
-		current_task = get_current_task();
-		current_task->state = TASK_BLOCKED;
-
-		remove_runnable_task(current_task);
-		insert_waiting_post_task(queue, current_task);
-
-		queue->waiting_post++;
-
-		schedule_task(NULL);
 	}
 }
 
-void queue_post(struct queue *queue, void *item)
+void queue_post(struct queue *queue, void *item, unsigned int timeout)
 {
-	SVC_ARG2(SVC_QUEUE_POST, queue, item);
+	int back_from_sleep = 0;
+	for (;;) {
+		if (queue->item_queued < queue->item_size) {
+			SVC_ARG2(SVC_QUEUE_POST, queue, item);
+			break;
+		} else if (timeout) {
+			usleep(timeout);
+			back_from_sleep = 1;
+		} else if (back_from_sleep || !timeout) {
+			break;
+		}
+	}
+	
 }
 
 void svc_queue_receive(struct queue *queue, void *item)
 {
-	struct task *current_task;
-	struct task *task;
-
 	if (queue->item_queued) {
-		if ((queue->curr - queue->item_size) >= queue->head) {
+		if ((queue->curr + queue->item_size) <= queue->wr) {
 			memcpy(item, queue->curr, queue->item_size);
-			queue->curr -= queue->item_size;
+			queue->curr += queue->item_size;
 			queue->item_queued--;
 		}
-
-		if (queue->waiting_post) {
-			task = LIST_FIRST(&queue->waiting_post_tasks);
-			LIST_REMOVE(task, next);
-			task->state = TASK_RUNNABLE;
-			queue->waiting_post--;
-
-			insert_runnable_task(task);
-			schedule_task(task);
-		}
-	} else {
-		current_task = get_current_task();
-		current_task->state = TASK_BLOCKED;
-
-		remove_runnable_task(current_task);
-		insert_waiting_receive_task(queue, current_task);
-
-		queue->waiting_receive++;
-
-		schedule_task(NULL);
 	}
 }
 
-void queue_receive(struct queue *queue, void *item)
+void queue_receive(struct queue *queue, void *item, unsigned int timeout)
 {
-	SVC_ARG2(SVC_QUEUE_RECEIVE, queue, item);
+	int back_from_sleep = 0;
+	for (;;) {
+		if (queue->item_queued) {
+			SVC_ARG2(SVC_QUEUE_RECEIVE, queue, item);
+			break;
+		} else if (timeout) {
+			usleep(timeout);
+			back_from_sleep = 1;
+		} else if (back_from_sleep || !timeout) {
+			break;
+		}
+	}
 }
