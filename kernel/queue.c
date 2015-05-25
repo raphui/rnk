@@ -21,6 +21,7 @@
 #include <mm.h>
 #include <arch/svc.h>
 #include <stdio.h>
+#include <string.h>
 
 static void insert_waiting_receive_task(struct queue *queue, struct task *t)
 {
@@ -58,6 +59,7 @@ static void insert_waiting_post_task(struct queue *queue, struct task *t)
 
 void init_queue(struct queue *queue, unsigned int size, unsigned int item_size)
 {
+	queue->item_queued = 0;
 	queue->size = size;
 	queue->item_size = item_size;
 

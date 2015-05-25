@@ -24,6 +24,7 @@ struct queue {
 	unsigned int *head;
 	unsigned int *tail;
 	unsigned int *curr;
+	unsigned int item_queued;
 	unsigned int size;
 	unsigned int item_size;
 	unsigned int waiting_post;
