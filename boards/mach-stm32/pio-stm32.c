@@ -21,7 +21,7 @@
 #define GPIO_MODER(pin)			(3 << (pin * 2))
 #define GPIO_MODER_OUTPUT(pin)		(1 << (pin * 2))
 #define GPIO_MODER_ALTERNATE(pin)	(2 << (pin * 2))
-
+#define GPIO_OSPEEDR(pin)		(3 << (pin * 2))
 #define GPIO_PUPDR_PULLUP(pin)		(1 << (pin * 2))
 
 static void stm32_pio_set_clock(unsigned int port)
@@ -77,6 +77,7 @@ static void stm32_pio_set_output(unsigned int port, unsigned int mask, int pull_
 	stm32_pio_set_clock(port);
 
 	base->MODER |= GPIO_MODER_OUTPUT(mask);
+	base->OSPEEDR |= GPIO_OSPEEDR(mask);
 
 	if (pull_up)
 		base->PUPDR |= GPIO_PUPDR_PULLUP(mask);
