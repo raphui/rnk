@@ -26,6 +26,8 @@ struct queue {
 	unsigned int *curr;
 	unsigned int size;
 	unsigned int item_size;
+	unsigned int waiting_post;
+	unsigned int waiting_receive;
 	LIST_HEAD(, task) waiting_receive_tasks;
 	LIST_HEAD(, task) waiting_post_tasks;
 };
