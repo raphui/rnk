@@ -58,6 +58,12 @@ void svc_handler(unsigned int call, void *arg)
 		debug_printk("SVC call ask for usleep\r\n");
 		svc_usleep((struct timer *)arg);
 		break;
+	case SVC_QUEUE_POST:
+		debug_printk("SVC call ask for post in queue\r\n");
+		break;
+	case SVC_QUEUE_RECEIVE:
+		debug_printk("SVC call ask for receive from queue\r\n");
+		break;
 	default:
 		debug_printk("Invalid svc call\r\n");
 		break;
