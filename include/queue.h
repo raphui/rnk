@@ -21,6 +21,11 @@
 #include <list.h>
 
 struct queue {
+	unsigned int *head;
+	unsigned int *tail;
+	unsigned int *curr;
+	unsigned int size;
+	unsigned int item_size;
 	LIST_HEAD(, task) waiting_receive_task;
 	LIST_HEAD(, task) waiting_post_task;
 };
