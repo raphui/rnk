@@ -17,21 +17,22 @@
  */
 
 #include <armv7m/system.h>
+#include <utils.h>
 
 #define SYS_CLOCK	168000000
 #define SYSTICK_FREQ	100//4000
 
 void init_systick(void) {
-    *SYSTICK_RELOAD = SYS_CLOCK / SYSTICK_FREQ;
-    *SYSTICK_VAL = 0;
-    *SYSTICK_CTL = 0x00000007;
+	writel(SYSTICK_RELOAD, SYS_CLOCK / SYSTICK_FREQ);
+	writel(SYSTICK_VAL, 0);
+	writel(SYSTICK_CTL, 0x00000007);
 
-    /* Set PendSV and SVC to lowest priority.
-     * This means that both will be deferred
-     * until all other exceptions have executed.
-     * Additionally, PendSV will not interrupt
-     * an SVC. */
-    *NVIC_IPR(11) = 0xFF;
-    *NVIC_IPR(14) = 0xFF;
+	/* Set PendSV and SVC to lowest priority.
+	* This means that both will be deferred
+	* until all other exceptions have executed.
+	* Additionally, PendSV will not interrupt
+	* an SVC. */
+	writel(NVIC_IPR(11), 0xFF);
+	writel(NVIC_IPR(14), 0xFF);
 }
 

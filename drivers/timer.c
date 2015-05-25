@@ -20,7 +20,7 @@
 
 int timer_init(struct timer *timer)
 {
-	tim_ops.init(timer);
+	return tim_ops.init(timer);
 }
 
 void timer_set_rate(struct timer *timer, unsigned long rate)

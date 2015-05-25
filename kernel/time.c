@@ -21,6 +21,7 @@
 #include <timer.h>
 #include <arch/svc.h>
 #include <stdio.h>
+#include <scheduler.h>
 
 LIST_HEAD(, task) sleeping_tasks = LIST_HEAD_INITIALIZER(sleeping_tasks);
 

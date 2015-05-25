@@ -23,7 +23,6 @@
 
 static int stm32_timer_init(struct timer *timer)
 {
-	TIM_TypeDef *tim = NULL;
 	unsigned int rcc_en = 0;
 	unsigned int base_reg = 0;
 
@@ -32,22 +31,18 @@ static int stm32_timer_init(struct timer *timer)
 
 	switch (timer->num) {
 		case 2:
-			tim = TIM2;
 			base_reg = TIM2_BASE;
 			rcc_en = RCC_APB1ENR_TIM2EN;
 			break;
 		case 3:
-			tim = TIM3;
 			base_reg = TIM3_BASE;
 			rcc_en = RCC_APB1ENR_TIM3EN;
 			break;
 		case 4:
-			tim = TIM4;
 			base_reg = TIM4_BASE;
 			rcc_en = RCC_APB1ENR_TIM4EN;
 			break;
 		case 5:
-			tim = TIM5;
 			base_reg = TIM5_BASE;
 			rcc_en = RCC_APB1ENR_TIM5EN;
 			break;
@@ -59,6 +54,8 @@ static int stm32_timer_init(struct timer *timer)
 	timer->rate = (APB1_PRES > 1) ? APB1_CLK * 2 : APB1_CLK;
 	timer->prescaler = 0;
 	timer->rcc_base = rcc_en;
+
+	return 0;
 }
 
 static short stm32_timer_find_best_pres(unsigned long parent_rate, unsigned long rate)

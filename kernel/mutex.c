@@ -92,7 +92,6 @@ void svc_mutex_unlock(struct mutex *mutex)
 {
 	struct task *current_task = get_current_task();
 	struct task *task;
-	struct entry *e;
 
 	if (!mutex->lock)
 		debug_printk("mutex already unlock\r\n");

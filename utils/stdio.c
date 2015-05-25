@@ -24,15 +24,6 @@ static void putchar(unsigned char c)
 	io_op.write(c);
 }
 
-static void puts(char *str)
-{
-	while (*str) {
-		if (*str == '\n')
-			putchar('\r');
-		putchar(*(str++));
-	}
-}
-
 static void puts_x(char *str, int width, const char pad)
 {
 	while (*str) {

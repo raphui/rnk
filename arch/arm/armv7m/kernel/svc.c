@@ -20,7 +20,7 @@
 #include <scheduler.h>
 #include <mutex.h>
 #include <semaphore.h>
-#include <timer.h>
+#include <time.h>
 
 #include <arch/svc.h>
 

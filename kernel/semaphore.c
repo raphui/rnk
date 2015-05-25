@@ -18,6 +18,7 @@
 
 #include <semaphore.h>
 #include <task.h>
+#include <scheduler.h>
 #include <stdio.h>
 #include <arch/svc.h>
 
@@ -77,7 +78,6 @@ void sem_wait(struct semaphore *sem)
 void svc_sem_post(struct semaphore *sem)
 {
 	struct task *task;
-	struct entry *e;
 
 	if (sem->waiting) {
 		debug_printk("tasks are waiting for sem (%x)\r\n", sem);

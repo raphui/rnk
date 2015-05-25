@@ -20,6 +20,7 @@
 #define BOARD_STM32F407_H
 
 #include <stm32f407.h>
+#include <usart.h>
 #include <timer.h>
 
 
@@ -75,7 +76,7 @@ struct timer_operations
 	void (*set_counter)(struct timer *timer, unsigned short counter);
 	void (*enable)(struct timer *timer);
 	void (*disable)(struct timer *timer);
-	void (*clear_it_flags)(struct timer *timer, unsigned int flags)
+	void (*clear_it_flags)(struct timer *timer, unsigned int flags);
 
 };
 

@@ -95,7 +95,6 @@ static void stm32_pio_set_alternate(unsigned int port, unsigned int mask, unsign
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 	unsigned int afr_high_base = 8;
-	unsigned int afr_low_base = 0;
 
 	stm32_pio_set_clock(port);
 

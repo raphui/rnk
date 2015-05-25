@@ -23,7 +23,7 @@
 
 extern void init_systick(void);
 
-static inline void READ_AND_DISCARD(volatile unsigned int *reg) {
+static inline void READ_AND_DISCARD(unsigned int*reg) {
     asm volatile ("" : "=m" (*reg) : "r" (*reg));
 }
 
@@ -47,8 +47,8 @@ static inline unsigned char IPSR(void) {
     return val;
 }
 
-static inline unsigned int *PSP(void) {
-    unsigned int *val;
+static inline unsigned int PSP(void) {
+    unsigned int val;
 
     asm("mrs    %[val], psp"
         :[val] "=r" (val)
@@ -84,53 +84,53 @@ static inline unsigned int *MSP(void) {
 #define FPU_BASE                        (SCB_BASE + 0x0230)                                     /* FPU Block Base Address */
 
 /* SysTick Timer */
-#define SYSTICK_CTL                     (volatile unsigned int *) (SYSTICK_BASE)                    /* Control register for SysTick timer peripheral */
-#define SYSTICK_RELOAD                  (volatile unsigned int *) (SYSTICK_BASE + 0x04)             /* Value assumed by timer upon reload */
-#define SYSTICK_VAL                     (volatile unsigned int *) (SYSTICK_BASE + 0x08)             /* Current value of timer */
-#define SYSTICK_CAL                     (volatile unsigned int *) (SYSTICK_BASE + 0x0C)             /* Calibration settings/value register */
+#define SYSTICK_CTL                     (unsigned int) (SYSTICK_BASE)                    /* Control register for SysTick timer peripheral */
+#define SYSTICK_RELOAD                  (unsigned int) (SYSTICK_BASE + 0x04)             /* Value assumed by timer upon reload */
+#define SYSTICK_VAL                     (unsigned int) (SYSTICK_BASE + 0x08)             /* Current value of timer */
+#define SYSTICK_CAL                     (unsigned int) (SYSTICK_BASE + 0x0C)             /* Calibration settings/value register */
 
 /* Nested Vector Interrupt Controller */
-#define NVIC_ISER0                      (volatile unsigned int *) (NVIC_BASE + 0x000)               /* Interrupt set-enable register 0 */
-#define NVIC_ISER1                      (volatile unsigned int *) (NVIC_BASE + 0x004)               /* Interrupt set-enable register 1 */
-#define NVIC_ISER2                      (volatile unsigned int *) (NVIC_BASE + 0x008)               /* Interrupt set-enable register 2 */
-#define NVIC_ISER3                      (volatile unsigned int *) (NVIC_BASE + 0x00C)               /* Interrupt set-enable register 3 */
-#define NVIC_ICER0                      (volatile unsigned int *) (NVIC_BASE + 0x080)               /* Interrupt clear-enable register 0 */
-#define NVIC_ICER1                      (volatile unsigned int *) (NVIC_BASE + 0x084)               /* Interrupt clear-enable register 1 */
-#define NVIC_ICER2                      (volatile unsigned int *) (NVIC_BASE + 0x088)               /* Interrupt clear-enable register 2 */
-#define NVIC_ICER3                      (volatile unsigned int *) (NVIC_BASE + 0x08C)               /* Interrupt clear-enable register 3 */
-#define NVIC_ISPR0                      (volatile unsigned int *) (NVIC_BASE + 0x100)               /* Interrupt set-pending register 0 */
-#define NVIC_ISPR1                      (volatile unsigned int *) (NVIC_BASE + 0x104)               /* Interrupt set-pending register 1 */
-#define NVIC_ISPR2                      (volatile unsigned int *) (NVIC_BASE + 0x108)               /* Interrupt set-pending register 2 */
-#define NVIC_ISPR3                      (volatile unsigned int *) (NVIC_BASE + 0x10C)               /* Interrupt set-pending register 3 */
-#define NVIC_ICPR0                      (volatile unsigned int *) (NVIC_BASE + 0x180)               /* Interrupt clear-pending register 0 */
-#define NVIC_ICPR1                      (volatile unsigned int *) (NVIC_BASE + 0x184)               /* Interrupt clear-pending register 1 */
-#define NVIC_ICPR2                      (volatile unsigned int *) (NVIC_BASE + 0x188)               /* Interrupt clear-pending register 2 */
-#define NVIC_ICPR3                      (volatile unsigned int *) (NVIC_BASE + 0x18C)               /* Interrupt clear-pending register 3 */
-#define NVIC_IPR(n)                     (volatile unsigned char *)  (NVIC_BASE + 0x300 + n)           /* Interrupt n priority register */
+#define NVIC_ISER0                      (unsigned int) (NVIC_BASE + 0x000)               /* Interrupt set-enable register 0 */
+#define NVIC_ISER1                      (unsigned int) (NVIC_BASE + 0x004)               /* Interrupt set-enable register 1 */
+#define NVIC_ISER2                      (unsigned int) (NVIC_BASE + 0x008)               /* Interrupt set-enable register 2 */
+#define NVIC_ISER3                      (unsigned int) (NVIC_BASE + 0x00C)               /* Interrupt set-enable register 3 */
+#define NVIC_ICER0                      (unsigned int) (NVIC_BASE + 0x080)               /* Interrupt clear-enable register 0 */
+#define NVIC_ICER1                      (unsigned int) (NVIC_BASE + 0x084)               /* Interrupt clear-enable register 1 */
+#define NVIC_ICER2                      (unsigned int) (NVIC_BASE + 0x088)               /* Interrupt clear-enable register 2 */
+#define NVIC_ICER3                      (unsigned int) (NVIC_BASE + 0x08C)               /* Interrupt clear-enable register 3 */
+#define NVIC_ISPR0                      (unsigned int) (NVIC_BASE + 0x100)               /* Interrupt set-pending register 0 */
+#define NVIC_ISPR1                      (unsigned int) (NVIC_BASE + 0x104)               /* Interrupt set-pending register 1 */
+#define NVIC_ISPR2                      (unsigned int) (NVIC_BASE + 0x108)               /* Interrupt set-pending register 2 */
+#define NVIC_ISPR3                      (unsigned int) (NVIC_BASE + 0x10C)               /* Interrupt set-pending register 3 */
+#define NVIC_ICPR0                      (unsigned int) (NVIC_BASE + 0x180)               /* Interrupt clear-pending register 0 */
+#define NVIC_ICPR1                      (unsigned int) (NVIC_BASE + 0x184)               /* Interrupt clear-pending register 1 */
+#define NVIC_ICPR2                      (unsigned int) (NVIC_BASE + 0x188)               /* Interrupt clear-pending register 2 */
+#define NVIC_ICPR3                      (unsigned int) (NVIC_BASE + 0x18C)               /* Interrupt clear-pending register 3 */
+#define NVIC_IPR(n)                     (unsigned char)  (NVIC_BASE + 0x300 + n)           /* Interrupt n priority register */
 
 /* System Control Block (SCB) */
-#define SCB_ICSR                        (volatile unsigned int *) (SCB_BASE + 0x004)                /* Interrupt Control and State Register */
-#define SCB_VTOR                        (volatile unsigned int *) (SCB_BASE + 0x008)                /* Vector Table Offset Register */
-#define SCB_SCR                         (volatile unsigned int *) (SCB_BASE + 0x010)                /* System Control Register */
-#define SCB_SHCSR                       (volatile unsigned int *) (SCB_BASE + 0x024)                /* System Handler Control and State Register */
-#define SCB_CFSR                        (volatile unsigned int *) (SCB_BASE + 0x028)                /* Configurable fault status register - Describes Usage, Bus, and Memory faults */
-#define SCB_HFSR                        (volatile unsigned int *) (SCB_BASE + 0x02C)                /* Hard fault status register - Describes hard fault */
-#define SCB_MMFAR                       (volatile unsigned int *) (SCB_BASE + 0x034)                /* Memory management fault address register - Address that caused fault */
-#define SCB_BFAR                        (volatile unsigned int *) (SCB_BASE + 0x038)                /* Bus fault address register - Address that caused fault */
-#define SCB_CPACR                       (volatile unsigned int *) (SCB_BASE + 0x088)                /* Coprocessor (FPU) Access Control Register */
+#define SCB_ICSR                        (unsigned int) (SCB_BASE + 0x004)                /* Interrupt Control and State Register */
+#define SCB_VTOR                        (unsigned int) (SCB_BASE + 0x008)                /* Vector Table Offset Register */
+#define SCB_SCR                         (unsigned int) (SCB_BASE + 0x010)                /* System Control Register */
+#define SCB_SHCSR                       (unsigned int) (SCB_BASE + 0x024)                /* System Handler Control and State Register */
+#define SCB_CFSR                        (unsigned int) (SCB_BASE + 0x028)                /* Configurable fault status register - Describes Usage, Bus, and Memory faults */
+#define SCB_HFSR                        (unsigned int) (SCB_BASE + 0x02C)                /* Hard fault status register - Describes hard fault */
+#define SCB_MMFAR                       (unsigned int) (SCB_BASE + 0x034)                /* Memory management fault address register - Address that caused fault */
+#define SCB_BFAR                        (unsigned int) (SCB_BASE + 0x038)                /* Bus fault address register - Address that caused fault */
+#define SCB_CPACR                       (unsigned int) (SCB_BASE + 0x088)                /* Coprocessor (FPU) Access Control Register */
 
 /* Memory Protection Unit (MPU)
  * ST PM0214 (Cortex M4 Programming Manual) pg. 195 */
-#define MPU_TYPER                       (volatile unsigned int *) (MPU_BASE + 0x00)                 /* MPU Type Register - Describes HW MPU */
-#define MPU_CTRL                        (volatile unsigned int *) (MPU_BASE + 0x04)                 /* MPU Control Register */
-#define MPU_RNR                         (volatile unsigned int *) (MPU_BASE + 0x08)                 /* MPU Region Number Register */
-#define MPU_RBAR                        (volatile unsigned int *) (MPU_BASE + 0x0C)                 /* MPU Region Base Address Register */
-#define MPU_RASR                        (volatile unsigned int *) (MPU_BASE + 0x10)                 /* MPU Region Attribute and Size Register */
+#define MPU_TYPER                       (unsigned int) (MPU_BASE + 0x00)                 /* MPU Type Register - Describes HW MPU */
+#define MPU_CTRL                        (unsigned int) (MPU_BASE + 0x04)                 /* MPU Control Register */
+#define MPU_RNR                         (unsigned int) (MPU_BASE + 0x08)                 /* MPU Region Number Register */
+#define MPU_RBAR                        (unsigned int) (MPU_BASE + 0x0C)                 /* MPU Region Base Address Register */
+#define MPU_RASR                        (unsigned int) (MPU_BASE + 0x10)                 /* MPU Region Attribute and Size Register */
 
 /* Floating Point Unit (FPU)
  * ST PM0214 (Cortex M4 Programming Manual) pg. 236 */
-#define FPU_CCR                         (volatile unsigned int *) (FPU_BASE + 0x04)                 /* FPU Context Control Register */
-#define FPU_CAR                         (volatile unsigned int *) (FPU_BASE + 0x08)                 /* FPU Context Address Register */
+#define FPU_CCR                         (unsigned int) (FPU_BASE + 0x04)                 /* FPU Context Control Register */
+#define FPU_CAR                         (unsigned int) (FPU_BASE + 0x08)                 /* FPU Context Address Register */
 
 /**********************************************************************************************************************************************/
 
