@@ -21,6 +21,7 @@
 #include <mutex.h>
 #include <semaphore.h>
 #include <time.h>
+#include <queue.h>
 
 #include <arch/svc.h>
 
@@ -60,9 +61,11 @@ void svc_handler(unsigned int call, void *arg)
 		break;
 	case SVC_QUEUE_POST:
 		debug_printk("SVC call ask for post in queue\r\n");
+		svc_queue_post((struct queue *)psp[0], (void *)psp[1]);
 		break;
 	case SVC_QUEUE_RECEIVE:
 		debug_printk("SVC call ask for receive from queue\r\n");
+		svc_queue_receive((struct queue *)psp[0], (void *)psp[1]);
 		break;
 	default:
 		debug_printk("Invalid svc call\r\n");
