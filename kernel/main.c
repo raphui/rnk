@@ -28,13 +28,17 @@
 #include <mm.h>
 #include <mutex.h>
 #include <semaphore.h>
+#include <queue.h>
 #include <arch/svc.h>
 #include <time.h>
 
 struct mutex mutex;
 struct semaphore sem;
+struct queue queue;
 
 struct usart usart;
+
+static int count = 0;
 
 void first_task(void)
 {
@@ -47,7 +51,6 @@ void first_task(void)
 	}
 }
 
-static int count = 0;
 void second_task(void)
 {
 	printk("starting task B\r\n");
@@ -121,6 +124,32 @@ void sixth_task(void)
 	}
 }
 
+void seventh_task(void)
+{
+	int a = 5;
+	count = 0;
+	printk("starting task H\r\n");
+	printk("#####a(%x): %d\r\n", &a , a);
+	while (1) {
+		printk("H");
+		if (count++ == 4000)
+			queue_post(&queue, &a, 0);
+	}
+}
+
+
+void eighth_task(void)
+{
+	int b = 0;
+	printk("starting task G\r\n");
+	queue_receive(&queue, &b, 10000);
+	printk("#####b(%x): %d\r\n", &b, b);
+	while(1) {
+		printk("G");
+	}
+
+}
+
 int main(void)
 {
 	usart_init(&usart);
@@ -135,16 +164,19 @@ int main(void)
 
 	init_mutex(&mutex);
 	init_semaphore(&sem, 1);
+	init_queue(&queue, sizeof(int), 5);
 	time_init();
 
 	printk("- Add task to scheduler\r\n");
 
-	add_task(&first_task, 1);
-	add_task(&second_task, 6);
-	add_task(&third_task, 2);
-	add_task(&fourth_task, 20);
-	add_task(&fifth_task, 1);
-	add_task(&sixth_task, 1);
+//	add_task(&first_task, 1);
+//	add_task(&second_task, 6);
+//	add_task(&third_task, 2);
+//	add_task(&fourth_task, 20);
+//	add_task(&fifth_task, 1);
+//	add_task(&sixth_task, 1);
+	add_task(&seventh_task, 1);
+	add_task(&eighth_task, 1);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();
