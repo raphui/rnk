@@ -111,9 +111,9 @@ void low_level_init(void)
 
 	/* Configure the Vector Table location add offset address ------------------*/
 #ifdef VECT_TAB_SRAM
-	writel(SCB_BASE + SCB_VTOR, SRAM_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal SRAM */
+	writel(SCB_VTOR, SRAM_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal SRAM */
 #else
-	writel(SCB_BASE + SCB_VTOR, FLASH_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal FLASH */
+	writel(SCB_VTOR, FLASH_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal FLASH */
 #endif
 
 	init_systick();
