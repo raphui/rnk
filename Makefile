@@ -6,7 +6,7 @@
 
 ARMV=armv7m
 MACH=stm32
-SOC=stm32f407
+SOC=stm32f429
 MCPU=cortex-m4
 
 SAM7S_SRAM_LD=sram_sam7s.lds
@@ -15,7 +15,8 @@ BCM2835_LD=link-arm-eabi.ld
 SAM3X_LD=sam3x.ld
 SAM3X8_SRAM_LD=sram.ld
 STM32F407_LD=stm32.ld
-LD_SCRIPT=$(STM32F407_LD)
+STM32F429_LD=stm32.ld
+LD_SCRIPT=$(STM32F429_LD)
 #LD_SCRIPT=$(SAM7S_SRAM_LD)
 #LD_SCRIPT=$(SAM7S_FLASH_LD)
 
@@ -39,7 +40,6 @@ OBJS	:= 	asm/head.o \
 		boards/mach-$(MACH)/pio-$(MACH).o \
 		boards/mach-$(MACH)/timer-$(MACH).o \
 		boards/mach-$(MACH)/i2c-$(MACH).o \
-		boards/mach-$(MACH)/fsmc-$(MACH).o \
 		boot/boot-$(SOC).o \
 		drivers/pio.o \
 		drivers/usart.o \
