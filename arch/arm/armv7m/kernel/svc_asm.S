@@ -22,14 +22,6 @@
 .cpu cortex-m4
 .arch armv7e-m
 
-.global __activate_context
-__activate_context:
-	bx lr
-
-.global __switch_context
-__switch_context:
-	bx lr
-
 .global save_context
 save_context:
 	mrs r0, psp

@@ -49,17 +49,6 @@ void create_context(struct registers *_regs, struct task *_task)
                   :);
 }
 
-void activate_context(struct task *_task)
-{
-	__activate_context(_task->regs);
-}
-
-
-void switch_context(struct registers *_current_regs, struct registers *_task_regs)
-{
-	__switch_context(_current_regs, _task_regs);
-}
-
 void save_user_context(void)
 {
 	save_context();
