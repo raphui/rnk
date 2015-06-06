@@ -22,6 +22,7 @@
 #include <stm32f429.h>
 #include <usart.h>
 #include <timer.h>
+#include <ltdc.h>
 
 
 /* SYSCLK = PLL_VCO / PLL_P =======> 168000000*/
@@ -81,5 +82,12 @@ struct timer_operations
 };
 
 struct timer_operations tim_ops;
+
+struct lcd_operations
+{
+	void (*init)(struct ltdc *ltdc);
+};
+
+struct lcd_operations lcd_ops;
 
 #endif /* BOARD_STM32F429_H */

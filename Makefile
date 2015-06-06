@@ -20,11 +20,12 @@ STM32F429_LD=stm32.ld
 LD_SCRIPT=$(STM32F407_LD)
 #LD_SCRIPT=$(SAM7S_SRAM_LD)
 #LD_SCRIPT=$(SAM7S_FLASH_LD)
+STM32_DEFINE = STM32_F429
 
 INCLUDES	+= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
-CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -g $(INCLUDES)
+CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -g $(INCLUDES) -D$(STM32_DEFINE)
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffunction-sections -mcpu=arm7tdmi -nostdlib -g $(INCLUDES)
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles #-Wl,--gc-sections
@@ -46,6 +47,7 @@ OBJS	:= 	asm/head.o \
 		drivers/usart.o \
 		drivers/timer.o \
 		drivers/i2c.o \
+		drivers/lcd.o \
 		kernel/main.o \
 		kernel/mutex.o \
 		kernel/scheduler.o \

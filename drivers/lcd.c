@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014  Raphaël Poggi <poggi.raph@gmail.com>
+ * Copyright (C) 2015  Raphaël Poggi <poggi.raph@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,26 +12,13 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * along with this program; if not, write to the Frrestore * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef LTDC_H
-#define LTDC_H
+#include <board.h>
+#include <ltdc.h>
 
-struct ltdc {
-	unsigned short hsync;
-	unsigned short vsync;
-	unsigned short hbp;
-	unsigned short hfp;
-	unsigned short vbp;
-	unsigned short vfp;
-	unsigned int width;
-	unsigned int height;
-	unsigned char bpp;
-	unsigned int fb_addr;
-};
-
-void lcd_init(struct ltdc *ltdc);
-
-#endif /* LTDC_H */
+void lcd_init(struct ltdc *ltdc)
+{
+	lcd_ops.init(ltdc);
+}

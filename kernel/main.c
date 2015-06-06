@@ -228,7 +228,7 @@ int main(void)
 	ltdc.width = 240;
 	ltdc.height = 320;
 
-	stm32_ltdc_init(&ltdc);
+	lcd_init(&ltdc);
 #endif /* STM32_F429 */
 
 	printk("Welcome to rnk\r\n");

@@ -81,3 +81,7 @@ void stm32_ltdc_init(struct ltdc *ltdc)
 	LTDC->GCR |= LTDC_GCR_LTDCEN;
 
 }
+
+struct lcd_operations lcd_ops = {
+	.init = stm32_ltdc_init,	
+};
