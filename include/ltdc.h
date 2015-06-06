@@ -32,4 +32,6 @@ struct ltdc {
 	unsigned int fb_addr;
 };
 
+extern void stm32_ltdc_init(struct ltdc *ltdc);
+
 #endif /* LTDC_H */
