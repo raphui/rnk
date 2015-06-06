@@ -42,11 +42,14 @@ OBJS	:= 	asm/head.o \
 		boards/mach-$(MACH)/pio-$(MACH).o \
 		boards/mach-$(MACH)/timer-$(MACH).o \
 		boards/mach-$(MACH)/i2c-$(MACH).o \
+		boards/mach-$(MACH)/spi-$(MACH).o \
+		boards/mach-$(MACH)/ltdc-$(MACH).o \
 		boot/boot-$(SOC).o \
 		drivers/pio.o \
 		drivers/usart.o \
 		drivers/timer.o \
 		drivers/i2c.o \
+		drivers/spi.o \
 		drivers/lcd.o \
 		kernel/main.o \
 		kernel/mutex.o \
@@ -62,7 +65,6 @@ OBJS	:= 	asm/head.o \
 		utils/stdio.o \
 		utils/string.o \
 		utils/utils.o
-
 config:
 	@@echo "CP mach-$(MACH)/board-$(SOC).h -> board.h"
 	@cp boards/mach-$(MACH)/board-$(SOC).h boards/board.h

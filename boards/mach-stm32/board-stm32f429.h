@@ -23,6 +23,7 @@
 #include <usart.h>
 #include <timer.h>
 #include <ltdc.h>
+#include <spi.h>
 
 
 /* SYSCLK = PLL_VCO / PLL_P =======> 168000000*/
@@ -82,6 +83,15 @@ struct timer_operations
 };
 
 struct timer_operations tim_ops;
+
+struct spi_operations
+{
+	void (*init)(struct spi *spi);
+	void (*write)(struct spi *spi, unsigned short data);
+	unsigned short (*read)(struct spi *spi);
+};
+
+struct spi_operations spi_ops;
 
 struct lcd_operations
 {

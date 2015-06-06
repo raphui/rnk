@@ -82,4 +82,13 @@ struct timer_operations
 
 struct timer_operations tim_ops;
 
+struct spi_operations
+{
+	void (*init)(struct spi *spi);
+	void (*write)(struct spi *spi, unsigned short data);
+	unsigned short (*read)(struct spi *spi);
+};
+
+struct spi_operations spi_ops;
+
 #endif /* BOARD_STM32F407_H */
