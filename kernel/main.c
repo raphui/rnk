@@ -152,6 +152,10 @@ void eighth_task(void)
 
 int main(void)
 {
+	usart.num = 3;
+	usart.base_reg = USART3_BASE;
+	usart.baud_rate = 115200;
+
 	usart_init(&usart);
 
 	printk("Welcome to rnk\r\n");

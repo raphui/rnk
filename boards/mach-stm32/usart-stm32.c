@@ -30,15 +30,17 @@ static unsigned short stm32_baud_rate(long clock, unsigned int baud)
 
 static void stm32_usart_init(struct usart *usart)
 {
+	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
+
 	/* Enable USART3 Clock */
 	RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
 
-	USART3->CR1 &= (1 << 12);
-	USART3->CR1 &= (3 << 12);
-	USART3->BRR = stm32_baud_rate(APB1_CLK, 115200);
-	USART3->CR1 |= USART_CR1_RE;
-	USART3->CR1 |= USART_CR1_TE;
-	USART3->CR1 |= USART_CR1_UE;
+	USART->CR1 &= (1 << 12);
+	USART->CR1 &= (3 << 12);
+	USART->BRR = stm32_baud_rate(APB1_CLK, usart->baud_rate);
+	USART->CR1 |= USART_CR1_RE;
+	USART->CR1 |= USART_CR1_TE;
+	USART->CR1 |= USART_CR1_UE;
 
 	/* Enable GPIOC Clock */
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
