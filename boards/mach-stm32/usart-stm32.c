@@ -32,8 +32,13 @@ static void stm32_usart_init(struct usart *usart)
 {
 	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 
+#ifdef STM32_F429
+	/* Enable USART1 Clock */
+	RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+#else
 	/* Enable USART3 Clock */
 	RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
+#endif /* STM32_F429 */
 
 	USART->CR1 &= (1 << 12);
 	USART->CR1 &= (3 << 12);
@@ -41,26 +46,22 @@ static void stm32_usart_init(struct usart *usart)
 	USART->CR1 |= USART_CR1_RE;
 	USART->CR1 |= USART_CR1_TE;
 	USART->CR1 |= USART_CR1_UE;
-
-//	/* Enable GPIOC Clock */
-//	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
-//
-//	/* Configure PC10 and PC11 */
-//	GPIOC->MODER |= GPIO_MODER_MODER10_1 | GPIO_MODER_MODER11_1;
-//	GPIOC->OTYPER &= ~(GPIO_OTYPER_OT_10 | GPIO_OTYPER_OT_11);
-//	GPIOC->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR10 | GPIO_OSPEEDER_OSPEEDR11;
-//	GPIOC->PUPDR &= ~(GPIO_PUPDR_PUPDR10 | GPIO_PUPDR_PUPDR11);
-//	GPIOC->AFR[1] |= 0x7700;
-
-
 }
 
 static void stm32_usart_print(unsigned char byte)
 {
+
+#ifdef STM32_F429
+	while(!(USART1->SR & USART_SR_TXE))
+		;
+
+	USART1->DR = byte;
+#else
 	while(!(USART3->SR & USART_SR_TXE))
 		;
 
 	USART3->DR = byte;
+#endif /* STM32_F429 */
 }
 
 static int stm32_usart_printl(const char *string)

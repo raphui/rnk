@@ -19,8 +19,13 @@
 #include <armv7m/system.h>
 #include <utils.h>
 
+#ifdef STM32_F429
+#define SYS_CLOCK	180000000
+#define SYSTICK_FREQ	100//4000
+#else
 #define SYS_CLOCK	168000000
 #define SYSTICK_FREQ	100//4000
+#endif /* STM32_F429 */
 
 void init_systick(void) {
 	writel(SYSTICK_RELOAD, SYS_CLOCK / SYSTICK_FREQ);
