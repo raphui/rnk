@@ -32,6 +32,12 @@
 #include <arch/svc.h>
 #include <time.h>
 
+#ifdef STM32_F429
+#include <ltdc.h>
+
+struct ltdc ltdc;
+#endif /* STM32_F429 */
+
 struct mutex mutex;
 struct semaphore sem;
 struct queue queue;
@@ -152,11 +158,78 @@ void eighth_task(void)
 
 int main(void)
 {
+
+#ifdef STM32_F429
+	usart.num = 1;
+	usart.base_reg = USART1_BASE;
+	usart.baud_rate = 115200;
+
+	usart_init(&usart);
+
+	pio_set_alternate(GPIOA_BASE, 9, 0x7);
+	pio_set_alternate(GPIOA_BASE, 10, 0x7);
+#else
 	usart.num = 3;
 	usart.base_reg = USART3_BASE;
 	usart.baud_rate = 115200;
 
 	usart_init(&usart);
+
+	pio_set_alternate(GPIOC_BASE, 10, 0x7);
+	pio_set_alternate(GPIOC_BASE, 11, 0x7);
+#endif /* STM32_F429 */
+
+#ifdef STM32_F429
+
+#define GPIO_AF_LTDC	((unsigned char)0x0E)
+#define GPIO_AF_LCD	((unsigned char)0x09)
+
+//	pio_set_output(GPIOD_BASE, 3, 0);
+//	pio_set_output(GPIOC_BASE, 2, 0);
+
+	pio_set_alternate(GPIOA_BASE, 3, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOA_BASE, 4, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOA_BASE, 6, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOA_BASE, 11, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOA_BASE, 12, GPIO_AF_LTDC);
+
+	pio_set_alternate(GPIOB_BASE, 0, GPIO_AF_LCD);
+	pio_set_alternate(GPIOB_BASE, 1, GPIO_AF_LCD);
+
+	pio_set_alternate(GPIOB_BASE, 8, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOB_BASE, 9, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOB_BASE, 10, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOB_BASE, 11, GPIO_AF_LTDC);
+
+	pio_set_alternate(GPIOC_BASE, 6, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOC_BASE, 7, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOC_BASE, 10, GPIO_AF_LTDC);
+
+	pio_set_alternate(GPIOD_BASE, 3, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOD_BASE, 6, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOD_BASE, 10, GPIO_AF_LTDC);
+
+	pio_set_alternate(GPIOF_BASE, 10, GPIO_AF_LTDC);
+
+	pio_set_alternate(GPIOG_BASE, 6, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOG_BASE, 7, GPIO_AF_LTDC);
+	pio_set_alternate(GPIOG_BASE, 11, GPIO_AF_LTDC);
+
+	pio_set_alternate(GPIOG_BASE, 10, GPIO_AF_LCD);
+	pio_set_alternate(GPIOG_BASE, 12, GPIO_AF_LCD);
+
+
+	ltdc.hsync = 10;
+	ltdc.vsync = 2;
+	ltdc.hbp = 20;
+	ltdc.hfp = 10;
+	ltdc.vbp = 2;
+	ltdc.vfp = 4;
+	ltdc.width = 240;
+	ltdc.height = 320;
+
+	stm32_ltdc_init(&ltdc);
+#endif /* STM32_F429 */
 
 	printk("Welcome to rnk\r\n");
 	printk("- Initialise heap...\r\n");
