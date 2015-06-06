@@ -18,6 +18,8 @@
 
 #include <board.h>
 #include <ltdc.h>
+#include <utils.h>
+#include <stdio.h>
 
 #define GCR_MASK		((unsigned int)0x0FFE888F)
 #define RCC_PLLSAIDivR_Div4	((unsigned int)0x00010000)
@@ -31,6 +33,28 @@ static void stm32_ltdc_clk_divconfig(unsigned int div_r)
 {
 	RCC->DCKCFGR &= ~RCC_DCKCFGR_PLLSAIDIVR;
 	RCC->DCKCFGR |= div_r;
+}
+
+static void stm32_ltdc_enable_fb(struct ltdc *ltdc)
+{
+	LTDC_Layer1->WHPCR = (ltdc->hbp << 0) | ((ltdc->hbp + ltdc->width) << 16);
+	LTDC_Layer1->WVPCR = (ltdc->vbp << 0) | ((ltdc->vbp + ltdc->height) << 16);
+
+	switch (ltdc->bpp) {
+		case 2:
+			LTDC_Layer1->PFCR = 2;
+			break;
+		default:
+			debug_printk("Unknow bits per pixel\r\n");
+			return;
+	}
+
+	LTDC_Layer1->CFBAR = ltdc->fb_addr;
+	LTDC_Layer1->CFBLR = ((ltdc->width * ltdc->bpp) << 16) | ((ltdc->width * ltdc->bpp + 3) << 0);
+	LTDC_Layer1->CFBLNR = (ltdc->height << 0);
+
+	LTDC_Layer1->CR |= 1;
+
 }
 
 void stm32_ltdc_init(struct ltdc *ltdc)
@@ -53,33 +77,36 @@ void stm32_ltdc_init(struct ltdc *ltdc)
 	h_cycles = ltdc->hsync - 1;
 	v_cycles = ltdc->vsync - 1;
 
-	LTDC->SSCR |= (h_cycles << 16);
+	LTDC->SSCR = (h_cycles << 16);
 	LTDC->SSCR |= (v_cycles << 0);
 
 	h_cycles += ltdc->hbp;
 	v_cycles += ltdc->vbp;
 
-	LTDC->BPCR |= (h_cycles << 16) | (v_cycles << 0);
+	LTDC->BPCR = (h_cycles << 16) | (v_cycles << 0);
 
 	h_cycles += ltdc->width;
 	v_cycles += ltdc->height;
 
-	LTDC->AWCR |= (h_cycles << 16) | (v_cycles << 0);
+	LTDC->AWCR = (h_cycles << 16) | (v_cycles << 0);
 
 	h_cycles += ltdc->hfp;
 	v_cycles += ltdc->vfp;
 
-	LTDC->TWCR |= (h_cycles << 16) | (v_cycles << 0);
+	LTDC->TWCR = (h_cycles << 16) | (v_cycles << 0);
 
 	/* Clean general config */
 	LTDC->GCR &= ~(GCR_MASK);
 
 	/* Background color to blue */
-	LTDC->BCCR |= (0xFF << 0);
+	LTDC->BCCR = (0xFF << 0);
 
 	/* Enable LCD Controller */
 	LTDC->GCR |= LTDC_GCR_LTDCEN;
 
+	stm32_ltdc_enable_fb(ltdc);
+
+	LTDC->SRCR = LTDC_SRCR_IMR;
 }
 
 struct lcd_operations lcd_ops = {
