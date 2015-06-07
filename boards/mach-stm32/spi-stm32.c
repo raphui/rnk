@@ -57,20 +57,45 @@ void stm32_spi_init(struct spi *spi)
 
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
+	RCC->APB2ENR |= RCC_APB2ENR_SPI5EN;
+
 	spi->rate = APB2_CLK;
 	spi->rate = stm32_spi_find_best_pres(spi->rate, spi->speed);
 
 	SPI->CR1 |= (spi->rate << 3);
+
+	/* Set master mode */
+	SPI->CR1 |= SPI_CR1_MSTR;
+
+	/* Handle slave selection via software */
+	SPI->CR1 |= SPI_CR1_SSM;
+
+	SPI->CR1 |= SPI_CR1_BIDIMODE;
+
+	SPI->CR1 |= SPI_CR1_SPE;	
 }
 
 void stm32_spi_write(struct spi *spi, unsigned short data)
 {
+	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
+	while (!(SPI->SR & SPI_SR_TXE))
+		;
+
+	SPI->DR = data;
 }
 
 unsigned short stm32_spi_read(struct spi *spi)
 {
-	return 0;
+	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
+	unsigned short data = 0;
+
+	while (!(SPI->SR & SPI_SR_RXNE))
+		;
+
+	data = SPI->DR;
+
+	return data;
 }
 
 struct spi_operations spi_ops = {
