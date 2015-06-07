@@ -320,59 +320,18 @@ void ili9341_init_lcd(void)
 	ili9341_send_data(0x0F);
 
 	ili9341_send_command(ILI9341_SLEEP_OUT);
+	timeout = 1000000;
 	while (timeout--)
 		;
 	ili9341_send_command(ILI9341_DISPLAY_ON);
 
 	ili9341_send_command(ILI9341_GRAM);
+	ili9341_send_command(0x29);
 }
 
-void ninth_task(void)
-{
-	printk("starting task I\r\n");
-	ili9341_init_lcd();
-	while (1) {
-		printk("I");
-	}
-}
-
-int main(void)
-{
-
 #ifdef STM32_F429
-	usart.num = 1;
-	usart.base_reg = USART1_BASE;
-	usart.baud_rate = 115200;
-
-	usart_init(&usart);
-
-	pio_set_alternate(GPIOA_BASE, 9, 0x7);
-	pio_set_alternate(GPIOA_BASE, 10, 0x7);
-#else
-	usart.num = 3;
-	usart.base_reg = USART3_BASE;
-	usart.baud_rate = 115200;
-
-	usart_init(&usart);
-
-	pio_set_alternate(GPIOC_BASE, 10, 0x7);
-	pio_set_alternate(GPIOC_BASE, 11, 0x7);
-#endif /* STM32_F429 */
-
-	pio_set_alternate(GPIOF_BASE, 7, 0x5);
-	pio_set_alternate(GPIOF_BASE, 8, 0x5);
-	pio_set_alternate(GPIOF_BASE, 9, 0x5);
-
-	spi.num = 5;
-	spi.base_reg = SPI5_BASE;
-	spi.rate = 0;
-	spi.speed = 10000000;
-	spi.mode = 1;
-
-	spi_init(&spi);
-
-#ifdef STM32_F429
-
+static void ltdc_init(void)
+{
 #define GPIO_AF_LTDC	((unsigned char)0x0E)
 #define GPIO_AF_LCD	((unsigned char)0x09)
 
@@ -423,7 +382,55 @@ int main(void)
 	ltdc.fb_addr = 0x20020000;
 
 	lcd_init(&ltdc);
+}
 #endif /* STM32_F429 */
+
+void ninth_task(void)
+{
+	printk("starting task I\r\n");
+#ifdef STM32_F429
+	ili9341_init_lcd();
+	ltdc_init();
+#endif /* STM32_F429 */
+	while (1) {
+		printk("I");
+	}
+}
+
+int main(void)
+{
+
+#ifdef STM32_F429
+	usart.num = 1;
+	usart.base_reg = USART1_BASE;
+	usart.baud_rate = 115200;
+
+	usart_init(&usart);
+
+	pio_set_alternate(GPIOA_BASE, 9, 0x7);
+	pio_set_alternate(GPIOA_BASE, 10, 0x7);
+#else
+	usart.num = 3;
+	usart.base_reg = USART3_BASE;
+	usart.baud_rate = 115200;
+
+	usart_init(&usart);
+
+	pio_set_alternate(GPIOC_BASE, 10, 0x7);
+	pio_set_alternate(GPIOC_BASE, 11, 0x7);
+#endif /* STM32_F429 */
+
+	pio_set_alternate(GPIOF_BASE, 7, 0x5);
+	pio_set_alternate(GPIOF_BASE, 8, 0x5);
+	pio_set_alternate(GPIOF_BASE, 9, 0x5);
+
+	spi.num = 5;
+	spi.base_reg = SPI5_BASE;
+	spi.rate = 0;
+	spi.speed = 10000000;
+	spi.mode = 1;
+
+	spi_init(&spi);
 
 	printk("Welcome to rnk\r\n");
 	printk("- Initialise heap...\r\n");
