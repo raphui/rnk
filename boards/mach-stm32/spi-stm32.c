@@ -62,7 +62,10 @@ void stm32_spi_init(struct spi *spi)
 	spi->rate = APB2_CLK;
 	spi->rate = stm32_spi_find_best_pres(spi->rate, spi->speed);
 
-	SPI->CR1 |= (spi->rate << 3);
+	SPI->CR1 &= ~SPI_CR1_SPE;
+
+//	SPI->CR1 |= (spi->rate << 3);
+	SPI->CR1 |= (0x2 << 3);
 
 	/* Set master mode */
 	SPI->CR1 |= SPI_CR1_MSTR;
@@ -70,19 +73,22 @@ void stm32_spi_init(struct spi *spi)
 	/* Handle slave selection via software */
 	SPI->CR1 |= SPI_CR1_SSM;
 
-	SPI->CR1 |= SPI_CR1_BIDIMODE;
+//	SPI->CR1 |= SPI_CR1_BIDIMODE;
+	SPI->CR1 |= SPI_CR1_BIDIOE;
 
-	SPI->CR1 |= SPI_CR1_SPE;	
+//	SPI->CR2 |= (1 << 4);
+
+	SPI->CR1 |= SPI_CR1_SPE;
 }
 
 void stm32_spi_write(struct spi *spi, unsigned short data)
 {
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
+	SPI->DR = data;
+
 	while (!(SPI->SR & SPI_SR_TXE))
 		;
-
-	SPI->DR = data;
 }
 
 unsigned short stm32_spi_read(struct spi *spi)
