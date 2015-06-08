@@ -37,8 +37,8 @@ static void stm32_ltdc_clk_divconfig(unsigned int div_r)
 
 static void stm32_ltdc_enable_fb(struct ltdc *ltdc)
 {
-	LTDC_Layer1->WHPCR = (ltdc->hbp << 0) | ((ltdc->hbp + ltdc->width) << 16);
-	LTDC_Layer1->WVPCR = (ltdc->vbp << 0) | ((ltdc->vbp + ltdc->height) << 16);
+	LTDC_Layer1->WHPCR = ((ltdc->hsync + ltdc->hbp) << 0) | ((ltdc->hsync + ltdc->hbp + ltdc->width - 1) << 16);
+	LTDC_Layer1->WHPCR = ((ltdc->vsync + ltdc->vbp) << 0) | ((ltdc->vsync + ltdc->vbp + ltdc->height - 1) << 16);
 
 	switch (ltdc->bpp) {
 		case 2:
@@ -53,7 +53,9 @@ static void stm32_ltdc_enable_fb(struct ltdc *ltdc)
 	LTDC_Layer1->CFBLR = ((ltdc->width * ltdc->bpp) << 16) | ((ltdc->width * ltdc->bpp + 3) << 0);
 	LTDC_Layer1->CFBLNR = (ltdc->height << 0);
 
-	LTDC_Layer1->CR |= 1;
+//	LTDC_Layer1->CACR &= ~LTDC_LxCACR_CONSTA;
+
+	LTDC_Layer1->CR |= LTDC_LxCR_LEN;
 
 }
 
@@ -62,23 +64,22 @@ void stm32_ltdc_init(struct ltdc *ltdc)
 	unsigned int h_cycles;
 	unsigned int v_cycles;
 
-	RCC->APB2ENR |= RCC_APB2ENR_LTDCEN;
-
 	stm32_ltdc_pll_sai_config(192, 7, 4);
 	stm32_ltdc_clk_divconfig(RCC_PLLSAIDivR_Div4);
 
 	RCC->CR |= RCC_CR_PLLSAION;
 
-	while ((RCC->CR & RCC_CR_PLLSAIRDY) == 0)
+	while (!(RCC->CR & RCC_CR_PLLSAIRDY))
 		;
+
+	RCC->APB2ENR |= RCC_APB2ENR_LTDCEN;
 
 	LTDC->GCR &= ~LTDC_GCR_LTDCEN;
 
 	h_cycles = ltdc->hsync - 1;
 	v_cycles = ltdc->vsync - 1;
 
-	LTDC->SSCR = (h_cycles << 16);
-	LTDC->SSCR |= (v_cycles << 0);
+	LTDC->SSCR = (h_cycles << 16) | (v_cycles << 0);
 
 	h_cycles += ltdc->hbp;
 	v_cycles += ltdc->vbp;
@@ -101,12 +102,13 @@ void stm32_ltdc_init(struct ltdc *ltdc)
 	/* Background color to blue */
 	LTDC->BCCR = (0xFF << 0);
 
+//	stm32_ltdc_enable_fb(ltdc);
+
+	LTDC->SRCR = LTDC_SRCR_IMR;
+
 	/* Enable LCD Controller */
 	LTDC->GCR |= LTDC_GCR_LTDCEN;
 
-	stm32_ltdc_enable_fb(ltdc);
-
-	LTDC->SRCR = LTDC_SRCR_IMR;
 }
 
 struct lcd_operations lcd_ops = {
