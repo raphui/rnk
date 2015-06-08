@@ -64,6 +64,8 @@ void stm32_ltdc_init(struct ltdc *ltdc)
 	unsigned int h_cycles;
 	unsigned int v_cycles;
 
+	RCC->APB2ENR |= RCC_APB2ENR_LTDCEN;
+
 	stm32_ltdc_pll_sai_config(192, 7, 4);
 	stm32_ltdc_clk_divconfig(RCC_PLLSAIDivR_Div4);
 
@@ -71,8 +73,6 @@ void stm32_ltdc_init(struct ltdc *ltdc)
 
 	while (!(RCC->CR & RCC_CR_PLLSAIRDY))
 		;
-
-	RCC->APB2ENR |= RCC_APB2ENR_LTDCEN;
 
 	LTDC->GCR &= ~LTDC_GCR_LTDCEN;
 
