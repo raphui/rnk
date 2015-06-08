@@ -72,6 +72,7 @@ void stm32_spi_init(struct spi *spi)
 
 	/* Handle slave selection via software */
 	SPI->CR1 |= SPI_CR1_SSM;
+	SPI->CR1 |= SPI_CR1_SSI;
 
 //	SPI->CR1 |= SPI_CR1_BIDIMODE;
 	SPI->CR1 |= SPI_CR1_BIDIOE;
