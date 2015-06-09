@@ -988,6 +988,8 @@ typedef struct
 #define PERIPH_BASE           ((unsigned int)0x40000000) /*!< Peripheral base address in the alias region                                */
 #define BKPSRAM_BASE          ((unsigned int)0x40024000) /*!< Backup SRAM(4 KB) base address in the alias region                         */
 
+#define FMC_R_BASE            ((unsigned int)0xA0000000) /*!< FMC registers base address */        
+
 #define CCMDATARAM_BB_BASE    ((unsigned int)0x12000000) /*!< CCM(core coupled memory) data RAM(64 KB) base address in the bit-band region  */
 #define SRAM1_BB_BASE         ((unsigned int)0x22000000) /*!< SRAM1(112 KB) base address in the bit-band region                             */
 #define SRAM2_BB_BASE         ((unsigned int)0x2201C000) /*!< SRAM2(16 KB) base address in the bit-band region                              */
