@@ -38,7 +38,7 @@ static void stm32_ltdc_clk_divconfig(unsigned int div_r)
 static void stm32_ltdc_enable_fb(struct ltdc *ltdc)
 {
 	LTDC_Layer1->WHPCR = ((ltdc->hsync + ltdc->hbp) << 0) | ((ltdc->hsync + ltdc->hbp + ltdc->width - 1) << 16);
-	LTDC_Layer1->WHPCR = ((ltdc->vsync + ltdc->vbp) << 0) | ((ltdc->vsync + ltdc->vbp + ltdc->height - 1) << 16);
+	LTDC_Layer1->WVPCR = ((ltdc->vsync + ltdc->vbp) << 0) | ((ltdc->vsync + ltdc->vbp + ltdc->height - 1) << 16);
 
 	switch (ltdc->bpp) {
 		case 2:
@@ -48,6 +48,8 @@ static void stm32_ltdc_enable_fb(struct ltdc *ltdc)
 			debug_printk("Unknow bits per pixel\r\n");
 			return;
 	}
+
+//	LTDC_Layer1->BFCR = 0x00000400 | 0x00000005;
 
 	LTDC_Layer1->CFBAR = ltdc->fb_addr;
 	LTDC_Layer1->CFBLR = ((ltdc->width * ltdc->bpp) << 16) | ((ltdc->width * ltdc->bpp + 3) << 0);
@@ -66,7 +68,7 @@ void stm32_ltdc_init(struct ltdc *ltdc)
 
 	RCC->APB2ENR |= RCC_APB2ENR_LTDCEN;
 
-	stm32_ltdc_pll_sai_config(192, 7, 4);
+	stm32_ltdc_pll_sai_config(127, 7, 5);
 	stm32_ltdc_clk_divconfig(RCC_PLLSAIDivR_Div4);
 
 	RCC->CR |= RCC_CR_PLLSAION;
@@ -75,6 +77,7 @@ void stm32_ltdc_init(struct ltdc *ltdc)
 		;
 
 	LTDC->GCR &= ~LTDC_GCR_LTDCEN;
+	LTDC->GCR |= LTDC_GCR_DTEN;
 
 	h_cycles = ltdc->hsync - 1;
 	v_cycles = ltdc->vsync - 1;
@@ -102,7 +105,7 @@ void stm32_ltdc_init(struct ltdc *ltdc)
 	/* Background color to blue */
 	LTDC->BCCR = (0xFF << 0);
 
-//	stm32_ltdc_enable_fb(ltdc);
+	stm32_ltdc_enable_fb(ltdc);
 
 	LTDC->SRCR = LTDC_SRCR_IMR;
 
