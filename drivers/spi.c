@@ -23,9 +23,9 @@ void spi_init(struct spi *spi)
 	spi_ops.init(spi);
 }
 
-void spi_write(struct spi *spi, unsigned short data)
+unsigned short spi_write(struct spi *spi, unsigned short data)
 {
-	spi_ops.write(spi, data);
+	return spi_ops.write(spi, data);
 }
 
 unsigned short spi_read(struct spi *spi)

@@ -82,7 +82,7 @@ void stm32_spi_init(struct spi *spi)
 	SPI->CR1 |= SPI_CR1_SPE;
 }
 
-void stm32_spi_write(struct spi *spi, unsigned short data)
+unsigned short stm32_spi_write(struct spi *spi, unsigned short data)
 {
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
@@ -90,12 +90,23 @@ void stm32_spi_write(struct spi *spi, unsigned short data)
 
 	while (!(SPI->SR & SPI_SR_TXE))
 		;
+
+	while (!(SPI->SR & SPI_SR_RXNE))
+		;
+
+	data = SPI->DR;
 }
 
 unsigned short stm32_spi_read(struct spi *spi)
 {
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 	unsigned short data = 0;
+
+	/* write dummy bytes */
+	SPI->DR = 0xFF;
+
+	while (!(SPI->SR & SPI_SR_TXE))
+		;
 
 	while (!(SPI->SR & SPI_SR_RXNE))
 		;

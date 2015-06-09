@@ -27,7 +27,7 @@ struct spi {
 };
 
 void spi_init(struct spi *spi);
-void spi_write(struct spi *spi, unsigned short data);
+unsigned short spi_write(struct spi *spi, unsigned short data);
 unsigned short spi_read(struct spi *spi);
 
 #endif /* SPI_H */
