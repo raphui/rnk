@@ -70,7 +70,7 @@ static void stm32_pio_set_clock(unsigned int port)
 
 }
 
-static void stm32_pio_set_output(unsigned int port, unsigned int mask, int pull_up)
+void stm32_pio_set_output(unsigned int port, unsigned int mask, int pull_up)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 
@@ -85,14 +85,14 @@ static void stm32_pio_set_output(unsigned int port, unsigned int mask, int pull_
 		base->PUPDR &= ~(GPIO_PUPDR_PULLUP(mask));
 }
 
-static void stm32_pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter)
+void stm32_pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 	stm32_pio_set_clock(port);
 	base->MODER &= ~(GPIO_MODER(mask));
 }
 
-static void stm32_pio_set_alternate(unsigned int port, unsigned int mask, unsigned int num)
+void stm32_pio_set_alternate(unsigned int port, unsigned int mask, unsigned int num)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 	unsigned int afr_high_base = 8;
@@ -107,19 +107,19 @@ static void stm32_pio_set_alternate(unsigned int port, unsigned int mask, unsign
 		base->AFR[0] |= (num << (mask * 4));
 }
 
-static void stm32_pio_set_value(unsigned int port, unsigned int mask)
+void stm32_pio_set_value(unsigned int port, unsigned int mask)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 	base->ODR |= (1 << mask);
 }
 
-static void stm32_pio_clear_value(unsigned int port, unsigned int mask)
+void stm32_pio_clear_value(unsigned int port, unsigned int mask)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 	base->ODR &= ~(1 << mask);
 }
 
-static void stm32_pio_toggle_value(unsigned int port, unsigned int mask)
+void stm32_pio_toggle_value(unsigned int port, unsigned int mask)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 	base->ODR ^= (1 << mask);

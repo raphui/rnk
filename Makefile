@@ -7,6 +7,7 @@
 ARMV=armv7m
 MACH=stm32
 SOC=stm32f429
+#SOC=stm32f407
 MCPU=cortex-m4
 
 SAM7S_SRAM_LD=sram_sam7s.lds
@@ -16,8 +17,8 @@ SAM3X_LD=sam3x.ld
 SAM3X8_SRAM_LD=sram.ld
 STM32F407_LD=stm32.ld
 STM32F429_LD=stm32.ld
-#LD_SCRIPT=$(STM32F429_LD)
-LD_SCRIPT=$(STM32F407_LD)
+LD_SCRIPT=$(STM32F429_LD)
+#LD_SCRIPT=$(STM32F407_LD)
 #LD_SCRIPT=$(SAM7S_SRAM_LD)
 #LD_SCRIPT=$(SAM7S_FLASH_LD)
 STM32_DEFINE = STM32_F429
@@ -44,6 +45,7 @@ OBJS	:= 	asm/head.o \
 		boards/mach-$(MACH)/i2c-$(MACH).o \
 		boards/mach-$(MACH)/spi-$(MACH).o \
 		boards/mach-$(MACH)/ltdc-$(MACH).o \
+		boards/mach-$(MACH)/fmc-$(MACH).o \
 		boot/boot-$(SOC).o \
 		drivers/pio.o \
 		drivers/usart.o \
@@ -68,6 +70,7 @@ OBJS	:= 	asm/head.o \
 config:
 	@@echo "CP mach-$(MACH)/board-$(SOC).h -> board.h"
 	@cp boards/mach-$(MACH)/board-$(SOC).h boards/board.h
+	@ln -s $(KERNEL_BASE)/boards/mach-$(MACH)/include $(KERNEL_BASE)/include/mach-$(MACH)
 	@ln -s $(KERNEL_BASE)/arch/arm/include $(KERNEL_BASE)/include/arch
 	@ln -s $(KERNEL_BASE)/arch/arm/$(ARMV)/include $(KERNEL_BASE)/include/$(ARMV)
 
@@ -92,6 +95,7 @@ clean:
 	$(RM) boards/board.h
 	$(RM) include/arch
 	$(RM) include/$(ARMV)
+	$(RM) include/mach-$(MACH)
  
 dist-clean: clean
 	$(RM) `find . -name *.d`

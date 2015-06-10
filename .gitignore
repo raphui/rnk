@@ -29,3 +29,4 @@ arch/arm/armv7m/include/include
 arch/arm/include/include
 include/armv7m
 include/arch
+include/mach-stm32
