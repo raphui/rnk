@@ -18,6 +18,13 @@
 #ifndef FMC_H
 #define FMC_H
 
+struct fmc_command_config {
+	unsigned int cmd_mode;
+	unsigned int cmd_target;
+	unsigned int auto_refresh_num;
+	unsigned int mode;
+};
+
 struct fmc_sdram_timing {
 	unsigned int load_to_active_delay;
 	unsigned int exit_self_refresh_delay;
@@ -40,6 +47,7 @@ struct fmc_sdram {
 	unsigned int read_burst;
 	unsigned int read_pipe_delay;
 	struct fmc_sdram_timing *fmc_sdtiming;
+	struct fmc_command_config *fmc_command_config;
 };
 
 
