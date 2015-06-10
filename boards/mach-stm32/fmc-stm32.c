@@ -24,11 +24,11 @@
 void stm32_fmc_sdram_timing_init(struct fmc_sdram *fmc_sdram)
 {
 	if (fmc_sdram->num_bank == 1) {
-		FMC_Bank5_6->SDCR[fmc_sdram->num_bank - 1] = (fmc_sdram->column_byte)
-							| (fmc_sdram->row_byte << 2)
+		FMC_Bank5_6->SDCR[fmc_sdram->num_bank - 1] = (fmc_sdram->column)
+							| (fmc_sdram->row << 2)
 							| (fmc_sdram->data_width << 4)
-							| (fmc_sdram->internal_bank_num << 6)
-							| (fmc_sdram->cas_latency << 7)
+							| (fmc_sdram->internal_bank << 6)
+							| (fmc_sdram->cas << 7)
 							| (fmc_sdram->write_protection << 9)
 							| (fmc_sdram->clk_period << 10)
 							| (fmc_sdram->read_burst << 12)

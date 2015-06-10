@@ -30,11 +30,11 @@ struct fmc_sdram_timing {
 
 struct fmc_sdram {
 	unsigned char num_bank;
-	unsigned int column_byte;
-	unsigned int row_byte;
+	unsigned int column;
+	unsigned int row;
 	unsigned int data_width;
-	unsigned int internal_bank_num;
-	unsigned int cas_latency;
+	unsigned int internal_bank;
+	unsigned int cas;
 	unsigned int write_protection;
 	unsigned int clk_period;
 	unsigned int read_burst;
