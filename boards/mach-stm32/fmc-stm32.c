@@ -96,7 +96,7 @@ static void stm32_fmc_sdram_timing_init(struct fmc_sdram *fmc_sdram)
 
 static void stm32_fmc_sdram_cmd_conf_init(struct fmc_sdram *fmc_sdram)
 {
-	unsigned int val = fmc_sdram->fmc_sdram_cmd_config->mode;
+	unsigned int val = fmc_sdram->fmc_sdram_cmd_config->cmd_mode;
 
 	val |= fmc_sdram->fmc_sdram_cmd_config->cmd_target;
 	val |= ((fmc_sdram->fmc_sdram_cmd_config->auto_refresh_num - 1 )<< 5);
@@ -112,7 +112,6 @@ void stm32_fmc_init(struct fmc_sdram *fmc_sdram)
 	RCC->AHB3ENR |= RCC_AHB3ENR_FMCEN;
 
 	stm32_fmc_sdram_timing_init(fmc_sdram);
-	stm32_fmc_sdram_cmd_conf_init(fmc_sdram);
 
 	while ((FMC_Bank5_6->SDSR & FMC_SDSR_BUSY) && timeout--)
 		;
@@ -140,7 +139,7 @@ void stm32_fmc_init(struct fmc_sdram *fmc_sdram)
 
 	stm32_fmc_sdram_cmd_conf_init(fmc_sdram);
 
-	fmc_sdram->fmc_sdram_cmd_config->cmd_mode = 0x3;	/* Load */
+	fmc_sdram->fmc_sdram_cmd_config->cmd_mode = 0x4;	/* Load */
 	fmc_sdram->fmc_sdram_cmd_config->auto_refresh_num = 0x1;
 	fmc_sdram->fmc_sdram_cmd_config->mode = 0x0231;
 
