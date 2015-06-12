@@ -539,7 +539,7 @@ static void ltdc_init(void)
 	ltdc.width = 240;
 	ltdc.height = 320;
 	ltdc.bpp = 2;
-	ltdc.fb_addr = 0x20000000;
+	ltdc.fb_addr = 0xd0000000;
 
 	lcd_init(&ltdc);
 }
