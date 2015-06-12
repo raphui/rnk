@@ -543,6 +543,27 @@ static void ltdc_init(void)
 
 	lcd_init(&ltdc);
 }
+
+#define BLACK    0x0000
+#define BLUE     0x001F
+#define RED      0xF800
+#define GREEN    0x07E0
+#define CYAN     0x07FF
+#define MAGENTA  0xF81F
+#define YELLOW   0xFFE0
+#define WHITE    0xFFFF
+
+void lcd_rgb565_fill(unsigned short rgb)
+{
+	int size = ltdc.width * ltdc.height * ltdc.bpp;
+	int i = 0;
+	unsigned short *p = ltdc.fb_addr;
+
+	for (i = 0; i < size; i++) {
+		*p = rgb;
+		p++;
+	}
+}
 #endif /* STM32_F429 */
 
 void ninth_task(void)
@@ -587,6 +608,21 @@ void ninth_task(void)
 #endif /* STM32_F429 */
 	while (1) {
 		printk("I");
+		lcd_rgb565_fill(BLACK);
+		usleep(100000000);
+		lcd_rgb565_fill(BLUE);
+		usleep(100000000);
+		lcd_rgb565_fill(RED);
+		usleep(100000000);
+		lcd_rgb565_fill(GREEN);
+		usleep(100000000);
+		lcd_rgb565_fill(CYAN);
+		usleep(100000000);
+		lcd_rgb565_fill(MAGENTA);
+		usleep(100000000);
+		lcd_rgb565_fill(YELLOW);
+		usleep(100000000);
+		lcd_rgb565_fill(WHITE);
 	}
 }
 
