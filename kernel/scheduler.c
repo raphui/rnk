@@ -69,7 +69,9 @@ void schedule_from_interrupt(void)
 /* Since tasks cannot end, if we jump into this functions it's mean that the context switch is buggy */
 void end_task(void)
 {
-	void (*func)(void) = (void (*)())0xfffffd39;
+	struct task *task = get_current_task();
 
-	func();
+	task->state = TASK_STOPPED;
+
+	remove_runnable_task(task);
 }
