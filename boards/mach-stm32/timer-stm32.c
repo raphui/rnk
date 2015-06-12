@@ -21,6 +21,29 @@
 #include <stddef.h>
 #include <arch/nvic.h>
 
+static int stm32_get_nvic_number(struct timer *timer)
+{
+	int nvic = 0;
+
+	switch (timer->num) {
+		case 2:
+			nvic = TIM2_IRQn;
+			break;
+		case 3:
+			nvic = TIM3_IRQn;
+			break;
+		case 4:
+			nvic = TIM4_IRQn;
+			break;
+		case 5:
+			nvic = TIM5_IRQn;
+			break;
+
+	};
+
+	return nvic;
+}
+
 static int stm32_timer_init(struct timer *timer)
 {
 	unsigned int rcc_en = 0;
@@ -117,6 +140,7 @@ static void stm32_timer_set_counter(struct timer *timer, unsigned short counter)
 static void stm32_timer_enable(struct timer *timer)
 {
 	TIM_TypeDef *tim = NULL;
+	int nvic = stm32_get_nvic_number(timer);
 
 	tim = (TIM_TypeDef *)timer->base_reg;
 
@@ -134,19 +158,20 @@ static void stm32_timer_enable(struct timer *timer)
 	/* finally, enable counter */
 	tim->CR1 |= TIM_CR1_CEN | TIM_CR1_ARPE;
 
-	nvic_enable_interrupt(28);
+	nvic_enable_interrupt(nvic);
 }
 
 static void stm32_timer_disable(struct timer *timer)
 {
 	TIM_TypeDef *tim = NULL;
+	int nvic = stm32_get_nvic_number(timer);
 
 	tim = (TIM_TypeDef *)timer->base_reg;
 
 	tim->CR1 &= ~TIM_CR1_CEN;
 
-	nvic_clear_interrupt(28);
-	nvic_disable_interrupt(28);
+	nvic_clear_interrupt(nvic);
+	nvic_disable_interrupt(nvic);
 }
 
 static void stm32_timer_clear_it_flags(struct timer *timer, unsigned int flags)
