@@ -625,6 +625,9 @@ int main(void)
 
 	spi_init(&spi);
 
+	/* User button */
+	pio_set_input(GPIOA_BASE, 0, 0, 0);
+
 	printk("Welcome to rnk\r\n");
 	printk("- Initialise heap...\r\n");
 
