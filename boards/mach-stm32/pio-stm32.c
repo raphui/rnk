@@ -100,6 +100,7 @@ void stm32_pio_set_alternate(unsigned int port, unsigned int mask, unsigned int 
 	stm32_pio_set_clock(port);
 
 	base->MODER |= GPIO_MODER_ALTERNATE(mask);
+	base->OSPEEDR |= GPIO_OSPEEDR(mask);
 
 	if (mask > 7)
 		base->AFR[1] |= (num << ((mask - afr_high_base) * 4));
