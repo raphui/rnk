@@ -23,7 +23,7 @@
 #include <arch/svc.h>
 #include <armv7m/system.h>
 
-static struct task *current_task;
+static struct task *current_task = NULL;
 static int task_count = 0;
 LIST_HEAD(, task) runnable_tasks = LIST_HEAD_INITIALIZER(runnable_tasks);
 
