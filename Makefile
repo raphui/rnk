@@ -55,6 +55,7 @@ OBJS	:= 	asm/head.o \
 		drivers/spi.o \
 		drivers/dma.o \
 		drivers/lcd.o \
+		drivers/ili9341.o \
 		kernel/main.o \
 		kernel/mutex.o \
 		kernel/scheduler.o \

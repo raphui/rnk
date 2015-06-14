@@ -18,21 +18,13 @@
 #ifndef ILI9341_H
 #define ILI9341_H
 
-#define ILI9341_CS_SET				//TM_GPIO_SetPinHigh(ILI9341_CS_PORT, ILI9341_CS_PIN)
-#define ILI9341_CS_RESET			//TM_GPIO_SetPinLow(ILI9341_CS_PORT, ILI9341_CS_PIN)
-#define ILI9341_WRX_SET				//TM_GPIO_SetPinHigh(ILI9341_WRX_PORT, ILI9341_WRX_PIN)
-#define ILI9341_WRX_RESET			//TM_GPIO_SetPinLow(ILI9341_WRX_PORT, ILI9341_WRX_PIN)
-
 /* LCD settings */
 #define ILI9341_WIDTH				240
 #define ILI9341_HEIGHT				320
 #define ILI9341_PIXEL				76800
 
 /* Starting buffer address in RAM */
-/* Offset for Layer 1 = SDRAM START ADDRESS + FRAME_BUFFER */
-#define ILI9341_FRAME_BUFFER		//SDRAM_START_ADR
-/* Offset for Layer 2 */
-#define ILI9341_FRAME_OFFSET		//(uint32_t)ILI9341_PIXEL * 2
+#define ILI9341_FRAME_BUFFER			0xD0000000
 
 /* Commands */
 #define ILI9341_RESET				0x01
@@ -65,5 +57,10 @@
 #define ILI9341_3GAMMA_EN			0xF2
 #define ILI9341_INTERFACE			0xF6
 #define ILI9341_PRC				0xF7
+
+void ili9341_init(void);
+void ili9341_init_lcd(void);
+void ili9341_send_command(unsigned char data);
+void ili9341_send_data(unsigned char data);
 
 #endif /* ILI9341_H */

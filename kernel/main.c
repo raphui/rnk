@@ -35,6 +35,7 @@
 #include <common.h>
 
 #ifdef STM32_F429
+#include <ili9341.h>
 #include <ltdc.h>
 
 struct ltdc ltdc;
@@ -156,177 +157,6 @@ void eighth_task(void)
 		printk("G");
 	}
 
-}
-
-/* Commands */
-#define ILI9341_RESET				0x01
-#define ILI9341_SLEEP_OUT			0x11
-#define ILI9341_GAMMA				0x26
-#define ILI9341_DISPLAY_OFF			0x28
-#define ILI9341_DISPLAY_ON			0x29
-#define ILI9341_COLUMN_ADDR			0x2A
-#define ILI9341_PAGE_ADDR			0x2B
-#define ILI9341_GRAM				0x2C
-#define ILI9341_MAC				0x36
-#define ILI9341_PIXEL_FORMAT			0x3A
-#define ILI9341_WDB				0x51
-#define ILI9341_WCD				0x53
-#define ILI9341_RGB_INTERFACE			0xB0
-#define ILI9341_FRC				0xB1
-#define ILI9341_BPC				0xB5
-#define ILI9341_DFC				0xB6
-#define ILI9341_POWER1				0xC0
-#define ILI9341_POWER2				0xC1
-#define ILI9341_VCOM1				0xC5
-#define ILI9341_VCOM2				0xC7
-#define ILI9341_POWERA				0xCB
-#define ILI9341_POWERB				0xCF
-#define ILI9341_PGAMMA				0xE0
-#define ILI9341_NGAMMA				0xE1
-#define ILI9341_DTCA				0xE8
-#define ILI9341_DTCB				0xEA
-#define ILI9341_POWER_SEQ			0xED
-#define ILI9341_3GAMMA_EN			0xF2
-#define ILI9341_INTERFACE			0xF6
-#define ILI9341_PRC				0xF7
-
-void ili9341_send_command(unsigned char data)
-{
-	pio_clear_value(GPIOD_BASE, 13);
-	pio_clear_value(GPIOC_BASE, 2);
-	spi_write(&spi, data);
-	pio_set_value(GPIOC_BASE, 2);
-}
-
-void ili9341_send_data(unsigned char data)
-{
-	pio_set_value(GPIOD_BASE, 13);
-	pio_clear_value(GPIOC_BASE, 2);
-	spi_write(&spi, data);
-	pio_set_value(GPIOC_BASE, 2);
-}
-
-void ili9341_init_lcd(void)
-{
-	int timeout = 1000000;
-
-	ili9341_send_data(0xC3);
-	ili9341_send_data(0x08);
-	ili9341_send_data(0x50);
-	ili9341_send_command(ILI9341_POWERB);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0xC1);
-	ili9341_send_data(0x30);
-	ili9341_send_command(ILI9341_POWER_SEQ);
-	ili9341_send_data(0x64);
-	ili9341_send_data(0x03);
-	ili9341_send_data(0x12);
-	ili9341_send_data(0x81);
-	ili9341_send_command(ILI9341_DTCA);
-	ili9341_send_data(0x85);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0x78);
-	ili9341_send_command(ILI9341_POWERA);
-	ili9341_send_data(0x39);
-	ili9341_send_data(0x2C);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0x34);
-	ili9341_send_data(0x02);
-	ili9341_send_command(ILI9341_PRC);
-	ili9341_send_data(0x20);
-	ili9341_send_command(ILI9341_DTCB);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0x00);
-	ili9341_send_command(ILI9341_FRC);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0x1B);
-	ili9341_send_command(ILI9341_DFC);
-	ili9341_send_data(0x0A);
-	ili9341_send_data(0xA2);
-	ili9341_send_command(ILI9341_POWER1);
-	ili9341_send_data(0x10);
-	ili9341_send_command(ILI9341_POWER2);
-	ili9341_send_data(0x10);
-	ili9341_send_command(ILI9341_VCOM1);
-	ili9341_send_data(0x45);
-	ili9341_send_data(0x15);
-	ili9341_send_command(ILI9341_VCOM2);
-	ili9341_send_data(0x90);
-	ili9341_send_command(ILI9341_MAC);
-	ili9341_send_data(0xC8);
-	ili9341_send_command(ILI9341_3GAMMA_EN);
-	ili9341_send_data(0x00);
-	ili9341_send_command(ILI9341_RGB_INTERFACE);
-	ili9341_send_data(0xC2);
-	ili9341_send_command(ILI9341_DFC);
-	ili9341_send_data(0x0A);
-	ili9341_send_data(0xA7);
-	ili9341_send_data(0x27);
-	ili9341_send_data(0x04);
-
-	ili9341_send_command(ILI9341_COLUMN_ADDR);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0xEF);
-
-	ili9341_send_command(ILI9341_PAGE_ADDR);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0x01);
-	ili9341_send_data(0x3F);
-	ili9341_send_command(ILI9341_INTERFACE);
-	ili9341_send_data(0x01);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0x06);
-
-	ili9341_send_command(ILI9341_GRAM);
-	timeout = 1000000;
-	while (timeout--)
-		;
-	ili9341_send_command(ILI9341_GAMMA);
-	ili9341_send_data(0x01);
-
-	ili9341_send_command(ILI9341_PGAMMA);
-	ili9341_send_data(0x0F);
-	ili9341_send_data(0x29);
-	ili9341_send_data(0x24);
-	ili9341_send_data(0x0C);
-	ili9341_send_data(0x0E);
-	ili9341_send_data(0x09);
-	ili9341_send_data(0x4E);
-	ili9341_send_data(0x78);
-	ili9341_send_data(0x3C);
-	ili9341_send_data(0x09);
-	ili9341_send_data(0x13);
-	ili9341_send_data(0x05);
-	ili9341_send_data(0x17);
-	ili9341_send_data(0x11);
-	ili9341_send_data(0x00);
-	ili9341_send_command(ILI9341_NGAMMA);
-	ili9341_send_data(0x00);
-	ili9341_send_data(0x16);
-	ili9341_send_data(0x1B);
-	ili9341_send_data(0x04);
-	ili9341_send_data(0x11);
-	ili9341_send_data(0x07);
-	ili9341_send_data(0x31);
-	ili9341_send_data(0x33);
-	ili9341_send_data(0x42);
-	ili9341_send_data(0x05);
-	ili9341_send_data(0x0C);
-	ili9341_send_data(0x0A);
-	ili9341_send_data(0x28);
-	ili9341_send_data(0x2F);
-	ili9341_send_data(0x0F);
-
-	ili9341_send_command(ILI9341_SLEEP_OUT);
-	timeout = 1000000;
-	while (timeout--)
-		;
-	ili9341_send_command(ILI9341_DISPLAY_ON);
-
-	ili9341_send_command(ILI9341_GRAM);
 }
 
 #ifdef STM32_F429
@@ -475,18 +305,6 @@ int main(void)
 	pio_set_alternate(GPIOC_BASE, 10, 0x7);
 	pio_set_alternate(GPIOC_BASE, 11, 0x7);
 #endif /* STM32_F429 */
-
-	pio_set_alternate(GPIOF_BASE, 7, 0x5);
-	pio_set_alternate(GPIOF_BASE, 8, 0x5);
-	pio_set_alternate(GPIOF_BASE, 9, 0x5);
-
-	spi.num = 5;
-	spi.base_reg = SPI5_BASE;
-	spi.rate = 0;
-	spi.speed = 10000000;
-	spi.mode = 1;
-
-	spi_init(&spi);
 
 	dma.num = 2;
 	dma.stream_base = DMA2_Stream0_BASE;
