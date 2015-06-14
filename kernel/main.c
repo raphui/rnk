@@ -162,6 +162,8 @@ void eighth_task(void)
 #ifdef STM32_F429
 static void ltdc_init(void)
 {
+	lcd_init_gpio();
+
 	ltdc.hsync = 16;
 	ltdc.vsync = 2;
 	ltdc.hbp = 40;
@@ -224,7 +226,7 @@ void ninth_task(void)
 	printk("starting task I\r\n");
 
 #ifdef STM32_F429
-	lcd_init_gpio();
+	ili9341_init();
 	ili9341_init_lcd();
 	ltdc_init();
 #endif /* STM32_F429 */
@@ -232,19 +234,19 @@ void ninth_task(void)
 	while (1) {
 		printk("I");
 		lcd_rgb565_fill(BLACK);
-		usleep(100000000);
+		usleep(1000);
 		lcd_rgb565_fill(BLUE);
-		usleep(100000000);
+		usleep(1000);
 		lcd_rgb565_fill(RED);
-		usleep(100000000);
+		usleep(1000);
 		lcd_rgb565_fill(GREEN);
-		usleep(100000000);
+		usleep(1000);
 		lcd_rgb565_fill(CYAN);
-		usleep(100000000);
+		usleep(1000);
 		lcd_rgb565_fill(MAGENTA);
-		usleep(100000000);
+		usleep(1000);
 		lcd_rgb565_fill(YELLOW);
-		usleep(100000000);
+		usleep(1000);
 		lcd_rgb565_fill(WHITE);
 	}
 }
