@@ -20,9 +20,13 @@
 #include <ltdc.h>
 #include <utils.h>
 #include <stdio.h>
+#include <mach-stm32/pio-stm32.h>
 
 #define GCR_MASK		((unsigned int)0x0FFE888F)
 #define RCC_PLLSAIDivR_Div4	((unsigned int)0x00010000)
+
+#define GPIO_AF_LTDC	((unsigned char)0x0E)
+#define GPIO_AF_LCD	((unsigned char)0x09)
 
 static void stm32_ltdc_pll_sai_config(unsigned int n, unsigned int q, unsigned int r)
 {
@@ -114,6 +118,44 @@ void stm32_ltdc_init(struct ltdc *ltdc)
 
 }
 
+void stm32_ltdc_init_gpio(void)
+{
+	stm32_pio_set_alternate(GPIOA_BASE, 3, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOA_BASE, 4, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOA_BASE, 6, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOA_BASE, 11, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOA_BASE, 12, GPIO_AF_LTDC);
+
+	stm32_pio_set_alternate(GPIOB_BASE, 0, GPIO_AF_LCD);
+	stm32_pio_set_alternate(GPIOB_BASE, 1, GPIO_AF_LCD);
+	stm32_pio_set_alternate(GPIOB_BASE, 8, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOB_BASE, 9, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOB_BASE, 10, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOB_BASE, 11, GPIO_AF_LTDC);
+
+	stm32_pio_set_alternate(GPIOC_BASE, 6, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOC_BASE, 7, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOC_BASE, 10, GPIO_AF_LTDC);
+
+	stm32_pio_set_alternate(GPIOD_BASE, 3, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOD_BASE, 6, GPIO_AF_LTDC);
+
+	stm32_pio_set_alternate(GPIOF_BASE, 10, GPIO_AF_LTDC);
+
+	stm32_pio_set_alternate(GPIOG_BASE, 6, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOG_BASE, 7, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOG_BASE, 10, GPIO_AF_LCD);
+	stm32_pio_set_alternate(GPIOG_BASE, 11, GPIO_AF_LTDC);
+	stm32_pio_set_alternate(GPIOG_BASE, 12, GPIO_AF_LCD);
+
+	stm32_pio_set_output(GPIOD_BASE, 13, 0);
+	stm32_pio_set_output(GPIOD_BASE, 12, 1);
+	stm32_pio_set_output(GPIOC_BASE, 2, 0);
+
+	stm32_pio_set_value(GPIOC_BASE, 2);
+}
+
 struct lcd_operations lcd_ops = {
-	.init = stm32_ltdc_init,	
+	.init = stm32_ltdc_init,
+	.init_gpio = stm32_ltdc_init_gpio,
 };

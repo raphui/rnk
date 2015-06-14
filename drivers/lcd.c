@@ -22,3 +22,9 @@ void lcd_init(struct ltdc *ltdc)
 {
 	lcd_ops.init(ltdc);
 }
+
+
+void lcd_init_gpio(void)
+{
+	lcd_ops.init_gpio();
+}

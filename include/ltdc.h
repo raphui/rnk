@@ -33,5 +33,6 @@ struct ltdc {
 };
 
 void lcd_init(struct ltdc *ltdc);
+void lcd_init_gpio(void);
 
 #endif /* LTDC_H */

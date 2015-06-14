@@ -162,9 +162,6 @@ void eighth_task(void)
 #ifdef STM32_F429
 static void ltdc_init(void)
 {
-#define GPIO_AF_LTDC	((unsigned char)0x0E)
-#define GPIO_AF_LCD	((unsigned char)0x09)
-
 	ltdc.hsync = 16;
 	ltdc.vsync = 2;
 	ltdc.hbp = 40;
@@ -225,40 +222,9 @@ void lcd_rgb565_fill(unsigned short rgb)
 void ninth_task(void)
 {
 	printk("starting task I\r\n");
+
 #ifdef STM32_F429
-	pio_set_alternate(GPIOA_BASE, 3, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOA_BASE, 4, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOA_BASE, 6, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOA_BASE, 11, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOA_BASE, 12, GPIO_AF_LTDC);
-
-	pio_set_alternate(GPIOB_BASE, 0, GPIO_AF_LCD);
-	pio_set_alternate(GPIOB_BASE, 1, GPIO_AF_LCD);
-	pio_set_alternate(GPIOB_BASE, 8, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOB_BASE, 9, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOB_BASE, 10, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOB_BASE, 11, GPIO_AF_LTDC);
-
-	pio_set_alternate(GPIOC_BASE, 6, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOC_BASE, 7, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOC_BASE, 10, GPIO_AF_LTDC);
-
-	pio_set_alternate(GPIOD_BASE, 3, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOD_BASE, 6, GPIO_AF_LTDC);
-
-	pio_set_alternate(GPIOF_BASE, 10, GPIO_AF_LTDC);
-
-	pio_set_alternate(GPIOG_BASE, 6, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOG_BASE, 7, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOG_BASE, 10, GPIO_AF_LCD);
-	pio_set_alternate(GPIOG_BASE, 11, GPIO_AF_LTDC);
-	pio_set_alternate(GPIOG_BASE, 12, GPIO_AF_LCD);
-
-	pio_set_output(GPIOD_BASE, 13, 0);
-	pio_set_output(GPIOD_BASE, 12, 1);
-	pio_set_output(GPIOC_BASE, 2, 0);
-
-	pio_set_value(GPIOC_BASE, 2);
+	lcd_init_gpio();
 	ili9341_init_lcd();
 	ltdc_init();
 #endif /* STM32_F429 */

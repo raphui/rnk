@@ -98,6 +98,7 @@ struct spi_operations spi_ops;
 struct lcd_operations
 {
 	void (*init)(struct ltdc *ltdc);
+	void (*init_gpio)(void);
 };
 
 struct lcd_operations lcd_ops;
