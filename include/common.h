@@ -19,6 +19,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <mutex.h>
+#include <semaphore.h>
+#include <queue.h>
+
 struct mutex mutex;
 struct semaphore sem;
 struct queue queue;
