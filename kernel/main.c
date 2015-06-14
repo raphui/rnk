@@ -32,6 +32,7 @@
 #include <time.h>
 #include <spi.h>
 #include <dma.h>
+#include <common.h>
 
 #ifdef STM32_F429
 #include <ltdc.h>
@@ -39,9 +40,6 @@
 struct ltdc ltdc;
 #endif /* STM32_F429 */
 
-struct mutex mutex;
-struct semaphore sem;
-struct queue queue;
 
 struct usart usart;
 struct spi spi;
