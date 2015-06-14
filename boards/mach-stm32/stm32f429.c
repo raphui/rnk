@@ -170,29 +170,6 @@ void low_level_init(void)
 	stm32_pio_set_alternate(GPIOG_BASE, 8, 0xC);
 	stm32_pio_set_alternate(GPIOG_BASE, 15, 0xC);
 
-//	stm32_pio_set_alternate(GPIOH_BASE, 2, 0xC);
-//	stm32_pio_set_alternate(GPIOH_BASE, 3, 0xC);
-//	stm32_pio_set_alternate(GPIOH_BASE, 5, 0xC);
-//	stm32_pio_set_alternate(GPIOH_BASE, 8, 0xC);
-//	stm32_pio_set_alternate(GPIOH_BASE, 9, 0xC);
-//	stm32_pio_set_alternate(GPIOH_BASE, 10, 0xC);
-//	stm32_pio_set_alternate(GPIOH_BASE, 11, 0xC);
-//	stm32_pio_set_alternate(GPIOH_BASE, 12, 0xC);
-//	stm32_pio_set_alternate(GPIOH_BASE, 13, 0xC);
-//	stm32_pio_set_alternate(GPIOH_BASE, 14, 0xC);
-//	stm32_pio_set_alternate(GPIOH_BASE, 15, 0xC);
-//
-//	stm32_pio_set_alternate(GPIOI_BASE, 0, 0xC);
-//	stm32_pio_set_alternate(GPIOI_BASE, 1, 0xC);
-//	stm32_pio_set_alternate(GPIOI_BASE, 2, 0xC);
-//	stm32_pio_set_alternate(GPIOI_BASE, 3, 0xC);
-//	stm32_pio_set_alternate(GPIOI_BASE, 4, 0xC);
-//	stm32_pio_set_alternate(GPIOI_BASE, 5, 0xC);
-//	stm32_pio_set_alternate(GPIOI_BASE, 6, 0xC);
-//	stm32_pio_set_alternate(GPIOI_BASE, 7, 0xC);
-//	stm32_pio_set_alternate(GPIOI_BASE, 9, 0xC);
-//	stm32_pio_set_alternate(GPIOI_BASE, 10, 0xC);
-
 	sdram_cmd_conf.cmd_mode = 0x1;		/* Clock enable */
 	sdram_cmd_conf.cmd_target = 0x8;	/* Bank 1 */
 	sdram_cmd_conf.auto_refresh_num = 0x1;
