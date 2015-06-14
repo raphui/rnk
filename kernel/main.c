@@ -209,6 +209,7 @@ void lcd_rgb565_fill(unsigned short rgb)
 	remain = size % MAX_DMA_SIZE;
 
 	for (i = 0; i < num; i++) {
+		sem_wait(&sem);
 		dma_trans.dest_addr = p;
 		dma_trans.size = MAX_DMA_SIZE;
 		dma_transfer(&dma, &dma_trans);

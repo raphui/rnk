@@ -25,6 +25,7 @@
 #include <arch/nvic.h>
 #include <time.h>
 #include <pio.h>
+#include <common.h>
 
 
 void hardfault_handler(void)
@@ -110,4 +111,6 @@ void dma2_stream0_handler(void)
 		debug_printk("fifo error\r\n");
 		DMA2->LIFCR = DMA_LIFCR_CFEIF0;
 	}
+
+	svc_sem_post(&sem);
 }
