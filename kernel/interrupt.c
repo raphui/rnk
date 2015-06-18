@@ -69,7 +69,7 @@ void pendsv_handler(void)
 
 void timer2_handler(void)
 {
-	nvic_clear_interrupt(28);
+	nvic_clear_interrupt(TIM2_IRQn);
 	debug_printk("timer2 trig\r\n");
 //	pio_toggle_value(GPIOE_BASE, 6);
 	decrease_task_delay();
@@ -111,6 +111,57 @@ void dma2_stream0_handler(void)
 		debug_printk("fifo error\r\n");
 		DMA2->LIFCR = DMA_LIFCR_CFEIF0;
 	}
+}
 
-	svc_sem_post(&sem);
+void exti0_handler(void)
+{
+	nvic_clear_interrupt(EXTI0_IRQn);
+	EXTI->PR |= (1 << 0);
+
+	printk("exti0_handler\r\n");
+}
+
+void exti1_handler(void)
+{
+	nvic_clear_interrupt(EXTI1_IRQn);
+	EXTI->PR |= (1 << 1);
+
+	printk("exti1_handler\r\n");
+}
+
+void exti2_handler(void)
+{
+	nvic_clear_interrupt(EXTI2_IRQn);
+	EXTI->PR |= (1 << 2);
+
+	printk("exti2_handler\r\n");
+}
+void exti3_handler(void)
+{
+	nvic_clear_interrupt(EXTI3_IRQn);
+	EXTI->PR |= (1 << 3);
+
+	printk("exti3_handler\r\n");
+}
+void exti4_handler(void)
+{
+	nvic_clear_interrupt(EXTI4_IRQn);
+	EXTI->PR |= (1 << 4);
+
+	printk("exti4_handler\r\n");
+}
+
+void exti9_5_handler(void)
+{
+	nvic_clear_interrupt(EXTI9_5_IRQn);
+	EXTI->PR |= (0x3E);
+
+	printk("exti9_5_handler\r\n");
+}
+void exti15_10_handler(void)
+{
+	nvic_clear_interrupt(EXTI15_10_IRQn);
+	EXTI->PR |= (0xFC00);
+
+	printk("exti15_10_handler\r\n");
 }
