@@ -20,6 +20,7 @@
 #include <utils.h>
 #include <mach-stm32/fmc-stm32.h>
 #include <mach-stm32/pio-stm32.h>
+#include <mach-stm32/exti-stm32.h>
 
 void set_sys_clock(void)
 {
@@ -197,6 +198,11 @@ void low_level_init(void)
 	sdram.fmc_sdram_cmd_config = &sdram_cmd_conf;
 
 	stm32_fmc_init(&sdram);
+
+	/* Configure user button */
+	stm32_pio_set_input(GPIOA_BASE, 0, 0, 0);
+	stm32_exti_init(GPIOA_BASE, 0);
+	stm32_exti_enable_falling(GPIOA_BASE, 0);
 
 	init_systick();
 }
