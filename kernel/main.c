@@ -178,14 +178,15 @@ static void ltdc_init(void)
 	lcd_init(&ltdc);
 }
 
-#define BLACK    0x0000
-#define BLUE     0x001F
-#define RED      0xF800
-#define GREEN    0x07E0
-#define CYAN     0x07FF
-#define MAGENTA  0xF81F
-#define YELLOW   0xFFE0
-#define WHITE    0xFFFF
+#define BLACK		0x0000
+#define BLUE		0x001F
+#define RED		0xF800
+#define GREEN		0x07E0
+#define CYAN		0x07FF
+#define MAGENTA		0xF81F
+#define YELLOW		0xFFE0
+#define WHITE		0xFFFF
+#define GREY		0x8C51
 
 #define MAX_DMA_SIZE	0xFFFF
 
@@ -205,32 +206,33 @@ void lcd_rgb565_fill(unsigned short rgb)
 
 	dma_trans.src_addr = &color;
 
-	dma_enable(&dma);
-
 	num = size / MAX_DMA_SIZE;
 	remain = size % MAX_DMA_SIZE;
 
 	debug_printk("transfer: ");
 
 	for (i = 0; i < num; i++) {
-		sem_wait(&sem);
+		dma_disable(&dma);
 		debug_printk("%d ", i);
 		dma_trans.dest_addr = p;
 		dma_trans.size = MAX_DMA_SIZE;
 		dma_transfer(&dma, &dma_trans);
 		p += MAX_DMA_SIZE;
+		dma_enable(&dma);
+		usleep(1000000);
 	}
 
+	dma_disable(&dma);
 	dma_trans.dest_addr = p;
-	dma_trans.size = remain;
+	dma_trans.size = MAX_DMA_SIZE;
 	dma_transfer(&dma, &dma_trans);
+	dma_enable(&dma);
 }
 #endif /* STM32_F429 */
 
 
 void ninth_task(void)
 {
-	int timeout = 0;
 	printk("starting task I\r\n");
 
 #ifdef STM32_F429
