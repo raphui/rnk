@@ -78,7 +78,9 @@ void decrease_task_delay(void)
 	struct task *task;
 	struct task *curr = get_current_task();
 
-	LIST_FOREACH(task, &sleeping_tasks, next) {
+	task = LIST_FIRST(&sleeping_tasks);
+
+	while (task) {
 		if (!task->delay) {
 			task->state = TASK_RUNNABLE;
 			remove_sleeping_task(task);
@@ -94,5 +96,7 @@ void decrease_task_delay(void)
 			task->delay--;
 			debug_printk("%d: %d usec remaining\r\n", task->pid, task->delay);
 		}
+
+		task = LIST_FIRST(&sleeping_tasks);
 	}
 }
