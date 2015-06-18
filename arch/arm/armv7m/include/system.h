@@ -73,6 +73,16 @@ static inline unsigned int *MSP(void) {
     return val;
 }
 
+static inline void __enable_it(void)
+{
+	asm("cpsie i":::);
+}
+
+static inline void __disable_it(void)
+{
+	asm("cpsid i":::);
+}
+
 /* Cortex M4 General Registers */
 
 /* System Control Map */
