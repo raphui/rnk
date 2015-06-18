@@ -243,45 +243,22 @@ void ninth_task(void)
 
 	while (1) {
 		printk("I");
+		sem_wait(&sem);
 		lcd_rgb565_fill(BLACK);
-		timeout = 1000000;
-		while (timeout--)
-			;
-//		usleep(1000);
+		sem_wait(&sem);
 		lcd_rgb565_fill(BLUE);
-		timeout = 1000000;
-		while (timeout--)
-			;
-//		usleep(1000);
+		sem_wait(&sem);
 		lcd_rgb565_fill(RED);
-		timeout = 1000000;
-		while (timeout--)
-			;
-//		usleep(1000);
+		sem_wait(&sem);
 		lcd_rgb565_fill(GREEN);
-		timeout = 1000000;
-		while (timeout--)
-			;
-//		usleep(1000);
+		sem_wait(&sem);
 		lcd_rgb565_fill(CYAN);
-		timeout = 1000000;
-		while (timeout--)
-			;
-//		usleep(1000);
+		sem_wait(&sem);
 		lcd_rgb565_fill(MAGENTA);
-		timeout = 1000000;
-		while (timeout--)
-			;
-//		usleep(1000);
+		sem_wait(&sem);
 		lcd_rgb565_fill(YELLOW);
-		timeout = 1000000;
-		while (timeout--)
-			;
-//		usleep(1000);
+		sem_wait(&sem);
 		lcd_rgb565_fill(WHITE);
-		timeout = 1000000;
-		while (timeout--)
-			;
 	}
 }
 
