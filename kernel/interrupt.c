@@ -119,6 +119,8 @@ void exti0_handler(void)
 	EXTI->PR |= (1 << 0);
 
 	printk("exti0_handler\r\n");
+
+	sem_post_from_interrupt(&sem);
 }
 
 void exti1_handler(void)
