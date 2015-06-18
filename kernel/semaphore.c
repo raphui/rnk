@@ -101,6 +101,32 @@ void svc_sem_post(struct semaphore *sem)
 	}
 }
 
+void sem_post_from_interrupt(struct semaphore *sem)
+{
+	struct task *task;
+
+	if (sem->waiting) {
+		debug_printk("tasks are waiting for sem (%x)\r\n", sem);
+
+		task = LIST_FIRST(&sem->waiting_tasks);
+		LIST_REMOVE(task, next);
+		task->state = TASK_RUNNABLE;
+		sem->waiting--;
+		sem->count--;
+
+		insert_runnable_task(task);
+		schedule_from_interrupt();
+
+	} else {
+		if (sem->count == 0)
+			debug_printk("all sem (%x) token has been post\r\n", sem);
+		else
+			sem->count--;
+
+		debug_printk("sem (%x) post\r\n", sem);
+	}
+}
+
 void sem_post(struct semaphore *sem)
 {
 	SVC_ARG(SVC_POST_SEM, sem);
