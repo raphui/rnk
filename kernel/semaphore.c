@@ -101,7 +101,7 @@ void svc_sem_post(struct semaphore *sem)
 	}
 }
 
-void sem_post_from_interrupt(struct semaphore *sem)
+void sem_post_isr(struct semaphore *sem)
 {
 	struct task *task;
 
@@ -115,7 +115,7 @@ void sem_post_from_interrupt(struct semaphore *sem)
 		sem->count--;
 
 		insert_runnable_task(task);
-		schedule_from_interrupt();
+		schedule_isr();
 
 	} else {
 		if (sem->count == 0)

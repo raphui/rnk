@@ -90,7 +90,7 @@ void decrease_task_delay(void)
 				timer_disable(&timer);
 
 			if (curr->priority < task->priority)
-				schedule_from_interrupt();
+				schedule_isr();
 		} else {
 
 			task->delay--;

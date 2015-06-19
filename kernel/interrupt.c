@@ -120,7 +120,7 @@ void exti0_handler(void)
 
 	printk("exti0_handler\r\n");
 
-	sem_post_from_interrupt(&sem);
+	sem_post_isr(&sem);
 }
 
 void exti1_handler(void)

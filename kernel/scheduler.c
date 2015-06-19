@@ -61,7 +61,7 @@ void schedule_task(struct task *task)
 	task_switching = 1;
 }
 
-void schedule_from_interrupt(void)
+void schedule_isr(void)
 {
 	pendsv_request();
 }
