@@ -224,7 +224,7 @@ void lcd_rgb565_fill(unsigned short rgb)
 
 	dma_disable(&dma);
 	dma_trans.dest_addr = p;
-	dma_trans.size = MAX_DMA_SIZE;
+	dma_trans.size = remain;
 	dma_transfer(&dma, &dma_trans);
 	dma_enable(&dma);
 }
