@@ -236,9 +236,9 @@ void ninth_task(void)
 	printk("starting task I\r\n");
 
 #ifdef STM32_F429
+	ltdc_init();
 	ili9341_init();
 	ili9341_init_lcd();
-	ltdc_init();
 #endif /* STM32_F429 */
 
 	while (1) {
