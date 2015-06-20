@@ -34,6 +34,7 @@ void ili9341_init(void)
 	spi.rate = 0;
 	spi.speed = 10000000;
 	spi.mode = 1;
+	spi.only_tx = 1;
 
 	spi_init(&spi);
 }

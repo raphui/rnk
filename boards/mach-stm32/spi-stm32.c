@@ -131,7 +131,7 @@ void stm32_spi_init(struct spi *spi)
 	SPI->CR2 |= SPI_CR2_TXEIE;
 	SPI->CR2 |= SPI_CR2_ERRIE;
 
-	stm32_dma_init(spi);
+	stm32_spi_init_dma(spi);
 
 	SPI->CR1 |= SPI_CR1_SPE;
 }
@@ -149,7 +149,7 @@ unsigned short stm32_spi_write(struct spi *spi, unsigned short data)
 	dma_trans->src_addr = &data;
 	dma_trans->dest_addr = spi->base_reg + 0x0C;
 	dma_trans->size = sizeof(unsigned short);
-	stm32_dma_transfer(dma, dma_transfer);
+	stm32_dma_transfer(dma, dma_trans);
 
 	nvic_enable_interrupt(nvic);
 	stm32_dma_enable(dma);
