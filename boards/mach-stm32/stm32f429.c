@@ -18,9 +18,9 @@
 #include <board.h>
 #include <armv7m/system.h>
 #include <utils.h>
-#include <mach-stm32/fmc-stm32.h>
-#include <mach-stm32/pio-stm32.h>
-#include <mach-stm32/exti-stm32.h>
+#include <mach/fmc-stm32.h>
+#include <mach/pio-stm32.h>
+#include <mach/exti-stm32.h>
 
 void set_sys_clock(void)
 {

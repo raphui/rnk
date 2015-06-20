@@ -74,7 +74,7 @@ OBJS	:= 	asm/head.o \
 config:
 	@@echo "CP mach-$(MACH)/board-$(SOC).h -> board.h"
 	@cp boards/mach-$(MACH)/board-$(SOC).h boards/board.h
-	@ln -s $(KERNEL_BASE)/boards/mach-$(MACH)/include $(KERNEL_BASE)/include/mach-$(MACH)
+	@ln -s $(KERNEL_BASE)/boards/mach-$(MACH)/include $(KERNEL_BASE)/include/mach
 	@ln -s $(KERNEL_BASE)/arch/arm/include $(KERNEL_BASE)/include/arch
 	@ln -s $(KERNEL_BASE)/arch/arm/$(ARMV)/include $(KERNEL_BASE)/include/$(ARMV)
 
@@ -99,7 +99,7 @@ clean:
 	$(RM) boards/board.h
 	$(RM) include/arch
 	$(RM) include/$(ARMV)
-	$(RM) include/mach-$(MACH)
+	$(RM) include/mach
  
 dist-clean: clean
 	$(RM) `find . -name *.d`

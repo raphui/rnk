@@ -20,7 +20,7 @@
 #include <ltdc.h>
 #include <utils.h>
 #include <stdio.h>
-#include <mach-stm32/pio-stm32.h>
+#include <mach/pio-stm32.h>
 
 #define GCR_MASK		((unsigned int)0x0FFE888F)
 #define RCC_PLLSAIDivR_Div4	((unsigned int)0x00010000)
