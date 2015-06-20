@@ -18,12 +18,18 @@
 #ifndef SPI_H
 #define SPI_H
 
+#include <dma.h>
+
 struct spi {
 	unsigned int num;
 	unsigned int base_reg;
 	unsigned int rate;	/* current rate */
 	unsigned int speed;	/* wanted speed */
 	unsigned short mode;
+	struct dma dma;
+	struct dma_transfer dma_trans;
+	unsigned char only_tx;
+	unsigned char only_rx;
 };
 
 void spi_init(struct spi *spi);

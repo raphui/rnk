@@ -19,6 +19,34 @@
 #include <ltdc.h>
 #include <utils.h>
 #include <stdio.h>
+#include <mach/dma-stm32.h>
+#include <arch/nvic.h>
+
+static int stm32_spi_get_nvic_number(struct spi *spi)
+{
+	int nvic = 0;
+
+	switch (spi->base_reg) {
+		case SPI1_BASE:
+			nvic = SPI1_IRQn;
+			break;
+		case SPI2_BASE:
+			nvic = SPI2_IRQn;
+			break;
+		case SPI3_BASE:
+			nvic = SPI3_IRQn;
+			break;
+		case SPI4_BASE:
+			nvic = SPI4_IRQn;
+			break;
+		case SPI5_BASE:
+			nvic = SPI5_IRQn;
+			break;
+	}
+
+
+	return nvic;
+}
 
 static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long rate)
 {
@@ -52,6 +80,25 @@ static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long r
 	return best_pres;
 }
 
+static void stm32_spi_init_dma(struct spi *spi)
+{
+	struct dma *dma = &spi->dma;
+	dma->num = 2;
+	dma->stream_base = DMA2_Stream1_BASE;
+	dma->stream_num = 0;
+	dma->channel = 0;
+	dma->dir = DMA_M_P;
+	dma->mdata_size = DATA_SIZE_HALF_WORD;
+	dma->pdata_size = DATA_SIZE_HALF_WORD;
+	dma->mburst = INCR0;
+	dma->pburst = INCR0;
+	dma->minc = 0;
+	dma->pinc = 0;
+	dma->use_fifo = 0;
+
+	stm32_dma_init(dma);
+}
+
 void stm32_spi_init(struct spi *spi)
 {
 
@@ -64,7 +111,6 @@ void stm32_spi_init(struct spi *spi)
 
 	SPI->CR1 &= ~SPI_CR1_SPE;
 
-//	SPI->CR1 |= (spi->rate << 3);
 	SPI->CR1 |= (0x2 << 3);
 
 	/* Set master mode */
@@ -74,10 +120,18 @@ void stm32_spi_init(struct spi *spi)
 	SPI->CR1 |= SPI_CR1_SSM;
 	SPI->CR1 |= SPI_CR1_SSI;
 
-//	SPI->CR1 |= SPI_CR1_BIDIMODE;
 	SPI->CR1 |= SPI_CR1_BIDIOE;
 
-//	SPI->CR2 |= (1 << 4);
+	if (spi->only_tx)
+		SPI->CR2 |= SPI_CR2_TXDMAEN; 
+
+	if (spi->only_rx)
+		SPI->CR2 |= SPI_CR2_RXDMAEN;
+
+	SPI->CR2 |= SPI_CR2_TXEIE;
+	SPI->CR2 |= SPI_CR2_ERRIE;
+
+	stm32_dma_init(spi);
 
 	SPI->CR1 |= SPI_CR1_SPE;
 }
@@ -86,17 +140,34 @@ unsigned short stm32_spi_write(struct spi *spi, unsigned short data)
 {
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
-	SPI->DR = data;
+	struct dma *dma = &spi->dma;
+	struct dma_transfer *dma_trans = &spi->dma_trans;
 
-	while (!(SPI->SR & SPI_SR_TXE))
-		;
+	int nvic = stm32_spi_get_nvic_number(spi);
 
-	while (!(SPI->SR & SPI_SR_RXNE))
-		;
+	stm32_dma_disable(dma);
+	dma_trans->src_addr = &data;
+	dma_trans->dest_addr = spi->base_reg + 0x0C;
+	dma_trans->size = sizeof(unsigned short);
+	stm32_dma_transfer(dma, dma_transfer);
 
-	data = SPI->DR;
+	nvic_enable_interrupt(nvic);
+	stm32_dma_enable(dma);
 
-	return data;
+	return 0;
+
+
+//	SPI->DR = data;
+//
+//	while (!(SPI->SR & SPI_SR_TXE))
+//		;
+//
+//	while (!(SPI->SR & SPI_SR_RXNE))
+//		;
+//
+//	data = SPI->DR;
+//
+//	return data;
 }
 
 unsigned short stm32_spi_read(struct spi *spi)

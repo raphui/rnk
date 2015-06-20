@@ -192,7 +192,7 @@ g_pfnVectors:
   .word     0	/* TIM6 and DAC1&2 underrun errors */                   
   .word     0	/* TIM7                         */
   .word     dma2_stream0_handler	/* DMA2 Stream 0                */                   
-  .word     0	/* DMA2 Stream 1                */                   
+  .word     dma2_stream1_handler	/* DMA2 Stream 1                */                   
   .word     0	/* DMA2 Stream 2                */                   
   .word     0	/* DMA2 Stream 3                */                   
   .word     0	/* DMA2 Stream 4                */                   
@@ -220,7 +220,7 @@ g_pfnVectors:
   .word     0   /* UART7                        */
   .word     0   /* UART8                        */
   .word     0   /* SPI4                         */
-  .word     0   /* SPI5                         */
+  .word     spi5_handler   /* SPI5                         */
   .word     0   /* SPI6                         */
   .word     0   /* SAI1                         */
   .word     0   /* LTDC                         */
