@@ -21,6 +21,7 @@
 #include <utils.h>
 #include <stdio.h>
 #include <mach/pio-stm32.h>
+#include <errno.h>
 
 #define GCR_MASK		((unsigned int)0x0FFE888F)
 #define RCC_PLLSAIDivR_Div4	((unsigned int)0x00010000)
@@ -39,8 +40,10 @@ static void stm32_ltdc_clk_divconfig(unsigned int div_r)
 	RCC->DCKCFGR |= div_r;
 }
 
-static void stm32_ltdc_enable_fb(struct ltdc *ltdc)
+static int stm32_ltdc_enable_fb(struct ltdc *ltdc)
 {
+	int ret = 0;
+
 	LTDC_Layer1->WHPCR = ((ltdc->hsync + ltdc->hbp) << 0) | ((ltdc->hsync + ltdc->hbp + ltdc->width - 1) << 16);
 	LTDC_Layer1->WVPCR = ((ltdc->vsync + ltdc->vbp) << 0) | ((ltdc->vsync + ltdc->vbp + ltdc->height - 1) << 16);
 
@@ -50,7 +53,7 @@ static void stm32_ltdc_enable_fb(struct ltdc *ltdc)
 			break;
 		default:
 			debug_printk("Unknow bits per pixel\r\n");
-			return;
+			return -EINVAL;
 	}
 
 //	LTDC_Layer1->BFCR = 0x00000400 | 0x00000005;
@@ -63,12 +66,14 @@ static void stm32_ltdc_enable_fb(struct ltdc *ltdc)
 
 	LTDC_Layer1->CR |= LTDC_LxCR_LEN;
 
+	return ret;
 }
 
-void stm32_ltdc_init(struct ltdc *ltdc)
+int stm32_ltdc_init(struct ltdc *ltdc)
 {
 	unsigned int h_cycles;
 	unsigned int v_cycles;
+	int ret = 0;
 
 	RCC->APB2ENR |= RCC_APB2ENR_LTDCEN;
 
@@ -109,13 +114,18 @@ void stm32_ltdc_init(struct ltdc *ltdc)
 	/* Background color to blue */
 	LTDC->BCCR = (0xFF << 0);
 
-	stm32_ltdc_enable_fb(ltdc);
+	ret = stm32_ltdc_enable_fb(ltdc);
+	if (ret < 0) {
+		error_printk("failed to enable framebuffer\r\n");
+		return ret;
+	}
 
 	LTDC->SRCR = LTDC_SRCR_IMR;
 
 	/* Enable LCD Controller */
 	LTDC->GCR |= LTDC_GCR_LTDCEN;
 
+	return ret;
 }
 
 void stm32_ltdc_init_gpio(void)

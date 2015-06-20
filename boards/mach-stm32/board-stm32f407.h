@@ -96,8 +96,8 @@ struct spi_operations spi_ops;
 
 struct dma_operations
 {
-	void (*init)(struct dma *dma);
-	void (*transfer)(struct dma *dma, struct dma_transfer *dma_trans);
+	int (*init)(struct dma *dma);
+	int (*transfer)(struct dma *dma, struct dma_transfer *dma_trans);
 	void (*enable)(struct dma *dma);
 	void (*disable)(struct dma *dma);
 };

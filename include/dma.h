@@ -53,8 +53,8 @@ struct dma_transfer {
 	unsigned short size;
 };
 
-void dma_init(struct dma *dma);
-void dma_transfer(struct dma *dma, struct dma_transfer *dma_trans);
+int dma_init(struct dma *dma);
+int dma_transfer(struct dma *dma, struct dma_transfer *dma_trans);
 void dma_enable(struct dma *dma);
 void dma_disable(struct dma *dma);
 

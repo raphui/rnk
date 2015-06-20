@@ -23,8 +23,10 @@
 #include <stdint.h>
 
 #define DEBUG	0
+#define ERROR	1
 
 #define debug_printk(...) do{ if(DEBUG){ printk(__VA_ARGS__); } }while(0)
+#define error_printk(...) do{ if(DEBUG){ printk(__VA_ARGS__); } }while(0)
 
 struct io_operations
 {

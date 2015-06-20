@@ -20,6 +20,7 @@
 #include <utils.h>
 #include <stdio.h>
 #include <arch/nvic.h>
+#include <errno.h>
 
 static int nvic_array[15] = {
 	EXTI0_IRQn,
@@ -87,7 +88,7 @@ static int stm32_exti_get_nvic_number(unsigned int gpio_num)
 	int nvic = 0;
 
 	if (gpio_num > 15) {
-		printk("line %d is not configurable\r\n", gpio_num);
+		error_printk("line %d is not configurable\r\n", gpio_num);
 		return -1;
 	} else {
 		nvic = nvic_array[gpio_num];
@@ -96,13 +97,14 @@ static int stm32_exti_get_nvic_number(unsigned int gpio_num)
 	return nvic;
 }
 
-void stm32_exti_init(unsigned int gpio_base, unsigned int gpio_num)
+int stm32_exti_init(unsigned int gpio_base, unsigned int gpio_num)
 {
 	unsigned char mask = stm32_exti_base_mask(gpio_base);
+	int ret = 0;
 
 	if ((gpio_base == GPIOK_BASE) && (gpio_num >=8)) {
-		printk("GPIOK %d is not configurable above pin 8\r\n", gpio_num);
-		return;
+		error_printk("GPIOK %d is not configurable above pin 8\r\n", gpio_num);
+		return -EINVAL;
 	}
 
 	if (gpio_num <= 3) {
@@ -114,47 +116,57 @@ void stm32_exti_init(unsigned int gpio_base, unsigned int gpio_num)
 	} else if (gpio_num <= 15) {
 		SYSCFG->EXTICR[3] = (mask << ((gpio_num % 4) *  4));
 	} else {
-		printk("pin %d is not configurable\r\n", gpio_num);
+		error_printk("pin %d is not configurable\r\n", gpio_num);
+		return -EINVAL;
 	}
+
+	return ret;
 }
 
-void stm32_exti_enable_falling(unsigned int gpio_base, unsigned int gpio_num)
+int stm32_exti_enable_falling(unsigned int gpio_base, unsigned int gpio_num)
 {
 	int nvic = stm32_exti_get_nvic_number(gpio_num);
+	int ret = 0;
 
 	if (nvic < 0) {
-		printk("cannot enable it on line %d\r\n", gpio_num);
-		return;
+		error_printk("cannot enable it on line %d\r\n", gpio_num);
+		return -EINVAL;
 	}
 
 	EXTI->RTSR |= (1 << gpio_num);
 	EXTI->IMR |= (1 << gpio_num);
 
 	nvic_enable_interrupt(nvic);
+
+	return ret;
 }
 
-void stm32_exti_enable_rising(unsigned int gpio_base, unsigned int gpio_num)
+int stm32_exti_enable_rising(unsigned int gpio_base, unsigned int gpio_num)
 {
 	int nvic = stm32_exti_get_nvic_number(gpio_num);
+	int ret = 0;
 
 	if (nvic < 0) {
-		printk("cannot enable it on line %d\r\n", gpio_num);
-		return;
+		error_printk("cannot enable it on line %d\r\n", gpio_num);
+		return -EINVAL;
 	}
 
 	EXTI->FTSR |= (1 << gpio_num);
 	EXTI->IMR |= (1 << gpio_num);
 
 	nvic_enable_interrupt(nvic);
+
+	return ret;
 }
 
-void stm32_exti_disable_falling(unsigned int gpio_base, unsigned int gpio_num)
+int stm32_exti_disable_falling(unsigned int gpio_base, unsigned int gpio_num)
 {
 	int nvic = stm32_exti_get_nvic_number(gpio_num);
+	int ret = 0;
 
 	if (nvic < 0) {
-		printk("cannot disable it on line %d\r\n", gpio_num);
-		return;
+		error_printk("cannot disable it on line %d\r\n", gpio_num);
+		return -EINVAL;
 	}
 
 	EXTI->RTSR &= ~(1 << gpio_num);
@@ -162,15 +174,18 @@ void stm32_exti_disable_falling(unsigned int gpio_base, unsigned int gpio_num)
 
 	nvic_clear_interrupt(nvic);
 	nvic_disable_interrupt(nvic);
+
+	return ret;
 }
 
-void stm32_exti_disable_rising(unsigned int gpio_base, unsigned int gpio_num)
+int stm32_exti_disable_rising(unsigned int gpio_base, unsigned int gpio_num)
 {
 	int nvic = stm32_exti_get_nvic_number(gpio_num);
+	int ret = 0;
 
 	if (nvic < 0) {
-		printk("cannot disable it on line %d\r\n", gpio_num);
-		return;
+		error_printk("cannot disable it on line %d\r\n", gpio_num);
+		return -EINVAL;
 	}
 
 	EXTI->FTSR &= ~(1 << gpio_num);
@@ -178,4 +193,6 @@ void stm32_exti_disable_rising(unsigned int gpio_base, unsigned int gpio_num)
 
 	nvic_clear_interrupt(nvic);
 	nvic_disable_interrupt(nvic);
+
+	return ret;
 }
