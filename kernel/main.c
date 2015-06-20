@@ -227,6 +227,7 @@ void lcd_rgb565_fill(unsigned short rgb)
 	dma_trans.size = remain;
 	dma_transfer(&dma, &dma_trans);
 	dma_enable(&dma);
+	sem_wait(&sem);
 }
 #endif /* STM32_F429 */
 
@@ -243,7 +244,6 @@ void ninth_task(void)
 
 	while (1) {
 		printk("I");
-		sem_wait(&sem);
 		lcd_rgb565_fill(BLACK);
 		sem_wait(&sem);
 		lcd_rgb565_fill(BLUE);
