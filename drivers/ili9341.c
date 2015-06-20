@@ -112,9 +112,7 @@ void ili9341_init_lcd(void)
 	ili9341_send_data(0x06);
 
 	ili9341_send_command(ILI9341_GRAM);
-	timeout = 1000000;
-	while (timeout--)
-		;
+	usleep(1000000);
 	ili9341_send_command(ILI9341_GAMMA);
 	ili9341_send_data(0x01);
 
@@ -152,9 +150,7 @@ void ili9341_init_lcd(void)
 	ili9341_send_data(0x0F);
 
 	ili9341_send_command(ILI9341_SLEEP_OUT);
-	timeout = 1000000;
-	while (timeout--)
-		;
+	usleep(1000000);
 	ili9341_send_command(ILI9341_DISPLAY_ON);
 
 	ili9341_send_command(ILI9341_GRAM);
