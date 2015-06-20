@@ -39,8 +39,6 @@ void ili9341_init(void)
 
 void ili9341_init_lcd(void)
 {
-	int timeout = 1000000;
-
 	ili9341_send_data(0xC3);
 	ili9341_send_data(0x08);
 	ili9341_send_data(0x50);
