@@ -19,6 +19,7 @@
 #include <ili9341.h>
 #include <pio.h>
 #include <spi.h>
+#include <time.h>
 
 struct spi spi;
 
