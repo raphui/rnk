@@ -62,6 +62,27 @@ void init_mutex(struct mutex *mutex) {
 	LIST_INIT(&mutex->waiting_tasks);
 }
 
+void mutex_lock_isr(struct mutex *mutex)
+{
+	int ret;
+
+	ret = __mutex_lock(mutex);
+	if (ret < 0) {
+		debug_printk("mutex_lock FAILED !\r\n");
+
+		if (mutex->owner)
+			if (mutex->owner->state == TASK_RUNNABLE)
+				schedule_task(mutex->owner);
+			else
+				schedule_isr();
+		else
+			schedule_isr();
+
+	} else {
+		debug_printk("mutex (%x) lock\r\n", mutex);
+	}
+}
+
 void svc_mutex_lock(struct mutex *mutex)
 {
 	int ret;
@@ -86,6 +107,35 @@ void svc_mutex_lock(struct mutex *mutex)
 void mutex_lock(struct mutex *mutex)
 {
 	SVC_ARG(SVC_ACQUIRE_MUTEX, mutex);
+}
+
+void mutex_unlock_isr(struct mutex *mutex)
+{
+	struct task *current_task = get_current_task();
+	struct task *task;
+
+	if (!mutex->lock)
+		debug_printk("mutex already unlock\r\n");
+
+	if (mutex->owner == current_task) {
+		mutex->lock = 0;
+		mutex->owner = NULL;
+
+		if (mutex->waiting) {
+			task = LIST_FIRST(&mutex->waiting_tasks);
+			LIST_REMOVE(task, next);
+			task->state = TASK_RUNNABLE;
+			mutex->waiting--;
+
+			insert_runnable_task(task);
+			schedule_isr();
+		}
+
+		debug_printk("mutex (%x) unlock\r\n", mutex);
+
+	} else {
+		debug_printk("mutex cannot be unlock, task is not the owner\r\n");
+	}
 }
 
 void svc_mutex_unlock(struct mutex *mutex)

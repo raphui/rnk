@@ -70,6 +70,28 @@ void svc_sem_wait(struct semaphore *sem)
 	}
 }
 
+void sem_wait_isr(struct semaphore *sem)
+{
+	struct task *current_task;
+
+	if (sem->count < sem->value) {
+		debug_printk("sem (%x) got\r\n", sem);
+		sem->count++;
+	} else {
+		debug_printk("unable to got sem (%x)\r\n", sem);
+
+		current_task = get_current_task();
+		current_task->state = TASK_BLOCKED;
+
+		remove_runnable_task(current_task);
+		insert_waiting_task(sem, current_task);
+
+		sem->waiting++;
+		
+		schedule_isr();
+	}
+}
+
 void sem_wait(struct semaphore *sem)
 {
 	SVC_ARG(SVC_WAIT_SEM, sem);
