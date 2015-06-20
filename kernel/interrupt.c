@@ -118,7 +118,7 @@ void exti0_handler(void)
 	nvic_clear_interrupt(EXTI0_IRQn);
 	EXTI->PR |= (1 << 0);
 
-	printk("exti0_handler\r\n");
+	debug_printk("exti0_handler\r\n");
 
 	sem_post_isr(&sem);
 }
@@ -128,7 +128,7 @@ void exti1_handler(void)
 	nvic_clear_interrupt(EXTI1_IRQn);
 	EXTI->PR |= (1 << 1);
 
-	printk("exti1_handler\r\n");
+	debug_printk("exti1_handler\r\n");
 }
 
 void exti2_handler(void)
@@ -136,21 +136,21 @@ void exti2_handler(void)
 	nvic_clear_interrupt(EXTI2_IRQn);
 	EXTI->PR |= (1 << 2);
 
-	printk("exti2_handler\r\n");
+	debug_printk("exti2_handler\r\n");
 }
 void exti3_handler(void)
 {
 	nvic_clear_interrupt(EXTI3_IRQn);
 	EXTI->PR |= (1 << 3);
 
-	printk("exti3_handler\r\n");
+	debug_printk("exti3_handler\r\n");
 }
 void exti4_handler(void)
 {
 	nvic_clear_interrupt(EXTI4_IRQn);
 	EXTI->PR |= (1 << 4);
 
-	printk("exti4_handler\r\n");
+	debug_printk("exti4_handler\r\n");
 }
 
 void exti9_5_handler(void)
@@ -158,12 +158,12 @@ void exti9_5_handler(void)
 	nvic_clear_interrupt(EXTI9_5_IRQn);
 	EXTI->PR |= (0x3E);
 
-	printk("exti9_5_handler\r\n");
+	debug_printk("exti9_5_handler\r\n");
 }
 void exti15_10_handler(void)
 {
 	nvic_clear_interrupt(EXTI15_10_IRQn);
 	EXTI->PR |= (0xFC00);
 
-	printk("exti15_10_handler\r\n");
+	debug_printk("exti15_10_handler\r\n");
 }
