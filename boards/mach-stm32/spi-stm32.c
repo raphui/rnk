@@ -21,6 +21,9 @@
 #include <stdio.h>
 #include <mach/dma-stm32.h>
 #include <arch/nvic.h>
+#include <errno.h>
+#include <queue.h>
+#include <common.h>
 
 static int stm32_spi_get_nvic_number(struct spi *spi)
 {
@@ -84,9 +87,9 @@ static void stm32_spi_init_dma(struct spi *spi)
 {
 	struct dma *dma = &spi->dma;
 	dma->num = 2;
-	dma->stream_base = DMA2_Stream1_BASE;
-	dma->stream_num = 0;
-	dma->channel = 0;
+	dma->stream_base = DMA2_Stream4_BASE;
+	dma->stream_num = 4;
+	dma->channel = 2;
 	dma->dir = DMA_M_P;
 	dma->mdata_size = DATA_SIZE_HALF_WORD;
 	dma->pdata_size = DATA_SIZE_HALF_WORD;
@@ -122,12 +125,6 @@ void stm32_spi_init(struct spi *spi)
 
 	SPI->CR1 |= SPI_CR1_BIDIOE;
 
-	if (spi->only_tx)
-		SPI->CR2 |= SPI_CR2_TXDMAEN; 
-
-	if (spi->only_rx)
-		SPI->CR2 |= SPI_CR2_RXDMAEN;
-
 	SPI->CR2 |= SPI_CR2_TXEIE;
 	SPI->CR2 |= SPI_CR2_ERRIE;
 
@@ -144,30 +141,32 @@ unsigned short stm32_spi_write(struct spi *spi, unsigned short data)
 	struct dma_transfer *dma_trans = &spi->dma_trans;
 
 	int nvic = stm32_spi_get_nvic_number(spi);
+	int ready = 0;
+	int ret = 0;
 
 	stm32_dma_disable(dma);
 	dma_trans->src_addr = &data;
-	dma_trans->dest_addr = spi->base_reg + 0x0C;
+	dma_trans->dest_addr = &SPI->DR;
 	dma_trans->size = sizeof(unsigned short);
-	stm32_dma_transfer(dma, dma_trans);
 
 	nvic_enable_interrupt(nvic);
-	stm32_dma_enable(dma);
 
-	return 0;
+	queue_receive(&queue, &ready, 1000);
 
+	if (ready) {
+		printk("spi ready !\r\n");
+		stm32_dma_transfer(dma, dma_trans);
 
-//	SPI->DR = data;
-//
-//	while (!(SPI->SR & SPI_SR_TXE))
-//		;
-//
-//	while (!(SPI->SR & SPI_SR_RXNE))
-//		;
-//
-//	data = SPI->DR;
-//
-//	return data;
+		if (spi->only_tx)
+			SPI->CR2 |= SPI_CR2_TXDMAEN;
+
+		stm32_dma_enable(dma);
+	} else {
+		error_printk("spi not ready\r\n");
+		ret = -EIO;
+	}
+
+	return ret;
 }
 
 unsigned short stm32_spi_read(struct spi *spi)

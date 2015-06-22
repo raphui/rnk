@@ -26,6 +26,7 @@
 #include <time.h>
 #include <pio.h>
 #include <common.h>
+#include <queue.h>
 
 
 void hardfault_handler(void)
@@ -182,10 +183,12 @@ void spi5_handler(void)
 	int tmp;
 
 	nvic_clear_interrupt(SPI5_IRQn);
-//	nvic_disable_interrupt(SPI5_IRQn);
+	nvic_disable_interrupt(SPI5_IRQn);
 
 	if (SPI5->SR & SPI_SR_TXE) {
 		printk("spi transfer done\r\n");
+		tmp = 1;
+		svc_queue_post(&queue, &tmp);
 	}
 
 	if (SPI5->SR & SPI_SR_OVR) {
