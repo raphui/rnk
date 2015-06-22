@@ -21,6 +21,7 @@
 #include <utils.h>
 #include <stdio.h>
 #include <arch/nvic.h>
+#include <errno.h>
 
 static int stm32_dma_get_nvic_number(struct dma *dma)
 {
@@ -89,7 +90,7 @@ static int stm32_dma_get_nvic_number(struct dma *dma)
 	return nvic;
 }
 
-void stm32_dma_init(struct dma *dma)
+int stm32_dma_init(struct dma *dma)
 {
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma->stream_base;
 
@@ -100,7 +101,7 @@ void stm32_dma_init(struct dma *dma)
 
 	if ((dma->num == 1) && (dma->dir == DMA_M_M)) {
 		debug_printk("DMA1 does not support mem to mem transfer\r\n");
-		return;
+		return -EINVAL;
 	}
 
 
@@ -114,13 +115,19 @@ void stm32_dma_init(struct dma *dma)
 		DMA_STREAM->FCR |= DMA_SxFCR_FTH;
 	}
 
+	return 0;
 }
 
-void stm32_dma_transfer(struct dma *dma, struct dma_transfer *dma_trans)
+int stm32_dma_transfer(struct dma *dma, struct dma_transfer *dma_trans)
 {
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma->stream_base;
 
-	DMA_STREAM->NDTR = dma_trans->size;
+	if (dma_trans->size > 0xFF) {
+		error_printk("invalid dma transfer size\r\n");
+		return -EINVAL;
+	}
+	else
+		DMA_STREAM->NDTR = dma_trans->size;
 
 	if (dma->dir == DMA_P_M) {
 		DMA_STREAM->PAR = dma_trans->src_addr;
@@ -134,6 +141,8 @@ void stm32_dma_transfer(struct dma *dma, struct dma_transfer *dma_trans)
 		DMA_STREAM->PAR = dma_trans->src_addr;
 		DMA_STREAM->M0AR = dma_trans->dest_addr;
 	}
+
+	return 0;
 }
 
 void stm32_dma_enable(struct dma *dma)

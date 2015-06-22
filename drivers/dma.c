@@ -19,14 +19,14 @@
 #include <board.h>
 #include <dma.h>
 
-void dma_init(struct dma *dma)
+int dma_init(struct dma *dma)
 {
-	dma_ops.init(dma);
+	return dma_ops.init(dma);
 }
 
-void dma_transfer(struct dma *dma, struct dma_transfer *dma_trans)
+int dma_transfer(struct dma *dma, struct dma_transfer *dma_trans)
 {
-	dma_ops.transfer(dma, dma_trans);
+	return dma_ops.transfer(dma, dma_trans);
 }
 
 void dma_enable(struct dma *dma)
