@@ -23,6 +23,20 @@
 #include <arch/nvic.h>
 #include <errno.h>
 
+static unsigned int stm32_dma_get_base(struct dma *dma)
+{
+	unsigned int base = 0;
+
+	if (dma->num == 1)
+		base = DMA1_BASE;
+	else if (dma->num == 2)
+		base = DMA2_BASE;
+	else
+		base = -EINVAL;
+
+	return base;
+}
+
 static int stm32_dma_get_nvic_number(struct dma *dma)
 {
 	int nvic = 0;
@@ -90,6 +104,60 @@ static int stm32_dma_get_nvic_number(struct dma *dma)
 	return nvic;
 }
 
+static int stm32_dma_get_interrupt_flags(struct dma *dma)
+{
+	int mask = 0;
+
+	switch (dma->stream_num) {
+		case 0:
+			mask = DMA_LIFCR_CTCIF0 | DMA_LIFCR_CHTIF0 | DMA_LIFCR_CTEIF0 | DMA_LIFCR_CDMEIF0;
+			if (dma->use_fifo)
+				mask |= DMA_LIFCR_CFEIF0;
+			break;
+		case 1:
+			mask = DMA_LIFCR_CTCIF1 | DMA_LIFCR_CHTIF1 | DMA_LIFCR_CTEIF1 | DMA_LIFCR_CDMEIF1;
+			if (dma->use_fifo)
+				mask |= DMA_LIFCR_CFEIF1;
+			break;
+		case 2:
+			mask = DMA_LIFCR_CTCIF2 | DMA_LIFCR_CHTIF2 | DMA_LIFCR_CTEIF2 | DMA_LIFCR_CDMEIF2;
+			if (dma->use_fifo)
+				mask |= DMA_LIFCR_CFEIF2;
+			break;
+		case 3:
+			mask = DMA_LIFCR_CTCIF3 | DMA_LIFCR_CHTIF3 | DMA_LIFCR_CTEIF3 | DMA_LIFCR_CDMEIF3;
+			if (dma->use_fifo)
+				mask |= DMA_LIFCR_CFEIF3;
+			break;
+		case 4:
+			mask = DMA_HIFCR_CTCIF4 | DMA_HIFCR_CHTIF4 | DMA_HIFCR_CTEIF4 | DMA_HIFCR_CDMEIF4;
+			if (dma->use_fifo)
+				mask |= DMA_HIFCR_CFEIF4;
+			break;
+		case 5:
+			mask = DMA_HIFCR_CTCIF5 | DMA_HIFCR_CHTIF5 | DMA_HIFCR_CTEIF5 | DMA_HIFCR_CDMEIF5;
+			if (dma->use_fifo)
+				mask |= DMA_HIFCR_CFEIF5;
+			break;
+		case 6:
+			mask = DMA_HIFCR_CTCIF6 | DMA_HIFCR_CHTIF6 | DMA_HIFCR_CTEIF6 | DMA_HIFCR_CDMEIF6;
+			if (dma->use_fifo)
+				mask |= DMA_HIFCR_CFEIF6;
+			break;
+		case 7:
+			mask = DMA_HIFCR_CTCIF7 | DMA_HIFCR_CHTIF7 | DMA_HIFCR_CTEIF7 | DMA_HIFCR_CDMEIF7;
+			if (dma->use_fifo)
+				mask |= DMA_HIFCR_CFEIF7;
+			break;
+		default:
+			error_printk("invalid channel number\r\n");
+			mask = -EINVAL;
+			break;
+	}
+
+	return mask;
+}
+
 int stm32_dma_init(struct dma *dma)
 {
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma->stream_base;
@@ -148,18 +216,35 @@ int stm32_dma_transfer(struct dma *dma, struct dma_transfer *dma_trans)
 void stm32_dma_enable(struct dma *dma)
 {
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma->stream_base;
-	int nvic = stm32_dma_get_nvic_number(dma);
+	DMA_TypeDef *DMA_BASE;
 
-	DMA2->LIFCR = DMA_LIFCR_CTCIF0 | DMA_LIFCR_CHTIF0 | DMA_LIFCR_CTEIF0 | DMA_LIFCR_CDMEIF0;
+	unsigned int base = stm32_dma_get_base(dma);
+	int nvic = stm32_dma_get_nvic_number(dma);
+	int mask = stm32_dma_get_interrupt_flags(dma);
+
+	if (base < 0) {
+		error_printk("invalid dma num\r\n");
+		return;
+	}
+
+	DMA_BASE = (DMA_TypeDef *)base;
+
+	if (mask < 0) {
+		error_printk("cannot enable dma\r\n");
+		return;
+	}
+
+	if (dma->stream_num > 3 )
+		DMA_BASE->HIFCR = mask;
+	else
+		DMA_BASE->LIFCR = mask;
 
 	nvic_enable_interrupt(nvic);
 
 	DMA_STREAM->CR |= (1 <<  4) | (1 << 3) | (1 << 2) | (1 << 1);
 
-	if (dma->use_fifo) {
-		DMA2->LIFCR = DMA_LIFCR_CFEIF0;
+	if (dma->use_fifo)
 		DMA_STREAM->FCR |= (1 << 7);
-	}
 
 	DMA_STREAM->CR |= (1 << 0);
 }
@@ -173,9 +258,8 @@ void stm32_dma_disable(struct dma *dma)
 
 	DMA_STREAM->CR &= ~((1 <<  4) | (1 << 3) | (1 << 2) | (1 << 1));
 
-	if (dma->use_fifo) {
+	if (dma->use_fifo)
 		DMA_STREAM->FCR &= ~(1 << 7);
-	}
 
 	nvic_clear_interrupt(nvic);
 	nvic_disable_interrupt(nvic);
