@@ -86,6 +86,8 @@ void i2c1_error_handler(void)
 
 void dma2_stream0_handler(void)
 {
+	nvic_clear_interrupt(DMA2_Stream0_IRQn);
+
 	if (DMA2->LISR & DMA_LISR_TCIF0) {
 		debug_printk("transfert complete\r\n");
 		DMA2->LIFCR = DMA_LIFCR_CTCIF0;
@@ -115,6 +117,8 @@ void dma2_stream0_handler(void)
 
 void dma2_stream1_handler(void)
 {
+	nvic_clear_interrupt(DMA2_Stream1_IRQn);
+
 	if (DMA2->LISR & DMA_LISR_TCIF0) {
 		debug_printk("transfert complete\r\n");
 		DMA2->LIFCR = DMA_LIFCR_CTCIF0;
@@ -139,6 +143,37 @@ void dma2_stream1_handler(void)
 	if (DMA2->LISR & DMA_LISR_FEIF0) {
 		debug_printk("fifo error\r\n");
 		DMA2->LIFCR = DMA_LIFCR_CFEIF0;
+	}
+}
+
+void dma2_stream4_handler(void)
+{
+	nvic_clear_interrupt(DMA2_Stream4_IRQn);
+
+	if (DMA2->HISR & DMA_HISR_TCIF4) {
+		printk("transfert complete\r\n");
+		DMA2->HIFCR = DMA_HIFCR_CTCIF4;
+	}
+
+	if (DMA2->HISR & DMA_HISR_HTIF4) {
+		printk("half transfer interrupt\r\n");
+		DMA2->HIFCR = DMA_HIFCR_CHTIF4;
+	}
+
+	if (DMA2->HISR & DMA_HISR_TEIF4) {
+		printk("transfert error\r\n");
+		DMA2->HIFCR = DMA_HIFCR_CTEIF4;
+
+	}
+
+	if (DMA2->HISR & DMA_HISR_DMEIF4) {
+		printk("direct mode error\r\n");
+		DMA2->HIFCR = DMA_HIFCR_CDMEIF4;
+	}
+
+	if (DMA2->HISR & DMA_HISR_FEIF4) {
+		printk("fifo error\r\n");
+		DMA2->HIFCR = DMA_HIFCR_CFEIF4;
 	}
 }
 

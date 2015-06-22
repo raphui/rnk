@@ -195,7 +195,7 @@ g_pfnVectors:
   .word     dma2_stream1_handler	/* DMA2 Stream 1                */                   
   .word     0	/* DMA2 Stream 2                */                   
   .word     0	/* DMA2 Stream 3                */                   
-  .word     0	/* DMA2 Stream 4                */                   
+  .word     dma2_stream4_handler	/* DMA2 Stream 4                */                   
   .word     0	/* Ethernet                     */                   
   .word     0	/* Ethernet Wakeup through EXTI line */                     
   .word     0	/* CAN2 TX                      */                          
