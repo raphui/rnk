@@ -78,6 +78,10 @@ static unsigned char stm32_exti_base_mask(unsigned int gpio_base)
 		case GPIOK_BASE:
 			mask = 0xA;
 			break;
+		default:
+			error_printk("invalid gpio base reg\r\n");
+			mask = -EINVAL;
+			break;
 	}
 
 	return mask;
@@ -89,7 +93,7 @@ static int stm32_exti_get_nvic_number(unsigned int gpio_num)
 
 	if (gpio_num > 15) {
 		error_printk("line %d is not configurable\r\n", gpio_num);
-		return -1;
+		return -EINVAL;
 	} else {
 		nvic = nvic_array[gpio_num];
 	}
@@ -105,6 +109,11 @@ int stm32_exti_init(unsigned int gpio_base, unsigned int gpio_num)
 	if ((gpio_base == GPIOK_BASE) && (gpio_num >=8)) {
 		error_printk("GPIOK %d is not configurable above pin 8\r\n", gpio_num);
 		return -EINVAL;
+	}
+
+	if (mask < 0) {
+		error_printk("cannot retrieve exti base mask\r\n");
+		return mask;
 	}
 
 	if (gpio_num <= 3) {
