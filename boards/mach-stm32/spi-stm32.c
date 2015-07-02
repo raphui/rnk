@@ -151,16 +151,18 @@ unsigned short stm32_spi_write(struct spi *spi, unsigned short data)
 
 	nvic_enable_interrupt(nvic);
 
+	stm32_dma_enable(dma);
 	queue_receive(&queue, &ready, 1000);
 
 	if (ready) {
 		printk("spi ready !\r\n");
-		stm32_dma_transfer(dma, dma_trans);
 
+		stm32_dma_transfer(dma, dma_trans);
 		if (spi->only_tx)
 			SPI->CR2 |= SPI_CR2_TXDMAEN;
 
-		stm32_dma_enable(dma);
+		stm32_dma_disable(dma);
+		SPI->CR2 &= ~SPI_CR2_TXDMAEN;
 	} else {
 		error_printk("spi not ready\r\n");
 		ret = -EIO;

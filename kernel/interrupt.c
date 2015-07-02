@@ -164,7 +164,6 @@ void dma2_stream4_handler(void)
 	if (DMA2->HISR & DMA_HISR_TEIF4) {
 		printk("transfert error\r\n");
 		DMA2->HIFCR = DMA_HIFCR_CTEIF4;
-
 	}
 
 	if (DMA2->HISR & DMA_HISR_DMEIF4) {
@@ -185,8 +184,8 @@ void spi5_handler(void)
 	nvic_clear_interrupt(SPI5_IRQn);
 	nvic_disable_interrupt(SPI5_IRQn);
 
-	if (SPI5->SR & SPI_SR_TXE) {
-		printk("spi transfer done\r\n");
+	if ((SPI5->SR & SPI_SR_TXE) && !(SPI5->SR & SPI_SR_BSY)) {
+		printk("spi transfer ready\r\n");
 		tmp = 1;
 		svc_queue_post(&queue, &tmp);
 	}
