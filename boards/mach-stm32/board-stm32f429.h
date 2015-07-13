@@ -88,7 +88,7 @@ struct timer_operations tim_ops;
 
 struct spi_operations
 {
-	void (*init)(struct spi *spi);
+	int (*init)(struct spi *spi);
 	unsigned short (*write)(struct spi *spi, unsigned short data);
 	unsigned short (*read)(struct spi *spi);
 };

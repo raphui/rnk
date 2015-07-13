@@ -30,9 +30,10 @@ struct spi {
 	struct dma_transfer dma_trans;
 	unsigned char only_tx;
 	unsigned char only_rx;
+	unsigned char use_dma;
 };
 
-void spi_init(struct spi *spi);
+int spi_init(struct spi *spi);
 unsigned short spi_write(struct spi *spi, unsigned short data);
 unsigned short spi_read(struct spi *spi);
 

@@ -102,10 +102,15 @@ static void stm32_spi_init_dma(struct spi *spi)
 	stm32_dma_init(dma);
 }
 
-void stm32_spi_init(struct spi *spi)
+int stm32_spi_init(struct spi *spi)
 {
 
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
+
+	if (spi->base_reg != SPI5_BASE) {
+		printk("cannot enable spi: %x (not supported yet)\r\n", spi->base_reg);
+		return -ENXIO;
+	}
 
 	RCC->APB2ENR |= RCC_APB2ENR_SPI5EN;
 
@@ -128,12 +133,15 @@ void stm32_spi_init(struct spi *spi)
 	SPI->CR2 |= SPI_CR2_TXEIE;
 	SPI->CR2 |= SPI_CR2_ERRIE;
 
-	stm32_spi_init_dma(spi);
+	if (spi->use_dma)
+		stm32_spi_init_dma(spi);
 
 	SPI->CR1 |= SPI_CR1_SPE;
+
+	return 0;
 }
 
-unsigned short stm32_spi_write(struct spi *spi, unsigned short data)
+static unsigned short stm32_spi_dma_write(struct spi *spi, unsigned short data)
 {
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
@@ -169,6 +177,27 @@ unsigned short stm32_spi_write(struct spi *spi, unsigned short data)
 	}
 
 	return ret;
+
+}
+
+unsigned short stm32_spi_write(struct spi *spi, unsigned short data)
+{
+	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
+
+	if (spi->use_dma)
+		return stm32_spi_dma_write(spi, data);
+
+	SPI->DR = data;
+
+	while (!(SPI->SR & SPI_SR_TXE))
+		;
+
+	while (!(SPI->SR & SPI_SR_RXNE))
+		;
+
+	data = SPI->DR;
+
+	return data;
 }
 
 unsigned short stm32_spi_read(struct spi *spi)

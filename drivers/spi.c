@@ -18,9 +18,9 @@
 #include <board.h>
 #include <spi.h>
 
-void spi_init(struct spi *spi)
+int spi_init(struct spi *spi)
 {
-	spi_ops.init(spi);
+	return spi_ops.init(spi);
 }
 
 unsigned short spi_write(struct spi *spi, unsigned short data)
