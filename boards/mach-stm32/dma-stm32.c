@@ -23,6 +23,8 @@
 #include <arch/nvic.h>
 #include <errno.h>
 
+#include <mach/rcc-stm32.h>
+
 static unsigned int stm32_dma_get_base(struct dma *dma)
 {
 	unsigned int base = 0;
@@ -160,12 +162,18 @@ static int stm32_dma_get_interrupt_flags(struct dma *dma)
 
 int stm32_dma_init(struct dma *dma)
 {
+	int ret = 0;
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma->stream_base;
 
 	if (dma->num == 1)
-		RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;
+		ret = stm32_rcc_enable_clk(DMA1_BASE);
 	else
-		RCC->AHB1ENR |= RCC_AHB1ENR_DMA2EN;
+		ret = stm32_rcc_enable_clk(DMA2_BASE);
+
+	if (ret < 0) {
+		error_printk("cannot enable DMA periph clock\r\n");
+		return ret;
+	}
 
 	if ((dma->num == 1) && (dma->dir == DMA_M_M)) {
 		debug_printk("DMA1 does not support mem to mem transfer\r\n");

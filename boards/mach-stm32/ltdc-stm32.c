@@ -21,6 +21,7 @@
 #include <utils.h>
 #include <stdio.h>
 #include <mach/pio-stm32.h>
+#include <mach/rcc-stm32.h>
 #include <errno.h>
 
 #define GCR_MASK		((unsigned int)0x0FFE888F)
@@ -75,7 +76,11 @@ int stm32_ltdc_init(struct ltdc *ltdc)
 	unsigned int v_cycles;
 	int ret = 0;
 
-	RCC->APB2ENR |= RCC_APB2ENR_LTDCEN;
+	ret = stm32_rcc_enable_clk(LTDC_BASE);
+	if (ret < 0) {
+		error_printk("cannot enable LTDC periph clock\r\n");
+		return ret;
+	}
 
 	stm32_ltdc_pll_sai_config(127, 7, 5);
 	stm32_ltdc_clk_divconfig(RCC_PLLSAIDivR_Div4);

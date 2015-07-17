@@ -21,6 +21,8 @@
 #include <stddef.h>
 #include <arch/nvic.h>
 
+#include <mach-stm32/rcc-stm32.h>
+
 static int stm32_timer_get_nvic_number(struct timer *timer)
 {
 	int nvic = 0;
@@ -46,7 +48,7 @@ static int stm32_timer_get_nvic_number(struct timer *timer)
 
 static int stm32_timer_init(struct timer *timer)
 {
-	unsigned int rcc_en = 0;
+	int ret = 0;
 	unsigned int base_reg = 0;
 
 	if (timer->num < 2 || timer->num > 5)
@@ -55,30 +57,30 @@ static int stm32_timer_init(struct timer *timer)
 	switch (timer->num) {
 		case 2:
 			base_reg = TIM2_BASE;
-			rcc_en = RCC_APB1ENR_TIM2EN;
 			break;
 		case 3:
 			base_reg = TIM3_BASE;
-			rcc_en = RCC_APB1ENR_TIM3EN;
 			break;
 		case 4:
 			base_reg = TIM4_BASE;
-			rcc_en = RCC_APB1ENR_TIM4EN;
 			break;
 		case 5:
 			base_reg = TIM5_BASE;
-			rcc_en = RCC_APB1ENR_TIM5EN;
 			break;
 	}
 
-	RCC->APB1ENR |= rcc_en;
-
 	timer->base_reg = base_reg;
+
+	ret = stm32_rcc_enable_clk(timer->base_reg);
+	if (ret < 0) {
+		error_printk("cannot enable TIM%d clock\r\n", timer->num);
+		return ret;
+	}
+
 	timer->rate = (APB1_PRES > 1) ? APB1_CLK * 2 : APB1_CLK;
 	timer->prescaler = 0;
-	timer->rcc_base = rcc_en;
 
-	return 0;
+	return ret;
 }
 
 static short stm32_timer_find_best_pres(unsigned long parent_rate, unsigned long rate)

@@ -17,6 +17,7 @@
 
 #include <board.h>
 #include <utils.h>
+#include <mach-stm32/rcc-stm32.h>
 
 #define GPIO_MODER(pin)			(3 << (pin * 2))
 #define GPIO_MODER_OUTPUT(pin)		(1 << (pin * 2))
@@ -26,47 +27,11 @@
 
 static void stm32_pio_set_clock(unsigned int port)
 {
-	unsigned int rcc_en;
+	int ret = 0;
 
-	switch (port) {
-		case GPIOA_BASE:
-			rcc_en = RCC_AHB1ENR_GPIOAEN;
-			break;
-
-		case GPIOB_BASE:
-			rcc_en = RCC_AHB1ENR_GPIOBEN;
-			break;
-
-		case GPIOC_BASE:
-			rcc_en = RCC_AHB1ENR_GPIOCEN;
-			break;
-
-		case GPIOD_BASE:
-			rcc_en = RCC_AHB1ENR_GPIODEN;
-			break;
-
-		case GPIOE_BASE:
-			rcc_en = RCC_AHB1ENR_GPIOEEN;
-			break;
-
-		case GPIOF_BASE:
-			rcc_en = RCC_AHB1ENR_GPIOFEN;
-			break;
-
-		case GPIOG_BASE:
-			rcc_en = RCC_AHB1ENR_GPIOGEN;
-			break;
-
-		case GPIOH_BASE:
-			rcc_en = RCC_AHB1ENR_GPIOHEN;
-			break;
-
-		case GPIOI_BASE:
-			rcc_en = RCC_AHB1ENR_GPIOIEN;
-			break;
-	}
-
-	RCC->AHB1ENR |= rcc_en;
+	ret = stm32_rcc_enable_clk(port);
+	if (ret < 0)
+		error_printk("cannot enable GPIO periph clock\r\n");
 
 }
 

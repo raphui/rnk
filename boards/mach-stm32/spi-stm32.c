@@ -20,6 +20,7 @@
 #include <utils.h>
 #include <stdio.h>
 #include <mach/dma-stm32.h>
+#include <mach/rcc-stm32.h>
 #include <arch/nvic.h>
 #include <errno.h>
 #include <queue.h>
@@ -104,15 +105,14 @@ static void stm32_spi_init_dma(struct spi *spi)
 
 int stm32_spi_init(struct spi *spi)
 {
-
+	int ret = 0;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
-	if (spi->base_reg != SPI5_BASE) {
-		printk("cannot enable spi: %x (not supported yet)\r\n", spi->base_reg);
-		return -ENXIO;
+	ret = stm32_rcc_enable_clk(spi->base_reg);
+	if (ret < 0) {
+		error_printk("cannot enable SPI periph clock\r\n");
+		return ret;
 	}
-
-	RCC->APB2ENR |= RCC_APB2ENR_SPI5EN;
 
 	spi->rate = APB2_CLK;
 	spi->rate = stm32_spi_find_best_pres(spi->rate, spi->speed);
@@ -138,7 +138,7 @@ int stm32_spi_init(struct spi *spi)
 
 	SPI->CR1 |= SPI_CR1_SPE;
 
-	return 0;
+	return ret;
 }
 
 static unsigned short stm32_spi_dma_write(struct spi *spi, unsigned short data)
