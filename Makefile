@@ -40,6 +40,7 @@ OBJS	:= 	asm/head.o \
 		arch/arm/$(ARMV)/handlers.o \
 		boards/mach-$(MACH)/$(SOC).o \
 		boards/mach-$(MACH)/usart-$(MACH).o \
+		boards/mach-$(MACH)/rcc-$(MACH).o \
 		boards/mach-$(MACH)/pio-$(MACH).o \
 		boards/mach-$(MACH)/timer-$(MACH).o \
 		boards/mach-$(MACH)/i2c-$(MACH).o \
@@ -49,6 +50,7 @@ OBJS	:= 	asm/head.o \
 		boards/mach-$(MACH)/fmc-$(MACH).o \
 		boards/mach-$(MACH)/exti-$(MACH).o \
 		boot/boot-$(SOC).o \
+		drivers/clk.o \
 		drivers/pio.o \
 		drivers/usart.o \
 		drivers/timer.o \
