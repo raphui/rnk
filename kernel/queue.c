@@ -91,13 +91,15 @@ void queue_post(struct queue *queue, void *item, unsigned int timeout)
 {
 	int back_from_sleep = 0;
 	for (;;) {
-		if (queue->item_queued < queue->item_size) {
+		if (back_from_sleep) {
+			break;
+		} else if (queue->item_queued < queue->item_size) {
 			SVC_ARG2(SVC_QUEUE_POST, queue, item);
 			break;
 		} else if (timeout) {
 			usleep(timeout);
 			back_from_sleep = 1;
-		} else if (back_from_sleep || !timeout) {
+		} else if (!timeout) {
 			break;
 		}
 	}
