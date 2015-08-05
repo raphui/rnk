@@ -190,6 +190,8 @@ static void ltdc_init(void)
 
 #define MAX_DMA_SIZE	0xFFFF
 
+//#define LCD_DMA_FILL
+
 unsigned short color = 0;
 
 void lcd_rgb565_fill(unsigned short rgb)
@@ -199,8 +201,11 @@ void lcd_rgb565_fill(unsigned short rgb)
 	int num = 0;
 	int remain = 0;
 	unsigned int p = ltdc.fb_addr;
+	unsigned short *l = ltdc.fb_addr;
 
 	debug_printk("lcd_rgb565_fill\r\n");
+
+#ifdef LCD_DMA_FILL
 
 	color = rgb;
 
@@ -227,6 +232,14 @@ void lcd_rgb565_fill(unsigned short rgb)
 	dma_trans.size = remain;
 	dma_transfer(&dma, &dma_trans);
 	dma_enable(&dma);
+#else
+
+	for (i = 0; i < size; i++) {
+		*l++ = rgb;
+	}
+
+#endif /* LCD_DMA_FILL */
+
 	sem_wait(&sem);
 }
 #endif /* STM32_F429 */
