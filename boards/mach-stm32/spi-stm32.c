@@ -155,22 +155,25 @@ static unsigned short stm32_spi_dma_write(struct spi *spi, unsigned short data)
 	stm32_dma_disable(dma);
 	dma_trans->src_addr = &data;
 	dma_trans->dest_addr = &SPI->DR;
-	dma_trans->size = sizeof(unsigned short);
+	dma_trans->size = 1;
 
 	nvic_enable_interrupt(nvic);
 
-	stm32_dma_enable(dma);
+	SPI->CR2 &= ~SPI_CR2_TXDMAEN;
+
 	queue_receive(&queue, &ready, 1000);
+
+	stm32_dma_enable(dma);
 
 	if (ready) {
 		printk("spi ready !\r\n");
 
 		stm32_dma_transfer(dma, dma_trans);
+
 		if (spi->only_tx)
 			SPI->CR2 |= SPI_CR2_TXDMAEN;
 
-		stm32_dma_disable(dma);
-		SPI->CR2 &= ~SPI_CR2_TXDMAEN;
+		ready = 0;
 	} else {
 		error_printk("spi not ready\r\n");
 		ret = -EIO;
