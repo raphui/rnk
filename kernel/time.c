@@ -94,7 +94,7 @@ void decrease_task_delay(void)
 		} else {
 
 			task->delay--;
-			debug_printk("%d: %d usec remaining\r\n", task->pid, task->delay);
+			verbose_printk("%d: %d usec remaining\r\n", task->pid, task->delay);
 		}
 
 		task = LIST_FIRST(&sleeping_tasks);
