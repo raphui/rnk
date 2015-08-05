@@ -184,7 +184,10 @@ void spi5_handler(void)
 	nvic_clear_interrupt(SPI5_IRQn);
 	nvic_disable_interrupt(SPI5_IRQn);
 
+	printk("SR: 0x%x\r\n", SPI5->SR);
+
 	if ((SPI5->SR & SPI_SR_TXE) && !(SPI5->SR & SPI_SR_BSY)) {
+		SPI5->CR2 &= ~SPI_CR2_TXDMAEN;
 		printk("spi transfer ready\r\n");
 		tmp = 1;
 		svc_queue_post(&queue, &tmp);
