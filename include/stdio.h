@@ -24,7 +24,9 @@
 
 #define DEBUG	0
 #define ERROR	1
+#define VERBOSE 0
 
+#define verbose_printk(...) do{ if(VERBOSE){ printk(__VA_ARGS__); } }while(0)
 #define debug_printk(...) do{ if(DEBUG){ printk(__VA_ARGS__); } }while(0)
 #define error_printk(...) do{ if(DEBUG){ printk(__VA_ARGS__); } }while(0)
 
