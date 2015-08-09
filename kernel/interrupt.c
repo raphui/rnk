@@ -27,8 +27,31 @@
 #include <pio.h>
 #include <common.h>
 #include <queue.h>
+#include <symbols.h>
 
-void dump_stack(unsigned int *stack)
+static void unwind_stack(unsigned int *stack)
+{
+
+	/* unwind 5 frames from stack */
+	static int i = 5;
+
+	volatile unsigned int lr;
+	volatile unsigned int pc;
+	volatile unsigned int psr;
+
+	lr = stack[5];
+	pc = stack[6];
+	psr = stack[7];
+
+	error_printk("unwinding frame %i: \r\n", i);
+	error_printk("\tpc: %s <0x%x>\r\n", symbol_get_function(pc), pc);
+	error_printk("\tpsr: 0x%x\r\n", psr);
+
+	if (i--)
+		unwind_stack(lr);
+}
+
+static void dump_stack(unsigned int *stack)
 {
 	volatile unsigned int r0;
 	volatile unsigned int r1;
@@ -43,20 +66,24 @@ void dump_stack(unsigned int *stack)
 	r1 = stack[1];
 	r2 = stack[2];
 	r3 = stack[3];
-
 	r12 = stack[4];
 	lr = stack[5];
 	pc = stack[6];
 	psr = stack[7];
 
-	error_printk("r0: 0x%x\r\n", r0);
-	error_printk("r1: 0x%x\r\n", r1);
-	error_printk("r2: 0x%x\r\n", r2);
-	error_printk("r3: 0x%x\r\n", r3);
-	error_printk("r12: 0x%x\r\n", r12);
-	error_printk("lr: 0x%x\r\n", lr);
-	error_printk("pc: 0x%x\r\n", pc);
-	error_printk("psr: 0x%x\r\n", psr);
+	error_printk("hardfault occurs at %s <0x%x>\r\n", symbol_get_function(pc), pc);
+	error_printk("\tr0: 0x%x\r\n", r0);
+	error_printk("\tr1: 0x%x\r\n", r1);
+	error_printk("\tr2: 0x%x\r\n", r2);
+	error_printk("\tr3: 0x%x\r\n", r3);
+	error_printk("\tr12: 0x%x\r\n", r12);
+	error_printk("\tlr: 0x%x\r\n", lr);
+	error_printk("\tpsr: 0x%x\r\n", psr);
+
+	unwind_stack(lr);
+
+	while (1)
+		;
 }
 
 
@@ -67,10 +94,10 @@ void hardfault_handler(void)
 		"ite eq				\n"
 		"mrseq r0, msp			\n"
 		"mrsne r0, psp			\n"
-		"ldr r1, [r0, #24]		\n"
-		"ldr r2, _dump_stack		\n"
-		"bx r2				\n"
-		"_dump_stack: .word dump_stack	\n"
+//		"ldr r1, [r0, #24]		\n"
+//		"ldr r2, _dump_stack		\n"
+		"b dump_stack			\n"
+//		"_dump_stack: .word dump_stack	\n"
 	);	
 
 	while (1)
