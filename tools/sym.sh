@@ -6,7 +6,7 @@ BAK=utils/symbols.h.bak
 make()
 {
 
-	LIST=$(nm kernel.elf | grep  " T " | sed -e 's/^/{/g' -e 's/$/"},/g' -e 's/\sT\s/, "\s/g' -e 's/{/{0x/g') 
+	LIST=$(nm kernel.elf | grep  " T " | sed -e 's/^/\t{/g' -e 's/$/"},/g' -e 's/\sT\s/, "/g' -e 's/{/{0x/g') 
 
 	awk -v l="$LIST" '/Generate/ { print; print l; next }1' $FILE > $BAK
 	mv $BAK $FILE
