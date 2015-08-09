@@ -41,6 +41,7 @@
 struct ltdc ltdc;
 #endif /* STM32_F429 */
 
+#define FAULT
 
 struct usart usart;
 struct spi spi;
@@ -190,7 +191,7 @@ static void ltdc_init(void)
 
 #define MAX_DMA_SIZE	0xFFFF
 
-//#define LCD_DMA_FILL
+#define LCD_DMA_FILL
 
 unsigned short color = 0;
 
@@ -275,6 +276,16 @@ void ninth_task(void)
 	}
 }
 
+void tenth_task(void)
+{
+	int (*fct)(void) = 0x50002540;
+	printk("starting task J\r\n");
+
+	while (1) {
+		fct();
+	}
+}
+
 int main(void)
 {
 
@@ -340,6 +351,9 @@ int main(void)
 //	add_task(&seventh_task, 1);
 //	add_task(&eighth_task, 1);
 	add_task(&ninth_task, 1);
+#ifdef FAULT
+	add_task(&tenth_task, 1);
+#endif /* FAULT */
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();
