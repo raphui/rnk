@@ -28,7 +28,7 @@
 
 #define verbose_printk(...) do{ if(VERBOSE){ printk(__VA_ARGS__); } }while(0)
 #define debug_printk(...) do{ if(DEBUG){ printk(__VA_ARGS__); } }while(0)
-#define error_printk(...) do{ if(DEBUG){ printk(__VA_ARGS__); } }while(0)
+#define error_printk(...) do{ if(ERROR){ printk(__VA_ARGS__); } }while(0)
 
 struct io_operations
 {
