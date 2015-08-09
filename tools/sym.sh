@@ -1,7 +1,7 @@
 #!/bin/bash
 
-FILE=utils/symbols.h
-BAK=utils/symbols.h.bak
+FILE=utils/symbols.c
+BAK=utils/symbols.c.bak
 
 make()
 {

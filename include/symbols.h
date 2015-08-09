@@ -24,9 +24,6 @@ struct sym {
 	char *function;
 };
 
-struct sym symbols[] = {
-/* Generate symbols table is insert here */
-
-};
+extern char *symbol_get_function(unsigned int addr);
 
 #endif /* SYMBOLS_H */
