@@ -71,6 +71,7 @@ OBJS	:= 	asm/head.o \
 		mm/init.o \
 		mm/free.o \
 		utils/stdio.o \
+		utils/symbols.o \
 		utils/string.o \
 		utils/utils.o
 config:
@@ -84,7 +85,7 @@ cscope:
 	@@echo "GEN " $@
 	@cscope -b -q -k -R
  
-all: kernel.img symbols-make
+all: kernel.img 
  
 include $(wildcard *.d)
  
