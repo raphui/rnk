@@ -84,19 +84,27 @@ cscope:
 	@@echo "GEN " $@
 	@cscope -b -q -k -R
  
-all: kernel.img
+all: kernel.img symbols-make
  
 include $(wildcard *.d)
+ 
+symbols-make: 
+	@@echo "GEN " $@
+	@sh tools/sym.sh make
+
+symbols-clean: 
+	@@echo "CLEAN " $@
+	@sh tools/sym.sh clean
  
 kernel.elf: $(OBJS) 
 	@@echo "LD " $@
 	@$(CROSS_COMPILE)gcc $(LDFLAGS) $(OBJS) -T$(LD_SCRIPT) -o $@
- 
-kernel.img: kernel.elf
+
+kernel.img: kernel.elf 
 	@@echo "OBJCOPY " $<
 	@$(CROSS_COMPILE)objcopy kernel.elf -O binary kernel.bin
  
-clean:
+clean:	symbols-clean
 	$(RM) $(OBJS) kernel.elf kernel.img
 	$(RM) boards/board.h
 	$(RM) include/arch
