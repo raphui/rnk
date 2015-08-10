@@ -21,6 +21,7 @@
 
 struct sym {
 	unsigned int addr;
+	unsigned int size;
 	char *function;
 };
 
