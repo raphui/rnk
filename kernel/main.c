@@ -45,7 +45,7 @@
 struct ltdc ltdc;
 #endif /* STM32_F429 */
 
-#define FAULT
+//#define FAULT
 
 struct usart usart;
 struct spi spi;
