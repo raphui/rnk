@@ -34,6 +34,10 @@
 #include <dma.h>
 #include <common.h>
 
+#ifdef UNWIND
+#include <backtrace.h>
+#endif /* UNWIND */
+
 #ifdef STM32_F429
 #include <ili9341.h>
 #include <ltdc.h>
@@ -339,6 +343,10 @@ int main(void)
 	init_semaphore(&sem, 1);
 	init_queue(&queue, sizeof(int), 5);
 	time_init();
+
+#ifdef UNWIND
+	unwind_init();
+#endif /* UNWIND */
 
 	printk("- Add task to scheduler\r\n");
 
