@@ -38,19 +38,19 @@ SECTIONS
         *(.gnu.linkonce.d.*)
         . = ALIGN(4);
         _edata = .;
-    } >sram
+    } >flash
 		
-		.ARM.extab :
-		{
-		    *(.ARM.extab*)
-		} >sram
-		
-		__exidx_start = .;
-		.ARM.exidx :
-		{
-		    *(.ARM.exidx*)
-		} >sram
-		__exidx_end = .;
+    .ARM.extab : AT (_edata)
+    {
+        *(.ARM.extab*)
+    } >flash
+	
+    .ARM.exidx :
+    {
+        __exidx_start = .;
+	*(.ARM.exidx*)
+	__exidx_end = .;
+    } >flash
 
     PROVIDE( flash_used_size = SIZEOF(.text) + SIZEOF(.data) + SIZEOF(.ARM.extab) + SIZEOF(.ARM.exidx) );
 		
