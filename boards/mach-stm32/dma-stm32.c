@@ -25,6 +25,8 @@
 
 #include <mach/rcc-stm32.h>
 
+#define MAX_DMA_SIZE 0xFFFF
+
 static unsigned int stm32_dma_get_base(struct dma *dma)
 {
 	unsigned int base = 0;
@@ -198,7 +200,7 @@ int stm32_dma_transfer(struct dma *dma, struct dma_transfer *dma_trans)
 {
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma->stream_base;
 
-	if (dma_trans->size > 0xFF) {
+	if (dma_trans->size > MAX_DMA_SIZE) {
 		error_printk("invalid dma transfer size\r\n");
 		return -EINVAL;
 	}
