@@ -76,27 +76,29 @@ void usleep(unsigned int usec)
 void decrease_task_delay(void)
 {
 	struct task *task;
+	struct task *tmp;
 	struct task *curr = get_current_task();
 
 	task = LIST_FIRST(&sleeping_tasks);
 
 	while (task) {
 		if (!task->delay) {
-			task->state = TASK_RUNNABLE;
-			remove_sleeping_task(task);
-			insert_runnable_task(task);
+			tmp = task;
+			task = LIST_NEXT(task, next);
+			tmp->state = TASK_RUNNABLE;
+			remove_sleeping_task(tmp);
+			insert_runnable_task(tmp);
 
 			if (LIST_EMPTY(&sleeping_tasks))
 				timer_disable(&timer);
 
-			if (curr->priority < task->priority)
+			if (curr->priority < tmp->priority)
 				schedule_isr();
 		} else {
 
 			task->delay--;
 			verbose_printk("%d: %d usec remaining\r\n", task->pid, task->delay);
+			task = LIST_NEXT(task, next);
 		}
-
-		task = LIST_FIRST(&sleeping_tasks);
 	}
 }
