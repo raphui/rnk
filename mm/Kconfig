@@ -1,0 +1,14 @@
+# Copyright (C) 2015 Raphaël Poggi. All rights reserved.
+# Author: Raphaël Poggi <poggi.raph@gmail.com>
+#
+# Provided under the three clause BSD license found in the LICENSE file.
+
+menu "Memory management configuration"
+
+config KERNEL_HEAP_START
+	hex "Start address of kernel heap"
+
+config KERNEL_HEAP_END
+	hex "End address of kernel heap"
+
+endmenu
