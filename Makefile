@@ -76,7 +76,7 @@ OBJS	:= 	asm/head.o \
 		utils/symbols.o \
 		utils/string.o \
 		utils/utils.o
-config:
+conf:
 	@@echo "CP mach-$(MACH)/board-$(SOC).h -> board.h"
 	@cp boards/mach-$(MACH)/board-$(SOC).h boards/board.h
 	@ln -s $(KERNEL_BASE)/boards/mach-$(MACH)/include $(KERNEL_BASE)/include/mach
@@ -124,3 +124,26 @@ dist-clean: clean
 %.o: %.S
 	@@echo "CC " $<
 	@$(CROSS_COMPILE)gcc $(CFLAGS) -c $< -o $@
+
+.config:
+	echo "ERROR: No config file loaded."
+	exit 1
+
+%_defconfig:
+	cp arch/${ARCH}/configs/$@ .config
+	echo "Loading $@..."
+
+config.h: .config
+	$(call generate-config)
+
+menuconfig: tools/kconfig-frontends/frontends/mconf/mconf
+	tools/kconfig-frontends/frontends/mconf/mconf Kconfig
+
+nconfig: tools/kconfig-frontends/frontends/nconf/nconf
+	tools/kconfig-frontends/frontends/nconf/nconf Kconfig
+
+config: tools/kconfig-frontends/frontends/conf/conf
+	tools/kconfig-frontends/frontends/conf/conf Kconfig
+
+tools/kconfig-frontends/bin/kconfig-%:
+	$(MAKE) -C ./tools/ $(subst tools/kconfig-frontends/bin/,,$@)
