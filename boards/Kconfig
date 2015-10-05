@@ -2,3 +2,26 @@
 # Author: Raphaël Poggi <poggi.raph@gmail.com>
 #
 # Provided under the three clause BSD license found in the LICENSE file.
+
+menu "Board configuration"
+
+choice
+    prompt "Machine"
+
+    config MACH_AT91
+        bool "Atmel"
+
+    config MACH_STM32
+        bool "STM32"
+endchoice
+
+if MACH_AT91
+source "boards/mach-at91/Kconfig"
+endif
+
+if MACH_STM32
+source "boards/mach-stm32/Kconfig"
+endif
+
+
+endmenu
