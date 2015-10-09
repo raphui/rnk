@@ -23,6 +23,8 @@ LD_SCRIPT=$(STM32F429_LD)
 #LD_SCRIPT=$(SAM7S_FLASH_LD)
 STM32_DEFINE = STM32_F429
 
+KCONFIG_AUTOHEADER=config.h
+
 INCLUDES	+= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
@@ -117,11 +119,11 @@ clean:	symbols-clean
 dist-clean: clean
 	$(RM) `find . -name *.d`
  
-%.o: %.c
+%.o: %.c config.h
 	@@echo "CC " $<
 	@$(CROSS_COMPILE)gcc $(CFLAGS) -c $< -o $@
  
-%.o: %.S
+%.o: %.S config.h
 	@@echo "CC " $<
 	@$(CROSS_COMPILE)gcc $(CFLAGS) -c $< -o $@
 
@@ -134,7 +136,7 @@ dist-clean: clean
 	echo "Loading $@..."
 
 config.h: .config
-	$(call generate-config)
+	@bash tools/generate_config.sh
 
 menuconfig: tools/kconfig-frontends/frontends/mconf/mconf
 	tools/kconfig-frontends/frontends/mconf/mconf Kconfig
