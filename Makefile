@@ -4,6 +4,8 @@
 #OBJS        := $(patsubst %.S,%.o,$(SOURCES_ASM))
 #OBJS        += $(patsubst %.c,%.o,$(SOURCES_C))
 
+export
+
 ARMV=armv7m
 MACH=stm32
 SOC=stm32f429
@@ -25,8 +27,10 @@ STM32_DEFINE = STM32_F429
 
 KCONFIG_AUTOHEADER=config.h
 
+ifeq (${MAKELEVEL}, 0)
 INCLUDES	+= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
+INCLUDES	+= -include $(KERNEL_BASE)/config.h
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
 CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -funwind-tables -g $(INCLUDES) -D$(STM32_DEFINE)
 CFLAGS += -DUNWIND
@@ -34,57 +38,22 @@ CFLAGS += -DUNWIND
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles #-Wl,--gc-sections
 
+CC := $(CROSS_COMPILE)gcc
+AS := $(CROSS_COMPILE)as
+AR := $(CROSS_COMPILE)ar
+LD := $(CROSS_COMPILE)ld
+
+endif
+
 CONFIG := $(wildcard .config)
 ifneq ($(CONFIG),)
 include $(CONFIG)
 endif
 
 subdirs-y := arch boards boot drivers kernel mm utils
+linker-y := stm32_alt.ld
+linker_files = $(foreach linker-file,$(linker-y), -T$(linker-file))
 
-OBJS	:= 	asm/head.o \
-		arch/arm/$(ARMV)/kernel/svc_asm.o \
-		arch/arm/$(ARMV)/kernel/svc.o \
-		arch/arm/$(ARMV)/kernel/context.o \
-		arch/arm/$(ARMV)/nvic.o \
-		arch/arm/$(ARMV)/systick.o \
-		arch/arm/$(ARMV)/handlers.o \
-		boards/mach-$(MACH)/$(SOC).o \
-		boards/mach-$(MACH)/usart-$(MACH).o \
-		boards/mach-$(MACH)/rcc-$(MACH).o \
-		boards/mach-$(MACH)/pio-$(MACH).o \
-		boards/mach-$(MACH)/timer-$(MACH).o \
-		boards/mach-$(MACH)/i2c-$(MACH).o \
-		boards/mach-$(MACH)/spi-$(MACH).o \
-		boards/mach-$(MACH)/dma-$(MACH).o \
-		boards/mach-$(MACH)/ltdc-$(MACH).o \
-		boards/mach-$(MACH)/fmc-$(MACH).o \
-		boards/mach-$(MACH)/exti-$(MACH).o \
-		boot/boot-$(SOC).o \
-		drivers/clk.o \
-		drivers/pio.o \
-		drivers/usart.o \
-		drivers/timer.o \
-		drivers/i2c.o \
-		drivers/spi.o \
-		drivers/dma.o \
-		drivers/lcd.o \
-		drivers/ili9341.o \
-		kernel/main.o \
-		kernel/mutex.o \
-		kernel/scheduler.o \
-		kernel/semaphore.o \
-		kernel/interrupt.o \
-		kernel/queue.o \
-		kernel/task.o \
-		kernel/time.o \
-		mm/alloc.o \
-		mm/init.o \
-		mm/free.o \
-		utils/backtrace.o \
-		utils/stdio.o \
-		utils/symbols.o \
-		utils/string.o \
-		utils/utils.o
 conf:
 	@@echo "CP mach-$(MACH)/board-$(SOC).h -> board.h"
 	@cp boards/mach-$(MACH)/board-$(SOC).h boards/board.h
@@ -96,10 +65,15 @@ cscope:
 	@@echo "GEN " $@
 	@cscope -b -q -k -R
  
-all: kernel.img 
+ifeq (${MAKELEVEL}, 0)
+all: kernel.img
+endif
 
-test: config.h
-	$(MAKE) -f tools/Makefile.common dir=. a
+kernel.elf: config.h
+	rm -f objects.lst
+	$(MAKE) -f tools/Makefile.common dir=. all
+	$(CC) $(LDFLAGS) $(linker_files) -o $@ \
+		`cat objects.lst | tr '\n' ' '`
  
 include $(wildcard *.d)
  
@@ -111,15 +85,17 @@ symbols-clean:
 	@@echo "CLEAN " $@
 	@sh tools/sym.sh clean
  
-kernel.elf: $(OBJS) 
-	@@echo "LD " $@
-	@$(CROSS_COMPILE)gcc $(LDFLAGS) $(OBJS) -T$(LD_SCRIPT) -o $@
+#kernel.elf: $(OBJS) 
+#	@@echo "LD " $@
+#	@$(CC) $(LDFLAGS) $(OBJS) -T$(LD_SCRIPT) -o $@
 
 kernel.img: kernel.elf 
 	@@echo "OBJCOPY " $<
 	@$(CROSS_COMPILE)objcopy kernel.elf -O binary kernel.bin
  
+ifeq (${MAKELEVEL}, 0)
 clean:	symbols-clean
+	$(MAKE) -f tools/Makefile.common dir=. $@
 	$(RM) $(OBJS) kernel.elf kernel.img
 	$(RM) boards/board.h
 	$(RM) include/arch
@@ -128,14 +104,15 @@ clean:	symbols-clean
  
 dist-clean: clean
 	$(RM) `find . -name *.d`
+endif
  
 %.o: %.c config.h
 	@@echo "CC " $<
-	@$(CROSS_COMPILE)gcc $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $(firstword $^) -o $@
  
 %.o: %.S config.h
 	@@echo "CC " $<
-	@$(CROSS_COMPILE)gcc $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $(firstword $^) -o $@
 
 .config:
 	echo "ERROR: No config file loaded."
@@ -159,3 +136,7 @@ config: tools/kconfig-frontends/frontends/conf/conf
 
 tools/kconfig-frontends/bin/kconfig-%:
 	$(MAKE) -C ./tools/ $(subst tools/kconfig-frontends/bin/,,$@)
+
+ifndef VERBOSE
+.SILENT:
+endif
