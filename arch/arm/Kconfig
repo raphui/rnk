@@ -2,3 +2,48 @@
 # Author: Raphaël Poggi <poggi.raph@gmail.com>
 #
 # Provided under the three clause BSD license found in the LICENSE file.
+
+menu "Architecture configuration"
+
+config CPU_ARM
+    bool
+    default y
+
+config CPU_ARMV7
+    bool
+    select CPU_ARM
+
+config CPU_ARM_THUMB
+    bool
+
+config CPU_ARMV7M
+    bool
+    select CPU_ARMV7
+    select CPU_ARM_THUMB
+
+choice
+   prompt "Architecture"
+
+config CPU_ARM_CORTEX_M3
+    bool "Cortex-M3"
+    select CPU_ARMV7M
+
+config CPU_ARM_CORTEX_M4
+    bool "Cortex-M4"
+    select CPU_ARMV7M
+
+endchoice
+
+choice
+    prompt "Endianess"
+    default LITTLE_ENDIAN
+
+config BIG_ENDIAN
+    bool "Big Endian"
+
+config LITTLE_ENDIAN
+    bool "Little Endian"
+
+endchoice
+
+endmenu

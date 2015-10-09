@@ -6,9 +6,9 @@
 menu "STM32 configuration"
 
 choice
-    prompt "Board"
+    prompt "SoC"
 
-    config STM32F429_DISCO
+    config STM32F429
         bool "STM32F429"
 
     config STM32F407

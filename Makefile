@@ -51,7 +51,10 @@ include $(CONFIG)
 endif
 
 subdirs-y := arch boards boot drivers kernel mm utils
-linker-y := stm32_alt.ld
+
+linker-$(CONFIG_STM32F407) := stm32.ld
+linker-$(CONFIG_STM32F429) := stm32_alt.ld
+
 linker_files = $(foreach linker-file,$(linker-y), -T$(linker-file))
 
 conf:
@@ -105,14 +108,16 @@ clean:	symbols-clean
 dist-clean: clean
 	$(RM) `find . -name *.d`
 endif
+
+build = echo "$1 $@"
  
 %.o: %.c config.h
-	@@echo "CC " $<
-	@$(CC) $(CFLAGS) -c $(firstword $^) -o $@
+	$(call build,CC)
+	$(CC) $(CFLAGS) -c $(firstword $^) -o $@
  
 %.o: %.S config.h
-	@@echo "CC " $<
-	@$(CC) $(CFLAGS) -c $(firstword $^) -o $@
+	$(call build,CC)
+	$(CC) $(CFLAGS) -c $(firstword $^) -o $@
 
 .config:
 	echo "ERROR: No config file loaded."
