@@ -2,3 +2,7 @@
 # Author: Raphaël Poggi <poggi.raph@gmail.com>
 #
 # Provided under the three clause BSD license found in the LICENSE file.
+
+menu "Drivers configuration"
+
+endmenu

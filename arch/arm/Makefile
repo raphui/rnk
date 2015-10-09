@@ -3,4 +3,4 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
-subdirs-y += armv7m
+subdirs-$(CONFIG_CPU_ARMV7M) += armv7m
