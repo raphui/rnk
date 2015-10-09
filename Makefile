@@ -34,6 +34,13 @@ CFLAGS += -DUNWIND
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles #-Wl,--gc-sections
 
+CONFIG := $(wildcard .config)
+ifneq ($(CONFIG),)
+include $(CONFIG)
+endif
+
+subdirs-y := arch boards boot drivers kernel mm utils
+
 OBJS	:= 	asm/head.o \
 		arch/arm/$(ARMV)/kernel/svc_asm.o \
 		arch/arm/$(ARMV)/kernel/svc.o \
@@ -90,6 +97,9 @@ cscope:
 	@cscope -b -q -k -R
  
 all: kernel.img 
+
+test: config.h
+	$(MAKE) -f tools/Makefile.common dir=. a
  
 include $(wildcard *.d)
  

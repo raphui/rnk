@@ -1,0 +1,26 @@
+# Copyright (C) 2015 Raphaël Poggi. All rights reserved.
+# Author: Raphaël Poggi <poggi.raph@gmail.com>
+#
+# Provided under the three clause BSD license found in the LICENSE file.
+
+subdirs-y :=
+dep = $(obj-y:.o=.d) $(ld-script-y:.ld=.d)
+
+include $(dir)/Makefile
+
+prepend-dir-to = $(addprefix $(dir)/,$1)
+prepend-dir = $(foreach d,$($1),$(call prepend-dir-to,$(d)))
+
+$(call prepend-dir,subdirs-y):
+	$(MAKE) -f tools/Makefile.common dir=$@ $(MAKECMDGOALS)
+
+a: $(call prepend-dir,subdirs-y) $(call prepend-dir,obj-y) $(call prepend-dir,ld-script-y)
+	echo $(call prepend-dir,obj-y) >> objects.lst
+
+c: $(call prepend-dir,subdirs-y)
+	rm -f $(call prepend-dir,obj-y) $(call prepend-dir,dep) \
+	      $(call prepend-dir,clean-y) $(call prepend-dir,ld-script-y)
+
+-include $(call prepend-dir,dep)
+
+.PHONY: all clean $(call prepend-dir,subdirs-y)
