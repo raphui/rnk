@@ -21,7 +21,7 @@
 #include <stddef.h>
 #include <arch/nvic.h>
 
-#include <mach-stm32/rcc-stm32.h>
+#include <mach/rcc-stm32.h>
 
 static int stm32_timer_get_nvic_number(struct timer *timer)
 {
