@@ -12,14 +12,13 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Frrestore * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef STRING_H
-#define STRING_H
+#ifndef ELFLOADER_H
+#define ELFLOADER_H
 
-void memcpy(void *dst, const void *src, unsigned int num);
-void *memset(void *s, int c, unsigned int count);
-int strcmp(const char *cs, const char *ct);
+int elf_load(char *elf_data, int elf_size, int reloc_addr);
 
-#endif /* STRING_H */
+#endif /* ELFLOADER_H */

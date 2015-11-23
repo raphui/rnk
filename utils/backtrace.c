@@ -343,7 +343,6 @@ int unwind_frame(struct stackframe *frame)
 void unwind_backtrace(unsigned int fp, unsigned int sp, unsigned int lr, unsigned pc)
 {
 	struct stackframe frame;
-	register unsigned long current_sp asm ("sp");
 
 	printk("%s(%x, %x, %x, %x)\n", __func__, fp, sp, lr, pc);
 

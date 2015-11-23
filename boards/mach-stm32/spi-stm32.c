@@ -153,8 +153,8 @@ static unsigned short stm32_spi_dma_write(struct spi *spi, unsigned short data)
 	int ret = 0;
 
 	stm32_dma_disable(dma);
-	dma_trans->src_addr = &data;
-	dma_trans->dest_addr = &SPI->DR;
+	dma_trans->src_addr = (unsigned int)&data;
+	dma_trans->dest_addr = (unsigned int)&SPI->DR;
 	dma_trans->size = 1;
 
 	nvic_enable_interrupt(nvic);
