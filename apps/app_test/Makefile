@@ -3,7 +3,7 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
-TARGET_NAME := app_test
+TARGET_NAME := app_test.elf
 
 OBJS := app_test.o
 
