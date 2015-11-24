@@ -235,9 +235,9 @@ int elf_load(char *elf_data, int elf_size, int reloc_addr)
 		str = buff + shdr->sh_offset + section->sh_name;
 		printk("[!] %s\n", str);
 
-		if (!strcmp(str, ".symtab"))
+		if (section->sh_type == SHT_SYMTAB)
 			symtab = section;
-		else if (!strcmp(str, ".strtab"))
+		else if (section->sh_type == SHT_STRTAB)
 			strtab = section;
 	}
 
