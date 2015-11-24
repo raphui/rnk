@@ -22,9 +22,10 @@
 struct sym {
 	unsigned int addr;
 	unsigned int size;
-	char *function;
+	char *name;
 };
 
-extern char *symbol_get_function(unsigned int addr);
+extern char *symbol_get_name(unsigned int addr);
+extern int symbol_get_addr(char *name);
 
 #endif /* SYMBOLS_H */
