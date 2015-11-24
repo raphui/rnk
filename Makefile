@@ -50,7 +50,7 @@ ifneq ($(CONFIG),)
 include $(CONFIG)
 endif
 
-subdirs-y := arch boards boot drivers kernel mm utils
+subdirs-y := arch boards boot drivers kernel loader mm utils
 
 linker-$(CONFIG_STM32F407) := stm32.ld
 linker-$(CONFIG_STM32F429) := stm32_alt.ld
