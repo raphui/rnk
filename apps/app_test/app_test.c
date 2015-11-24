@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Raphaël Poggi <poggi.raph@gmail.com>
+ * Copyright (C) 2014  Raphaël Poggi <poggi.raph@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,14 +12,17 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Frrestore * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef STRING_H
-#define STRING_H
+#include <stdio.h>
+#include <scheduler.h>
+#include <task.h>
 
-void memcpy(void *dst, const void *src, unsigned int num);
-void *memset(void *s, int c, unsigned int count);
-int strcmp(const char *cs, const char *ct);
+int main(int argc, char **argv)
+{
+	printk("Hello World from app_test !\n");
 
-#endif /* STRING_H */
+	return 0;
+}

@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <string.h>
 
 #include <symbols.h>
 
@@ -187,7 +188,7 @@ static struct sym symbols[] = {
 
 };
 
-char *symbol_get_function(unsigned int addr)
+char *symbol_get_name(unsigned int addr)
 {
 	int size = sizeof(symbols) / sizeof(struct sym);
 	int i = 0;
@@ -195,11 +196,27 @@ char *symbol_get_function(unsigned int addr)
 
 	for (i = 0; i < size; i++) {
 		if (symbols[i].addr == addr) {
-			ret = symbols[i].function;
+			ret = symbols[i].name;
 			break;
 		} else if ((addr > symbols[i].addr) && (addr < (symbols[i].addr + symbols[i].size))) {
-			ret = symbols[i].function;
+			ret = symbols[i].name;
 			break;	
+		}
+	}
+
+	return ret;
+}
+
+int symbol_get_addr(char *name)
+{
+	int size = sizeof(symbols) / sizeof(struct sym);
+	int i = 0;
+	int ret = 0;
+
+	for (i = 0; i < size; i++) {
+		if (!strcmp(name, symbols[i].name)) {
+			ret = symbols[i].addr;
+			break;
 		}
 	}
 
