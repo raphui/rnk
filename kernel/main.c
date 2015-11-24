@@ -38,12 +38,12 @@
 #include <backtrace.h>
 #endif /* UNWIND */
 
-#ifdef STM32_F429
+#ifdef CONFIG_STM32F429
 #include <ili9341.h>
 #include <ltdc.h>
 
 struct ltdc ltdc;
-#endif /* STM32_F429 */
+#endif /* CONFIG_STM32F429 */
 
 //#define FAULT
 
@@ -164,7 +164,7 @@ void eighth_task(void)
 
 }
 
-#ifdef STM32_F429
+#ifdef CONFIG_STM32F429
 static void ltdc_init(void)
 {
 	lcd_init_gpio();
@@ -247,18 +247,18 @@ void lcd_rgb565_fill(unsigned short rgb)
 
 	sem_wait(&sem);
 }
-#endif /* STM32_F429 */
+#endif /* CONFIG_STM32F429 */
 
 
 void ninth_task(void)
 {
 	printk("starting task I\r\n");
 
-#ifdef STM32_F429
+#ifdef CONFIG_STM32F429
 	ltdc_init();
 	ili9341_init();
 	ili9341_init_lcd();
-#endif /* STM32_F429 */
+#endif /* CONFIG_STM32F429 */
 
 	while (1) {
 		printk("I");
@@ -293,7 +293,7 @@ void tenth_task(void)
 int main(void)
 {
 
-#ifdef STM32_F429
+#ifdef CONFIG_STM32F429
 	usart.num = 1;
 	usart.base_reg = USART1_BASE;
 	usart.baud_rate = 115200;
@@ -311,7 +311,7 @@ int main(void)
 
 	pio_set_alternate(GPIOC_BASE, 10, 0x7);
 	pio_set_alternate(GPIOC_BASE, 11, 0x7);
-#endif /* STM32_F429 */
+#endif /* CONFIG_STM32F429 */
 
 	dma.num = 2;
 	dma.stream_base = DMA2_Stream0_BASE;
