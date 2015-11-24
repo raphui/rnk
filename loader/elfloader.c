@@ -31,8 +31,13 @@
  * otherwise.
  */
 
+#define R_ARM_NONE		0	/* Nothing */
 #define R_ARM_ABS32		2	/* (S + A) | T */
 #define R_ARM_THM_CALL		10	/* ((S + A) | T) – P */
+#define R_ARM_CALL		28	/* ((S + A) | T) – P */
+#define R_ARM_JUMP24		29	/* ((S + A) | T) – P */
+#define R_ARM_V4BX		40	/* Nothing */
+#define R_ARM_PREL31		42	/* (S + A) | T */
 #define R_ARM_THM_MOVW_ABS_NC	47	/* (S + A) | T */
 #define R_ARM_THM_MOVT_ABS	48	/* S + A */
 
@@ -108,19 +113,16 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 
 	switch (ELF32_R_TYPE(rel->r_info)) {
 	case R_ARM_ABS32:
-		debug_printk("R_ARM_ABS32 reloc\n");
+	case R_ARM_PREL31:
+	case R_ARM_THM_MOVW_ABS_NC:
 		*ref = (s + a) | t;
 		break;
 	case R_ARM_THM_CALL:
-		debug_printk("R_ARM_THM_CALL reloc\n");
+	case R_ARM_CALL:
+	case R_ARM_JUMP24:
 		*ref = ((s + a) | t) - p;
 		break;
-	case R_ARM_THM_MOVW_ABS_NC:
-		debug_printk("R_ARM_THM_MOVW_ABS_NC reloc\n");
-		*ref = (s + a) | t;
-		break;
 	case R_ARM_THM_MOVT_ABS:
-		debug_printk("R_ARM_THM_MOVT_ABS reloc\n");
 		*ref = s + a;
 		break;
 	default:
