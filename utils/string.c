@@ -26,3 +26,15 @@ void memcpy(void *dst, const void *src, unsigned int num)
 		*d++ = *s++;
 	}
 }
+
+int strcmp(const char *cs, const char *ct)
+{
+	char res;
+
+	while (1) {
+		if ((res = *cs - *ct++) != 0 || !*cs++)
+			break;
+	}
+
+	return res;
+}

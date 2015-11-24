@@ -19,5 +19,6 @@
 #define STRING_H
 
 void memcpy(void *dst, const void *src, unsigned int num);
+int strcmp(const char *cs, const char *ct);
 
 #endif /* STRING_H */
