@@ -33,6 +33,7 @@
 #include <spi.h>
 #include <dma.h>
 #include <common.h>
+#include <elfloader.h>
 
 #ifdef UNWIND
 #include <backtrace.h>
@@ -142,10 +143,10 @@ void seventh_task(void)
 {
 	int a = 5;
 	count = 0;
-	printk("starting task H\r\n");
+	printk("starting task G\r\n");
 	printk("#####a(%x): %d\r\n", &a , a);
 	while (1) {
-		printk("H");
+		printk("G");
 		if (count++ == 4000)
 			queue_post(&queue, &a, 0);
 	}
@@ -155,11 +156,11 @@ void seventh_task(void)
 void eighth_task(void)
 {
 	int b = 0;
-	printk("starting task G\r\n");
+	printk("starting task H\r\n");
 	queue_receive(&queue, &b, 10000);
 	printk("#####b(%x): %d\r\n", &b, b);
 	while (1) {
-		printk("G");
+		printk("H");
 	}
 
 }
@@ -290,6 +291,23 @@ void tenth_task(void)
 	}
 }
 
+void eleventh_task(void)
+{
+	int ret;
+	printk("starting task K\r\n");
+
+	ret = elf_load((char *)0x08010000, 220417, 0x08020000);
+	if (ret < 0)
+		printk("failed to relocate elf\r\n");
+	else
+		printk("efl relocation done\r\n");
+
+	while (1) {
+		printk("K");
+	}
+	
+}
+
 int main(void)
 {
 
@@ -362,6 +380,7 @@ int main(void)
 #ifdef FAULT
 	add_task(&tenth_task, 1);
 #endif /* FAULT */
+	add_task(&eleventh_task, 2);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();
