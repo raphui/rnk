@@ -20,10 +20,8 @@
 #include <string.h>
 #include <errno.h>
 #include <elf.h>
-
-#include "symbols.h"
-
-#define ELF_ST_BIND(x)	((x) >> 4)
+#include <mm.h>
+#include <symbols.h>
 
 /*
  * S (when used on its own) is the address of the symbol.
@@ -54,7 +52,6 @@ static int elf_get_symval(elf32_sym *sym)
 {
 	char *str;
 	int addr;
-	elf32_shdr *target;
 
 	if (ELF32_ST_BIND(sym->st_info) & (STB_GLOBAL | STB_WEAK)) {
 		str = buff + strtab->sh_offset + sym->st_name;
@@ -78,7 +75,7 @@ static int elf_get_symval(elf32_sym *sym)
 
 static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 {
-	int addr = buff + target->sh_offset;
+	int addr = (int)(buff + target->sh_offset);
 	int *ref = (int *)(addr + rel->r_offset);
 	elf32_sym *sym;
 	int func;
@@ -103,7 +100,7 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 
 	s = func;
 	a = *ref;
-	p = ref;
+	p = (int)ref;
 	t = func & 0x1;
 
 	debug_printk("\t- %s instruction\n", t ? "Thumb" : "ARM");
@@ -203,7 +200,6 @@ static int elf_section_reloc(elf32_shdr *shdr)
 
 int elf_load(char *elf_data, int elf_size, int reloc_addr)
 {
-	int fd;
 	char *str;
 	elf32_shdr *shdr;
 	elf32_shdr *section;
