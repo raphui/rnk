@@ -27,6 +27,16 @@ void memcpy(void *dst, const void *src, unsigned int num)
 	}
 }
 
+void *memset(void *s, int c, unsigned int count)
+{
+	char *xs = (char *)s;
+
+	while (count--)
+		*xs++ = c;
+
+	return s;
+}
+
 int strcmp(const char *cs, const char *ct)
 {
 	char res;
