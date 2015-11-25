@@ -317,8 +317,7 @@ int main(void)
 #ifdef CONFIG_STM32F429
 	usart_init(1, USART1_BASE, 115200);
 	pio_set_alternate(GPIOA_BASE, 9, 0x7);
-	pio_set_alternate(GPIOA_BASE, 10, 0x7)
-;
+	pio_set_alternate(GPIOA_BASE, 10, 0x7);
 	dma.num = 2;
 	dma.stream_base = DMA2_Stream0_BASE;
 	dma.stream_num = 0;
@@ -374,7 +373,7 @@ int main(void)
 #ifdef FAULT
 	add_task(&tenth_task, 1);
 #endif /* FAULT */
-	add_task(&eleventh_task, 2);
+//	add_task(&eleventh_task, 2);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();
