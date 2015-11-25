@@ -8,6 +8,9 @@ menu "STM32 configuration"
 choice
     prompt "SoC"
 
+    config STM32F401
+        bool "STM32F401"
+
     config STM32F429
         bool "STM32F429"
 
