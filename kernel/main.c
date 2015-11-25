@@ -317,17 +317,8 @@ int main(void)
 #ifdef CONFIG_STM32F429
 	usart_init(1, USART1_BASE, 115200);
 	pio_set_alternate(GPIOA_BASE, 9, 0x7);
-	pio_set_alternate(GPIOA_BASE, 10, 0x7);
-#elif defined (CONFIG_STM32F407)
-	usart_init(3, USART3_BASE, 115200);
-	pio_set_alternate(GPIOC_BASE, 10, 0x7);
-	pio_set_alternate(GPIOC_BASE, 11, 0x7);
-#elif defined (CONFIG_STM32F401)
-	usart_init(2, USART2_BASE, 115200);
-	pio_set_alternate(GPIOA_BASE, 2, 0x7);
-	pio_set_alternate(GPIOA_BASE, 3, 0x7);
-#endif /* CONFIG_STM32F429 */
-
+	pio_set_alternate(GPIOA_BASE, 10, 0x7)
+;
 	dma.num = 2;
 	dma.stream_base = DMA2_Stream0_BASE;
 	dma.stream_num = 0;
@@ -345,6 +336,15 @@ int main(void)
 
 	/* User button */
 	pio_set_input(GPIOA_BASE, 0, 0, 0);
+#elif defined (CONFIG_STM32F407)
+	usart_init(3, USART3_BASE, 115200);
+	pio_set_alternate(GPIOC_BASE, 10, 0x7);
+	pio_set_alternate(GPIOC_BASE, 11, 0x7);
+#elif defined (CONFIG_STM32F401)
+	usart_init(2, USART2_BASE, 115200);
+	pio_set_alternate(GPIOA_BASE, 2, 0x7);
+	pio_set_alternate(GPIOA_BASE, 3, 0x7);
+#endif /* CONFIG_STM32F429 */
 
 	printk("Welcome to rnk\r\n");
 
