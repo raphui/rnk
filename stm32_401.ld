@@ -38,18 +38,18 @@ SECTIONS
         . = ALIGN(4);
         _edata = .;
     } >flash
-		
-    .ARM.extab : AT (_edata)
+
+    .ARM.extab :
     {
-        *(.ARM.extab*)
-    } >flash
-	
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > flash
+ 
+    __exidx_start = .;
     .ARM.exidx :
     {
-        __exidx_start = .;
-	*(.ARM.exidx*)
-	__exidx_end = .;
-    } >flash
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    } > flash
+    __exidx_end = .;
 
     PROVIDE( flash_used_size = SIZEOF(.text) + SIZEOF(.data) + SIZEOF(.ARM.extab) + SIZEOF(.ARM.exidx) );
 		
