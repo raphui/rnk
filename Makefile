@@ -46,7 +46,6 @@ LD_SCRIPT=$(STM32F429_LD)
 #LD_SCRIPT=$(STM32F407_LD)
 #LD_SCRIPT=$(SAM7S_SRAM_LD)
 #LD_SCRIPT=$(SAM7S_FLASH_LD)
-STM32_DEFINE = STM32_F429
 
 KCONFIG_AUTOHEADER=config.h
 
@@ -55,7 +54,7 @@ INCLUDES	+= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
-CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -funwind-tables -g $(INCLUDES) -D$(STM32_DEFINE)
+CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -funwind-tables -g $(INCLUDES)
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffunction-sections -mcpu=arm7tdmi -nostdlib -g $(INCLUDES)
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles #-Wl,--gc-sections
