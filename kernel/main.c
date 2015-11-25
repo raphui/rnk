@@ -312,6 +312,7 @@ void eleventh_task(void)
 
 int main(void)
 {
+	init_heap();
 
 #ifdef CONFIG_STM32F429
 	usart.num = 1;
@@ -352,9 +353,6 @@ int main(void)
 	pio_set_input(GPIOA_BASE, 0, 0, 0);
 
 	printk("Welcome to rnk\r\n");
-	printk("- Initialise heap...\r\n");
-
-	init_heap();
 
 	printk("- Initialise scheduler...\r\n");
 	schedule_init();
