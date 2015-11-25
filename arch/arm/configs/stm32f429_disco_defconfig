@@ -24,8 +24,14 @@ CONFIG_MACH_STM32=y
 #
 # STM32 configuration
 #
+# CONFIG_STM32F401 is not set
 CONFIG_STM32F429=y
 # CONFIG_STM32F407 is not set
+
+#
+# Kernel configuration
+#
+CONFIG_TASK_STACK_START=0x10008000
 
 #
 # Drivers configuration
@@ -36,3 +42,8 @@ CONFIG_STM32F429=y
 #
 CONFIG_KERNEL_HEAP_START=0x10008000
 CONFIG_KERNEL_HEAP_END=0x10010000
+
+#
+# Utility configuration
+#
+CONFIG_UNWIND=y
