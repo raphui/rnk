@@ -263,6 +263,7 @@ void ninth_task(void)
 
 	while (1) {
 		printk("I");
+#ifdef CONFIG_STM32F429
 		lcd_rgb565_fill(BLACK);
 		sem_wait(&sem);
 		lcd_rgb565_fill(BLUE);
@@ -278,6 +279,7 @@ void ninth_task(void)
 		lcd_rgb565_fill(YELLOW);
 		sem_wait(&sem);
 		lcd_rgb565_fill(WHITE);
+#endif /* CONFIG_STM32F429 */
 	}
 }
 
