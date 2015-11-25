@@ -38,10 +38,10 @@ static void dump_stack(unsigned int *stack)
 	lr = stack[5];
 	pc = stack[6];
 
-#ifdef UNWIND
+#ifdef CONFIG_UNWIND
 	/* fp = 0, because we don't care about it */
 	unwind_backtrace(0, (unsigned int)stack, lr, pc);
-#endif /* UNWIND */
+#endif /* CONFIG_UNWIND */
 
 	while (1)
 		;

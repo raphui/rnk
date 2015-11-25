@@ -35,9 +35,9 @@
 #include <common.h>
 #include <elfloader.h>
 
-#ifdef UNWIND
+#ifdef CONFIG_UNWIND
 #include <backtrace.h>
-#endif /* UNWIND */
+#endif /* CONFIG_UNWIND */
 
 #ifdef CONFIG_STM32F429
 #include <ili9341.h>
@@ -364,9 +364,9 @@ int main(void)
 	init_queue(&queue, sizeof(int), 5);
 	time_init();
 
-#ifdef UNWIND
+#ifdef CONFIG_UNWIND
 	unwind_init();
-#endif /* UNWIND */
+#endif /* CONFIG_UNWIND */
 
 	printk("- Add task to scheduler\r\n");
 
