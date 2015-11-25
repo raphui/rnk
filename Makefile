@@ -23,7 +23,7 @@ ifeq ($(CONFIG_STM32F401),y)
 SOC=stm32f401
 endif
 
-ifeq ($(CONFIG_STM32F419),y)
+ifeq ($(CONFIG_STM32F429),y)
 SOC=stm32f429
 endif
 
