@@ -16,7 +16,6 @@
  */
 
 #include <board.h>
-#include <ltdc.h>
 #include <utils.h>
 #include <stdio.h>
 #include <mach/dma-stm32.h>
@@ -40,12 +39,14 @@ static int stm32_spi_get_nvic_number(struct spi *spi)
 		case SPI3_BASE:
 			nvic = SPI3_IRQn;
 			break;
+#ifdef CONFIG_STM32F429
 		case SPI4_BASE:
 			nvic = SPI4_IRQn;
 			break;
 		case SPI5_BASE:
 			nvic = SPI5_IRQn;
 			break;
+#endif /* CONFIG_STM32F429 */
 	}
 
 

@@ -72,12 +72,14 @@ static unsigned char stm32_exti_base_mask(unsigned int gpio_base)
 		case GPIOI_BASE:
 			mask = 0x8;
 			break;
+#ifdef CONFIG_STM32F429
 		case GPIOJ_BASE:
 			mask = 0x9;
 			break;
 		case GPIOK_BASE:
 			mask = 0xA;
 			break;
+#endif /* CONFIG_STM32F429 */
 		default:
 			error_printk("invalid gpio base reg\r\n");
 			mask = -EINVAL;
@@ -106,10 +108,12 @@ int stm32_exti_init(unsigned int gpio_base, unsigned int gpio_num)
 	unsigned char mask = stm32_exti_base_mask(gpio_base);
 	int ret = 0;
 
+#ifdef CONFIG_STM32F429
 	if ((gpio_base == GPIOK_BASE) && (gpio_num >=8)) {
 		error_printk("GPIOK %d is not configurable above pin 8\r\n", gpio_num);
 		return -EINVAL;
 	}
+#endif /* CONFIG_STM32F429 */
 
 	if (mask < 0) {
 		error_printk("cannot retrieve exti base mask\r\n");

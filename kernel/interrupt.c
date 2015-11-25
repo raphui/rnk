@@ -207,6 +207,7 @@ void dma2_stream4_handler(void)
 	}
 }
 
+#ifdef CONFIG_STM32F429
 void spi5_handler(void)
 {
 	int tmp;
@@ -228,6 +229,7 @@ void spi5_handler(void)
 		tmp = SPI5->DR;
 	}
 }
+#endif /* CONFIG_STM32F429 */
 
 void exti0_handler(void)
 {
