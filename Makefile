@@ -6,11 +6,34 @@
 
 export
 
+CONFIG := $(wildcard .config)
+ifneq ($(CONFIG),)
+include $(CONFIG)
+endif
+
+ifeq ($(CONFIG_CPU_ARMV7M),y)
 ARMV=armv7m
+endif
+
+ifeq ($(CONFIG_MACH_STM32),y)
 MACH=stm32
+endif
+
+ifeq ($(CONFIG_STM32F401),y)
+SOC=stm32f401
+endif
+
+ifeq ($(CONFIG_STM32F419),y)
 SOC=stm32f429
-#SOC=stm32f407
+endif
+
+ifeq ($(CONFIG_STM32F407),y)
+SOC=stm32f407
+endif
+
+ifeq ($(CONFIG_CPU_ARM_CORTEX_M4),y)
 MCPU=cortex-m4
+endif
 
 SAM7S_SRAM_LD=sram_sam7s.lds
 SAM7S_FLASH_LD=flash_sam7s.lds
@@ -44,13 +67,9 @@ LD := $(CROSS_COMPILE)ld
 
 endif
 
-CONFIG := $(wildcard .config)
-ifneq ($(CONFIG),)
-include $(CONFIG)
-endif
-
 subdirs-y := arch boards boot drivers kernel loader mm utils
 
+linker-$(CONFIG_STM32F401) := stm32_401.ld
 linker-$(CONFIG_STM32F407) := stm32.ld
 linker-$(CONFIG_STM32F429) := stm32_alt.ld
 

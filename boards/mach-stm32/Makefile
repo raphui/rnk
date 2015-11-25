@@ -4,6 +4,7 @@
 # Provided under the three clause BSD license found in the LICENSE file.
 
 obj-y := rcc-stm32.o
+obj-$(CONFIG_STM32F401) += stm32f401.o
 obj-$(CONFIG_STM32F407) += stm32f407.o
 obj-$(CONFIG_STM32F429) += stm32f429.o
 obj-y += usart-stm32.o
