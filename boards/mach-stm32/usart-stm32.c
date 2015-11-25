@@ -56,26 +56,20 @@ static int stm32_usart_init(struct usart *usart)
 	return ret;
 }
 
-static void stm32_usart_print(unsigned char byte)
+static void stm32_usart_print(struct usart *usart, unsigned char byte)
 {
+	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 
-#ifdef STM32_F429
-	while(!(USART1->SR & USART_SR_TXE))
+	while(!(USART->SR & USART_SR_TXE))
 		;
 
-	USART1->DR = byte;
-#else
-	while(!(USART3->SR & USART_SR_TXE))
-		;
-
-	USART3->DR = byte;
-#endif /* STM32_F429 */
+	USART->DR = byte;
 }
 
-static int stm32_usart_printl(const char *string)
+static int stm32_usart_printl(struct usart *usart, const char *string)
 {
 	while (*string)
-		stm32_usart_print(*string++);
+		stm32_usart_print(usart, *string++);
 
 	return 0;
 }

@@ -19,22 +19,35 @@
 #include <board.h>
 #include <utils.h>
 #include <usart.h>
+#include <mm.h>
+#include <errno.h>
 
-void usart_init(struct usart *usart)
+static struct usart *usart;
+
+int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate)
 {
-	/* Register io functions */
-	usart_ops.init(usart);
+	usart = (struct usart *)kmalloc(sizeof(*usart));
+	if (usart < 0) {
+		error_printk("cannot allocate usart\r\n");
+		return -ENOMEM;
+	}
+
+	usart->num = num;
+	usart->base_reg = base_reg;
+	usart->baud_rate = baud_rate;
+
+	return usart_ops.init(usart);
 }
 
 void usart_print(unsigned char byte)
 {
-	usart_ops.print(byte);
+	usart_ops.print(usart, byte);
 }
 
 
 int usart_printl(const char *string)
 {
-	return usart_ops.printl(string);
+	return usart_ops.printl(usart, string);
 }
 
 struct io_operations io_op = {

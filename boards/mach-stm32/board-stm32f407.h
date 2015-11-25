@@ -51,9 +51,9 @@
  
 struct usart_operations
 {
-	void (*init)(struct usart *usart);
-	void (*print)(unsigned char byte);
-	int (*printl)(const char *string);
+	int (*init)(struct usart *usart);
+	void (*print)(struct usart *usart, unsigned char byte);
+	int (*printl)(struct usart *usart, const char *string);
 };
 
 struct usart_operations usart_ops;

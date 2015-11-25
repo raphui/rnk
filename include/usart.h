@@ -27,7 +27,7 @@ struct usart {
 	unsigned int baud_rate;
 };
 
-void usart_init(struct usart *usart);
+int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate);
 void usart_print(unsigned char byte);
 int usart_printl(const char *string);
 
