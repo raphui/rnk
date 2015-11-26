@@ -20,6 +20,8 @@
 #include <errno.h>
 #include <stddef.h>
 
+#include <symbols.h>
+
 #define ALIGN(x, a)	(((x) + (a) - 1) & ~((a) - 1))
 
 /* Dummy functions to avoid linker complaints */
@@ -96,11 +98,10 @@ static inline int is_kernel_text(unsigned long addr)
 
 void dump_backtrace_entry(unsigned long where, unsigned long from, unsigned long frame)
 {
-#ifdef CONFIG_KALLSYMS
-	printk("[<%x>] (%pS) from [<%x>] (%pS)\n", where, (void *)where, from, (void *)from);
-#else
-	printk("Function entered at [<%x>] from [<%x>]\n", where, from);
-#endif
+	char *sym_where = symbol_get_name((unsigned int)where);
+	char *sym_from = symbol_get_name((unsigned int)from);
+
+	printk("[<%x>] (%s) from [<%x>] (%s)\n", where, sym_where, from, sym_from);
 }
 
 /*
@@ -111,13 +112,14 @@ static struct unwind_idx *search_index(unsigned long addr,
 				       struct unwind_idx *first,
 				       struct unwind_idx *last)
 {
-	printk("%s(%x, %p, %p)\n", __func__, addr, first, last);
+	debug_printk("%s(%x, %p, %p)\n", __func__, addr, first, last);
 
-	if (addr < first->addr) {
+	if (addr > last->addr)
+		return last;
+	else if (addr >= first->addr) {
 		error_printk("unwind: Unknown symbol address %x\n", addr);
 		return NULL;
-	} else if (addr >= last->addr)
-		return last;
+	}
 
 	while (first < last - 1) {
 		struct unwind_idx *mid = first + ((last - first + 1) >> 1);
@@ -135,7 +137,7 @@ static struct unwind_idx *unwind_find_idx(unsigned long addr)
 {
 	struct unwind_idx *idx = NULL;
 
-	printk("%s(%x)\n", __func__, addr);
+	debug_printk("%s(%x)\n", __func__, addr);
 
 	if (is_kernel_text(addr))
 		/* main unwind table */
@@ -145,7 +147,7 @@ static struct unwind_idx *unwind_find_idx(unsigned long addr)
 		/* module unwinding not supported */
 	}
 
-	printk("%s: idx = %p\n", __func__, idx);
+	debug_printk("%s: idx = %p\n", __func__, idx);
 	return idx;
 }
 
@@ -177,7 +179,7 @@ static int unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 {
 	unsigned long insn = unwind_get_byte(ctrl);
 
-	printk("%s: insn = %x\n", __func__, insn);
+	debug_printk("%s: insn = %x\n", __func__, insn);
 
 	if ((insn & 0xc0) == 0x00)
 		ctrl->vrs[SP] += ((insn & 0x3f) << 2) + 4;
@@ -252,7 +254,7 @@ static int unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 		return -URC_FAILURE;
 	}
 
-	printk("%s: fp = %x sp = %x lr = %x pc = %x\n", __func__,
+	debug_printk("%s: fp = %x sp = %x lr = %x pc = %x\n", __func__,
 		 ctrl->vrs[FP], ctrl->vrs[SP], ctrl->vrs[LR], ctrl->vrs[PC]);
 
 	return URC_OK;
@@ -272,7 +274,7 @@ int unwind_frame(struct stackframe *frame)
 	low = frame->sp;
 	high = ALIGN(low, THREAD_SIZE);
 
-	printk("%s(pc = %x lr = %x sp = %x)\n", __func__,
+	debug_printk("%s(pc = %x lr = %x sp = %x)\n", __func__,
 		 frame->pc, frame->lr, frame->sp);
 
 	if (!is_kernel_text(frame->pc))
@@ -344,7 +346,7 @@ void unwind_backtrace(unsigned int fp, unsigned int sp, unsigned int lr, unsigne
 {
 	struct stackframe frame;
 
-	printk("%s(%x, %x, %x, %x)\n", __func__, fp, sp, lr, pc);
+	debug_printk("%s(%x, %x, %x, %x)\n", __func__, fp, sp, lr, pc);
 
 	frame.fp = fp;
 	frame.sp = sp;
