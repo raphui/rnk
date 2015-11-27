@@ -42,7 +42,7 @@ enum service_calls {
  * Save the LR to prevent clobbering it with reentrant SVC calls.
  */
 #define SVC(call)  ({ \
-    uint32_t ret = 0;   \
+    unsigned int ret = 0;   \
     asm volatile ("push {lr}     \n"    \
                   "svc  %[code]  \n"    \
                   "pop  {lr}     \n"    \
@@ -54,7 +54,7 @@ enum service_calls {
 })
 
 #define SVC_ARG(call, arg)  ({ \
-    uint32_t ret = 0;   \
+    unsigned int ret = 0;   \
     asm volatile ("mov  r1, %[ar]  \n"  \
                   "push {lr}     \n"    \
                   "svc  %[code]  \n"    \
@@ -67,7 +67,7 @@ enum service_calls {
 })
 
 #define SVC_ARG2(call, arg1, arg2)  ({ \
-    uint32_t ret = 0;   \
+    unsigned int ret = 0;   \
     asm volatile ("mov  r1, %[ar1]  \n"  \
                   "mov  r2, %[ar2]  \n"  \
                   "push {lr}     \n"    \

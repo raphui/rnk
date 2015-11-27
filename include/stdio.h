@@ -20,7 +20,6 @@
 #define STDIO_H
 
 #include <stdarg.h>
-#include <stdint.h>
 
 #define DEBUG	0
 #define ERROR	1
