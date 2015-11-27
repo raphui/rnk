@@ -272,7 +272,7 @@ int unwind_frame(struct stackframe *frame)
 
 	/* only go to a higher address on the stack */
 	low = frame->sp;
-	high = ALIGN(low, THREAD_SIZE);
+	high = ALIGN(low, THREAD_SIZE) + THREAD_SIZE;
 
 	debug_printk("%s(pc = %x lr = %x sp = %x)\n", __func__,
 		 frame->pc, frame->lr, frame->sp);
