@@ -23,29 +23,25 @@ ifeq ($(CONFIG_STM32F401),y)
 SOC=stm32f401
 endif
 
+ifeq ($(CONFIG_STM32F407),y)
+SOC=stm32f407
+endif
+
 ifeq ($(CONFIG_STM32F429),y)
 SOC=stm32f429
 endif
 
-ifeq ($(CONFIG_STM32F407),y)
-SOC=stm32f407
+ifeq ($(CONFIG_STM32F746),y)
+SOC=stm32f746
 endif
 
 ifeq ($(CONFIG_CPU_ARM_CORTEX_M4),y)
 MCPU=cortex-m4
 endif
 
-SAM7S_SRAM_LD=sram_sam7s.lds
-SAM7S_FLASH_LD=flash_sam7s.lds
-BCM2835_LD=link-arm-eabi.ld
-SAM3X_LD=sam3x.ld
-SAM3X8_SRAM_LD=sram.ld
-STM32F407_LD=stm32.ld
-STM32F429_LD=stm32_alt.ld
-LD_SCRIPT=$(STM32F429_LD)
-#LD_SCRIPT=$(STM32F407_LD)
-#LD_SCRIPT=$(SAM7S_SRAM_LD)
-#LD_SCRIPT=$(SAM7S_FLASH_LD)
+ifeq ($(CONFIG_CPU_ARM_CORTEX_M7),y)
+MCPU=cortex-m7
+endif
 
 KCONFIG_AUTOHEADER=config.h
 

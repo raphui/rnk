@@ -127,82 +127,82 @@ void low_level_init(void)
 #else
 	writel(SCB_VTOR, FLASH_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal FLASH */
 #endif
-	stm32_pio_set_alternate(GPIOB_BASE, 5, 0xC);
-	stm32_pio_set_alternate(GPIOB_BASE, 6, 0xC);
-
-	stm32_pio_set_alternate(GPIOC_BASE, 0, 0xC);
-
-	stm32_pio_set_alternate(GPIOD_BASE, 0, 0xC);
-	stm32_pio_set_alternate(GPIOD_BASE, 1, 0xC);
-	stm32_pio_set_alternate(GPIOD_BASE, 8, 0xC);
-	stm32_pio_set_alternate(GPIOD_BASE, 9, 0xC);
-	stm32_pio_set_alternate(GPIOD_BASE, 10, 0xC);
-	stm32_pio_set_alternate(GPIOD_BASE, 14, 0xC);
-	stm32_pio_set_alternate(GPIOD_BASE, 15, 0xC);
-
-	stm32_pio_set_alternate(GPIOE_BASE, 0, 0xC);
-	stm32_pio_set_alternate(GPIOE_BASE, 1, 0xC);
-	stm32_pio_set_alternate(GPIOE_BASE, 7, 0xC);
-	stm32_pio_set_alternate(GPIOE_BASE, 8, 0xC);
-	stm32_pio_set_alternate(GPIOE_BASE, 9, 0xC);
-	stm32_pio_set_alternate(GPIOE_BASE, 10, 0xC);
-	stm32_pio_set_alternate(GPIOE_BASE, 11, 0xC);
-	stm32_pio_set_alternate(GPIOE_BASE, 12, 0xC);
-	stm32_pio_set_alternate(GPIOE_BASE, 13, 0xC);
-	stm32_pio_set_alternate(GPIOE_BASE, 14, 0xC);
-	stm32_pio_set_alternate(GPIOE_BASE, 15, 0xC);
-
-	stm32_pio_set_alternate(GPIOF_BASE, 0, 0xC);
-	stm32_pio_set_alternate(GPIOF_BASE, 1, 0xC);
-	stm32_pio_set_alternate(GPIOF_BASE, 2, 0xC);
-	stm32_pio_set_alternate(GPIOF_BASE, 3, 0xC);
-	stm32_pio_set_alternate(GPIOF_BASE, 4, 0xC);
-	stm32_pio_set_alternate(GPIOF_BASE, 5, 0xC);
-	stm32_pio_set_alternate(GPIOF_BASE, 11, 0xC);
-	stm32_pio_set_alternate(GPIOF_BASE, 12, 0xC);
-	stm32_pio_set_alternate(GPIOF_BASE, 13, 0xC);
-	stm32_pio_set_alternate(GPIOF_BASE, 14, 0xC);
-	stm32_pio_set_alternate(GPIOF_BASE, 15, 0xC);
-
-	stm32_pio_set_alternate(GPIOG_BASE, 0, 0xC);
-	stm32_pio_set_alternate(GPIOG_BASE, 1, 0xC);
-	stm32_pio_set_alternate(GPIOG_BASE, 4, 0xC);
-	stm32_pio_set_alternate(GPIOG_BASE, 5, 0xC);
-	stm32_pio_set_alternate(GPIOG_BASE, 8, 0xC);
-	stm32_pio_set_alternate(GPIOG_BASE, 15, 0xC);
-
-	sdram_cmd_conf.cmd_mode = 0x1;		/* Clock enable */
-	sdram_cmd_conf.cmd_target = 0x8;	/* Bank 1 */
-	sdram_cmd_conf.auto_refresh_num = 0x1;
-	sdram_cmd_conf.mode = 0x0;
-
-	sdram_timing.load_to_active_delay = 2;
-	sdram_timing.exit_self_refresh_delay = 7;
-	sdram_timing.self_refresh_time = 4;
-	sdram_timing.row_cycle_delay = 7;
-	sdram_timing.write_recovery_time = 2;
-	sdram_timing.rp_delay = 2;
-	sdram_timing.rc_delay = 2;
-
-	sdram.num_bank = 0x2;
-	sdram.column = 0x0;			/* 8 bit */
-	sdram.row = 0x4;			/* 12 bit */
-	sdram.data_width = 0x10;		/* 16 bit */
-	sdram.internal_bank = 0x40;		/* Bank 4 */
-	sdram.cas = 0x180;			/* CAS Latency 3 */
-	sdram.write_protection = 0x0;		/* Disable */
-	sdram.clk_period = 0x800;		/* Clk Period 2 */
-	sdram.read_burst = 0x0;			/* Disable */
-	sdram.read_pipe_delay = 0x2000;		/* Delay 1 */
-	sdram.fmc_sdram_timing = &sdram_timing;
-	sdram.fmc_sdram_cmd_config = &sdram_cmd_conf;
-
-	stm32_fmc_init(&sdram);
-
-	/* Configure user button */
-	stm32_pio_set_input(GPIOA_BASE, 0, 0, 0);
-	stm32_exti_init(GPIOA_BASE, 0);
-	stm32_exti_enable_falling(GPIOA_BASE, 0);
+//	stm32_pio_set_alternate(GPIOB_BASE, 5, 0xC);
+//	stm32_pio_set_alternate(GPIOB_BASE, 6, 0xC);
+//
+//	stm32_pio_set_alternate(GPIOC_BASE, 0, 0xC);
+//
+//	stm32_pio_set_alternate(GPIOD_BASE, 0, 0xC);
+//	stm32_pio_set_alternate(GPIOD_BASE, 1, 0xC);
+//	stm32_pio_set_alternate(GPIOD_BASE, 8, 0xC);
+//	stm32_pio_set_alternate(GPIOD_BASE, 9, 0xC);
+//	stm32_pio_set_alternate(GPIOD_BASE, 10, 0xC);
+//	stm32_pio_set_alternate(GPIOD_BASE, 14, 0xC);
+//	stm32_pio_set_alternate(GPIOD_BASE, 15, 0xC);
+//
+//	stm32_pio_set_alternate(GPIOE_BASE, 0, 0xC);
+//	stm32_pio_set_alternate(GPIOE_BASE, 1, 0xC);
+//	stm32_pio_set_alternate(GPIOE_BASE, 7, 0xC);
+//	stm32_pio_set_alternate(GPIOE_BASE, 8, 0xC);
+//	stm32_pio_set_alternate(GPIOE_BASE, 9, 0xC);
+//	stm32_pio_set_alternate(GPIOE_BASE, 10, 0xC);
+//	stm32_pio_set_alternate(GPIOE_BASE, 11, 0xC);
+//	stm32_pio_set_alternate(GPIOE_BASE, 12, 0xC);
+//	stm32_pio_set_alternate(GPIOE_BASE, 13, 0xC);
+//	stm32_pio_set_alternate(GPIOE_BASE, 14, 0xC);
+//	stm32_pio_set_alternate(GPIOE_BASE, 15, 0xC);
+//
+//	stm32_pio_set_alternate(GPIOF_BASE, 0, 0xC);
+//	stm32_pio_set_alternate(GPIOF_BASE, 1, 0xC);
+//	stm32_pio_set_alternate(GPIOF_BASE, 2, 0xC);
+//	stm32_pio_set_alternate(GPIOF_BASE, 3, 0xC);
+//	stm32_pio_set_alternate(GPIOF_BASE, 4, 0xC);
+//	stm32_pio_set_alternate(GPIOF_BASE, 5, 0xC);
+//	stm32_pio_set_alternate(GPIOF_BASE, 11, 0xC);
+//	stm32_pio_set_alternate(GPIOF_BASE, 12, 0xC);
+//	stm32_pio_set_alternate(GPIOF_BASE, 13, 0xC);
+//	stm32_pio_set_alternate(GPIOF_BASE, 14, 0xC);
+//	stm32_pio_set_alternate(GPIOF_BASE, 15, 0xC);
+//
+//	stm32_pio_set_alternate(GPIOG_BASE, 0, 0xC);
+//	stm32_pio_set_alternate(GPIOG_BASE, 1, 0xC);
+//	stm32_pio_set_alternate(GPIOG_BASE, 4, 0xC);
+//	stm32_pio_set_alternate(GPIOG_BASE, 5, 0xC);
+//	stm32_pio_set_alternate(GPIOG_BASE, 8, 0xC);
+//	stm32_pio_set_alternate(GPIOG_BASE, 15, 0xC);
+//
+//	sdram_cmd_conf.cmd_mode = 0x1;		/* Clock enable */
+//	sdram_cmd_conf.cmd_target = 0x8;	/* Bank 1 */
+//	sdram_cmd_conf.auto_refresh_num = 0x1;
+//	sdram_cmd_conf.mode = 0x0;
+//
+//	sdram_timing.load_to_active_delay = 2;
+//	sdram_timing.exit_self_refresh_delay = 7;
+//	sdram_timing.self_refresh_time = 4;
+//	sdram_timing.row_cycle_delay = 7;
+//	sdram_timing.write_recovery_time = 2;
+//	sdram_timing.rp_delay = 2;
+//	sdram_timing.rc_delay = 2;
+//
+//	sdram.num_bank = 0x2;
+//	sdram.column = 0x0;			/* 8 bit */
+//	sdram.row = 0x4;			/* 12 bit */
+//	sdram.data_width = 0x10;		/* 16 bit */
+//	sdram.internal_bank = 0x40;		/* Bank 4 */
+//	sdram.cas = 0x180;			/* CAS Latency 3 */
+//	sdram.write_protection = 0x0;		/* Disable */
+//	sdram.clk_period = 0x800;		/* Clk Period 2 */
+//	sdram.read_burst = 0x0;			/* Disable */
+//	sdram.read_pipe_delay = 0x2000;		/* Delay 1 */
+//	sdram.fmc_sdram_timing = &sdram_timing;
+//	sdram.fmc_sdram_cmd_config = &sdram_cmd_conf;
+//
+//	stm32_fmc_init(&sdram);
+//
+//	/* Configure user button */
+//	stm32_pio_set_input(GPIOA_BASE, 0, 0, 0);
+//	stm32_exti_init(GPIOA_BASE, 0);
+//	stm32_exti_enable_falling(GPIOA_BASE, 0);
 
 	init_systick();
 }
