@@ -207,7 +207,7 @@ void dma2_stream4_handler(void)
 	}
 }
 
-#ifdef CONFIG_STM32F429
+#if defined(CONFIG_STM32F429) || defined(CONFIG_STM32F746)
 void spi5_handler(void)
 {
 	int tmp;
