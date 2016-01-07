@@ -68,10 +68,14 @@ static void stm32_usart_print(struct usart *usart, unsigned char byte)
 
 static int stm32_usart_printl(struct usart *usart, const char *string)
 {
-	while (*string)
-		stm32_usart_print(usart, *string++);
+	int size = 0;
 
-	return 0;
+	while (*string) {
+		stm32_usart_print(usart, *string++);
+		size++;
+	}
+
+	return size;
 }
 
 struct usart_operations usart_ops = {

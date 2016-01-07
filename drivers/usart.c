@@ -50,7 +50,12 @@ int usart_printl(const char *string)
 	return usart_ops.printl(usart, string);
 }
 
+
+#ifdef CONFIG_USART_DEBUG
+
 struct io_operations io_op = {
 	.write = usart_print,
 	.write_string = usart_printl,
 };
+
+#endif /* CONFIG_USART_DEBUG */

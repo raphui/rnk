@@ -8,4 +8,16 @@ menu "Utility configuration"
 config UNWIND
 	bool "Enable stack unwinding"
 
+choice
+    prompt "Debug output"
+    default LITTLE_ENDIAN
+
+config USART_DEBUG
+    bool "USART"
+
+config SWO_DEBUG
+    bool "SWO"
+
+endchoice
+
 endmenu
