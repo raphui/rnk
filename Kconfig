@@ -14,3 +14,4 @@ source boards/Kconfig
 source kernel/Kconfig
 source drivers/Kconfig
 source mm/Kconfig
+source utils/Kconfig

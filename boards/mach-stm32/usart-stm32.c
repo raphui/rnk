@@ -16,6 +16,7 @@
  */
 
 #include <board.h>
+#include <mach/rcc-stm32.h>
 
 /* Calculates the value for the USART_BRR */
 static unsigned short stm32_baud_rate(long clock, unsigned int baud)
@@ -28,54 +29,53 @@ static unsigned short stm32_baud_rate(long clock, unsigned int baud)
 	return (mantissa << 4) | (fraction & 0xf);
 }
 
-static void stm32_usart_init(struct usart *usart)
+static int stm32_usart_init(struct usart *usart)
 {
+	int ret = 0;
 	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 
-#ifdef STM32_F429
-	/* Enable USART1 Clock */
-	RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
-#else
-	/* Enable USART3 Clock */
-	RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
-#endif /* STM32_F429 */
+	ret = stm32_rcc_enable_clk(usart->base_reg);
+	if (ret < 0) {
+		error_printk("cannot enable clk for usart\r\n");
+		return ret;
+	}
 
 	USART->CR1 &= ~USART_CR1_M;
 	USART->CR1 &= ~USART_CR1_UE;
 
-#ifdef STM32_F429
+#ifdef CONFIG_STM32F429
 	USART->BRR = stm32_baud_rate(APB2_CLK, usart->baud_rate);
 #else
 	USART->BRR = stm32_baud_rate(APB1_CLK, usart->baud_rate);
-#endif /* STM32_F429 */
+#endif /* CONFIG_STM32F429 */
 
 	USART->CR1 |= USART_CR1_RE;
 	USART->CR1 |= USART_CR1_TE;
 	USART->CR1 |= USART_CR1_UE;
+
+	return ret;
 }
 
-static void stm32_usart_print(unsigned char byte)
+static void stm32_usart_print(struct usart *usart, unsigned char byte)
 {
+	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 
-#ifdef STM32_F429
-	while(!(USART1->SR & USART_SR_TXE))
+	while(!(USART->SR & USART_SR_TXE))
 		;
 
-	USART1->DR = byte;
-#else
-	while(!(USART3->SR & USART_SR_TXE))
-		;
-
-	USART3->DR = byte;
-#endif /* STM32_F429 */
+	USART->DR = byte;
 }
 
-static int stm32_usart_printl(const char *string)
+static int stm32_usart_printl(struct usart *usart, const char *string)
 {
-	while (*string)
-		stm32_usart_print(*string++);
+	int size = 0;
 
-	return 0;
+	while (*string) {
+		stm32_usart_print(usart, *string++);
+		size++;
+	}
+
+	return size;
 }
 
 struct usart_operations usart_ops = {

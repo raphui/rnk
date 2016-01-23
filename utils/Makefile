@@ -3,7 +3,7 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
-obj-y := backtrace.o
+obj-$(CONFIG_UNWIND) := backtrace.o
 obj-y += stdio.o
 obj-y += symbols.o
 obj-y += string.o

@@ -16,10 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef BOARD_STM32F429_H
-#define BOARD_STM32F429_H
+#ifndef BOARD_STM32F746_H
+#define BOARD_STM32F746_H
 
-#include <stm32f429.h>
+#include <stm32f746.h>
 #include <usart.h>
 #include <pio.h>
 #include <timer.h>
@@ -40,9 +40,9 @@
 
 /*#define VECT_TAB_SRAM */
 #define VECT_TAB_OFFSET 0x00
-#define PLL_M		8
-#define PLL_Q		7
-#define PLL_N		336
+#define PLL_M		10
+#define PLL_Q		2
+#define PLL_N		210
 #define PLL_P		2
 #define HSE_STARTUP_TIMEOUT    0x05000
 #define RESET		0
@@ -113,4 +113,4 @@ struct dma_operations
 
 struct dma_operations dma_ops;
 
-#endif /* BOARD_STM32F429_H */
+#endif /* BOARD_STM32F746_H */

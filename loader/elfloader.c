@@ -31,17 +31,26 @@
  * otherwise.
  */
 
+#define R_ARM_NONE		0	/* Nothing */
 #define R_ARM_ABS32		2	/* (S + A) | T */
 #define R_ARM_THM_CALL		10	/* ((S + A) | T) – P */
+#define R_ARM_CALL		28	/* ((S + A) | T) – P */
+#define R_ARM_JUMP24		29	/* ((S + A) | T) – P */
+#define R_ARM_V4BX		40	/* Nothing */
+#define R_ARM_PREL31		42	/* (S + A) | T */
 #define R_ARM_THM_MOVW_ABS_NC	47	/* (S + A) | T */
 #define R_ARM_THM_MOVT_ABS	48	/* S + A */
 
+#define ELF_APP_STACK_SIZE	2048
+
 static char *buff;
+static unsigned int ram_addr;
 static int size;
 static int section_size;
 static elf32_ehdr *ehdr;
 static elf32_shdr *symtab;
 static elf32_shdr *strtab;
+static unsigned int *lookup_table;
 
 static elf32_shdr *elf_get_section(int num)
 {
@@ -51,23 +60,38 @@ static elf32_shdr *elf_get_section(int num)
 static int elf_get_symval(elf32_sym *sym)
 {
 	char *str;
-	int addr;
+	int addr = -ENXIO;
+	elf32_shdr *target;
 
 	if (ELF32_ST_BIND(sym->st_info) & (STB_GLOBAL | STB_WEAK)) {
 		str = buff + strtab->sh_offset + sym->st_name;
 
 		debug_printk("sym_value: %#x ", sym->st_value);
-		debug_printk("sym: %s\n", str);
+		printk("sym: %s\n", str);
 
 		addr = symbol_get_addr(str);
-		if (addr == 0) {
+		if (addr < 0) {
 			if (ELF32_ST_BIND(sym->st_info) & STB_WEAK)
 				addr = 0;
-			else {
-				printk("[-] Undefined symbol: %s\n", str);
+			else if (sym->st_shndx != SHN_UNDEF) {
+				target = elf_get_section(sym->st_shndx);
+				addr = lookup_table[sym->st_shndx] + sym->st_value + target->sh_offset;
+
+				printk("sym: %s defined at 0x%x\n", str, addr);
+			} else {
+				error_printk("[-] Undefined symbol: %s\n", str);
 				addr = -ENXIO;
 			}
 		}
+	} else if (ELF32_ST_BIND(sym->st_info) & STB_LOCAL) {
+		str = buff + strtab->sh_offset + sym->st_name;
+
+		printk("local sym: %s\n", str);
+
+		target = elf_get_section(sym->st_shndx);
+		addr = buff + sym->st_value + target->sh_offset;
+
+		debug_printf("defined at 0x%x\n", addr);
 	}
 
 	return addr;
@@ -75,7 +99,7 @@ static int elf_get_symval(elf32_sym *sym)
 
 static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 {
-	int addr = (int)(buff + target->sh_offset);
+	int addr = (int)(ram_addr);// + target->sh_offset);
 	int *ref = (int *)(addr + rel->r_offset);
 	elf32_sym *sym;
 	int func;
@@ -85,17 +109,16 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 	if (ELF32_R_SYM(rel->r_info) != SHN_UNDEF) {
 		sym = (elf32_sym *)(buff + symtab->sh_offset + ELF32_R_SYM(rel->r_info) * symtab->sh_entsize);
 		func = elf_get_symval(sym);
-		if (func < 0)
-			return func;
-
-		debug_printk("\t- target: %#x\n", addr);
-		debug_printk("\t- reloff in target: %#p\n", ref);
-		debug_printk("\t- func: %#x\n", func);
-
-		if (!func) {
-			debug_printk("[-] Failed to find address symbol\n");
-			return -ENXIO;
+		if (func < 0) {
+//			printk("[-] Failed to find address symbol\n");
+//			return -ENXIO;
+			func = 0;
 		}
+
+
+		debug_printk("\t- target: 0x%x\n", addr);
+		printk("\t- reloff in target: 0x%x\n", ref);
+		printk("\t- func: 0x%x\n", func);
 	}
 
 	s = func;
@@ -104,30 +127,28 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 	t = func & 0x1;
 
 	debug_printk("\t- %s instruction\n", t ? "Thumb" : "ARM");
-	debug_printk("\t- before reloc: %#x\n", *ref);
+	printk("\t- before reloc: 0x%#x\n", *ref);
 
 	switch (ELF32_R_TYPE(rel->r_info)) {
 	case R_ARM_ABS32:
-		debug_printk("R_ARM_ABS32 reloc\n");
+	case R_ARM_PREL31:
+	case R_ARM_THM_MOVW_ABS_NC:
 		*ref = (s + a) | t;
 		break;
 	case R_ARM_THM_CALL:
-		debug_printk("R_ARM_THM_CALL reloc\n");
+	case R_ARM_CALL:
+	case R_ARM_JUMP24:
 		*ref = ((s + a) | t) - p;
 		break;
-	case R_ARM_THM_MOVW_ABS_NC:
-		debug_printk("R_ARM_THM_MOVW_ABS_NC reloc\n");
-		*ref = (s + a) | t;
-		break;
 	case R_ARM_THM_MOVT_ABS:
-		debug_printk("R_ARM_THM_MOVT_ABS reloc\n");
 		*ref = s + a;
 		break;
 	default:
+		printk("unknown reloc type\n");
 		return -EINVAL;
 	}
 
-	debug_printk("\t- after reloc: %#x\n", *ref);
+	printk("\t- after reloc: 0x%x\n", *ref);
 
 	return ret;
 }
@@ -143,20 +164,28 @@ static int elf_section_alloc(elf32_shdr *shdr)
 	for (i = 0; i < ehdr->e_shnum; i++) {
 		section = elf_get_section(i);
 		str = buff + shdr->sh_offset + section->sh_name;
-		if (section->sh_type == SHT_NOBITS) {
-			printk("[!] %s\n", str);
+		if (section->sh_type & (SHT_NOBITS | SHT_PROGBITS)) {
+			debug_printk("[!] %s\n", str);
 
 			if (!section->sh_size) {
-				printk("[-] Section empty\n");
+				debug_printk("[-] Section empty\n");
 				continue;
 			}
 
 			if (section->sh_flags & SHF_ALLOC) {
 				mem = kmalloc(section->sh_size);
+				if (!mem) {
+					error_printk("failed to alloc %d bytes for %s\n", section->sh_size, str);
+					return -ENOMEM;
+				}
 				memset(mem, 0, section->sh_size);
 
 				section->sh_offset = (int)mem - (int)buff;
-				printk("Allocate %d bytes for section %s\n", section->sh_size, str);
+				debug_printk("Allocate %d bytes for section %s\n", section->sh_size, str);
+
+				memcpy(mem, buff + section->sh_offset, section->sh_size);
+
+				lookup_table[i] = (unsigned int)mem;
 			}
 		}
 	}
@@ -183,10 +212,11 @@ static int elf_section_reloc(elf32_shdr *shdr)
 				rel = (elf32_rel *)(buff + section->sh_offset + j * section->sh_entsize);
 				target = elf_get_section(section->sh_info);
 
-				debug_printk("\t- offset: %#x ", rel->r_offset);
-				debug_printk("info: %#x ", rel->r_info);
-				debug_printk("\t- applies to: %#x\n", section->sh_info);
+				debug_printk("\t- offset: 0x%x ", rel->r_offset);
+				debug_printk("info: 0x%x \n", rel->r_info);
+				printk("\t- applies to: 0x%x\n", section->sh_info);
 
+				ram_addr = lookup_table[section->sh_info];
 				ret = elf_reloc(ehdr, target, rel);
 				if (ret < 0) {
 					debug_printk("[-] Failed to reloc\n");
@@ -220,16 +250,19 @@ int elf_load(char *elf_data, int elf_size, int reloc_addr)
 	printk("\t- index sections name: %d\n", ehdr->e_shstrndx);
 	printk("\t- section header offset: %#x\n", ehdr->e_shoff);
 
+	lookup_table = (unsigned int *)kmalloc(ehdr->e_shnum);
+	memset(lookup_table, 0, ehdr->e_shnum);
+
 	section_size = ehdr->e_shentsize;
 	shdr = elf_get_section(ehdr->e_shstrndx);
 
-	printk("\t- section string table offset: %#x\n", shdr->sh_offset);
+	debug_printk("\t- section string table offset: %#x\n", shdr->sh_offset);
 
-	printk("[+] dumping section name: \n");
+	debug_printk("[+] dumping section name: \n");
 	for (i = 0; i < ehdr->e_shnum; i++) {
 		section = elf_get_section(i);
 		str = buff + shdr->sh_offset + section->sh_name;
-		printk("[!] %s\n", str);
+		debug_printk("[!] %s\n", str);
 
 		if (section->sh_type == SHT_SYMTAB)
 			symtab = section;
@@ -247,8 +280,58 @@ int elf_load(char *elf_data, int elf_size, int reloc_addr)
 	if (ret < 0)
 		printk("[-] Failed to reloc sections\n");
 
-	ehdr->e_entry = reloc_addr;
+	ehdr->e_entry = lookup_table[2];
 
 out:
+	return ret;
+}
+
+static void elf_jump(unsigned int entry)
+{
+	void *stack = kmalloc(ELF_APP_STACK_SIZE);
+
+	if (stack) {
+		unsigned int saved = 0;
+		void *tos = stack + ELF_APP_STACK_SIZE;
+		unsigned int (*fct)(void) = entry;
+
+		/* s->saved */
+//		__asm__ volatile("MOV %0, sp\n\t" : : "r"(saved));
+		/* tos->MSP */
+//		__asm__ volatile("MOV sp, %0\n\t" : : "r"(tos));
+		/* push saved */
+//		__asm__ volatile("PUSH {%0}\n\t" : : "r"(saved));
+
+		fct();
+
+		/* pop saved */
+//		__asm__ volatile("POP {%0}\n\t" : : "r"(saved));
+		/* saved->sp */
+//		__asm__ volatile("MOV sp, %0\n\t" : : "r"(saved));
+
+		kfree(stack);
+	}
+	else
+		error_printk("failed to alloc stack for elf\r\n");
+}
+
+int elf_exec(char *elf_data, int elf_size, int reloc_addr)
+{
+	int ret = 0;
+	unsigned int entry_point;
+
+	ret = elf_load(elf_data, elf_size, reloc_addr);
+	if (ret < 0) {
+		error_printk("failed to load elf\n");
+		return -EIO;
+	}
+
+	entry_point = lookup_table[2];
+	kfree(lookup_table);
+	printk("ph_off: 0x%x\r\n", ehdr->e_phoff);
+	printk("elf entry point at: 0x%x\r\n", entry_point);
+
+	elf_jump(entry_point);
+
 	return ret;
 }

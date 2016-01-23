@@ -6,24 +6,42 @@
 
 export
 
-ARMV=armv7m
-MACH=stm32
-SOC=stm32f429
-#SOC=stm32f407
-MCPU=cortex-m4
+CONFIG := $(wildcard .config)
+ifneq ($(CONFIG),)
+include $(CONFIG)
+endif
 
-SAM7S_SRAM_LD=sram_sam7s.lds
-SAM7S_FLASH_LD=flash_sam7s.lds
-BCM2835_LD=link-arm-eabi.ld
-SAM3X_LD=sam3x.ld
-SAM3X8_SRAM_LD=sram.ld
-STM32F407_LD=stm32.ld
-STM32F429_LD=stm32_alt.ld
-LD_SCRIPT=$(STM32F429_LD)
-#LD_SCRIPT=$(STM32F407_LD)
-#LD_SCRIPT=$(SAM7S_SRAM_LD)
-#LD_SCRIPT=$(SAM7S_FLASH_LD)
-STM32_DEFINE = STM32_F429
+ifeq ($(CONFIG_CPU_ARMV7M),y)
+ARMV=armv7m
+endif
+
+ifeq ($(CONFIG_MACH_STM32),y)
+MACH=stm32
+endif
+
+ifeq ($(CONFIG_STM32F401),y)
+SOC=stm32f401
+endif
+
+ifeq ($(CONFIG_STM32F407),y)
+SOC=stm32f407
+endif
+
+ifeq ($(CONFIG_STM32F429),y)
+SOC=stm32f429
+endif
+
+ifeq ($(CONFIG_STM32F746),y)
+SOC=stm32f746
+endif
+
+ifeq ($(CONFIG_CPU_ARM_CORTEX_M4),y)
+MCPU=cortex-m4
+endif
+
+ifeq ($(CONFIG_CPU_ARM_CORTEX_M7),y)
+MCPU=cortex-m7
+endif
 
 KCONFIG_AUTOHEADER=config.h
 
@@ -32,11 +50,15 @@ INCLUDES	+= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
-CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -funwind-tables -g $(INCLUDES) -D$(STM32_DEFINE)
-CFLAGS += -DUNWIND
+CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -nostdinc -g $(INCLUDES)
+
+ifeq ($(CONFIG_UNWIND),y)
+CFLAGS += -funwind-tables
+endif
+
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffunction-sections -mcpu=arm7tdmi -nostdlib -g $(INCLUDES)
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
-LDFLAGS	:= -g $(INCLUDES) -nostartfiles #-Wl,--gc-sections
+LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib #-Wl,--gc-sections
 
 CC := $(CROSS_COMPILE)gcc
 AS := $(CROSS_COMPILE)as
@@ -45,15 +67,12 @@ LD := $(CROSS_COMPILE)ld
 
 endif
 
-CONFIG := $(wildcard .config)
-ifneq ($(CONFIG),)
-include $(CONFIG)
-endif
-
 subdirs-y := arch boards boot drivers kernel loader mm utils
 
+linker-$(CONFIG_STM32F401) := stm32_401.ld
 linker-$(CONFIG_STM32F407) := stm32.ld
 linker-$(CONFIG_STM32F429) := stm32_alt.ld
+linker-$(CONFIG_STM32F746) := stm32f7.ld
 
 linker_files = $(foreach linker-file,$(linker-y), -T$(linker-file))
 
@@ -97,7 +116,7 @@ kernel.img: kernel.elf
 	@$(CROSS_COMPILE)objcopy kernel.elf -O binary kernel.bin
  
 ifeq (${MAKELEVEL}, 0)
-clean:	symbols-clean
+clean:
 	$(MAKE) -f tools/Makefile.common dir=. $@
 	$(RM) $(OBJS) kernel.elf kernel.img
 	$(RM) boards/board.h

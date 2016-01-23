@@ -32,6 +32,10 @@ config CPU_ARM_CORTEX_M4
     bool "Cortex-M4"
     select CPU_ARMV7M
 
+config CPU_ARM_CORTEX_M7
+    bool "Cortex-M7"
+    select CPU_ARMV7M
+
 endchoice
 
 choice

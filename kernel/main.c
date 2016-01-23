@@ -33,10 +33,11 @@
 #include <spi.h>
 #include <dma.h>
 #include <common.h>
+#include <elfloader.h>
 
-#ifdef UNWIND
+#ifdef CONFIG_UNWIND
 #include <backtrace.h>
-#endif /* UNWIND */
+#endif /* CONFIG_UNWIND */
 
 #ifdef CONFIG_STM32F429
 #include <ili9341.h>
@@ -142,10 +143,10 @@ void seventh_task(void)
 {
 	int a = 5;
 	count = 0;
-	printk("starting task H\r\n");
+	printk("starting task G\r\n");
 	printk("#####a(%x): %d\r\n", &a , a);
 	while (1) {
-		printk("H");
+		printk("G");
 		if (count++ == 4000)
 			queue_post(&queue, &a, 0);
 	}
@@ -155,11 +156,11 @@ void seventh_task(void)
 void eighth_task(void)
 {
 	int b = 0;
-	printk("starting task G\r\n");
+	printk("starting task H\r\n");
 	queue_receive(&queue, &b, 10000);
 	printk("#####b(%x): %d\r\n", &b, b);
 	while (1) {
-		printk("G");
+		printk("H");
 	}
 
 }
@@ -258,10 +259,13 @@ void ninth_task(void)
 	ltdc_init();
 	ili9341_init();
 	ili9341_init_lcd();
+#elif defined(CONFIG_STM32F746)
+	pio_set_output(GPIOI_BASE, 1, 0);
 #endif /* CONFIG_STM32F429 */
 
 	while (1) {
 		printk("I");
+#ifdef CONFIG_STM32F429
 		lcd_rgb565_fill(BLACK);
 		sem_wait(&sem);
 		lcd_rgb565_fill(BLUE);
@@ -277,6 +281,9 @@ void ninth_task(void)
 		lcd_rgb565_fill(YELLOW);
 		sem_wait(&sem);
 		lcd_rgb565_fill(WHITE);
+#elif defined(CONFIG_STM32F746)
+		pio_toggle_value(GPIOI, 6);
+#endif /* CONFIG_STM32F429 */
 	}
 }
 
@@ -290,29 +297,31 @@ void tenth_task(void)
 	}
 }
 
+void eleventh_task(void)
+{
+	int ret;
+	printk("starting task K\r\n");
+
+	ret = elf_exec((char *)0x08050000, 220417, 0x08050000);
+	if (ret < 0)
+		printk("failed to exec elf\r\n");
+	else
+		printk("efl execution done\r\n");
+
+	while (1) {
+		printk("K");
+	}
+	
+}
+
 int main(void)
 {
+	init_heap();
 
 #ifdef CONFIG_STM32F429
-	usart.num = 1;
-	usart.base_reg = USART1_BASE;
-	usart.baud_rate = 115200;
-
-	usart_init(&usart);
-
+	usart_init(1, USART1_BASE, 115200);
 	pio_set_alternate(GPIOA_BASE, 9, 0x7);
 	pio_set_alternate(GPIOA_BASE, 10, 0x7);
-#else
-	usart.num = 3;
-	usart.base_reg = USART3_BASE;
-	usart.baud_rate = 115200;
-
-	usart_init(&usart);
-
-	pio_set_alternate(GPIOC_BASE, 10, 0x7);
-	pio_set_alternate(GPIOC_BASE, 11, 0x7);
-#endif /* CONFIG_STM32F429 */
-
 	dma.num = 2;
 	dma.stream_base = DMA2_Stream0_BASE;
 	dma.stream_num = 0;
@@ -330,11 +339,17 @@ int main(void)
 
 	/* User button */
 	pio_set_input(GPIOA_BASE, 0, 0, 0);
+#elif defined (CONFIG_STM32F407)
+	usart_init(3, USART3_BASE, 115200);
+	pio_set_alternate(GPIOC_BASE, 10, 0x7);
+	pio_set_alternate(GPIOC_BASE, 11, 0x7);
+#elif defined (CONFIG_STM32F401)
+	usart_init(2, USART2_BASE, 115200);
+	pio_set_alternate(GPIOA_BASE, 2, 0x7);
+	pio_set_alternate(GPIOA_BASE, 3, 0x7);
+#endif /* CONFIG_STM32F429 */
 
 	printk("Welcome to rnk\r\n");
-	printk("- Initialise heap...\r\n");
-
-	init_heap();
 
 	printk("- Initialise scheduler...\r\n");
 	schedule_init();
@@ -344,9 +359,9 @@ int main(void)
 	init_queue(&queue, sizeof(int), 5);
 	time_init();
 
-#ifdef UNWIND
+#ifdef CONFIG_UNWIND
 	unwind_init();
-#endif /* UNWIND */
+#endif /* CONFIG_UNWIND */
 
 	printk("- Add task to scheduler\r\n");
 
@@ -358,10 +373,11 @@ int main(void)
 //	add_task(&sixth_task, 1);
 //	add_task(&seventh_task, 1);
 //	add_task(&eighth_task, 1);
-	add_task(&ninth_task, 1);
+//	add_task(&ninth_task, 1);
 #ifdef FAULT
 	add_task(&tenth_task, 1);
 #endif /* FAULT */
+	add_task(&eleventh_task, 2);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();

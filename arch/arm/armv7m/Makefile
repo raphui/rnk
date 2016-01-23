@@ -6,5 +6,6 @@
 subdirs-y += kernel
 
 obj-y := nvic.o
+obj-$(CONFIG_SWO_DEBUG) += swo.o
 obj-y += systick.o
 obj-y += handlers.o

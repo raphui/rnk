@@ -38,10 +38,10 @@ static void dump_stack(unsigned int *stack)
 	lr = stack[5];
 	pc = stack[6];
 
-#ifdef UNWIND
+#ifdef CONFIG_UNWIND
 	/* fp = 0, because we don't care about it */
 	unwind_backtrace(0, (unsigned int)stack, lr, pc);
-#endif /* UNWIND */
+#endif /* CONFIG_UNWIND */
 
 	while (1)
 		;
@@ -207,6 +207,7 @@ void dma2_stream4_handler(void)
 	}
 }
 
+#if defined(CONFIG_STM32F429) || defined(CONFIG_STM32F746)
 void spi5_handler(void)
 {
 	int tmp;
@@ -228,6 +229,7 @@ void spi5_handler(void)
 		tmp = SPI5->DR;
 	}
 }
+#endif /* CONFIG_STM32F429 */
 
 void exti0_handler(void)
 {

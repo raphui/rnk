@@ -10,5 +10,5 @@ obj-y += timer.o
 obj-y += i2c.o
 obj-y += spi.o
 obj-y += dma.o
-obj-y += lcd.o
-obj-y += ili9341.o
+obj-$(CONFIG_STM32F429) += lcd.o
+obj-$(CONFIG_STM32F429) += ili9341.o

@@ -44,7 +44,7 @@ static void puts_x(char *str, int width, const char pad)
 		('0' + (x)) : \
 	 	('a' + ((x) - 10)))
 
-static int put_hex(const uint32_t val, int width, const char pad)
+static int put_hex(const unsigned int val, int width, const char pad)
 {
 	int i, n = 0;
 	int nwidth = 0;
@@ -68,9 +68,9 @@ static int put_hex(const uint32_t val, int width, const char pad)
 	return n;
 }
 
-static void put_dec(const uint32_t val, const int width, const char pad)
+static void put_dec(const unsigned int val, const int width, const char pad)
 {
-	uint32_t divisor;
+	unsigned int divisor;
 	int digits;
 
 	/* estimate number of spaces and digits */
@@ -121,7 +121,7 @@ void vprintf(char *fmt, va_list va)
 		} else {
 			switch (*fmt) {
 			case 'c':
-				putchar(va_arg(va, uint32_t));
+				putchar(va_arg(va, unsigned int));
 				mode = 0;
 				break;
 			case 's':
@@ -135,8 +135,8 @@ void vprintf(char *fmt, va_list va)
 			case 'd':
 			case 'D':
 				put_dec((size == 32) ?
-				        va_arg(va, uint32_t) :
-				        va_arg(va, uint64_t),
+				        va_arg(va, unsigned int) :
+				        va_arg(va, unsigned long long),
 				        width, pad);
 				mode = 0;
 				break;
@@ -148,8 +148,8 @@ void vprintf(char *fmt, va_list va)
 			case 'x':
 			case 'X':
 				put_hex((size == 32) ?
-					va_arg(va, uint32_t) :
-				        va_arg(va, uint64_t),
+					va_arg(va, unsigned int) :
+				        va_arg(va, unsigned long long),
 				        width, pad);
 				mode = 0;
 				break;

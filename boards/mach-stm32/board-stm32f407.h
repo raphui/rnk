@@ -51,9 +51,9 @@
  
 struct usart_operations
 {
-	void (*init)(struct usart *usart);
-	void (*print)(unsigned char byte);
-	int (*printl)(const char *string);
+	int (*init)(struct usart *usart);
+	void (*print)(struct usart *usart, unsigned char byte);
+	int (*printl)(struct usart *usart, const char *string);
 };
 
 struct usart_operations usart_ops;
@@ -88,7 +88,7 @@ struct timer_operations tim_ops;
 struct spi_operations
 {
 	int (*init)(struct spi *spi);
-	void (*write)(struct spi *spi, unsigned short data);
+	unsigned short (*write)(struct spi *spi, unsigned short data);
 	unsigned short (*read)(struct spi *spi);
 };
 

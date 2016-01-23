@@ -2,3 +2,9 @@
 # Author: Raphaël Poggi <poggi.raph@gmail.com>
 #
 # Provided under the three clause BSD license found in the LICENSE file.
+
+menu "Kernel configuration"
+
+config TASK_STACK_START
+	hex "Start address of kernel task stack"
+endmenu
