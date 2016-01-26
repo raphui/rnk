@@ -20,7 +20,7 @@
 #include <scheduler.h>
 #include <task.h>
 
-int main(int argc, char **argv)
+int test(void)
 {
 	printk("Hello World from app_test !\n");
 

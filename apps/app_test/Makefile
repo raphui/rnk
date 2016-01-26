@@ -14,7 +14,9 @@ INCLUDES	+= -I$(KERNEL_BASE)/boards
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
 CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections 
-CFLAGS += -mcpu=$(MCPU) -mthumb -nostdlib -funwind-tables -g $(INCLUDES)
+CFLAGS += -mcpu=$(MCPU) -mthumb -nostdlib -g $(INCLUDES)
+CFLAGS +=  -mword-relocations
+#CFLAGS += -mcpu=$(MCPU) -mthumb -nostdlib -funwind-tables -g $(INCLUDES)
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles #-Wl,--gc-sections
 LDFLAGS += -r
 
