@@ -35,7 +35,7 @@ struct io_operations
 	int (*write_string)(const char *string);
 };
 
-struct io_operations io_op;
+extern struct io_operations io_op;
 
 void printk(char *fmt, ...);
 void vprintf(char *fmt, va_list va);
