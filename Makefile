@@ -116,7 +116,7 @@ kernel.img: kernel.elf
 	@$(CROSS_COMPILE)objcopy kernel.elf -O binary kernel.bin
  
 ifeq (${MAKELEVEL}, 0)
-clean:	symbols-clean
+clean:
 	$(MAKE) -f tools/Makefile.common dir=. $@
 	$(RM) $(OBJS) kernel.elf kernel.img
 	$(RM) boards/board.h
