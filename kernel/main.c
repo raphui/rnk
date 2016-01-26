@@ -298,11 +298,11 @@ void eleventh_task(void)
 	int ret;
 	printk("starting task K\r\n");
 
-	ret = elf_load((char *)0x08010000, 220417, 0x08020000);
+	ret = elf_exec((char *)0x08050000, 220417, 0x08050000);
 	if (ret < 0)
-		printk("failed to relocate elf\r\n");
+		printk("failed to exec elf\r\n");
 	else
-		printk("efl relocation done\r\n");
+		printk("efl execution done\r\n");
 
 	while (1) {
 		printk("K");
@@ -369,11 +369,11 @@ int main(void)
 //	add_task(&sixth_task, 1);
 //	add_task(&seventh_task, 1);
 //	add_task(&eighth_task, 1);
-	add_task(&ninth_task, 1);
+//	add_task(&ninth_task, 1);
 #ifdef FAULT
 	add_task(&tenth_task, 1);
 #endif /* FAULT */
-//	add_task(&eleventh_task, 2);
+	add_task(&eleventh_task, 2);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();
