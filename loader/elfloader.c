@@ -41,6 +41,8 @@
 #define R_ARM_THM_MOVW_ABS_NC	47	/* (S + A) | T */
 #define R_ARM_THM_MOVT_ABS	48	/* S + A */
 
+#define ELF_APP_STACK_SIZE	2048
+
 static char *buff;
 static int size;
 static int section_size;
@@ -93,9 +95,9 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 		if (func < 0)
 			return func;
 
-		debug_printk("\t- target: %#x\n", addr);
-		debug_printk("\t- reloff in target: %#p\n", ref);
-		debug_printk("\t- func: %#x\n", func);
+		debug_printk("\t- target: 0x%x\n", addr);
+		debug_printk("\t- reloff in target: 0x%x\n", ref);
+		debug_printk("\t- func: 0x%x\n", func);
 
 		if (!func) {
 			debug_printk("[-] Failed to find address symbol\n");
@@ -109,7 +111,7 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 	t = func & 0x1;
 
 	debug_printk("\t- %s instruction\n", t ? "Thumb" : "ARM");
-	debug_printk("\t- before reloc: %#x\n", *ref);
+	printk("\t- before reloc: 0x%#x\n", *ref);
 
 	switch (ELF32_R_TYPE(rel->r_info)) {
 	case R_ARM_ABS32:
@@ -126,10 +128,11 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 		*ref = s + a;
 		break;
 	default:
+		printk("unknown reloc type\n");
 		return -EINVAL;
 	}
 
-	debug_printk("\t- after reloc: %#x\n", *ref);
+	printk("\t- after reloc: 0x%x\n", *ref);
 
 	return ret;
 }
@@ -252,5 +255,54 @@ int elf_load(char *elf_data, int elf_size, int reloc_addr)
 	ehdr->e_entry = reloc_addr;
 
 out:
+	return ret;
+}
+
+static void elf_jump(unsigned int entry)
+{
+	void *stack = kmalloc(ELF_APP_STACK_SIZE);
+
+	if (stack) {
+		unsigned int saved = 0;
+		void *tos = stack + ELF_APP_STACK_SIZE;
+		unsigned int (*fct)(void) = entry;
+
+		/* s->saved */
+		__asm__ volatile("MOV %0, sp\n\t" : : "r"(saved));
+		/* tos->MSP */
+		__asm__ volatile("MOV sp, %0\n\t" : : "r"(tos));
+		/* push saved */
+		__asm__ volatile("PUSH {%0}\n\t" : : "r"(saved));
+
+		fct();
+
+		/* pop saved */
+		__asm__ volatile("POP {%0}\n\t" : : "r"(saved));
+		/* saved->sp */
+		__asm__ volatile("MOV sp, %0\n\t" : : "r"(saved));
+
+		kfree(stack);
+	}
+	else
+		error_printk("failed to alloc stack for elf\r\n");
+}
+
+int elf_exec(char *elf_data, int elf_size, int reloc_addr)
+{
+	int ret = 0;
+	unsigned int entry_point;
+
+	ret = elf_load(elf_data, elf_size, reloc_addr);
+	if (ret < 0) {
+		error_printk("failed to load elf\n");
+		ret = -EIO;
+	}
+
+	entry_point = ehdr->e_entry + 0x34;
+	printk("ph_off: 0x%x\r\n", ehdr->e_phoff);
+	printk("elf entry point at: 0x%x\r\n", entry_point);
+
+	elf_jump(entry_point);
+
 	return ret;
 }
