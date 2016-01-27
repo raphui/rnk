@@ -148,7 +148,7 @@ static int elf_section_alloc(elf32_shdr *shdr)
 	for (i = 0; i < ehdr->e_shnum; i++) {
 		section = elf_get_section(i);
 		str = buff + shdr->sh_offset + section->sh_name;
-		if (section->sh_type == SHT_NOBITS) {
+		if (section->sh_type & (SHT_NOBITS | SHT_PROGBITS)) {
 			printk("[!] %s\n", str);
 
 			if (!section->sh_size) {
