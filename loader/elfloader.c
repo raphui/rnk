@@ -44,11 +44,13 @@
 #define ELF_APP_STACK_SIZE	2048
 
 static char *buff;
+static unsigned int ram_addr;
 static int size;
 static int section_size;
 static elf32_ehdr *ehdr;
 static elf32_shdr *symtab;
 static elf32_shdr *strtab;
+static unsigned int lookup_table[255] = {0};
 
 static elf32_shdr *elf_get_section(int num)
 {
@@ -58,13 +60,14 @@ static elf32_shdr *elf_get_section(int num)
 static int elf_get_symval(elf32_sym *sym)
 {
 	char *str;
-	int addr;
+	int addr = -ENXIO;
+	elf32_shdr *target;
 
 	if (ELF32_ST_BIND(sym->st_info) & (STB_GLOBAL | STB_WEAK)) {
 		str = buff + strtab->sh_offset + sym->st_name;
 
 		debug_printk("sym_value: %#x ", sym->st_value);
-		debug_printk("sym: %s\n", str);
+		printk("sym: %s\n", str);
 
 		addr = symbol_get_addr(str);
 		if (addr == 0) {
@@ -75,6 +78,15 @@ static int elf_get_symval(elf32_sym *sym)
 				addr = -ENXIO;
 			}
 		}
+	} else if (ELF32_ST_BIND(sym->st_info) & STB_LOCAL) {
+		str = buff + strtab->sh_offset + sym->st_name;
+
+		printk("local sym: %s\n", str);
+
+		target = elf_get_section(sym->st_shndx);
+		addr = buff + sym->st_value + target->sh_offset;
+
+		printf("defined at 0x%x\n", addr);
 	}
 
 	return addr;
@@ -96,11 +108,11 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 			return func;
 
 		debug_printk("\t- target: 0x%x\n", addr);
-		debug_printk("\t- reloff in target: 0x%x\n", ref);
+		printk("\t- reloff in target: 0x%x\n", ref);
 		debug_printk("\t- func: 0x%x\n", func);
 
 		if (!func) {
-			debug_printk("[-] Failed to find address symbol\n");
+			printk("[-] Failed to find address symbol\n");
 			return -ENXIO;
 		}
 	}
@@ -162,6 +174,8 @@ static int elf_section_alloc(elf32_shdr *shdr)
 
 				section->sh_offset = (int)mem - (int)buff;
 				printk("Allocate %d bytes for section %s\n", section->sh_size, str);
+
+				memcpy(mem, buff + section->sh_offset, section->sh_size);
 			}
 		}
 	}
@@ -228,13 +242,13 @@ int elf_load(char *elf_data, int elf_size, int reloc_addr)
 	section_size = ehdr->e_shentsize;
 	shdr = elf_get_section(ehdr->e_shstrndx);
 
-	printk("\t- section string table offset: %#x\n", shdr->sh_offset);
+	debug_printk("\t- section string table offset: %#x\n", shdr->sh_offset);
 
-	printk("[+] dumping section name: \n");
+	debug_printk("[+] dumping section name: \n");
 	for (i = 0; i < ehdr->e_shnum; i++) {
 		section = elf_get_section(i);
 		str = buff + shdr->sh_offset + section->sh_name;
-		printk("[!] %s\n", str);
+		debug_printk("[!] %s\n", str);
 
 		if (section->sh_type == SHT_SYMTAB)
 			symtab = section;
@@ -252,7 +266,7 @@ int elf_load(char *elf_data, int elf_size, int reloc_addr)
 	if (ret < 0)
 		printk("[-] Failed to reloc sections\n");
 
-	ehdr->e_entry = reloc_addr;
+	ehdr->e_entry = ram_addr;
 
 out:
 	return ret;
@@ -298,7 +312,7 @@ int elf_exec(char *elf_data, int elf_size, int reloc_addr)
 		ret = -EIO;
 	}
 
-	entry_point = ehdr->e_entry + 0x34;
+	entry_point = ram_addr;
 	printk("ph_off: 0x%x\r\n", ehdr->e_phoff);
 	printk("elf entry point at: 0x%x\r\n", entry_point);
 
