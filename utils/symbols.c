@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
+#include <errno.h>
 
 #include <symbols.h>
 
@@ -211,7 +212,7 @@ int symbol_get_addr(char *name)
 {
 	int size = sizeof(symbols) / sizeof(struct sym);
 	int i = 0;
-	int ret = 0;
+	int ret = -ENXIO;
 
 	for (i = 0; i < size; i++) {
 		if (!strcmp(name, symbols[i].name)) {
