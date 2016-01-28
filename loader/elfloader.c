@@ -60,24 +60,24 @@ static elf32_shdr *elf_get_section(int num)
 static int elf_get_symval(elf32_sym *sym)
 {
 	char *str;
-	int addr = 0;
+	int addr = -ENXIO;
 	elf32_shdr *target;
 
 	if (ELF32_ST_BIND(sym->st_info) & (STB_GLOBAL | STB_WEAK)) {
 		str = buff + strtab->sh_offset + sym->st_name;
 
 		debug_printk("sym_value: %#x ", sym->st_value);
-		debug_printk("sym: %s\n", str);
+		printk("sym: %s\n", str);
 
 		addr = symbol_get_addr(str);
-		if (addr == 0) {
+		if (addr < 0) {
 			if (ELF32_ST_BIND(sym->st_info) & STB_WEAK)
 				addr = 0;
 			else if (sym->st_shndx != SHN_UNDEF) {
 				target = elf_get_section(sym->st_shndx);
 				addr = lookup_table[sym->st_shndx] + sym->st_value + target->sh_offset;
 
-				debug_printk("sym: %s defined at 0x%x\n", str, addr);
+				printk("sym: %s defined at 0x%x\n", str, addr);
 			} else {
 				error_printk("[-] Undefined symbol: %s\n", str);
 				addr = -ENXIO;
@@ -86,7 +86,7 @@ static int elf_get_symval(elf32_sym *sym)
 	} else if (ELF32_ST_BIND(sym->st_info) & STB_LOCAL) {
 		str = buff + strtab->sh_offset + sym->st_name;
 
-		debug_printk("local sym: %s\n", str);
+		printk("local sym: %s\n", str);
 
 		target = elf_get_section(sym->st_shndx);
 		addr = buff + sym->st_value + target->sh_offset;
@@ -109,17 +109,16 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 	if (ELF32_R_SYM(rel->r_info) != SHN_UNDEF) {
 		sym = (elf32_sym *)(buff + symtab->sh_offset + ELF32_R_SYM(rel->r_info) * symtab->sh_entsize);
 		func = elf_get_symval(sym);
-		if (func < 0)
-			return func;
+		if (func < 0) {
+//			printk("[-] Failed to find address symbol\n");
+//			return -ENXIO;
+			func = 0;
+		}
+
 
 		debug_printk("\t- target: 0x%x\n", addr);
 		printk("\t- reloff in target: 0x%x\n", ref);
-		debug_printk("\t- func: 0x%x\n", func);
-
-		if (!func) {
-			printk("[-] Failed to find address symbol\n");
-			return -ENXIO;
-		}
+		printk("\t- func: 0x%x\n", func);
 	}
 
 	s = func;
@@ -297,18 +296,18 @@ static void elf_jump(unsigned int entry)
 		unsigned int (*fct)(void) = entry;
 
 		/* s->saved */
-		__asm__ volatile("MOV %0, sp\n\t" : : "r"(saved));
+//		__asm__ volatile("MOV %0, sp\n\t" : : "r"(saved));
 		/* tos->MSP */
-		__asm__ volatile("MOV sp, %0\n\t" : : "r"(tos));
+//		__asm__ volatile("MOV sp, %0\n\t" : : "r"(tos));
 		/* push saved */
-		__asm__ volatile("PUSH {%0}\n\t" : : "r"(saved));
+//		__asm__ volatile("PUSH {%0}\n\t" : : "r"(saved));
 
 		fct();
 
 		/* pop saved */
-		__asm__ volatile("POP {%0}\n\t" : : "r"(saved));
+//		__asm__ volatile("POP {%0}\n\t" : : "r"(saved));
 		/* saved->sp */
-		__asm__ volatile("MOV sp, %0\n\t" : : "r"(saved));
+//		__asm__ volatile("MOV sp, %0\n\t" : : "r"(saved));
 
 		kfree(stack);
 	}
