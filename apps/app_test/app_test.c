@@ -20,11 +20,20 @@
 #include <scheduler.h>
 #include <task.h>
 
-char *hello_string = "Hello World from app_test !\n";
+//char *hello_string = "Hello World from app_test !\n";
+
+void app_task(void)
+{
+	while (1) {
+		printk("Z");
+	}
+}
 
 int test(void)
 {
-	printk(hello_string);
+//	printk(hello_string);
+
+	add_task(&app_task, 30);
 
 	return 0;
 }
