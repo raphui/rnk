@@ -259,6 +259,8 @@ void ninth_task(void)
 	ltdc_init();
 	ili9341_init();
 	ili9341_init_lcd();
+#elif defined(CONFIG_STM32F746)
+	pio_set_output(GPIOI_BASE, 1, 0);
 #endif /* CONFIG_STM32F429 */
 
 	while (1) {
@@ -279,6 +281,8 @@ void ninth_task(void)
 		lcd_rgb565_fill(YELLOW);
 		sem_wait(&sem);
 		lcd_rgb565_fill(WHITE);
+#elif defined(CONFIG_STM32F746)
+		pio_toggle_value(GPIOI, 6);
 #endif /* CONFIG_STM32F429 */
 	}
 }
