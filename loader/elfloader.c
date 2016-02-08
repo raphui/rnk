@@ -250,7 +250,7 @@ int elf_load(char *elf_data, int elf_size, int reloc_addr)
 	printk("\t- index sections name: %d\n", ehdr->e_shstrndx);
 	printk("\t- section header offset: %#x\n", ehdr->e_shoff);
 
-	lookup_table = (unsigned int *)kmalloc(ehdr->e_shnum);
+	lookup_table = (unsigned int *)kmalloc(ehdr->e_shnum * sizeof(unsigned int));
 	memset(lookup_table, 0, ehdr->e_shnum);
 
 	section_size = ehdr->e_shentsize;
