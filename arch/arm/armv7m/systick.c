@@ -17,6 +17,7 @@
  */
 
 #include <armv7m/system.h>
+#include <arch/nvic.h>
 #include <utils.h>
 
 #ifdef CONFIG_STM32F429
@@ -37,7 +38,9 @@ void init_systick(void) {
 	* until all other exceptions have executed.
 	* Additionally, PendSV will not interrupt
 	* an SVC. */
-	writel(NVIC_IPR(11), 0xFF);
-	writel(NVIC_IPR(14), 0xFF);
+
+	nvic_set_priority_interrupt(systick_irq, 0xFD);
+	nvic_set_priority_interrupt(pendsv_irq, 0xFE);
+	nvic_set_priority_interrupt(svcall_irq, 0xFF);
 }
 

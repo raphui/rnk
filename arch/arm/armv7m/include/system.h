@@ -122,6 +122,7 @@ static inline void __disable_it(void)
 #define SCB_ICSR                        (unsigned int) (SCB_BASE + 0x004)                /* Interrupt Control and State Register */
 #define SCB_VTOR                        (unsigned int) (SCB_BASE + 0x008)                /* Vector Table Offset Register */
 #define SCB_SCR                         (unsigned int) (SCB_BASE + 0x010)                /* System Control Register */
+#define SCB_SHPR(n)			(unsigned int) (SCB_BASE + 0x18 + (n - 4))	 /* System Handler Priority Register */
 #define SCB_SHCSR                       (unsigned int) (SCB_BASE + 0x024)                /* System Handler Control and State Register */
 #define SCB_CFSR                        (unsigned int) (SCB_BASE + 0x028)                /* Configurable fault status register - Describes Usage, Bus, and Memory faults */
 #define SCB_HFSR                        (unsigned int) (SCB_BASE + 0x02C)                /* Hard fault status register - Describes hard fault */
