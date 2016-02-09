@@ -51,6 +51,7 @@ static elf32_ehdr *ehdr;
 static elf32_shdr *symtab;
 static elf32_shdr *strtab;
 static unsigned int *lookup_table;
+static int text_section_idx;
 
 static elf32_shdr *elf_get_section(int num)
 {
@@ -92,6 +93,9 @@ static int elf_get_symval(elf32_sym *sym)
 		addr = buff + sym->st_value + target->sh_offset;
 
 		debug_printf("defined at 0x%x\n", addr);
+	} else {
+		target = elf_get_section(sym->st_shndx);
+		addr = lookup_table[sym->st_shndx] + sym->st_value + target->sh_offset;
 	}
 
 	return addr;
@@ -164,6 +168,10 @@ static int elf_section_alloc(elf32_shdr *shdr)
 	for (i = 0; i < ehdr->e_shnum; i++) {
 		section = elf_get_section(i);
 		str = buff + shdr->sh_offset + section->sh_name;
+
+		if (!strcmp(str, ".text"))
+			text_section_idx = i;
+
 		if (section->sh_type & (SHT_NOBITS | SHT_PROGBITS)) {
 			debug_printk("[!] %s\n", str);
 
@@ -180,8 +188,8 @@ static int elf_section_alloc(elf32_shdr *shdr)
 				}
 				memset(mem, 0, section->sh_size);
 
-				section->sh_offset = (int)mem - (int)buff;
-				debug_printk("Allocate %d bytes for section %s\n", section->sh_size, str);
+				printk("Allocate %d bytes for section %s\n", section->sh_size, str);
+				printk("Copying 0x%x bytes from 0x%x to 0x%x\n", section->sh_size, buff + section->sh_offset, mem);
 
 				memcpy(mem, buff + section->sh_offset, section->sh_size);
 
@@ -280,8 +288,6 @@ int elf_load(char *elf_data, int elf_size, int reloc_addr)
 	if (ret < 0)
 		printk("[-] Failed to reloc sections\n");
 
-	ehdr->e_entry = lookup_table[2];
-
 out:
 	return ret;
 }
@@ -326,7 +332,7 @@ int elf_exec(char *elf_data, int elf_size, int reloc_addr)
 		return -EIO;
 	}
 
-	entry_point = lookup_table[2];
+	entry_point = lookup_table[text_section_idx] + ehdr->e_entry;
 	kfree(lookup_table);
 	printk("ph_off: 0x%x\r\n", ehdr->e_phoff);
 	printk("elf entry point at: 0x%x\r\n", entry_point);
