@@ -12,11 +12,11 @@ MCPU=cortex-m4
 INCLUDES	+= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
-ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
+
 CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections
 CFLAGS += -mcpu=$(MCPU) -mthumb -nostdlib $(INCLUDES)
 CFLAGS +=  -mword-relocations -fno-common
-#CFLAGS += -mcpu=$(MCPU) -mthumb -nostdlib -funwind-tables -g $(INCLUDES)
+
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles #-Wl,--gc-sections
 LDFLAGS += -r -Bsymbolic -mcpu=$(MCPU) -mthumb -mlong-calls -fno-common
 
@@ -35,7 +35,7 @@ clean:
 	
 $(TARGET_NAME): $(OBJS) 
 	@@echo "LD " $@
-	@$(CC) $(LDFLAGS) $(OBJS) -T$(LD_SCRIPT) -o $@
+	@$(CC) $(LDFLAGS) -T$(LD_SCRIPT) -o $@ $^
 
 %.o: %.c
 	@@echo "CC " $<
