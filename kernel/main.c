@@ -282,7 +282,7 @@ void ninth_task(void)
 		sem_wait(&sem);
 		lcd_rgb565_fill(WHITE);
 #elif defined(CONFIG_STM32F746)
-		pio_toggle_value(GPIOI, 6);
+		pio_toggle_value(GPIOI_BASE, 6);
 #endif /* CONFIG_STM32F429 */
 	}
 }
