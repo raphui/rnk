@@ -75,8 +75,7 @@ static int elf_get_symval(elf32_sym *sym)
 			if (ELF32_ST_BIND(sym->st_info) & STB_WEAK)
 				addr = 0;
 			else if (sym->st_shndx != SHN_UNDEF) {
-				target = elf_get_section(sym->st_shndx);
-				addr = lookup_table[sym->st_shndx] + sym->st_value + target->sh_offset;
+				addr = lookup_table[sym->st_shndx] + sym->st_value;
 
 				printk("sym: %s defined at 0x%x\n", str, addr);
 			} else {
@@ -94,8 +93,7 @@ static int elf_get_symval(elf32_sym *sym)
 
 		debug_printf("defined at 0x%x\n", addr);
 	} else {
-		target = elf_get_section(sym->st_shndx);
-		addr = lookup_table[sym->st_shndx] + sym->st_value + target->sh_offset;
+		addr = lookup_table[sym->st_shndx] + sym->st_value;
 	}
 
 	return addr;
