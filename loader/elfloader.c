@@ -68,17 +68,16 @@ static int elf_get_symval(elf32_sym *sym)
 		str = buff + strtab->sh_offset + sym->st_name;
 
 		debug_printk("sym_value: %#x ", sym->st_value);
-		printk("sym: %s\n", str);
+		debug_printk("sym: %s\n", str);
 
 		addr = symbol_get_addr(str);
 		if (addr < 0) {
 			if (ELF32_ST_BIND(sym->st_info) & STB_WEAK)
 				addr = 0;
 			else if (sym->st_shndx != SHN_UNDEF) {
-				target = elf_get_section(sym->st_shndx);
-				addr = lookup_table[sym->st_shndx] + sym->st_value + target->sh_offset;
+				addr = lookup_table[sym->st_shndx] + sym->st_value;
 
-				printk("sym: %s defined at 0x%x\n", str, addr);
+				debug_printk("sym: %s defined at 0x%x\n", str, addr);
 			} else {
 				error_printk("[-] Undefined symbol: %s\n", str);
 				addr = -ENXIO;
@@ -87,15 +86,14 @@ static int elf_get_symval(elf32_sym *sym)
 	} else if (ELF32_ST_BIND(sym->st_info) & STB_LOCAL) {
 		str = buff + strtab->sh_offset + sym->st_name;
 
-		printk("local sym: %s\n", str);
+		debug_printk("local sym: %s\n", str);
 
 		target = elf_get_section(sym->st_shndx);
 		addr = buff + sym->st_value + target->sh_offset;
 
 		debug_printf("defined at 0x%x\n", addr);
 	} else {
-		target = elf_get_section(sym->st_shndx);
-		addr = lookup_table[sym->st_shndx] + sym->st_value + target->sh_offset;
+		addr = lookup_table[sym->st_shndx] + sym->st_value;
 	}
 
 	return addr;
@@ -114,15 +112,13 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 		sym = (elf32_sym *)(buff + symtab->sh_offset + ELF32_R_SYM(rel->r_info) * symtab->sh_entsize);
 		func = elf_get_symval(sym);
 		if (func < 0) {
-//			printk("[-] Failed to find address symbol\n");
-//			return -ENXIO;
 			func = 0;
 		}
 
 
 		debug_printk("\t- target: 0x%x\n", addr);
-		printk("\t- reloff in target: 0x%x\n", ref);
-		printk("\t- func: 0x%x\n", func);
+		debug_printk("\t- reloff in target: 0x%x\n", ref);
+		debug_printk("\t- func: 0x%x\n", func);
 	}
 
 	s = func;
@@ -131,7 +127,7 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 	t = func & 0x1;
 
 	debug_printk("\t- %s instruction\n", t ? "Thumb" : "ARM");
-	printk("\t- before reloc: 0x%#x\n", *ref);
+	debug_printk("\t- before reloc: 0x%#x\n", *ref);
 
 	switch (ELF32_R_TYPE(rel->r_info)) {
 	case R_ARM_ABS32:
@@ -148,11 +144,11 @@ static int elf_reloc(elf32_ehdr *ehdr, elf32_shdr *target, elf32_rel *rel)
 		*ref = s + a;
 		break;
 	default:
-		printk("unknown reloc type\n");
+		debug_printk("unknown reloc type\n");
 		return -EINVAL;
 	}
 
-	printk("\t- after reloc: 0x%x\n", *ref);
+	debug_printk("\t- after reloc: 0x%x\n", *ref);
 
 	return ret;
 }
@@ -188,8 +184,8 @@ static int elf_section_alloc(elf32_shdr *shdr)
 				}
 				memset(mem, 0, section->sh_size);
 
-				printk("Allocate %d bytes for section %s\n", section->sh_size, str);
-				printk("Copying 0x%x bytes from 0x%x to 0x%x\n", section->sh_size, buff + section->sh_offset, mem);
+				debug_printk("Allocate %d bytes for section %s\n", section->sh_size, str);
+				debug_printk("Copying 0x%x bytes from 0x%x to 0x%x\n", section->sh_size, buff + section->sh_offset, mem);
 
 				memcpy(mem, buff + section->sh_offset, section->sh_size);
 
@@ -210,19 +206,19 @@ static int elf_section_reloc(elf32_shdr *shdr)
 	elf32_shdr *target;
 	elf32_rel *rel;
 
-	printk("[+] dumping section needed relocation: \n");
+	debug_printk("[+] dumping section needed relocation: \n");
 	for (i = 0; i < ehdr->e_shnum; i++) {
 		section = elf_get_section(i);
 		str = buff + shdr->sh_offset + section->sh_name;
 		if (section->sh_type == SHT_REL) {
-			printk("[!] %s\n", str);
+			debug_printk("[!] %s\n", str);
 			for (j = 0; j < (section->sh_size / section->sh_entsize); j++) {
 				rel = (elf32_rel *)(buff + section->sh_offset + j * section->sh_entsize);
 				target = elf_get_section(section->sh_info);
 
 				debug_printk("\t- offset: 0x%x ", rel->r_offset);
 				debug_printk("info: 0x%x \n", rel->r_info);
-				printk("\t- applies to: 0x%x\n", section->sh_info);
+				debug_printk("\t- applies to: 0x%x\n", section->sh_info);
 
 				ram_addr = lookup_table[section->sh_info];
 				ret = elf_reloc(ehdr, target, rel);
@@ -251,12 +247,12 @@ int elf_load(char *elf_data, int elf_size, int reloc_addr)
 
 	ehdr = (elf32_ehdr *)buff;
 
-	printk("[+] Info: \n");
-	printk("\t- bit format: %#x\n", ehdr->e_ident[EI_CLASS]);
-	printk("\t- architecture: %#x\n", ehdr->e_machine);
-	printk("\t- num section: %d\n", ehdr->e_shnum);
-	printk("\t- index sections name: %d\n", ehdr->e_shstrndx);
-	printk("\t- section header offset: %#x\n", ehdr->e_shoff);
+	debug_printk("[+] Info: \n");
+	debug_printk("\t- bit format: %#x\n", ehdr->e_ident[EI_CLASS]);
+	debug_printk("\t- architecture: %#x\n", ehdr->e_machine);
+	debug_printk("\t- num section: %d\n", ehdr->e_shnum);
+	debug_printk("\t- index sections name: %d\n", ehdr->e_shstrndx);
+	debug_printk("\t- section header offset: %#x\n", ehdr->e_shoff);
 
 	lookup_table = (unsigned int *)kmalloc(ehdr->e_shnum * sizeof(unsigned int));
 	memset(lookup_table, 0, ehdr->e_shnum);
@@ -294,31 +290,8 @@ out:
 
 static void elf_jump(unsigned int entry)
 {
-	void *stack = kmalloc(ELF_APP_STACK_SIZE);
-
-	if (stack) {
-		unsigned int saved = 0;
-		void *tos = stack + ELF_APP_STACK_SIZE;
-		unsigned int (*fct)(void) = entry;
-
-		/* s->saved */
-//		__asm__ volatile("MOV %0, sp\n\t" : : "r"(saved));
-		/* tos->MSP */
-//		__asm__ volatile("MOV sp, %0\n\t" : : "r"(tos));
-		/* push saved */
-//		__asm__ volatile("PUSH {%0}\n\t" : : "r"(saved));
-
-		fct();
-
-		/* pop saved */
-//		__asm__ volatile("POP {%0}\n\t" : : "r"(saved));
-		/* saved->sp */
-//		__asm__ volatile("MOV sp, %0\n\t" : : "r"(saved));
-
-		kfree(stack);
-	}
-	else
-		error_printk("failed to alloc stack for elf\r\n");
+	unsigned int (*fct)(void) = entry;
+	fct();
 }
 
 int elf_exec(char *elf_data, int elf_size, int reloc_addr)
@@ -334,8 +307,8 @@ int elf_exec(char *elf_data, int elf_size, int reloc_addr)
 
 	entry_point = lookup_table[text_section_idx] + ehdr->e_entry;
 	kfree(lookup_table);
-	printk("ph_off: 0x%x\r\n", ehdr->e_phoff);
-	printk("elf entry point at: 0x%x\r\n", entry_point);
+	debug_printk("ph_off: 0x%x\r\n", ehdr->e_phoff);
+	debug_printk("elf entry point at: 0x%x\r\n", entry_point);
 
 	elf_jump(entry_point);
 
