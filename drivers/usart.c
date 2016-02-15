@@ -21,11 +21,16 @@
 #include <usart.h>
 #include <mm.h>
 #include <errno.h>
+#include <string.h>
 
 static struct usart *usart;
+static int dev_count = 0;
+static char dev_prefix[10] = "/dev/tty";
 
 int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate)
 {
+	int ret = 0;
+
 	usart = (struct usart *)kmalloc(sizeof(*usart));
 	if (usart < 0) {
 		error_printk("cannot allocate usart\r\n");
@@ -36,7 +41,32 @@ int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate)
 	usart->base_reg = base_reg;
 	usart->baud_rate = baud_rate;
 
+	usart->dev = (struct device *)kmalloc(sizeof(struct device));
+	if (usart->dev < 0) {
+		error_printk("cannot allocate usart device\n");
+		kfree(usart);
+		return -ENOMEM;
+	}
+
+	dev_prefix[9] = '0';
+	dev_prefix[10] = 0;
+
+	memset(usart->dev, 0, sizeof(struct device));
+	memcpy(usart->dev->name, dev_prefix, 10);
+
+	ret = device_register(usart->dev);
+	if (ret < 0) {
+		error_printk("failed to register device\n");
+		ret = -ENOMEM;
+		goto failed_out;
+	}
+
 	return usart_ops.init(usart);
+
+failed_out:
+	kfree(usart->dev);
+	kfree(usart);
+	return ret;
 }
 
 void usart_print(unsigned char byte)

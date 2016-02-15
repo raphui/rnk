@@ -19,12 +19,14 @@
 #ifndef USART_H
 #define USART_H
 
+#include <device.h>
 #include <stdio.h>
 
 struct usart {
 	unsigned int num;
 	unsigned int base_reg;
 	unsigned int baud_rate;
+	struct device *dev;
 };
 
 int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate);
