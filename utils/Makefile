@@ -8,3 +8,4 @@ obj-y += stdio.o
 obj-y += symbols.o
 obj-y += string.o
 obj-y += utils.o
+obj-y += unistd.o
