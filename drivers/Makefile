@@ -3,7 +3,8 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
-obj-y := clk.o
+obj-y := device.o
+obj-y += clk.o
 obj-y += pio.o
 obj-y += usart.o
 obj-y += timer.o
