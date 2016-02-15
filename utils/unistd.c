@@ -21,33 +21,33 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <device.h>
 
 #define MAX_FD	8
 
 struct device_io {
-	int (*read)(unsigned char *buff, unsigned int size);
-	int (*write)(unsigned char *buff, unsigned int size);
+	struct device *dev;
+	int (*read)(struct device *dev, unsigned char *buff, unsigned int size);
+	int (*write)(struct device *dev, unsigned char *buff, unsigned int size);
 	int perm;
 };
 
-static devs[MAX_FD];
+static struct device_io devs[MAX_FD];
 
 static int fd = 0;
 
 int open(const char *path, int flags)
 {
 	int ret = fd;
+	struct device *dev;
 
 	if (fd < MAX_FD) {
-		if (!strcmp(path, "dev/tty")) {
-
-//			devs[fd].read = usart_ops.read;
-//			devs[fd].write = usart_ops.write;
-
-		} else if (!strcmp(path, "dev/spi")) {
-
-//			devs[fd].read = spi_ops.read;
-//			devs[fd].write = spi_ops.write;
+		dev = device_from_name(path);
+		if (dev) {
+			devs[fd].dev = dev;
+			devs[fd].read = dev->read;
+			devs[fd].write = dev->write;
+			devs[fd].perm = flags;
 
 		} else {
 			debug_printk("invalid open path\n");
@@ -74,12 +74,41 @@ int write(int fd, const void *buf, size_t size)
 {
 	int ret = 0;
 
+	if (devs[fd].perm & (O_WRONLY | O_RDWR)) {
+		if (devs[fd].write) {
+
+			ret = devs[fd].write(devs[fd].dev, buf, size);
+
+		} else {
+			error_printk("cannot write to fd: %d\n", fd);
+			ret = -EIO;
+		}
+	} else {
+		error_printk("cannot write to fd: %d\n", fd);
+		ret = -EPERM;
+	}
+
+
 	return ret;
 }
 
 int read(int fd, void *buf, size_t size)
 {
 	int ret = 0;
+
+	if (devs[fd].perm & (O_RDONLY | O_RDWR)) {
+		if (devs[fd].read) {
+
+			ret = devs[fd].read(devs[fd].dev, buf, size);
+
+		} else {
+			error_printk("cannot read to fd: %d\n", fd);
+			ret = -EIO;
+		}
+	} else {
+		error_printk("cannot read to fd: %d\n", fd);
+		ret = -EPERM;
+	}
 
 	return ret;
 }
