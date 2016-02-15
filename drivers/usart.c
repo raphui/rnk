@@ -54,6 +54,9 @@ int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate)
 	memset(usart->dev, 0, sizeof(struct device));
 	memcpy(usart->dev->name, dev_prefix, 10);
 
+	usart->dev->read = usart_read;
+	usart->dev->write = usart_write;
+
 	ret = device_register(usart->dev);
 	if (ret < 0) {
 		error_printk("failed to register device\n");
@@ -67,6 +70,24 @@ failed_out:
 	kfree(usart->dev);
 	kfree(usart);
 	return ret;
+}
+
+int usart_read(struct device *dev, unsigned char *buff, unsigned int size)
+{
+	struct usart *usart = container_of(dev, struct usart, dev);
+
+	printk("reading from usart !\n");
+
+	return 0;
+}
+
+int usart_write(struct device *dev, unsigned char *buff, unsigned int size)
+{
+	struct usart *usart = container_of(dev, struct usart, dev);
+
+	printk("writing from usart !\n");
+
+	return 0;
 }
 
 void usart_print(unsigned char byte)
