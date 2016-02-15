@@ -17,6 +17,7 @@
 
 #include <board.h>
 #include <mach/rcc-stm32.h>
+#include <errno.h>
 
 /* Calculates the value for the USART_BRR */
 static unsigned short stm32_baud_rate(long clock, unsigned int baud)
@@ -76,6 +77,52 @@ static int stm32_usart_printl(struct usart *usart, const char *string)
 	}
 
 	return size;
+}
+
+static int stm32_usart_write(struct usart *usart, unsigned char *buff, unsigned int len)
+{
+	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
+	int i = 0;
+	int ret = 0;
+	int timeout = 1000;
+
+	for (i = 0; i < len;  i++) {
+		while(!(USART->SR & USART_SR_TXE) && timeout--)
+			;
+
+		if (!timeout) {
+			ret = -EIO;
+			break;
+		}
+
+		USART->DR = buff[i];
+	}
+
+
+	return ret;
+}
+
+static int stm32_usart_read(struct usart *usart, unsigned char *buff, unsigned int len)
+{
+	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
+	int i = 0;
+	int ret = 0;
+	int timeout = 1000;
+
+	for (i = 0; i < len;  i++) {
+		while(!(USART->SR & USART_SR_RXNE) && timeout--)
+			;
+
+		if (!timeout) {
+			ret = -EIO;
+			break;
+		}
+
+		buff[i] = USART->DR;
+	}
+
+
+	return ret;
 }
 
 struct usart_operations usart_ops = {
