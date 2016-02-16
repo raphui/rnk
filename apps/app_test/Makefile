@@ -17,7 +17,7 @@ CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections
 CFLAGS += -mcpu=$(MCPU) -mthumb -nostdlib $(INCLUDES)
 CFLAGS +=  -mword-relocations -fno-common
 
-LDFLAGS	:= -g $(INCLUDES) -nostartfiles #-Wl,--gc-sections
+LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib #-Wl,--gc-sections
 LDFLAGS += -r -Bsymbolic -mcpu=$(MCPU) -mthumb -mlong-calls -fno-common
 
 LD_SCRIPT = apps.ld
