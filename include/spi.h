@@ -31,10 +31,11 @@ struct spi {
 	unsigned char only_tx;
 	unsigned char only_rx;
 	unsigned char use_dma;
+	struct device dev;
 };
 
 int spi_init(struct spi *spi);
-int spi_write(struct spi *spi, unsigned char *buff, unsigned int size);
-int spi_read(struct spi *spi, unsigned char *buff, unsigned int size);
+int spi_write(struct device *dev, unsigned char *buff, unsigned int size);
+int spi_read(struct device *dev, unsigned char *buff, unsigned int size);
 
 #endif /* SPI_H */

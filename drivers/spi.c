@@ -17,18 +17,58 @@
 
 #include <board.h>
 #include <spi.h>
+#include <mm.h>
+#include <errno.h>
+#include <string.h>
+#include <utils.h>
+
+static int dev_count = 0;
+static char dev_prefix[10] = "/dev/spi";
 
 int spi_init(struct spi *spi)
 {
+	int ret = 0;
+	struct spi *spidev = NULL;
+
+	spidev = (struct spi *)kmalloc(sizeof(struct spi));
+	if (spidev < 0) {
+		error_printk("cannot allocate spi\n");
+		return -ENOMEM;
+	}
+
+	memcpy(spidev, spi, sizeof(struct spi));
+
+	spi->dev.read = spi_read;
+	spi->dev.write = spi_write;
+
+	ret = device_register(&spidev->dev);
+	if (ret < 0) {
+		error_printk("failed to register device\n");
+		ret = -ENOMEM;
+		goto failed_out;
+	}
+
 	return spi_ops.init(spi);
+
+failed_out:
+	kfree(spidev);
+	return ret;
 }
 
-int spi_write(struct spi *spi, unsigned char *buff, unsigned int size)
+int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
 {
+	struct spi *spi = container_of(dev, struct spi, dev);
+
+	debug_printk("writing from spi !\n");
+
 	return spi_ops.write(spi, buff, size);
 }
 
-int spi_read(struct spi *spi, unsigned char *buff, unsigned int size)
+int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
 {
+	struct spi *spi = container_of(dev, struct spi, dev);
+
+	debug_printk("reading from spi !\n");
+
 	return spi_ops.read(spi, buff, size);
 }
