@@ -301,17 +301,8 @@ void tenth_task(void)
 void eleventh_task(void)
 {
 	int ret;
-	int fd;
 
 	printk("starting task K\r\n");
-
-	fd = open("/dev/tty", O_WRONLY);
-	if (fd < 0)
-		error_printk("failed to open fd: /dev/tty0, error: %d\n", fd);
-	else
-		write(fd, "test", 4);
-
-
 
 	ret = elf_exec((char *)0x08050000, 220417, 0x08050000);
 	if (ret < 0)

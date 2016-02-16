@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <scheduler.h>
 #include <task.h>
+#include <unistd.h>
 
 void app_task(void)
 {
@@ -29,7 +30,17 @@ void app_task(void)
 
 int test(void)
 {
+	int fd;
+	char s[] = "test from write function\n";
+
 	printk("Hello world from app test !\n");
+
+	fd = open("/dev/tty", O_WRONLY);
+	if (fd < 0)
+		error_printk("failed to open fd: /dev/tty0, error: %d\n", fd);
+	else
+		write(fd, s, sizeof(s));
+
 	add_task(&app_task, 30);
 
 	return 0;
