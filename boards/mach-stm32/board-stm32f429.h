@@ -53,6 +53,8 @@
 struct usart_operations
 {
 	int (*init)(struct usart *usart);
+	int (*read)(struct usart *usart, unsigned char *buff, unsigned int len);
+	int (*write)(struct usart *usart, unsigned char *buff, unsigned int len);
 	void (*print)(struct usart *usart, unsigned char byte);
 	int (*printl)(struct usart *usart, const char *string);
 };

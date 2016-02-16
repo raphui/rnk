@@ -127,6 +127,8 @@ static int stm32_usart_read(struct usart *usart, unsigned char *buff, unsigned i
 
 struct usart_operations usart_ops = {
 	.init = stm32_usart_init,
+	.read = stm32_usart_read,
+	.write = stm32_usart_write,
 	.print = stm32_usart_print,
 	.printl = stm32_usart_printl,
 };
