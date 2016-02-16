@@ -25,8 +25,8 @@
 struct device {
 	char name[32];
 	LIST_ENTRY(device) next;
-	int (*read)(unsigned char *buff, unsigned int size);
-	int (*write)(unsigned char *buff, unsigned int size);
+	int (*read)(struct device *device, unsigned char *buff, unsigned int size);
+	int (*write)(struct device *device, unsigned char *buff, unsigned int size);
 };
 
 int device_register(struct device *dev);
