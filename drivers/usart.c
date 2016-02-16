@@ -41,23 +41,15 @@ int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate)
 	usart->base_reg = base_reg;
 	usart->baud_rate = baud_rate;
 
-	usart->dev = (struct device *)kmalloc(sizeof(struct device));
-	if (usart->dev < 0) {
-		error_printk("cannot allocate usart device\n");
-		kfree(usart);
-		return -ENOMEM;
-	}
-
 	dev_prefix[9] = '0';
 	dev_prefix[10] = 0;
 
-	memset(usart->dev, 0, sizeof(struct device));
-	memcpy(usart->dev->name, dev_prefix, 10);
+	memcpy(usart->dev.name, dev_prefix, 10);
 
-	usart->dev->read = usart_read;
-	usart->dev->write = usart_write;
+	usart->dev.read = usart_read;
+	usart->dev.write = usart_write;
 
-	ret = device_register(usart->dev);
+	ret = device_register(&usart->dev);
 	if (ret < 0) {
 		error_printk("failed to register device\n");
 		ret = -ENOMEM;
@@ -67,7 +59,6 @@ int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate)
 	return usart_ops.init(usart);
 
 failed_out:
-	kfree(usart->dev);
 	kfree(usart);
 	return ret;
 }

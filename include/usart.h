@@ -26,7 +26,7 @@ struct usart {
 	unsigned int num;
 	unsigned int base_reg;
 	unsigned int baud_rate;
-	struct device *dev;
+	struct device dev;
 };
 
 int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate);
