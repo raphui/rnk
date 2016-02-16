@@ -50,13 +50,13 @@ int open(const char *path, int flags)
 			devs[fd].perm = flags;
 
 		} else {
-			debug_printk("invalid open path\n");
+			error_printk("invalid open path\n");
 			ret = -ENOENT;
 		}
 
 
 	} else {
-		debug_printk("not more file descriptor left\n");
+		error_printk("not more file descriptor left\n");
 		ret = -EMFILE;
 	}
 
@@ -66,6 +66,18 @@ int open(const char *path, int flags)
 int close(int fd)
 {
 	int ret = 0;
+
+	if (fd < MAX_FD) {
+		devs[fd].dev = NULL;
+		devs[fd].read = NULL;
+		devs[fd].write = NULL;
+		devs[fd].perm = 0;
+
+		fd--;
+	} else {
+		error_printk("invalid fd\n");
+		ret = -EINVAL;
+	}
 
 	return ret;
 }
@@ -84,7 +96,7 @@ int write(int fd, const void *buf, size_t size)
 			ret = -EIO;
 		}
 	} else {
-		error_printk("cannot write to fd: %d\n", fd);
+		error_printk("forbidden writing to fd: %d\n", fd);
 		ret = -EPERM;
 	}
 
@@ -106,7 +118,7 @@ int read(int fd, void *buf, size_t size)
 			ret = -EIO;
 		}
 	} else {
-		error_printk("cannot read to fd: %d\n", fd);
+		error_printk("forbidden reading to fd: %d\n", fd);
 		ret = -EPERM;
 	}
 
