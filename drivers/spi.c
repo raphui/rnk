@@ -23,12 +23,12 @@ int spi_init(struct spi *spi)
 	return spi_ops.init(spi);
 }
 
-unsigned short spi_write(struct spi *spi, unsigned short data)
+int spi_write(struct spi *spi, unsigned char *buff, unsigned int size)
 {
-	return spi_ops.write(spi, data);
+	return spi_ops.write(spi, buff, size);
 }
 
-unsigned short spi_read(struct spi *spi)
+int spi_read(struct spi *spi, unsigned char *buff, unsigned int size)
 {
-	return spi_ops.read(spi);
+	return spi_ops.read(spi, buff, size);
 }

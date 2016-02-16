@@ -34,7 +34,7 @@ struct spi {
 };
 
 int spi_init(struct spi *spi);
-unsigned short spi_write(struct spi *spi, unsigned short data);
-unsigned short spi_read(struct spi *spi);
+int spi_write(struct spi *spi, unsigned char *buff, unsigned int size);
+int spi_read(struct spi *spi, unsigned char *buff, unsigned int size);
 
 #endif /* SPI_H */

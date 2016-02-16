@@ -184,43 +184,64 @@ static unsigned short stm32_spi_dma_write(struct spi *spi, unsigned short data)
 
 }
 
-unsigned short stm32_spi_write(struct spi *spi, unsigned short data)
+int stm32_spi_write(struct spi *spi, unsigned char *buff, unsigned int size)
 {
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
+	int i;
+	int ret;
+	int n = 0;
+	unsigned short data;
 
-	if (spi->use_dma)
-		return stm32_spi_dma_write(spi, data);
+	for (i = 0; i < size; i += 2) {
+		data = *(unsigned short *)(buff + i);
 
-	SPI->DR = data;
+		if (spi->use_dma) {
+			ret = stm32_spi_dma_write(spi, data);
+			if (ret < 0)
+				return ret;
 
-	while (!(SPI->SR & SPI_SR_TXE))
-		;
+			n++;
+		}
+		else {
+			SPI->DR = data;
 
-	while (!(SPI->SR & SPI_SR_RXNE))
-		;
+			while (!(SPI->SR & SPI_SR_TXE))
+				;
 
-	data = SPI->DR;
+			while (!(SPI->SR & SPI_SR_RXNE))
+				;
 
-	return data;
+			data = SPI->DR;
+
+			n++;
+		}
+	}
+
+	return n;
 }
 
-unsigned short stm32_spi_read(struct spi *spi)
+int stm32_spi_read(struct spi *spi, unsigned char *buff, unsigned int size)
 {
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
-	unsigned short data = 0;
+	int i;
+	int n = 0;
 
-	/* write dummy bytes */
-	SPI->DR = 0xFF;
+	for (i = 0; i < size; i += 2) {
+		/* write dummy bytes */
+		SPI->DR = 0xFF;
 
-	while (!(SPI->SR & SPI_SR_TXE))
-		;
+		while (!(SPI->SR & SPI_SR_TXE))
+			;
 
-	while (!(SPI->SR & SPI_SR_RXNE))
-		;
+		while (!(SPI->SR & SPI_SR_RXNE))
+			;
 
-	data = SPI->DR;
+		*(unsigned short *)(buff + i) = SPI->DR;
 
-	return data;
+		n++;
+	}
+
+	return n;
 }
 
 struct spi_operations spi_ops = {
