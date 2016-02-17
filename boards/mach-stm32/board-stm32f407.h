@@ -25,6 +25,7 @@
 #include <timer.h>
 #include <spi.h>
 #include <dma.h>
+#include <mtd.h>
 
 
 /* SYSCLK = PLL_VCO / PLL_P =======> 168000000*/
@@ -54,5 +55,6 @@ struct pio_operations pio_ops;
 struct timer_operations tim_ops;
 struct spi_operations spi_ops;
 struct dma_operations dma_ops;
+struct mtd_operations mtd_ops;
 
 #endif /* BOARD_STM32F407_H */

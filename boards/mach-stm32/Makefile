@@ -19,3 +19,4 @@ obj-$(CONFIG_STM32F429) += fmc-stm32.o
 obj-$(CONFIG_STM32F746) += ltdc-stm32.o
 obj-$(CONFIG_STM32F746) += fmc-stm32.o
 obj-y += exti-stm32.o
+obj-y += flash-stm32.o
