@@ -50,69 +50,11 @@
 #define APB1_CLK	(SYSCLK / AHB_PRES) / APB1_PRES
 #define APB2_CLK	(SYSCLK / AHB_PRES) / APB2_PRES
  
-struct usart_operations
-{
-	int (*init)(struct usart *usart);
-	int (*read)(struct usart *usart, unsigned char *buff, unsigned int len);
-	int (*write)(struct usart *usart, unsigned char *buff, unsigned int len);
-	void (*print)(struct usart *usart, unsigned char byte);
-	int (*printl)(struct usart *usart, const char *string);
-};
-
 struct usart_operations usart_ops;
-
-struct pio_operations
-{
-	void (*set_output)(unsigned int port, unsigned int mask, int pull_up);
-	void (*set_input)(unsigned int port, unsigned int mask, int pull_up, int filter);
-	void (*set_alternate)(unsigned int port, unsigned int mask, unsigned int num);
-	void (*set_value)(unsigned int port, unsigned int mask);
-	void (*clear_value)(unsigned int port, unsigned int mask);
-	void (*toggle_value)(unsigned int port, unsigned int mask);
-	void (*enable_interrupt)(unsigned int port, unsigned int mask);
-	void (*disable_interrupt)(unsigned int port, unsigned int mask);
-};
-
 struct pio_operations pio_ops;
-
-struct timer_operations
-{
-	int (*init)(struct timer *timer);
-	void (*set_rate)(struct timer *timer, unsigned long rate);
-	void (*set_counter)(struct timer *timer, unsigned short counter);
-	void (*enable)(struct timer *timer);
-	void (*disable)(struct timer *timer);
-	void (*clear_it_flags)(struct timer *timer, unsigned int flags);
-
-};
-
 struct timer_operations tim_ops;
-
-struct spi_operations
-{
-	int (*init)(struct spi *spi);
-	int (*write)(struct spi *spi, unsigned char *buff, unsigned int size);
-	int (*read)(struct spi *spi, unsigned char *buff, unsigned int size);
-};
-
 struct spi_operations spi_ops;
-
-struct lcd_operations
-{
-	int (*init)(struct ltdc *ltdc);
-	void (*init_gpio)(void);
-};
-
 struct lcd_operations lcd_ops;
-
-struct dma_operations
-{
-	int (*init)(struct dma *dma);
-	int (*transfer)(struct dma *dma, struct dma_transfer *dma_trans);
-	void (*enable)(struct dma *dma);
-	void (*disable)(struct dma *dma);
-};
-
 struct dma_operations dma_ops;
 
 #endif /* BOARD_STM32F746_H */

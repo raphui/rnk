@@ -19,6 +19,18 @@
 #ifndef PIO_H
 #define PIO_H
 
+struct pio_operations
+{
+	void (*set_output)(unsigned int port, unsigned int mask, int pull_up);
+	void (*set_input)(unsigned int port, unsigned int mask, int pull_up, int filter);
+	void (*set_alternate)(unsigned int port, unsigned int mask, unsigned int num);
+	void (*set_value)(unsigned int port, unsigned int mask);
+	void (*clear_value)(unsigned int port, unsigned int mask);
+	void (*toggle_value)(unsigned int port, unsigned int mask);
+	void (*enable_interrupt)(unsigned int port, unsigned int mask);
+	void (*disable_interrupt)(unsigned int port, unsigned int mask);
+};
+
 void pio_set_output(unsigned int port, unsigned int mask, int pull_up);
 void pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter);
 void pio_set_alternate(unsigned int port, unsigned int mask, unsigned int num);

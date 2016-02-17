@@ -32,6 +32,12 @@ struct ltdc {
 	unsigned int fb_addr;
 };
 
+struct lcd_operations
+{
+	int (*init)(struct ltdc *ltdc);
+	void (*init_gpio)(void);
+};
+
 int lcd_init(struct ltdc *ltdc);
 void lcd_init_gpio(void);
 

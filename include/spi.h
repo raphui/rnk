@@ -34,6 +34,13 @@ struct spi {
 	struct device dev;
 };
 
+struct spi_operations
+{
+	int (*init)(struct spi *spi);
+	int (*write)(struct spi *spi, unsigned char *buff, unsigned int size);
+	int (*read)(struct spi *spi, unsigned char *buff, unsigned int size);
+};
+
 int spi_init(struct spi *spi);
 int spi_write(struct device *dev, unsigned char *buff, unsigned int size);
 int spi_read(struct device *dev, unsigned char *buff, unsigned int size);

@@ -29,6 +29,15 @@ struct usart {
 	struct device dev;
 };
 
+struct usart_operations
+{
+	int (*init)(struct usart *usart);
+	int (*read)(struct usart *usart, unsigned char *buff, unsigned int len);
+	int (*write)(struct usart *usart, unsigned char *buff, unsigned int len);
+	void (*print)(struct usart *usart, unsigned char byte);
+	int (*printl)(struct usart *usart, const char *string);
+};
+
 int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate);
 int usart_read(struct device *dev, unsigned char *buff, unsigned int size);
 int usart_write(struct device *dev, unsigned char *buff, unsigned int size);

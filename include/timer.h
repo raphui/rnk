@@ -30,6 +30,17 @@ struct timer
 	unsigned short counter;
 };
 
+struct timer_operations
+{
+	int (*init)(struct timer *timer);
+	void (*set_rate)(struct timer *timer, unsigned long rate);
+	void (*set_counter)(struct timer *timer, unsigned short counter);
+	void (*enable)(struct timer *timer);
+	void (*disable)(struct timer *timer);
+	void (*clear_it_flags)(struct timer *timer, unsigned int flags);
+
+};
+
 int timer_init(struct timer *timer);
 void timer_set_rate(struct timer *timer, unsigned long rate);
 void timer_set_counter(struct timer *timer, unsigned short counter);
