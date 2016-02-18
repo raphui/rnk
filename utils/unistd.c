@@ -50,6 +50,8 @@ int open(const char *path, int flags)
 			devs[fd_num].write = dev->write;
 			devs[fd_num].perm = flags;
 
+			fd_num++;
+
 		} else {
 			error_printk("invalid open path\n");
 			ret = -ENOENT;
