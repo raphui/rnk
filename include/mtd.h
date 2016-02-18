@@ -26,6 +26,7 @@ struct mtd {
 	unsigned int base_addr;
 	unsigned int sector_size[MAX_SECTORS];
 	unsigned int num_sectors;
+	unsigned int total_size;
 	int curr_off;
 	struct device dev;
 };

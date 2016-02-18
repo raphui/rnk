@@ -99,7 +99,7 @@ int write(int fd, const void *buf, size_t size)
 
 		} else {
 			error_printk("cannot write to fd: %d\n", fd);
-			ret = -EIO;
+			ret = -ENOSYS;
 		}
 	} else {
 		error_printk("forbidden writing to fd: %d\n", fd);
@@ -126,7 +126,7 @@ int read(int fd, void *buf, size_t size)
 
 		} else {
 			error_printk("cannot read to fd: %d\n", fd);
-			ret = -EIO;
+			ret = -ENOSYS;
 		}
 	} else {
 		error_printk("forbidden reading to fd: %d\n", fd);
@@ -144,6 +144,18 @@ int lseek(int fd, int offset, int whence)
 	if (fd >= fd_num) {
 		error_printk("invalid file descriptor\n");
 		return -EBADF;
+	}
+
+	if ((whence != SEEK_SET) || (whence != SEEK_CUR) || (whence != SEEK_END)) {
+		error_printk("invalid whence\n");
+		return -EINVAL;
+	}
+
+	if (devs[fd].lseek)
+		ret = devs[fd].lseek(devs[fd].dev, offset, whence);
+	else {
+		error_printk("cannot lseek on fd: %d\n", fd);
+		ret = -ENOSYS;
 	}
 
 	return ret;
