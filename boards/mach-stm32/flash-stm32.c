@@ -18,7 +18,7 @@
 #include <board.h>
 #include <errno.h>
 
-#define FLASH_PSIZE_BYTE	0
+#define FLASH_PSIZE_BYTE	0x200
 #define CR_PSIZE_MASK		0xFFFFFCFF
 #define SR_ERR_MASK		0xF3
 
@@ -38,6 +38,15 @@ static void stm32_flash_unlock(void)
 		FLASH->KEYR = FLASH_KEY1;
 		FLASH->KEYR = FLASH_KEY2;
 	}
+}
+
+static int stm32_flash_init(struct mtd *mtd)
+{
+	int ret = 0;
+
+	FLASH->SR = SR_ERR_MASK;
+
+	return ret;
 }
 
 static int stm32_flash_wait_operation(void)
@@ -101,7 +110,7 @@ static int stm32_flash_write_byte(unsigned int address, unsigned char data)
 	FLASH->CR |= FLASH_PSIZE_BYTE;
 	FLASH->CR |= FLASH_CR_PG;
 
-	*(unsigned char *)address = data;
+	*(unsigned int *)address = data;
 
 	ret = stm32_flash_wait_operation();
 	if (ret < 0) {
@@ -145,6 +154,7 @@ static int stm32_flash_read(struct mtd *mtd, unsigned char *buff, unsigned int s
 }
 
 struct mtd_operations mtd_ops = {
+	.init = stm32_flash_init,
 	.erase = stm32_flash_erase,
 	.write = stm32_flash_write,
 	.read = stm32_flash_read,

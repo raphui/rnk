@@ -133,7 +133,7 @@ int mtd_init(struct mtd *mtd)
 		goto failed_out;
 	}
 
-	return ret;
+	return mtd_ops.init(_mtd);
 
 failed_out:
 	kfree(mtd);
