@@ -35,6 +35,7 @@
 #include <common.h>
 #include <elfloader.h>
 #include <unistd.h>
+#include <mtd.h>
 
 #ifdef CONFIG_UNWIND
 #include <backtrace.h>
@@ -318,6 +319,10 @@ void eleventh_task(void)
 
 int main(void)
 {
+	int fd;
+	unsigned char c;
+	struct mtd mtd;
+
 	init_heap();
 
 #ifdef CONFIG_STM32F429
@@ -360,6 +365,23 @@ int main(void)
 	init_semaphore(&sem, 1);
 	init_queue(&queue, sizeof(int), 5);
 	time_init();
+
+	mtd.base_addr = 0x08010000;
+	mtd.sector_size[0] = 0xFFFF;
+	mtd.num_sectors = 1;
+
+	mtd_init(&mtd);
+
+	fd = open("/dev/mtd", O_RDWR);
+	if (fd < 0) {
+		error_printk("failed to open /dev/mtd\n");
+	} else {
+		c = 0xAB;
+		write(fd, &c, sizeof(unsigned char));
+		read(fd, &c, sizeof(unsigned char));
+
+		printk("write and read: %s\n", (c == 0xAB) ? "OK" : "KO");
+	}
 
 #ifdef CONFIG_UNWIND
 	unwind_init();
