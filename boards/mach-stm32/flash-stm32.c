@@ -20,6 +20,7 @@
 
 #define FLASH_PSIZE_BYTE	0
 #define CR_PSIZE_MASK		0xFFFFFCFF
+#define SR_ERR_MASK		0xF3
 
 #define FLASH_KEY1	0x45670123
 #define FLASH_KEY2      0xCDEF89AB
@@ -33,7 +34,7 @@ static void stm32_flash_lock(void)
 
 static void stm32_flash_unlock(void)
 {
-	if (!(FLASH->CR & FLASH_CR_LOCK)) {
+	if (FLASH->CR & FLASH_CR_LOCK) {
 		FLASH->KEYR = FLASH_KEY1;
 		FLASH->KEYR = FLASH_KEY2;
 	}
@@ -46,8 +47,10 @@ static int stm32_flash_wait_operation(void)
 	if (FLASH->SR & FLASH_SR_BSY)
 		while (FLASH->SR & FLASH_SR_BSY)
 			;
-	else if (FLASH->SR & (FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR))
+	else if (FLASH->SR & (FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR)) {
+		FLASH->SR = SR_ERR_MASK;
 		ret = -EIO;
+	}
 
 	return ret;
 }
