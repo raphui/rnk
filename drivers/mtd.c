@@ -121,6 +121,8 @@ int mtd_init(struct mtd *mtd)
 		total_size += _mtd->sector_size[i];
 	}
 
+	memcpy(mtd->dev.name, dev_prefix, 10);
+
 	_mtd->dev.read = mtd_read;
 	_mtd->dev.write = mtd_write;
 
