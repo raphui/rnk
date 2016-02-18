@@ -46,7 +46,7 @@ static int mtd_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	debug_printk("reading from mtd !\n");
 
-	ret = mtd_check_addr(dev, mtd->curr_off);
+	ret = mtd_check_addr(dev, mtd->base_addr + mtd->curr_off);
 	if (ret < 0)
 		return ret;
 
@@ -60,7 +60,7 @@ static int mtd_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	debug_printk("writing from mtd !\n");
 
-	ret = mtd_check_addr(dev, mtd->curr_off);
+	ret = mtd_check_addr(dev, mtd->base_addr + mtd->curr_off);
 	if (ret < 0)
 		return ret;
 
