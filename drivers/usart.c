@@ -27,6 +27,24 @@ static struct usart *usart;
 static int dev_count = 0;
 static char dev_prefix[10] = "/dev/tty";
 
+static int usart_read(struct device *dev, unsigned char *buff, unsigned int size)
+{
+	struct usart *usart = container_of(dev, struct usart, dev);
+
+	debug_printk("reading from usart !\n");
+
+	return usart_ops.read(usart, buff, size);
+}
+
+static int usart_write(struct device *dev, unsigned char *buff, unsigned int size)
+{
+	struct usart *usart = container_of(dev, struct usart, dev);
+
+	debug_printk("writing from usart !\n");
+
+	return usart_ops.write(usart, buff, size);
+}
+
 int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate)
 {
 	int ret = 0;
@@ -61,24 +79,6 @@ int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate)
 failed_out:
 	kfree(usart);
 	return ret;
-}
-
-int usart_read(struct device *dev, unsigned char *buff, unsigned int size)
-{
-	struct usart *usart = container_of(dev, struct usart, dev);
-
-	debug_printk("reading from usart !\n");
-
-	return usart_ops.read(usart, buff, size);
-}
-
-int usart_write(struct device *dev, unsigned char *buff, unsigned int size)
-{
-	struct usart *usart = container_of(dev, struct usart, dev);
-
-	debug_printk("writing from usart !\n");
-
-	return usart_ops.write(usart, buff, size);
 }
 
 void usart_print(unsigned char byte)

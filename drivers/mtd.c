@@ -45,6 +45,55 @@ static int mtd_check_addr(struct device *dev, unsigned int addr)
 	return ret;
 }
 
+static int mtd_read(struct device *dev, unsigned char *buff, unsigned int size)
+{
+	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	int ret = 0;
+
+	debug_printk("reading from mtd !\n");
+
+	ret = mtd_check_addr(dev, mtd->curr_off);
+	if (ret < 0)
+		return ret;
+
+	return mtd_ops.read(mtd, buff, size);
+}
+
+static int mtd_write(struct device *dev, unsigned char *buff, unsigned int size)
+{
+	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	int ret = 0;
+
+	debug_printk("writing from mtd !\n");
+
+	ret = mtd_check_addr(dev, mtd->curr_off);
+	if (ret < 0)
+		return ret;
+
+	return mtd_ops.write(mtd, buff, size);
+
+}
+
+static int mtd_lseek(struct device *dev, int offset, int whence)
+{
+	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	int ret = 0;
+
+	switch (whence) {
+	case SEEK_SET:
+		break;
+
+	case SEEK_CUR:
+		break;
+
+	case SEEK_END:
+		break;
+
+	}
+
+	return ret;
+}
+
 int mtd_init(struct mtd *mtd)
 {
 	int ret = 0;
@@ -74,54 +123,5 @@ int mtd_init(struct mtd *mtd)
 
 failed_out:
 	kfree(mtd);
-	return ret;
-}
-
-int mtd_read(struct device *dev, unsigned char *buff, unsigned int size)
-{
-	struct mtd *mtd = container_of(dev, struct mtd, dev);
-	int ret = 0;
-
-	debug_printk("reading from mtd !\n");
-
-	ret = mtd_check_addr(dev, mtd->curr_off);
-	if (ret < 0)
-		return ret;
-
-	return mtd_ops.read(mtd, buff, size);
-}
-
-int mtd_write(struct device *dev, unsigned char *buff, unsigned int size)
-{
-	struct mtd *mtd = container_of(dev, struct mtd, dev);
-	int ret = 0;
-
-	debug_printk("writing from mtd !\n");
-
-	ret = mtd_check_addr(dev, mtd->curr_off);
-	if (ret < 0)
-		return ret;
-
-	return mtd_ops.write(mtd, buff, size);
-
-}
-
-int mtd_lseek(struct device *dev, int offset, int whence)
-{
-	struct mtd *mtd = container_of(dev, struct mtd, dev);
-	int ret = 0;
-
-	switch (whence) {
-	case SEEK_SET:
-		break;
-
-	case SEEK_CUR:
-		break;
-
-	case SEEK_END:
-		break;
-
-	}
-
 	return ret;
 }

@@ -25,6 +25,24 @@
 static int dev_count = 0;
 static char dev_prefix[10] = "/dev/spi";
 
+static int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
+{
+	struct spi *spi = container_of(dev, struct spi, dev);
+
+	debug_printk("writing from spi !\n");
+
+	return spi_ops.write(spi, buff, size);
+}
+
+static int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
+{
+	struct spi *spi = container_of(dev, struct spi, dev);
+
+	debug_printk("reading from spi !\n");
+
+	return spi_ops.read(spi, buff, size);
+}
+
 int spi_init(struct spi *spi)
 {
 	int ret = 0;
@@ -53,22 +71,4 @@ int spi_init(struct spi *spi)
 failed_out:
 	kfree(spidev);
 	return ret;
-}
-
-int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
-{
-	struct spi *spi = container_of(dev, struct spi, dev);
-
-	debug_printk("writing from spi !\n");
-
-	return spi_ops.write(spi, buff, size);
-}
-
-int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
-{
-	struct spi *spi = container_of(dev, struct spi, dev);
-
-	debug_printk("reading from spi !\n");
-
-	return spi_ops.read(spi, buff, size);
 }

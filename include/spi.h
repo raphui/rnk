@@ -42,7 +42,5 @@ struct spi_operations
 };
 
 int spi_init(struct spi *spi);
-int spi_write(struct device *dev, unsigned char *buff, unsigned int size);
-int spi_read(struct device *dev, unsigned char *buff, unsigned int size);
 
 #endif /* SPI_H */

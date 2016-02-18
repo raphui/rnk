@@ -39,8 +39,6 @@ struct usart_operations
 };
 
 int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate);
-int usart_read(struct device *dev, unsigned char *buff, unsigned int size);
-int usart_write(struct device *dev, unsigned char *buff, unsigned int size);
 
 void usart_print(unsigned char byte);
 int usart_printl(const char *string);

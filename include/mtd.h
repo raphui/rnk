@@ -38,8 +38,5 @@ struct mtd_operations
 };
 
 int mtd_init(struct mtd *mtd);
-int mtd_read(struct device *dev, unsigned char *buff, unsigned int size);
-int mtd_write(struct device *dev, unsigned char *buff, unsigned int size);
-int mtd_lseek(struct device *dev, int offset, int whence);
 
 #endif /* MTD_H */
