@@ -35,20 +35,20 @@ struct device_io {
 
 static struct device_io devs[MAX_FD];
 
-static int fd = 0;
+static int fd_num = 0;
 
 int open(const char *path, int flags)
 {
-	int ret = fd;
+	int ret = fd_num;
 	struct device *dev;
 
-	if (fd < MAX_FD) {
+	if (fd_num < MAX_FD) {
 		dev = device_from_name(path);
 		if (dev) {
-			devs[fd].dev = dev;
-			devs[fd].read = dev->read;
-			devs[fd].write = dev->write;
-			devs[fd].perm = flags;
+			devs[fd_num].dev = dev;
+			devs[fd_num].read = dev->read;
+			devs[fd_num].write = dev->write;
+			devs[fd_num].perm = flags;
 
 		} else {
 			error_printk("invalid open path\n");
@@ -77,7 +77,7 @@ int close(int fd)
 		fd--;
 	} else {
 		error_printk("invalid fd\n");
-		ret = -EINVAL;
+		ret = -EBADF;
 	}
 
 	return ret;
@@ -86,6 +86,11 @@ int close(int fd)
 int write(int fd, const void *buf, size_t size)
 {
 	int ret = 0;
+
+	if (fd >= fd_num) {
+		error_printk("invalid file descriptor\n");
+		return -EBADF;
+	}
 
 	if (devs[fd].perm & (O_WRONLY | O_RDWR)) {
 		if (devs[fd].write) {
@@ -109,6 +114,11 @@ int read(int fd, void *buf, size_t size)
 {
 	int ret = 0;
 
+	if (fd >= fd_num) {
+		error_printk("invalid file descriptor\n");
+		return -EBADF;
+	}
+
 	if (devs[fd].perm & (O_RDONLY | O_RDWR)) {
 		if (devs[fd].read) {
 
@@ -130,6 +140,11 @@ int read(int fd, void *buf, size_t size)
 int lseek(int fd, int offset, int whence)
 {
 	int ret = 0;
+
+	if (fd >= fd_num) {
+		error_printk("invalid file descriptor\n");
+		return -EBADF;
+	}
 
 	return ret;
 }
