@@ -24,19 +24,22 @@
 
 struct mtd {
 	unsigned int base_addr;
-	unsigned int sector_sizes[MAX_SECTORS];
+	unsigned int sector_size[MAX_SECTORS];
 	unsigned int num_sectors;
-	struct device dev;	
+	int curr_off;
+	struct device dev;
 };
 
 struct mtd_operations
 {
-	int (*erase)(unsigned int sector);
-	int (*write_byte)(unsigned int address, unsigned int data);
+	int (*erase)(struct mtd *mtd, unsigned int sector);
+	int (*write)(struct mtd *mtd, unsigned char *buff, unsigned int size);
+	int (*read)(struct mtd *mtd, unsigned char *buff, unsigned int size);
 };
 
 int mtd_init(struct mtd *mtd);
-int mtd_read(struct device *dev, unsigned int addr);
-int mtd_write(struct device *dev, unsigned int addr, unsigned data);
+int mtd_read(struct device *dev, unsigned char *buff, unsigned int size);
+int mtd_write(struct device *dev, unsigned char *buff, unsigned int size);
+int mtd_lseek(struct device *dev, int offset, int whence);
 
 #endif /* MTD_H */

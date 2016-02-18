@@ -21,9 +21,29 @@
 #include <mm.h>
 #include <errno.h>
 #include <string.h>
+#include <stdio.h>
 
 static int dev_count = 0;
 static char dev_prefix[10] = "/dev/mtd";
+
+static int mtd_check_addr(struct device *dev, unsigned int addr)
+{
+	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	int i;
+	int ret = 0;
+	int total_size = 0;
+
+	for (i = 0; i < mtd->num_sectors; i++) {
+		total_size += mtd->sector_size[i];
+	}
+
+	if ((addr < mtd->base_addr) || (addr > (mtd->base_addr + total_size))) {
+		error_printk("addr is out of flash\n");
+		ret = -EINVAL;
+	}
+
+	return ret;
+}
 
 int mtd_init(struct mtd *mtd)
 {
@@ -37,6 +57,8 @@ int mtd_init(struct mtd *mtd)
 	}
 
 	memcpy(_mtd, mtd, sizeof(struct mtd));
+
+	_mtd->curr_off = 0;
 
 	_mtd->dev.read = mtd_read;
 	_mtd->dev.write = mtd_write;
@@ -55,17 +77,51 @@ failed_out:
 	return ret;
 }
 
-int mtd_read(struct device *dev, unsigned int addr)
+int mtd_read(struct device *dev, unsigned char *buff, unsigned int size)
 {
 	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	int ret = 0;
 
 	debug_printk("reading from mtd !\n");
+
+	ret = mtd_check_addr(dev, mtd->curr_off);
+	if (ret < 0)
+		return ret;
+
+	return mtd_ops.read(mtd, buff, size);
 }
 
-int mtd_write(struct device *dev, unsigned int addr, unsigned data)
+int mtd_write(struct device *dev, unsigned char *buff, unsigned int size)
 {
 	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	int ret = 0;
 
 	debug_printk("writing from mtd !\n");
 
+	ret = mtd_check_addr(dev, mtd->curr_off);
+	if (ret < 0)
+		return ret;
+
+	return mtd_ops.write(mtd, buff, size);
+
+}
+
+int mtd_lseek(struct device *dev, int offset, int whence)
+{
+	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	int ret = 0;
+
+	switch (whence) {
+	case SEEK_SET:
+		break;
+
+	case SEEK_CUR:
+		break;
+
+	case SEEK_END:
+		break;
+
+	}
+
+	return ret;
 }

@@ -52,7 +52,7 @@ static int stm32_flash_wait_operation(void)
 	return ret;
 }
 
-static int stm32_flash_erase(unsigned int sector)
+static int stm32_flash_erase(struct mtd *mtd, unsigned int sector)
 {
 	int ret = 0;
 
@@ -88,8 +88,6 @@ static int stm32_flash_write_byte(unsigned int address, unsigned char data)
 {
 	int ret = 0;
 
-	stm32_flash_unlock();
-
 	ret = stm32_flash_wait_operation();
 	if (ret < 0) {
 		error_printk("last operation did not success\n");
@@ -110,12 +108,41 @@ static int stm32_flash_write_byte(unsigned int address, unsigned char data)
 
 	FLASH->CR &= (~FLASH_CR_PG);
 
+	return ret;
+}
+
+static int stm32_flash_write(struct mtd *mtd, unsigned char *buff, unsigned int size)
+{
+	int ret = 0;
+	int i;
+
+	stm32_flash_unlock();
+
+	for (i = 0; i < size; i++) {
+		ret = stm32_flash_write_byte(mtd->curr_off, buff[i]);
+		if (ret < 0)
+			break;
+	}
+
 	stm32_flash_lock();
+
+	return ret;
+}
+
+static int stm32_flash_read(struct mtd *mtd, unsigned char *buff, unsigned int size)
+{
+	int ret = 0;
+	int i;
+
+	for (i = 0; i < size; i++) {
+		buff[i] = *(unsigned char *)(mtd->curr_off + i);
+	}
 
 	return ret;
 }
 
 struct mtd_operations mtd_ops = {
 	.erase = stm32_flash_erase,
-	.write_byte = stm32_flash_write_byte,
+	.write = stm32_flash_write,
+	.read = stm32_flash_read,
 };
