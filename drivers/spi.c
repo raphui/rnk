@@ -38,8 +38,8 @@ int spi_init(struct spi *spi)
 
 	memcpy(spidev, spi, sizeof(struct spi));
 
-	spi->dev.read = spi_read;
-	spi->dev.write = spi_write;
+	spidev->dev.read = spi_read;
+	spidev->dev.write = spi_write;
 
 	ret = device_register(&spidev->dev);
 	if (ret < 0) {
@@ -48,7 +48,7 @@ int spi_init(struct spi *spi)
 		goto failed_out;
 	}
 
-	return spi_ops.init(spi);
+	return spi_ops.init(spidev);
 
 failed_out:
 	kfree(spidev);
