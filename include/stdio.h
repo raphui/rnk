@@ -21,6 +21,10 @@
 
 #include <stdarg.h>
 
+#define SEEK_SET	0
+#define SEEK_CUR	1
+#define SEEK_END	2
+
 #define DEBUG	0
 #define ERROR	1
 #define VERBOSE 0

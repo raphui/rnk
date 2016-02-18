@@ -20,6 +20,7 @@
 #define UNISTD_H
 
 #include <stddef.h>
+#include <stdio.h>
 
 #define O_RDONLY        0
 #define O_WRONLY        1
@@ -29,5 +30,6 @@ int open(const char *path, int flags);
 int close(int fd);
 int write(int fd, const void *buf, size_t size);
 int read(int fd, void *buf, size_t size);
+int lseek(int fd, int offset, int whence);
 
 #endif /* UNISTD_H */

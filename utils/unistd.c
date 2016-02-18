@@ -29,6 +29,7 @@ struct device_io {
 	struct device *dev;
 	int (*read)(struct device *dev, unsigned char *buff, unsigned int size);
 	int (*write)(struct device *dev, unsigned char *buff, unsigned int size);
+	int (*lseek)(struct device *dev, int offset, int whence);
 	int perm;
 };
 
@@ -121,6 +122,14 @@ int read(int fd, void *buf, size_t size)
 		error_printk("forbidden reading to fd: %d\n", fd);
 		ret = -EPERM;
 	}
+
+	return ret;
+}
+
+
+int lseek(int fd, int offset, int whence)
+{
+	int ret = 0;
 
 	return ret;
 }
