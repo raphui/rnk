@@ -79,7 +79,7 @@ static int stm32_flash_erase(struct mtd *mtd, unsigned int sector)
 	FLASH->CR &= CR_PSIZE_MASK;
 	FLASH->CR |= FLASH_PSIZE_BYTE;
 	FLASH->CR &= SECTOR_MASK;
-	FLASH->CR |= FLASH_CR_SER | sector;
+	FLASH->CR |= FLASH_CR_SER | (sector << 3);
 	FLASH->CR |= FLASH_CR_STRT;
 
 	ret = stm32_flash_wait_operation();
