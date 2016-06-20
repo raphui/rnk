@@ -146,9 +146,13 @@ static int stm32_flash_read(struct mtd *mtd, unsigned char *buff, unsigned int s
 	int ret = 0;
 	int i;
 
+	stm32_flash_unlock();
+
 	for (i = 0; i < size; i++) {
 		buff[i] = *(unsigned char *)(mtd->curr_off + i);
 	}
+
+	stm32_flash_lock();
 
 	return ret;
 }
