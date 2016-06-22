@@ -28,7 +28,7 @@
 struct device_io {
 	struct device *dev;
 	int (*read)(struct device *dev, unsigned char *buff, unsigned int size);
-	int (*write)(struct device *dev, unsigned char *buff, unsigned int size);
+	int (*write)(struct device *dev, const unsigned char *buff, unsigned int size);
 	int (*lseek)(struct device *dev, int offset, int whence);
 	int perm;
 };

@@ -89,9 +89,9 @@ static int elf_get_symval(elf32_sym *sym)
 		debug_printk("local sym: %s\n", str);
 
 		target = elf_get_section(sym->st_shndx);
-		addr = buff + sym->st_value + target->sh_offset;
+		addr = (int)(buff + sym->st_value + target->sh_offset);
 
-		debug_printf("defined at 0x%x\n", addr);
+		debug_printk("defined at 0x%x\n", addr);
 	} else {
 		addr = lookup_table[sym->st_shndx] + sym->st_value;
 	}
@@ -290,7 +290,7 @@ out:
 
 static void elf_jump(unsigned int entry)
 {
-	unsigned int (*fct)(void) = entry;
+	unsigned int (*fct)(void) = (void *)entry;
 	fct();
 }
 
