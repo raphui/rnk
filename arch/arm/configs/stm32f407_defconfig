@@ -34,6 +34,7 @@ CONFIG_STM32F407=y
 # Kernel configuration
 #
 CONFIG_TASK_STACK_START=0x10008000
+CONFIG_INITCALL=y
 
 #
 # Drivers configuration
