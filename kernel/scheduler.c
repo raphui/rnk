@@ -24,19 +24,29 @@
 #include <arch/svc.h>
 #include <armv7m/system.h>
 
+#ifdef CONFIG_INITCALL
+#include <init.h>
+#endif /* CONFIG_INITCALL */
+
 int task_switching = 0;
 unsigned int system_tick = 0;
 
-void schedule_init(void)
+int schedule_init(void)
 {
+	int ret = 0;
+
 	task_init();
+
+	return ret;
 }
+#ifdef CONFIG_INITCALL
+core_initcall(schedule_init);
+#endif /* CONFIG_INITCALL */
 
 void start_schedule(void)
 {
 	first_switch_task();
 }
-
 
 void schedule(void)
 {

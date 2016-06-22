@@ -324,16 +324,6 @@ void eleventh_task(void)
 	
 }
 
-#ifdef CONFIG_INITCALL
-int test_initcall(void)
-{
-	printk("call from core_initcall\r\n");
-
-	return 0;
-}
-core_initcall(test_initcall);
-#endif /* CONFIG_INITCALL */
-
 int main(void)
 {
 	int fd;
@@ -345,7 +335,9 @@ int main(void)
 	initcall_t *initcall;
 #endif /* CONFIG_INITCALL */
 
+#ifndef CONFIG_INITCALL
 	init_heap();
+#endif /* CONFIG_INITCALL */
 
 #ifdef CONFIG_STM32F429
 	usart_init(1, USART1_BASE, 115200);
@@ -381,12 +373,15 @@ int main(void)
 	printk("Welcome to rnk\r\n");
 
 	printk("- Initialise scheduler...\r\n");
+
+#ifndef CONFIG_INITCALL
 	schedule_init();
+	time_init();
+#endif /* CONFIG_INITCALL */
 
 	init_mutex(&mutex);
 	init_semaphore(&sem, 1);
 	init_queue(&queue, sizeof(int), 5);
-	time_init();
 
 #ifdef CONFIG_INITCALL
 	for (initcall = __rnk_initcalls_start; initcall < __rnk_initcalls_end; initcall++) {
@@ -395,7 +390,6 @@ int main(void)
 		if (ret < 0)
 			error_printk("initcall %pS failed: %d\n", *initcall, ret);
 	}
-
 #endif /* CONFIG_INITCALL */
 
 	mtd.base_addr = 0x08010000;

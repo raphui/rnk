@@ -22,6 +22,10 @@
 #include <mach/pio-stm32.h>
 #include <mach/exti-stm32.h>
 
+#ifdef CONFIG_INITCALL
+#include <init.h>
+#endif /* CONFIG_INITCALL */
+
 void set_sys_clock(void)
 {
 	/******************************************************************************/
@@ -204,5 +208,7 @@ void low_level_init(void)
 	stm32_exti_init(GPIOA_BASE, 0);
 	stm32_exti_enable_falling(GPIOA_BASE, 0);
 
+#ifndef CONFIG_INITCALL
 	init_systick();
+#endif /* CONFIG_INITCALL */
 }

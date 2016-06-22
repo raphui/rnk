@@ -23,6 +23,10 @@
 #include <mach/pio-stm32.h>
 #include <mach/exti-stm32.h>
 
+#ifdef CONFIG_INITCALL
+#include <init.h>
+#endif /* CONFIG_INITCALL */
+
 void set_sys_clock(void)
 {
 	/******************************************************************************/
@@ -136,5 +140,7 @@ void low_level_init(void)
 
 #endif /* CONFIG_SWO_DEBUG */
 
+#ifndef CONFIG_INITCALL
 	init_systick();
+#endif /* CONFIG_INITCALL */
 }

@@ -23,6 +23,10 @@
 #include <stdio.h>
 #include <scheduler.h>
 
+#ifdef CONFIG_INITCALL
+#include <init.h>
+#endif /* CONFIG_INITCALL */
+
 LIST_HEAD(, task) sleeping_tasks = LIST_HEAD_INITIALIZER(sleeping_tasks);
 
 struct timer timer;
@@ -32,10 +36,17 @@ static void remove_sleeping_task(struct task *task)
 	LIST_REMOVE(task, next);
 }
 
-void time_init(void)
+int time_init(void)
 {
+	int ret = 0;
+
 	LIST_INIT(&sleeping_tasks);
+
+	return ret;
 }
+#ifdef CONFIG_INITCALL
+core_initcall(time_init);
+#endif /* CONFIG_INITCALL */
 
 void svc_usleep(struct timer *timer)
 {

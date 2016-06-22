@@ -23,7 +23,7 @@
 #include <task.h>
 #include <timer.h>
 
-void time_init(void);
+int time_init(void);
 void svc_usleep(struct timer *timer);
 void usleep(unsigned int usec);
 void decrease_task_delay(void);

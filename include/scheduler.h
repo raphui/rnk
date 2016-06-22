@@ -30,7 +30,7 @@ void switch_context(struct registers *_current_regs, struct registers *_task_reg
 void save_user_context(void);
 void get_user_context(void);
 void start_schedule(void);
-void schedule_init(void);
+int schedule_init(void);
 void schedule(void);
 void schedule_task(struct task *task);
 void schedule_isr(void);

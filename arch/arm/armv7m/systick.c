@@ -20,6 +20,10 @@
 #include <arch/nvic.h>
 #include <utils.h>
 
+#ifdef CONFIG_INITCALL
+#include <init.h>
+#endif /* CONFIG_INITCALL */
+
 #ifdef CONFIG_STM32F429
 #define SYS_CLOCK	180000000
 #define SYSTICK_FREQ	100//4000
@@ -28,7 +32,10 @@
 #define SYSTICK_FREQ	100//4000
 #endif /* CONFIG_STM32F429 */
 
-void init_systick(void) {
+int init_systick(void)
+{
+	int ret = 0;
+
 	writel(SYSTICK_RELOAD, SYS_CLOCK / SYSTICK_FREQ);
 	writel(SYSTICK_VAL, 0);
 	writel(SYSTICK_CTL, 0x00000007);
@@ -42,5 +49,7 @@ void init_systick(void) {
 	nvic_set_priority_interrupt(svcall_irq, 0xFD);
 	nvic_set_priority_interrupt(pendsv_irq, 0xFE);
 	nvic_set_priority_interrupt(systick_irq, 0xFF);
-}
 
+	return ret;
+}
+arch_initcall(init_systick);

@@ -18,12 +18,22 @@
 
 #include "memory.h"
 
-void init_heap(void)
+#ifdef CONFIG_INITCALL
+#include <init.h>
+#endif /* CONFIG_INITCALL */
+
+int init_heap(void)
 {
 	int i;
+	int ret = 0;
 
 	for (i = 0; i < KERNEL_NUM_BLOCKS; i++) {
 		kernel_heap[i].free_chunks = CHUNK_PER_BLOCK;
 		kernel_heap[i].free_mask = 0;
 	}
+
+	return ret;
 }
+#ifdef CONFIG_INITCALL
+pure_initcall(init_heap);
+#endif /* CONFIG_INITCALL */

@@ -20,6 +20,10 @@
 #include <armv7m/system.h>
 #include <utils.h>
 
+#ifdef CONFIG_INITCALL
+#include <init.h>
+#endif /* CONFIG_INITCALL */
+
 void set_sys_clock(void)
 {
 	/******************************************************************************/
@@ -117,5 +121,7 @@ void low_level_init(void)
 	writel(SCB_VTOR, FLASH_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal FLASH */
 #endif
 
+#ifndef CONFIG_INITCALL
 	init_systick();
+#endif /* CONFIG_INITCALL */
 }

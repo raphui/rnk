@@ -21,7 +21,7 @@
 
 #include <utils.h>
 
-extern void init_systick(void);
+extern int init_systick(void);
 
 static inline void READ_AND_DISCARD(unsigned int*reg) {
     asm volatile ("" : "=m" (*reg) : "r" (*reg));
