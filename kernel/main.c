@@ -333,6 +333,13 @@ int main(void)
 #ifdef CONFIG_INITCALL
 	int ret;
 	initcall_t *initcall;
+
+	for (initcall = __rnk_initcalls_start; initcall < __rnk_initcalls_end; initcall++) {
+		debug_printk("initcall-> %pS\n", *initcall);
+		ret = (*initcall)();
+		if (ret < 0)
+			error_printk("initcall %pS failed: %d\n", *initcall, ret);
+	}
 #endif /* CONFIG_INITCALL */
 
 #ifndef CONFIG_INITCALL
@@ -382,15 +389,6 @@ int main(void)
 	init_mutex(&mutex);
 	init_semaphore(&sem, 1);
 	init_queue(&queue, sizeof(int), 5);
-
-#ifdef CONFIG_INITCALL
-	for (initcall = __rnk_initcalls_start; initcall < __rnk_initcalls_end; initcall++) {
-		debug_printk("initcall-> %pS\n", *initcall);
-		ret = (*initcall)();
-		if (ret < 0)
-			error_printk("initcall %pS failed: %d\n", *initcall, ret);
-	}
-#endif /* CONFIG_INITCALL */
 
 	mtd.base_addr = 0x08010000;
 	mtd.sector_size[0] = 0xFFFF;
