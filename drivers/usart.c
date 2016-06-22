@@ -50,7 +50,7 @@ int usart_init(unsigned int num, unsigned int base_reg, unsigned int baud_rate)
 	int ret = 0;
 
 	usart = (struct usart *)kmalloc(sizeof(*usart));
-	if (usart < 0) {
+	if (!usart) {
 		error_printk("cannot allocate usart\r\n");
 		return -ENOMEM;
 	}

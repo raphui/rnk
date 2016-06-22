@@ -108,7 +108,7 @@ int mtd_init(struct mtd *mtd)
 	struct mtd *_mtd = NULL;
 
 	_mtd = (struct mtd *)kmalloc(sizeof(struct mtd));
-	if (_mtd < 0) {
+	if (!_mtd) {
 		error_printk("cannot allocate mtd\n");
 		return -ENOMEM;
 	}

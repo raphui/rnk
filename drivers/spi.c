@@ -49,7 +49,7 @@ int spi_init(struct spi *spi)
 	struct spi *spidev = NULL;
 
 	spidev = (struct spi *)kmalloc(sizeof(struct spi));
-	if (spidev < 0) {
+	if (!spidev) {
 		error_printk("cannot allocate spi\n");
 		return -ENOMEM;
 	}
