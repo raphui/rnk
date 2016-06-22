@@ -7,4 +7,7 @@ menu "Kernel configuration"
 
 config TASK_STACK_START
 	hex "Start address of kernel task stack"
+
+config INITCALL
+	bool "Enable initcall and exitcall"
 endmenu
