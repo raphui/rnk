@@ -76,6 +76,7 @@ linker-$(CONFIG_STM32F746) := stm32f7.ld
 
 linker_files = $(foreach linker-file,$(linker-y), -T$(linker-file))
 
+ifeq (${MAKELEVEL}, 0)
 conf:
 	@@echo "CP mach-$(MACH)/board-$(SOC).h -> board.h"
 	@cp boards/mach-$(MACH)/board-$(SOC).h boards/board.h
@@ -87,11 +88,9 @@ cscope:
 	@@echo "GEN " $@
 	@cscope -b -q -k -R
  
-ifeq (${MAKELEVEL}, 0)
 all: kernel.img
-endif
 
-kernel.elf: config.h
+kernel.elf: conf config.h
 	rm -f objects.lst
 	$(MAKE) -f tools/Makefile.common dir=. all
 	$(CC) $(LDFLAGS) $(linker_files) -o $@ \
@@ -99,23 +98,18 @@ kernel.elf: config.h
  
 include $(wildcard *.d)
  
-symbols-make: 
-	@@echo "GEN " $@
+symbols-make:
+	@@echo "SYM GEN"
 	@sh tools/sym.sh make
 
 symbols-clean: 
-	@@echo "CLEAN " $@
+	@@echo "SYM CLEAN"
 	@sh tools/sym.sh clean
- 
-#kernel.elf: $(OBJS) 
-#	@@echo "LD " $@
-#	@$(CC) $(LDFLAGS) $(OBJS) -T$(LD_SCRIPT) -o $@
 
 kernel.img: kernel.elf 
 	@@echo "OBJCOPY " $<
 	@$(CROSS_COMPILE)objcopy kernel.elf -O binary kernel.bin
- 
-ifeq (${MAKELEVEL}, 0)
+
 clean:
 	$(MAKE) -f tools/Makefile.common dir=. $@
 	$(RM) $(OBJS) kernel.elf kernel.img
