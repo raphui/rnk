@@ -135,6 +135,8 @@ static int stm32_flash_write(struct mtd *mtd, unsigned char *buff, unsigned int 
 		ret = stm32_flash_write_byte(addr, buff[i]);
 		if (ret < 0)
 			break;
+
+		addr += sizeof(unsigned char);
 	}
 
 	stm32_flash_lock();
@@ -151,7 +153,7 @@ static int stm32_flash_read(struct mtd *mtd, unsigned char *buff, unsigned int s
 	stm32_flash_unlock();
 
 	for (i = 0; i < size; i++) {
-		buff[i] = *(unsigned char *)(addr + i * sizeof(unsigned char));
+		buff[i] = *(unsigned char *)(addr + i);
 	}
 
 	stm32_flash_lock();
