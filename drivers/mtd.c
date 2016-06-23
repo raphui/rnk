@@ -50,7 +50,13 @@ static int mtd_read(struct device *dev, unsigned char *buff, unsigned int size)
 	if (ret < 0)
 		return ret;
 
-	return mtd_ops.read(mtd, buff, size);
+	ret = mtd_ops.read(mtd, buff, size);
+	if (ret < 0)
+		return ret;
+
+	mtd->curr_off += size;
+
+	return ret;
 }
 
 static int mtd_write(struct device *dev, unsigned char *buff, unsigned int size)
@@ -64,8 +70,13 @@ static int mtd_write(struct device *dev, unsigned char *buff, unsigned int size)
 	if (ret < 0)
 		return ret;
 
-	return mtd_ops.write(mtd, buff, size);
+	ret = mtd_ops.write(mtd, buff, size);
+	if (ret < 0)
+		return ret;
 
+	mtd->curr_off += size;
+
+	return ret;
 }
 
 static int mtd_lseek(struct device *dev, int offset, int whence)
