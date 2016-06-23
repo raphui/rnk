@@ -139,8 +139,4 @@ void low_level_init(void)
 	swo_init(SYSCLK);
 
 #endif /* CONFIG_SWO_DEBUG */
-
-#ifndef CONFIG_INITCALL
-	init_systick();
-#endif /* CONFIG_INITCALL */
 }

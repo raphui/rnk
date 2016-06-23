@@ -120,8 +120,4 @@ void low_level_init(void)
 #else
 	writel(SCB_VTOR, FLASH_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal FLASH */
 #endif
-
-#ifndef CONFIG_INITCALL
-	init_systick();
-#endif /* CONFIG_INITCALL */
 }

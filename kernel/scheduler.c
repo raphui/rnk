@@ -45,6 +45,7 @@ core_initcall(schedule_init);
 
 void start_schedule(void)
 {
+	init_systick();
 	first_switch_task();
 }
 

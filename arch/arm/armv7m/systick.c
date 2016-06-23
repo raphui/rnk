@@ -52,4 +52,3 @@ int init_systick(void)
 
 	return ret;
 }
-arch_initcall(init_systick);

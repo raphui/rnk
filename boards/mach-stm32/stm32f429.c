@@ -207,8 +207,4 @@ void low_level_init(void)
 	stm32_pio_set_input(GPIOA_BASE, 0, 0, 0);
 	stm32_exti_init(GPIOA_BASE, 0);
 	stm32_exti_enable_falling(GPIOA_BASE, 0);
-
-#ifndef CONFIG_INITCALL
-	init_systick();
-#endif /* CONFIG_INITCALL */
 }
