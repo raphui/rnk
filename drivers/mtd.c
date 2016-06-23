@@ -44,7 +44,7 @@ static int mtd_read(struct device *dev, unsigned char *buff, unsigned int size)
 	struct mtd *mtd = container_of(dev, struct mtd, dev);
 	int ret = 0;
 
-	debug_printk("reading from mtd !\n");
+	verbose_printk("reading from mtd !\n");
 
 	ret = mtd_check_addr(dev, mtd->base_addr + mtd->curr_off);
 	if (ret < 0)
@@ -58,7 +58,7 @@ static int mtd_write(struct device *dev, unsigned char *buff, unsigned int size)
 	struct mtd *mtd = container_of(dev, struct mtd, dev);
 	int ret = 0;
 
-	debug_printk("writing from mtd !\n");
+	verbose_printk("writing from mtd !\n");
 
 	ret = mtd_check_addr(dev, mtd->base_addr + mtd->curr_off);
 	if (ret < 0)

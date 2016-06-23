@@ -31,7 +31,7 @@ static int usart_read(struct device *dev, unsigned char *buff, unsigned int size
 {
 	struct usart *usart = container_of(dev, struct usart, dev);
 
-	debug_printk("reading from usart !\n");
+	verbose_printk("reading from usart !\n");
 
 	return usart_ops.read(usart, buff, size);
 }
@@ -40,7 +40,7 @@ static int usart_write(struct device *dev, unsigned char *buff, unsigned int siz
 {
 	struct usart *usart = container_of(dev, struct usart, dev);
 
-	debug_printk("writing from usart !\n");
+	verbose_printk("writing from usart !\n");
 
 	return usart_ops.write(usart, buff, size);
 }

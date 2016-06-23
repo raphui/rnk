@@ -31,7 +31,7 @@ static void insert_device(struct device *dev)
 	device = LIST_FIRST(&device_list);
 
 	if (!device_count) {
-		debug_printk("device list is empty\r\n");
+		verbose_printk("device list is empty\r\n");
 		LIST_INSERT_HEAD(&device_list, dev, next);
 	}
 	else
