@@ -20,10 +20,6 @@
 #include <arch/nvic.h>
 #include <utils.h>
 
-#ifdef CONFIG_INITCALL
-#include <init.h>
-#endif /* CONFIG_INITCALL */
-
 #ifdef CONFIG_STM32F429
 #define SYS_CLOCK	180000000
 #define SYSTICK_FREQ	100//4000
