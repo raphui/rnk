@@ -54,7 +54,7 @@ struct ltdc ltdc;
 #include <init.h>
 
 extern initcall_t __rnk_initcalls_start[], __rnk_initcalls_end[];
-extern exitcall_t __rnk_exitcalls_start[], __barebox_exitcalls_end[];
+extern exitcall_t __rnk_exitcalls_start[], __rnk_exitcalls_end[];
 #endif /* CONFIG_INITCALL */
 
 struct usart usart;
