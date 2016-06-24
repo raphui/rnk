@@ -328,7 +328,6 @@ int main(void)
 {
 	int fd;
 	unsigned char c;
-	struct mtd mtd;
 
 #ifdef CONFIG_INITCALL
 	int ret;
@@ -346,6 +345,7 @@ int main(void)
 	init_heap();
 #endif /* CONFIG_INITCALL */
 
+#ifndef CONFIG_INITCALL
 #ifdef CONFIG_STM32F429
 	usart_init(1, USART1_BASE, 115200);
 	pio_set_alternate(GPIOA_BASE, 9, 0x7);
@@ -376,6 +376,7 @@ int main(void)
 	pio_set_alternate(GPIOA_BASE, 2, 0x7);
 	pio_set_alternate(GPIOA_BASE, 3, 0x7);
 #endif /* CONFIG_STM32F429 */
+#endif /* CONFIG_INITCALL */
 
 	printk("Welcome to rnk\r\n");
 
@@ -389,12 +390,6 @@ int main(void)
 	init_mutex(&mutex);
 	init_semaphore(&sem, 1);
 	init_queue(&queue, sizeof(int), 5);
-
-	mtd.base_addr = 0x08010000;
-	mtd.sector_size[0] = 0xFFFF;
-	mtd.num_sectors = 1;
-
-	mtd_init(&mtd);
 
 	fd = open("/dev/mtd", O_RDWR);
 	if (fd < 0) {

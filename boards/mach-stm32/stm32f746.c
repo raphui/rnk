@@ -25,6 +25,8 @@
 
 #ifdef CONFIG_INITCALL
 #include <init.h>
+#include <mtd.h>
+#include <sizes.h>
 #endif /* CONFIG_INITCALL */
 
 void set_sys_clock(void)
@@ -132,11 +134,30 @@ void low_level_init(void)
 #else
 	writel(SCB_VTOR, FLASH_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal FLASH */
 #endif
+}
+
+#ifdef CONFIG_INITCALL
+int device_init(void)
+{
+	struct mtd mtd;
+
+	mtd.base_addr = 0x08000000;
+	mtd.sector_size[0] = SZ_32K;
+	mtd.sector_size[1] = SZ_32K;
+	mtd.sector_size[2] = SZ_32K;
+	mtd.sector_size[3] = SZ_32K;
+	mtd.sector_size[4] = SZ_128K;
+	mtd.sector_size[5] = SZ_256K;
+	mtd.sector_size[6] = SZ_256K;
+	mtd.sector_size[7] = SZ_256K;
+	mtd.num_sectors = 8;
+
+	mtd_init(&mtd);
 
 #ifdef CONFIG_SWO_DEBUG
-
 	stm32_pio_set_alternate(GPIOB_BASE, 3, 0x0);
 	swo_init(SYSCLK);
-
 #endif /* CONFIG_SWO_DEBUG */
 }
+device_initcall(device_init);
+#endif /* CONFIG_INITCALL */
