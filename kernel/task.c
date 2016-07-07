@@ -33,19 +33,6 @@ static void idle_task(void)
 		;
 }
 
-static void increment_task_priority(void)
-{
-	struct task *task;
-
-	LIST_FOREACH(task, &runnable_tasks, next) {
-		debug_printk("task %d with priority %d\r\n", task->pid, task->priority);
-		if (task->pid != 0) {
-			debug_printk("increasing priority of task %d\r\n", task->pid);
-			task->priority++;
-		}
-	}
-}
-
 static void insert_task(struct task *t)
 {
 	struct task *task;
@@ -59,7 +46,7 @@ static void insert_task(struct task *t)
 	}
 
 	LIST_FOREACH(task, &runnable_tasks, next) {
-//		debug_printk("t->priority: %d, task->priority; %d\r\n", t->priority, task->priority);
+		debug_printk("t->priority: %d, task->priority; %d\r\n", t->priority, task->priority);
 		if (t->priority > task->priority) {
 			debug_printk("inserting task %d\r\n", t->pid);
 			LIST_INSERT_BEFORE(task, t, next);
@@ -108,7 +95,6 @@ void switch_task(struct task *task)
 {
 	if (current_task && (current_task->state != TASK_BLOCKED)) {
 		current_task->regs->sp = PSP();
-		increment_task_priority();
 		insert_task(current_task);
 	}
 
