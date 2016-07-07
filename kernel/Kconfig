@@ -10,4 +10,19 @@ config TASK_STACK_START
 
 config INITCALL
 	bool "Enable initcall and exitcall"
+
+choice
+    prompt "Scheduling algorithms"
+
+    config SCHEDULE_ROUND_ROBIN
+        bool "Round Robin scheduling algorithm"
+
+    config SCHEDULE_PRIORITY
+        bool "Priority scheduling algorithm"
+endchoice
+
+config TASK_QUANTUM
+	depends on SCHEDULE_ROUND_ROBIN
+	int "Task quantum"
+
 endmenu

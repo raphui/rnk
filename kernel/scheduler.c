@@ -62,11 +62,24 @@ void schedule_task(struct task *task)
 {
 	struct task *t;
 
+#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
+	t = get_current_task();
+	if (t)
+		t->quantum--;
+#endif
+
 	if (task)
 		switch_task(task);
 	else {
+#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
+		if (!t->quantum) {
+			t = find_next_task();
+			switch_task(t);
+		}
+#elif defined(CONFIG_SCHEDULE_PRIORITY)
 		t = find_next_task();
 		switch_task(t);
+#endif
 	}
 	
 	task_switching = 1;

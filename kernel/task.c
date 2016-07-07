@@ -46,12 +46,21 @@ static void insert_task(struct task *t)
 	}
 
 	LIST_FOREACH(task, &runnable_tasks, next) {
+
+#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
+		if (!LIST_NEXT(task, next)) {
+			debug_printk("inserting task %d\r\n", t->pid);
+			LIST_INSERT_AFTER(task, t, next);
+			break;
+		}
+#elif defined(CONFIG_SCHEDULE_PRIORITY)
 		debug_printk("t->priority: %d, task->priority; %d\r\n", t->priority, task->priority);
 		if (t->priority > task->priority) {
 			debug_printk("inserting task %d\r\n", t->pid);
 			LIST_INSERT_BEFORE(task, t, next);
-			return;
+			break;
 		}
+#endif
 	}
 }
 
@@ -66,7 +75,13 @@ void add_task(void (*func)(void), unsigned int priority)
 	struct task *task = (struct task *)kmalloc(sizeof(struct task));
 	task->state = TASK_RUNNABLE;
 	task->pid = task_count;
+
+#ifdef CONFIG_SCHEDULE_PRIORITY
 	task->priority = priority;
+#elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
+	task->quantum = CONFIG_TASK_QUANTUM;
+#endif
+
 	task->start_stack = TASK_STACK_START + (task_count * TASK_STACK_OFFSET);
 	task->delay = 0;
 	task->func = func;

@@ -59,6 +59,7 @@ struct task
 	unsigned int state;
 	unsigned int pid;
 	unsigned int priority;
+	unsigned int quantum;
 	unsigned int start_stack;
 	unsigned int delay;
 	void (*func)(void);
