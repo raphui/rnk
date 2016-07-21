@@ -49,6 +49,27 @@
 
 extern unsigned long thread_lock;
 
+#ifdef CONFIG_CPU_ARM64
+struct registers
+{
+	unsigned int lr;
+	unsigned int sp;
+	unsigned int tpidr_el0;
+	unsigned int tpidrro_el0;
+	unsigned int r18;
+	unsigned int r19;
+	unsigned int r20;
+	unsigned int r21;
+	unsigned int r22;
+	unsigned int r23;
+	unsigned int r24;
+	unsigned int r25;
+	unsigned int r26;
+	unsigned int r27;
+	unsigned int r28;
+	unsigned int r29;
+};
+#else
 struct registers
 {
 	unsigned int r0;
@@ -69,6 +90,7 @@ struct registers
 	unsigned int pc;
 
 };
+#endif /* CONFIG_CPU_ARM64 */
 
 struct thread
 {

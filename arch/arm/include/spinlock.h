@@ -20,8 +20,9 @@
 #define ARM_SPINLOCK_H
 
 
-
-#ifdef CONFIG_CPU_ARMV7M
+#ifdef CONFIG_CPU_ARMV8A
+#include <armv8a/system.h>
+#elif defined(CONFIG_CPU_ARMV7M)
 #include <armv7m/system.h>
 #endif /* CONFIG_CPU_ARMV7M */
 
@@ -43,6 +44,11 @@ static inline void arch_spin_lock_init(unsigned long *lock)
 	*lock = SPIN_LOCK_INITIAL_VALUE;
 }
 
+#ifdef CONFIG_CPU_ARMV8A
+void arch_spin_lock(unsigned long *lock);
+int arch_spin_trylock(unsigned long *lock);
+void arch_spin_unlock(unsigned long *lock);
+#else
 static inline int arch_spin_lock_held(unsigned long *lock)
 {
 	return *lock != 0;
@@ -62,6 +68,7 @@ static inline void arch_spin_unlock(unsigned long *lock)
 {
 	*lock = 0;
 }
+#endif /* CONFIG_CPU_ARMV8A */
 
 static inline void arch_interrupt_save(unsigned long *statep, unsigned long flags)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014  Raphaël Poggi <poggi.raph@gmail.com>
+ * Copyright (C) 2015 Raphaël Poggi <poggi.raph@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,17 +16,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef ARCH_SVC_H
-#define ARCH_SVC_H
-
-#ifdef CONFIG_CPU_ARMV7M
-#include <armv7m/system.h>
-#include <armv7m/svc.h>
-#elif defined(CONFIG_CPU_ARMV8A)
+#include <thread.h>
 #include <armv8a/system.h>
-#include <armv8a/svc.h>
-#endif
 
-extern void arch_system_call(unsigned int call, void *arg1, void *arg2, void *arg3);
+void arch_init(void)
+{
+}
 
-#endif /* ARCH_SVC_H */
+void arch_init_tick(void)
+{
+}
+
+void arch_request_sched(void)
+{
+}
+
+unsigned int arch_get_thread_stack(void)
+{
+}
+
+void arch_set_thread_stack(struct thread *t)
+{
+}

@@ -7,34 +7,56 @@ menu "Architecture configuration"
 
 config CPU_ARM
     bool
-    default y
+
+config CPU_ARM64
+    bool
 
 config CPU_ARMV7
     bool
     select CPU_ARM
 
+config CPU_ARMV8
+    bool
+    select CPU_ARM64
+
 config CPU_ARM_THUMB
     bool
-
-config CPU_ARMV7M
-    bool
-    select CPU_ARMV7
-    select CPU_ARM_THUMB
 
 choice
    prompt "Architecture"
 
+config CPU_ARMV7M
+    bool "ARM7M"
+    select CPU_ARMV7
+    select CPU_ARM_THUMB
+
+config CPU_ARMV8A
+    bool "ARMV8A"
+    select CPU_ARMV8
+
+endchoice
+choice
+   prompt "CPU"
+
 config CPU_ARM_CORTEX_M3
     bool "Cortex-M3"
-    select CPU_ARMV7M
+    depends on CPU_ARMV7M
 
 config CPU_ARM_CORTEX_M4
     bool "Cortex-M4"
-    select CPU_ARMV7M
+    depends on CPU_ARMV7M
 
 config CPU_ARM_CORTEX_M7
     bool "Cortex-M7"
-    select CPU_ARMV7M
+    depends on CPU_ARMV7M
+
+config CPU_ARM_CORTEX_A53
+    bool "Cortex-A53"
+    depends on CPU_ARMV8A
+
+config CPU_ARM_CORTEX_A57
+    bool "Cortex-A57"
+    depends on CPU_ARMV8A
 
 endchoice
 

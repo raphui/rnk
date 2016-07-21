@@ -15,8 +15,18 @@ ifeq ($(CONFIG_CPU_ARMV7M),y)
 ARMV=armv7m
 endif
 
+ifeq ($(CONFIG_CPU_ARMV8A),y)
+ARMV=armv8a
+endif
+
 ifeq ($(CONFIG_MACH_STM32),y)
 MACH=stm32
+endif
+
+ifeq ($(CONFIG_MACH_QEMU), y)
+MACH=qemu
+SOC=qemu
+FAMILY=qemu
 endif
 
 ifeq ($(CONFIG_STM32F401),y)
@@ -47,6 +57,16 @@ ifeq ($(CONFIG_CPU_ARM_CORTEX_M7),y)
 MCPU=cortex-m7
 endif
 
+ifeq ($(CONFIG_CPU_ARM_CORTEX_A53), y)
+MCPU=cortex-a53
+endif
+
+ifeq ($(CONFIG_CPU_ARM_CORTEX_A57), y)
+MCPU=cortex-a57
+endif
+
+TEXT_BASE=$(CONFIG_TEXT_BASE)
+
 KCONFIG_AUTOHEADER=config.h
 
 ifeq (${MAKELEVEL}, 0)
@@ -55,8 +75,17 @@ INCLUDES	+= -I$(KERNEL_BASE)/boards
 # XXX: find a more elegant way to handle include depending of CONFIG_
 INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/fdt/include
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
+
+
+ifeq ($(CONFIG_CPU_ARMV7M),y)
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
 CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -nostdinc -g $(INCLUDES)
+endif
+
+ifeq ($(CONFIG_CPU_ARMV8A),y)
+ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -DTEXT_BASE=$(TEXT_BASE)
+CFLAGS := -Wall -fno-builtin -ffunction-sections -mabi=lp64 -nostdlib -nostdinc -g $(INCLUDES) -mcpu=$(MCPU) -DTEXT_BASE=$(TEXT_BASE)
+endif
 
 ifeq ($(CONFIG_UNWIND),y)
 CFLAGS += -funwind-tables
@@ -66,7 +95,7 @@ endif
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib -Wl,-Map=kernel.map#-Wl,--gc-sections
 
-LDSFLAGS := $(INCLUDES)
+LDSFLAGS := $(INCLUDES) -DTEXT_BASE=$(TEXT_BASE)
 
 CC := $(CROSS_COMPILE)gcc
 AS := $(CROSS_COMPILE)as

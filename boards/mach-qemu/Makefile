@@ -3,6 +3,4 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
-subdirs-$(CONFIG_CPU_ARMV7M) += armv7m
-subdirs-$(CONFIG_CPU_ARMV8A) += armv8a
-subdirs-y += dts
+obj-y := qemu-virt64.o

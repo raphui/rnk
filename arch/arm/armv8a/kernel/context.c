@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014  Raphaël Poggi <poggi.raph@gmail.com>
+ * Copyright (C) 2016  Raphaël Poggi <poggi.raph@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,17 +16,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef ARCH_SVC_H
-#define ARCH_SVC_H
+#include <stdlib.h>
+#include <thread.h>
+#include <scheduler.h>
+#include <string.h>
 
-#ifdef CONFIG_CPU_ARMV7M
-#include <armv7m/system.h>
-#include <armv7m/svc.h>
-#elif defined(CONFIG_CPU_ARMV8A)
-#include <armv8a/system.h>
-#include <armv8a/svc.h>
-#endif
+void create_context(struct registers *_regs, struct thread *_thread)
+{
 
-extern void arch_system_call(unsigned int call, void *arg1, void *arg2, void *arg3);
+	unsigned int stack_top = _thread->start_stack + THREAD_STACK_OFFSET;
 
-#endif /* ARCH_SVC_H */
+	stack_top = ROUNDDOWN(stack_top, 16);
+
+	_regs = (struct registers *)stack_top;
+	_regs--;
+
+	memset(_regs, 0, sizeof(*_regs));
+
+	_thread->regs->sp = _regs;
+}

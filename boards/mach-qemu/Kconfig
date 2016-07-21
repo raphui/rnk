@@ -1,0 +1,16 @@
+# Copyright (C) 2016 Raphaël Poggi. All rights reserved.
+# Author: Raphaël Poggi <poggi.raph@gmail.com>
+#
+# Provided under the three clause BSD license found in the LICENSE file.
+
+menu "QEMU configuration"
+
+choice
+    prompt "SoC"
+
+    config QEMU_VIRT_ARM64
+        bool "QEMU virt ARM64"
+
+endchoice
+
+endmenu

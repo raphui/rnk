@@ -3,5 +3,6 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
+obj-$(CONFIG_QEMU_VIRT_ARM64) += qemu-virt64.o
 obj-$(CONFIG_STM32F407) += stm3240g_eval.o
 obj-$(CONFIG_STM32F429) += lpd.o

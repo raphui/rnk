@@ -1,0 +1,41 @@
+# Copyright (C) 2016 Raphaël Poggi. All rights reserved.
+# Author: Raphaël Poggi <poggi.raph@gmail.com>
+#
+# Provided under the three clause BSD license found in the LICENSE file.
+
+menu "Architecture configuration"
+
+config CPU_ARM64
+    bool
+    default y
+
+config CPU_ARMV8
+    bool
+    select CPU_ARM
+
+choice
+   prompt "Architecture"
+
+config CPU_ARM_CORTEX_A53
+    bool "Cortex-A53"
+    select CPU_ARMV8
+
+config CPU_ARM_CORTEX_A57
+    bool "Cortex-A57"
+    select CPU_ARMV8
+
+endchoice
+
+choice
+    prompt "Endianess"
+    default LITTLE_ENDIAN
+
+config BIG_ENDIAN
+    bool "Big Endian"
+
+config LITTLE_ENDIAN
+    bool "Little Endian"
+
+endchoice
+
+endmenu

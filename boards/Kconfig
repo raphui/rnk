@@ -13,6 +13,10 @@ choice
 
     config MACH_STM32
         bool "STM32"
+	depends on CPU_ARMV7M
+
+    config MACH_QEMU
+        bool "QEMU"
 endchoice
 
 if MACH_AT91
@@ -23,5 +27,8 @@ if MACH_STM32
 source "boards/mach-stm32/Kconfig"
 endif
 
+if MACH_QEMU
+source "boards/mach-qemu/Kconfig"
+endif
 
 endmenu

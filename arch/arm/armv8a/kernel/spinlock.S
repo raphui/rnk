@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014  Raphaël Poggi <poggi.raph@gmail.com>
+ * Copyright (C) 2016  Raphaël Poggi <poggi.raph@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,17 +16,31 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef ARCH_SVC_H
-#define ARCH_SVC_H
+#include <asm.h>
 
-#ifdef CONFIG_CPU_ARMV7M
-#include <armv7m/system.h>
-#include <armv7m/svc.h>
-#elif defined(CONFIG_CPU_ARMV8A)
-#include <armv8a/system.h>
-#include <armv8a/svc.h>
-#endif
+ENTRY(arch_spin_trylock)
+	mov	x2, x0
+	mov	x1, #1
+	ldaxr	x0, [x2]
+	cbnz	x0, 1f
+	stxr	w0, x1, [x2]
+1:
+	ret
+END(arch_spin_trylock)
 
-extern void arch_system_call(unsigned int call, void *arg1, void *arg2, void *arg3);
+ENTRY(arch_spin_lock)
+	mov	x1, #1
+	sevl
+1:
+	wfe
+	ldaxr	x2, [x0]
+	cbnz	x2, 1b
+	stxr	w2, x1, [x0]
+	cbnz	w2, 1b
+	ret
+END(arch_spin_lock)
 
-#endif /* ARCH_SVC_H */
+ENTRY(arch_spin_unlock)
+	stlr	xzr, [x0]
+	ret
+END(arch_spin_unlock)

@@ -120,7 +120,9 @@ void add_thread(void (*func)(void), unsigned int priority)
 	thread->regs = (struct registers *)kmalloc(sizeof(struct registers));
 	thread->regs->sp = thread->start_stack;
 	thread->regs->lr = (unsigned int)end_thread;
+#ifndef CONFIG_CPU_ARM64
 	thread->regs->pc = (unsigned int)func;
+#endif
 
 	/* Creating thread context */
 	create_context(thread->regs, thread);

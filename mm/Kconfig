@@ -5,6 +5,9 @@
 
 menu "Memory management configuration"
 
+config TEXT_BASE
+	hex "Address of image in memory"
+
 config KERNEL_HEAP_START
 	hex "Start address of kernel heap"
 
