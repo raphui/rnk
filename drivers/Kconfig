@@ -5,4 +5,13 @@
 
 menu "Drivers configuration"
 
+config SPI_SPIDEV
+	bool "Usermode SPI driver support"
+
+config ILI9341
+	bool "TFT driver for ILI9341"
+
+config LCD_SUBSYS
+	bool "LCD subsystem driver"
+
 endmenu
