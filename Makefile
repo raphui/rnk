@@ -69,10 +69,10 @@ endif
 
 subdirs-y := arch boards boot drivers kernel loader mm utils
 
-linker-$(CONFIG_STM32F401) := stm32_401.ld
-linker-$(CONFIG_STM32F407) := stm32.ld
-linker-$(CONFIG_STM32F429) := stm32_alt.ld
-linker-$(CONFIG_STM32F746) := stm32f7.ld
+linker-$(CONFIG_STM32F401) := ldscripts/stm32f401.ld
+linker-$(CONFIG_STM32F407) := ldscripts/stm32f407.ld
+linker-$(CONFIG_STM32F429) := ldscripts/stm32f429.ld
+linker-$(CONFIG_STM32F746) := ldscripts/stm32f746.ld
 
 linker_files = $(foreach linker-file,$(linker-y), -T$(linker-file))
 
