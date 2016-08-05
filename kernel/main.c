@@ -175,6 +175,7 @@ void eighth_task(void)
 }
 
 #ifdef CONFIG_STM32F429
+#ifdef CONFIG_LCD_SUBSYS
 static void ltdc_init(void)
 {
 	lcd_init_gpio();
@@ -257,6 +258,7 @@ void lcd_rgb565_fill(unsigned short rgb)
 
 	sem_wait(&sem);
 }
+#endif /* CONFIG_LCD_SUBSYS */
 #endif /* CONFIG_STM32F429 */
 
 
@@ -265,9 +267,11 @@ void ninth_task(void)
 	printk("starting task I\r\n");
 
 #ifdef CONFIG_STM32F429
+#if defined(CONFIG_LCD_SUBSYS) && defined(CONFIG_ILI9341)
 	ltdc_init();
 	ili9341_init();
 	ili9341_init_lcd();
+#endif /* CONFIG_LCD_SUBSYS && CONFIG_ILI9341 */
 #elif defined(CONFIG_STM32F746)
 	pio_set_output(GPIOI_BASE, 1, 0);
 #endif /* CONFIG_STM32F429 */
@@ -275,6 +279,7 @@ void ninth_task(void)
 	while (1) {
 		printk("I");
 #ifdef CONFIG_STM32F429
+#if defined(CONFIG_LCD_SUBSYS) && defined(CONFIG_ILI9341)
 		lcd_rgb565_fill(BLACK);
 		sem_wait(&sem);
 		lcd_rgb565_fill(BLUE);
@@ -290,6 +295,7 @@ void ninth_task(void)
 		lcd_rgb565_fill(YELLOW);
 		sem_wait(&sem);
 		lcd_rgb565_fill(WHITE);
+#endif /* CONFIG_LCD_SUBSYS && CONFIG_ILI9341 */
 #elif defined(CONFIG_STM32F746)
 		pio_toggle_value(GPIOI_BASE, 6);
 #endif /* CONFIG_STM32F429 */
