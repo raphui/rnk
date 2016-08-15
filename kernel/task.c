@@ -130,7 +130,20 @@ struct task *find_next_task(void)
 {
 	struct task *task = NULL;
 
+#ifdef CONFIG_SCHEDULE_PRIORITY
 	task = LIST_FIRST(&runnable_tasks);
+#elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
+	LIST_FOREACH(task, &runnable_tasks, next)
+		if ((task->quantum > 0) && (task->pid != 0))
+			break;
+
+	if (current_task)
+		current_task->quantum = TASK_QUANTUM;
+
+	/* Only idle task is eligible */
+	if (!task)
+		task = LIST_FIRST(&runnable_tasks);
+#endif
 
 	debug_printk("next task: %d\r\n", task->pid);
 
@@ -146,5 +159,10 @@ void insert_runnable_task(struct task *task)
 void remove_runnable_task(struct task *task)
 {
 	task->regs->sp = PSP();
+
+#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
+	current_task->quantum = TASK_QUANTUM;
+#endif
+
 	LIST_REMOVE(task, next);
 }
