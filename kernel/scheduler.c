@@ -72,7 +72,7 @@ void schedule_task(struct task *task)
 		switch_task(task);
 	else {
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-		if (!t->quantum) {
+		if (!t || !t->quantum || (t->state == TASK_BLOCKED)) {
 			t = find_next_task();
 			switch_task(t);
 		}
