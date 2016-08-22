@@ -20,7 +20,7 @@ CFLAGS +=  -mword-relocations -fno-common
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib #-Wl,--gc-sections
 LDFLAGS += -r -Bsymbolic -mcpu=$(MCPU) -mthumb -mlong-calls -fno-common
 
-LD_SCRIPT = apps.ld
+LD_SCRIPT = $(APPS_BASE)/apps.ld
 
 CC := $(CROSS_COMPILE)gcc
 AS := $(CROSS_COMPILE)as
