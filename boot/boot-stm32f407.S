@@ -141,11 +141,11 @@ g_pfnVectors:
   .word     0	/* RTC Wakeup through the EXTI line */                      
   .word     0	/* FLASH                        */                                          
   .word	    0	/* RCC                          */                                            
-  .word     0	/* EXTI Line0                   */                        
-  .word     0	/* EXTI Line1                   */                          
-  .word     0	/* EXTI Line2                   */                          
-  .word     0	/* EXTI Line3                   */                          
-  .word     0	/* EXTI Line4                   */                          
+  .word     exti0_handler	/* EXTI Line0                   */                        
+  .word     exti1_handler	/* EXTI Line1                   */                          
+  .word     exti2_handler	/* EXTI Line2                   */                          
+  .word     exti3_handler	/* EXTI Line3                   */                          
+  .word     exti4_handler	/* EXTI Line4                   */                          
   .word     0	/* DMA1 Stream 0                */                  
   .word     0	/* DMA1 Stream 1                */                   
   .word     0	/* DMA1 Stream 2                */                   
@@ -158,7 +158,7 @@ g_pfnVectors:
   .word     0	/* CAN1 RX0                     */                          
   .word     0	/* CAN1 RX1                     */                          
   .word     0	/* CAN1 SCE                     */                          
-  .word     0	/* External Line[9:5]s          */                          
+  .word     exti9_5_handler	/* External Line[9:5]s          */                          
   .word     0	/* TIM1 Break and TIM9          */         
   .word     0	/* TIM1 Update and TIM10        */         
   .word     0	/* TIM1 Trigger and Commutation and TIM11 */
@@ -175,7 +175,7 @@ g_pfnVectors:
   .word     0	/* USART1                       */                   
   .word     0	/* USART2                       */                   
   .word     0	/* USART3                       */                   
-  .word     0	/* External Line[15:10]s        */                          
+  .word     exti15_10_handler	/* External Line[15:10]s        */                          
   .word     0	/* RTC Alarm (A and B) through EXTI Line */                 
   .word     0	/* USB OTG FS Wakeup through EXTI line */                       
   .word     0	/* TIM8 Break and TIM12         */         
