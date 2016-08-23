@@ -147,6 +147,8 @@ int device_init(void)
 	mtd_init(&mtd);
 
 	usart_init(3, USART3_BASE, 115200);
+	pio_set_alternate(GPIOC_BASE, 10, 0x7);
+	pio_set_alternate(GPIOC_BASE, 11, 0x7);
 }
 device_initcall(device_init);
 #endif /* CONFIG_INITCALL */
