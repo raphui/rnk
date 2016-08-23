@@ -5,6 +5,9 @@
 
 menu "Drivers configuration"
 
+config IRQ_SUBSYS
+	bool "IRQ subsystem driver"
+
 config SPI_SPIDEV
 	bool "Usermode SPI driver support"
 
