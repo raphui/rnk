@@ -28,7 +28,7 @@ void app_task(void)
 		pio_set_output(GPIOE_BASE, 6, 0);
 }
 
-int main(void)
+int test(void)
 {
 	printk("Starting app_led\n");
 
