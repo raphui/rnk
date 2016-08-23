@@ -11,6 +11,9 @@ config TASK_STACK_START
 config INITCALL
 	bool "Enable initcall and exitcall"
 
+config INTERRUPT_HOOKS
+	bool "Enable interrupts hooks for custom behaviour"
+
 choice
     prompt "Scheduling algorithms"
 
