@@ -132,6 +132,10 @@ struct task *find_next_task(void)
 
 #ifdef CONFIG_SCHEDULE_PRIORITY
 	task = LIST_FIRST(&runnable_tasks);
+
+	if (current_task)
+		if (task->priority < current_task->priority)
+			task = current_task;
 #elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
 	LIST_FOREACH(task, &runnable_tasks, next)
 		if ((task->quantum > 0) && (task->pid != 0))
