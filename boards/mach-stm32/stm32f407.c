@@ -128,6 +128,9 @@ void low_level_init(void)
 int device_init(void)
 {
 	struct mtd mtd;
+#ifdef CONFIG_IRQ_SUBSYS
+	struct irq irq;
+#endif /* CONFIG_IRQ_SUBSYS */
 
 	mtd.base_addr = 0x08000000;
 	mtd.sector_size[0] = SZ_16K;
@@ -149,6 +152,19 @@ int device_init(void)
 	usart_init(3, USART3_BASE, 115200);
 	pio_set_alternate(GPIOC_BASE, 10, 0x7);
 	pio_set_alternate(GPIOC_BASE, 11, 0x7);
+
+#ifdef CONFIG_IRQ_SUBSYS
+	irq.num_line = 15;
+	irq_init(&irq);
+#else
+	/* Configure wakeup button interrupt */
+	stm32_exti_init(GPIOA_BASE, 0);
+	stm32_exti_enable_falling(GPIOA_BASE, 0);
+
+	/* Configure anti-tamper button interrupt */
+	stm32_exti_init(GPIOC_BASE, 13);
+	stm32_exti_enable_falling(GPIOC_BASE, 13);
+#endif /* CONFIG_IRQ_SUBSYS */	
 }
 device_initcall(device_init);
 #endif /* CONFIG_INITCALL */
