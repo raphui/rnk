@@ -25,6 +25,7 @@
 #include <arch/nvic.h>
 #include <time.h>
 #include <pio.h>
+#include <irq.h>
 #include <common.h>
 #include <queue.h>
 #include <symbols.h>
@@ -238,7 +239,9 @@ void exti0_handler(void)
 
 	debug_printk("exti0_handler\r\n");
 
-	sem_post_isr(&sem);
+#ifdef CONFIG_INTERRUPT_HOOKS
+	irq_action(0);
+#endif
 }
 
 void exti1_handler(void)
@@ -247,6 +250,10 @@ void exti1_handler(void)
 	EXTI->PR |= (1 << 1);
 
 	debug_printk("exti1_handler\r\n");
+
+#ifdef CONFIG_INTERRUPT_HOOKS
+	irq_action(1);
+#endif
 }
 
 void exti2_handler(void)
@@ -255,6 +262,10 @@ void exti2_handler(void)
 	EXTI->PR |= (1 << 2);
 
 	debug_printk("exti2_handler\r\n");
+
+#ifdef CONFIG_INTERRUPT_HOOKS
+	irq_action(2);
+#endif
 }
 void exti3_handler(void)
 {
@@ -262,6 +273,10 @@ void exti3_handler(void)
 	EXTI->PR |= (1 << 3);
 
 	debug_printk("exti3_handler\r\n");
+
+#ifdef CONFIG_INTERRUPT_HOOKS
+	irq_action(3);
+#endif
 }
 void exti4_handler(void)
 {
@@ -269,19 +284,31 @@ void exti4_handler(void)
 	EXTI->PR |= (1 << 4);
 
 	debug_printk("exti4_handler\r\n");
+
+#ifdef CONFIG_INTERRUPT_HOOKS
+	irq_action(4);
+#endif
 }
 
 void exti9_5_handler(void)
 {
 	nvic_clear_interrupt(EXTI9_5_IRQn);
-	EXTI->PR |= (0x3E);
 
 	debug_printk("exti9_5_handler\r\n");
+
+#ifdef CONFIG_INTERRUPT_HOOKS
+	irq_action(EXTI->PR & 0x3E);
+#endif
+	EXTI->PR |= (0x3E);
 }
 void exti15_10_handler(void)
 {
 	nvic_clear_interrupt(EXTI15_10_IRQn);
-	EXTI->PR |= (0xFC00);
 
 	debug_printk("exti15_10_handler\r\n");
+
+#ifdef CONFIG_INTERRUPT_HOOKS
+	irq_action(EXTI->PR & 0xFC00);
+#endif
+	EXTI->PR |= (0xFC00);
 }
