@@ -120,14 +120,8 @@ int stm32_exti_init(unsigned int gpio_base, unsigned int gpio_num)
 		return mask;
 	}
 
-	if (gpio_num <= 3) {
-		SYSCFG->EXTICR[0] = (mask << ((gpio_num % 4) *  4));
-	} else if (gpio_num <= 7) {
-		SYSCFG->EXTICR[1] = (mask << ((gpio_num % 4) *  4));
-	} else if (gpio_num <= 11) {
-		SYSCFG->EXTICR[2] = (mask << ((gpio_num % 4) *  4));
-	} else if (gpio_num <= 15) {
-		SYSCFG->EXTICR[3] = (mask << ((gpio_num % 4) *  4));
+	if (gpio_num <= 15) {
+		SYSCFG->EXTICR[gpio_num >> 2] = (mask << ((gpio_num % 4) *  4));
 	} else {
 		error_printk("pin %d is not configurable\r\n", gpio_num);
 		return -EINVAL;
