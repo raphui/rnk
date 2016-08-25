@@ -133,7 +133,8 @@ g_pfnVectors:
   .word  0
   .word  __pendsv
   .word  systick_handler
-  
+
+#ifndef CONFIG_SW_ISR_TABLE
   /* External Interrupts */
   .word     0   /* Window WatchDog              */                                        
   .word     0	/* PVD through EXTI Line detection */                        
@@ -217,6 +218,7 @@ g_pfnVectors:
   .word     0   /* CRYP crypto                  */                   
   .word     0	/* Hash and Rng                 */
   .word     0	/* FPU                          */
+#endif
                          
                          
 /*******************************************************************************
