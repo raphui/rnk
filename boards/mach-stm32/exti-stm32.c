@@ -310,7 +310,7 @@ int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (
 	int ret = 0;
 	struct action *action = NULL;
 
-	ret = stm32_exti_configure_line(gpio_num, gpio_base);
+	ret = stm32_exti_configure_line(gpio_base, gpio_num);
 	if (ret < 0) {
 		error_printk("failed to init exti for gpio_base: %x gpio_num: %d\n", gpio_base, gpio_num);
 		goto fail;
