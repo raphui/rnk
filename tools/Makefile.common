@@ -4,7 +4,7 @@
 # Provided under the three clause BSD license found in the LICENSE file.
 
 subdirs-y :=
-dep = $(obj-y:.o=.d) $(ld-script-y:.ld=.d)
+dep = $(obj-y:.o=.d) $(ld-script-y:.lds=.d) $(extra-y:.lds=.d)
 
 include $(dir)/Makefile
 
@@ -14,12 +14,13 @@ prepend-dir = $(foreach d,$($1),$(call prepend-dir-to,$(d)))
 $(call prepend-dir,subdirs-y):
 	$(MAKE) -f tools/Makefile.common dir=$@ $(MAKECMDGOALS)
 
-all: $(call prepend-dir,subdirs-y) $(call prepend-dir,obj-y) $(call prepend-dir,ld-script-y)
+all: $(call prepend-dir,subdirs-y) $(call prepend-dir,obj-y) $(call prepend-dir,ld-script-y) $(call prepend-dir,extra-y)
 	echo $(call prepend-dir,obj-y) >> objects.lst
 
 clean: $(call prepend-dir,subdirs-y)
 	rm -f $(call prepend-dir,obj-y) $(call prepend-dir,dep) \
-	      $(call prepend-dir,clean-y) $(call prepend-dir,ld-script-y)
+	      $(call prepend-dir,clean-y) $(call prepend-dir,ld-script-y) \
+	      $(call prepend-dir,extra-y)
 
 -include $(call prepend-dir,dep)
 

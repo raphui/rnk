@@ -60,10 +60,13 @@ endif
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib #-Wl,--gc-sections
 
+LDSFLAGS := $(INCLUDES)
+
 CC := $(CROSS_COMPILE)gcc
 AS := $(CROSS_COMPILE)as
 AR := $(CROSS_COMPILE)ar
 LD := $(CROSS_COMPILE)ld
+LDS := $(CROSS_COMPILE)gcc -E -P
 
 endif
 
@@ -131,6 +134,11 @@ build = echo "$1 $@"
 %.o: %.S config.h
 	$(call build,CC)
 	$(CC) $(CFLAGS) -c $(firstword $^) -o $@
+
+%.lds: %.lds.S
+	$(call build, LDS)
+	$(LDS) -o $@ $(firstword $^)
+	$(MV) $@ $(KERNEL_BASE)/$(linker_files)
 
 .config:
 	echo "ERROR: No config file loaded."
