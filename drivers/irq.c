@@ -37,7 +37,7 @@ int irq_action(void)
 		return -ENXIO;
 	}
 
-	if (entry->isr && entry->arg)
+	if (entry->isr)
 		entry->isr(entry->arg);
 
 	return ret;	
