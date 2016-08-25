@@ -20,9 +20,6 @@
 
 #include <device.h>
 
-#define IRQF_RISING	1
-#define IRQF_FALLING	2
-
 struct irq {
 	unsigned int num_line;
 	struct device dev;

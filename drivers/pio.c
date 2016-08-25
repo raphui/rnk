@@ -18,6 +18,10 @@
 
 #include <board.h>
 #include <pio.h>
+#include <mm.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
 void pio_set_output(unsigned int port, unsigned int mask, int pull_up)
 {
@@ -49,6 +53,11 @@ void pio_toggle_value(unsigned int port, unsigned int mask)
 	pio_ops.toggle_value(port, mask);
 }
 
+int pio_request_interrupt(unsigned int port, unsigned int mask, void (*handler)(void), int flags, void *arg)
+{
+	return pio_ops.request_interrupt(port, mask, handler, flags, arg);
+}
+
 void pio_enable_interrupt(unsigned int port, unsigned int mask)
 {
 	pio_ops.enable_interrupt(port, mask);
@@ -57,4 +66,31 @@ void pio_enable_interrupt(unsigned int port, unsigned int mask)
 void pio_disable_interrupt(unsigned int port, unsigned int mask)
 {
 	pio_ops.disable_interrupt(port, mask);
+}
+
+int pio_init(struct pio *pio)
+{
+	int ret = 0;
+	struct pio *piodev = NULL;
+
+	piodev = (struct pio *)kmalloc(sizeof(struct pio));
+	if (!piodev) {
+		error_printk("cannot allocate pio\n");
+		return -ENOMEM;
+	}
+
+	memcpy(piodev, pio, sizeof(struct pio));
+
+	ret = device_register(&pio->dev);
+	if (ret < 0) {
+		error_printk("failed to register device\n");
+		ret = -ENOMEM;
+		goto failed_out;
+	}
+
+	return ret;
+
+failed_out:
+	kfree(piodev);
+	return ret;
 }

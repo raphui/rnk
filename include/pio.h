@@ -19,6 +19,15 @@
 #ifndef PIO_H
 #define PIO_H
 
+#include <device.h>
+
+#define IRQF_RISING	1
+#define IRQF_FALLING	2
+
+struct pio {
+	struct device dev;
+};
+
 struct pio_operations
 {
 	void (*set_output)(unsigned int port, unsigned int mask, int pull_up);
@@ -27,16 +36,19 @@ struct pio_operations
 	void (*set_value)(unsigned int port, unsigned int mask);
 	void (*clear_value)(unsigned int port, unsigned int mask);
 	void (*toggle_value)(unsigned int port, unsigned int mask);
+	int (*request_interrupt)(unsigned int port, unsigned int mask, void (*handler)(void), int flags, void *arg);
 	void (*enable_interrupt)(unsigned int port, unsigned int mask);
 	void (*disable_interrupt)(unsigned int port, unsigned int mask);
 };
 
+int pio_init(struct pio *pio);
 void pio_set_output(unsigned int port, unsigned int mask, int pull_up);
 void pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter);
 void pio_set_alternate(unsigned int port, unsigned int mask, unsigned int num);
 void pio_set_value(unsigned int port, unsigned int mask);
 void pio_clear_value(unsigned int port, unsigned int mask);
 void pio_toggle_value(unsigned int port, unsigned int mask);
+int pio_request_interrupt(unsigned int port, unsigned int mask, void (*handler)(void), int flags, void *arg);
 void pio_enable_interrupt(unsigned int port, unsigned int mask);
 void pio_disable_interrupt(unsigned int port, unsigned int mask);
 

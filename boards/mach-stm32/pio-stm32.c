@@ -91,6 +91,11 @@ void stm32_pio_toggle_value(unsigned int port, unsigned int mask)
 	base->ODR ^= (1 << mask);
 }
 
+static int stm32_pio_request_interrupt(unsigned int port, unsigned int mask, void (*handler)(void), int flags, void *arg)
+{
+
+}
+
 static void stm32_pio_enable_interrupt(unsigned int port, unsigned int mask)
 {
 	
@@ -107,6 +112,7 @@ struct pio_operations pio_ops = {
 	.set_value = stm32_pio_set_value,
 	.clear_value = stm32_pio_clear_value,
 	.toggle_value = stm32_pio_toggle_value,
+	.request_interrupt = stm32_pio_request_interrupt,
 	.enable_interrupt = stm32_pio_enable_interrupt,
 	.disable_interrupt = stm32_pio_disable_interrupt,
 };
