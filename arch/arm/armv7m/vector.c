@@ -16,30 +16,76 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <stdio.h>
+#include <errno.h>
+#include <stddef.h>
 #include <armv7m/system.h>
+#include <armv7m/vector.h>
 
-struct isr_entry {
-	void *arg;
-	void (*isr)(void *);
-};
+static struct isr_entry sw_isr_table[CONFIG_NUM_IRQS];
 
-struct isr_entry sw_isr_table[CONFIG_NUM_IRQS];
-
-void isr_wrapper(void) {
-	unsigned char irq_num = IPSR();
-	struct isr_entry entry;
-
-	/* skip arch specific irq, index 0 has to be the 16th irq (first vendor specific irq) */
-	irq_num -= 16;
-
-	entry = sw_isr_table[irq_num];
-
-	if (entry.isr && entry.arg)
-		entry.isr(entry.arg);
+static void dummy_wrapper(void)
+{
+	while (1)
+		;
 }
 
 typedef void (*vect)(void);
 
 vect __attribute__((__section__(".isr_vector_cmsis"))) isr_vector_table[CONFIG_NUM_IRQS] = {
-	[0 ...(CONFIG_NUM_IRQS - 1)] = isr_wrapper,
+	[0 ...(CONFIG_NUM_IRQS - 1)] = dummy_wrapper,
 };
+
+static inline int irq_to_index(unsigned int irq)
+{
+	irq -= 16;
+
+	if ((irq > CONFIG_NUM_IRQS) || (irq < 0)) {
+		error_printk("invalid irq num\n");
+		return -EINVAL;
+	}
+	else
+		return irq;
+}
+
+unsigned int vector_current_irq(void)
+{
+	return (unsigned int)IPSR();
+}
+
+void vector_set_isr_wrapper(void *wrapper)
+{
+	int i;
+
+	for (i = 0; i < (CONFIG_NUM_IRQS - 1); i++)
+		isr_vector_table[i] = wrapper;
+}
+
+int vector_set_isr_entry(struct isr_entry *entry, unsigned int irq)
+{
+	int ret = 0;
+
+	ret = irq_to_index(irq);
+	if (ret < 0)
+		return ret;
+
+	sw_isr_table[ret].isr = entry->isr;
+	sw_isr_table[ret].arg = entry->arg;
+
+	return ret;
+}
+
+struct isr_entry *vector_get_isr_entry(unsigned int irq)
+{
+	int idx = 0;
+	struct isr_entry *entry = NULL;
+
+	idx = irq_to_index(irq);
+	if (idx < 0)
+		return NULL;
+
+
+	entry = &sw_isr_table[idx];
+
+	return entry;
+}
