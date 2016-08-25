@@ -18,6 +18,7 @@
 #include <board.h>
 #include <utils.h>
 #include <mach/rcc-stm32.h>
+#include <mach/exti-stm32.h>
 
 #define GPIO_MODER(pin)			(3 << (pin * 2))
 #define GPIO_MODER_OUTPUT(pin)		(1 << (pin * 2))
