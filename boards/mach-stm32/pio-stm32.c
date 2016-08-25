@@ -94,7 +94,7 @@ void stm32_pio_toggle_value(unsigned int port, unsigned int mask)
 
 static int stm32_pio_request_interrupt(unsigned int port, unsigned int mask, void (*handler)(void), int flags, void *arg)
 {
-
+	return stm32_exti_request_irq(port, mask, handler, flags, arg);
 }
 
 static void stm32_pio_enable_interrupt(unsigned int port, unsigned int mask)
