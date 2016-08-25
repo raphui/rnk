@@ -23,7 +23,7 @@
 #include <irq.h>
 #include <armv7m/vector.h>
 
-int irq_action(void)
+static int irq_action(void)
 {
 	int ret = 0;
 	unsigned char irq;

@@ -27,7 +27,6 @@ struct irq {
 
 
 int irq_init(struct irq *irq);
-int irq_request(unsigned int irq, void (*handler)(void), unsigned int flags, unsigned int extra);
-int irq_action(unsigned int irq);
+int irq_request(unsigned int irq, void (*handler)(void), void *arg);
 
 #endif /* IRQ_H */

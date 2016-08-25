@@ -26,7 +26,6 @@
 #include <spi.h>
 #include <dma.h>
 #include <mtd.h>
-#include <irq.h>
 
 
 /* SYSCLK = PLL_VCO / PLL_P =======> 168000000*/
