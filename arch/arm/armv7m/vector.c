@@ -40,6 +40,6 @@ void isr_wrapper(void) {
 
 typedef void (*vect)(void);
 
-vect isr_vector_table[CONFIG_NUM_IRQS] = {
+vect __attribute__((__section__(".isr_vector_cmsis"))) isr_vector_table[CONFIG_NUM_IRQS] = {
 	[0 ...(CONFIG_NUM_IRQS - 1)] = isr_wrapper,
 };
