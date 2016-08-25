@@ -55,7 +55,15 @@ void pio_toggle_value(unsigned int port, unsigned int mask)
 
 int pio_request_interrupt(unsigned int port, unsigned int mask, void (*handler)(void), int flags, void *arg)
 {
-	return pio_ops.request_interrupt(port, mask, handler, flags, arg);
+	int ret = 0;
+
+	ret =  pio_ops.request_interrupt(port, mask, handler, flags, arg);
+	if (ret < 0)
+		return ret;
+
+	pio_enable_interrupt(port, mask);
+
+	return ret;
 }
 
 void pio_enable_interrupt(unsigned int port, unsigned int mask)
