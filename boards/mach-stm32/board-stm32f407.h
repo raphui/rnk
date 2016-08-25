@@ -57,6 +57,5 @@ struct timer_operations tim_ops;
 struct spi_operations spi_ops;
 struct dma_operations dma_ops;
 struct mtd_operations mtd_ops;
-struct irq_operations irq_ops;
 
 #endif /* BOARD_STM32F407_H */

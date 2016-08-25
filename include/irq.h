@@ -19,7 +19,6 @@
 #define IRQ_H
 
 #include <device.h>
-#include <list.h>
 
 #define IRQF_RISING	1
 #define IRQF_FALLING	2
@@ -33,12 +32,5 @@ struct irq {
 int irq_init(struct irq *irq);
 int irq_request(unsigned int irq, void (*handler)(void), unsigned int flags, unsigned int extra);
 int irq_action(unsigned int irq);
-
-struct irq_operations
-{
-	int (*request)(unsigned int irq, unsigned int extra);
-	int (*set_rising)(unsigned int line, unsigned int extra);
-	int (*set_falling)(unsigned int line, unsigned int extra);
-};
 
 #endif /* IRQ_H */

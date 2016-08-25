@@ -203,37 +203,3 @@ int stm32_exti_disable_rising(unsigned int gpio_base, unsigned int gpio_num)
 
 	return ret;
 }
-
-
-static int stm32_exti_request_irq(unsigned int line, unsigned int extra)
-{
-	int ret;
-
-	ret = stm32_exti_init(extra, line);
-
-	return ret;
-}
-
-static int stm32_exti_set_rising(unsigned int line, unsigned int extra)
-{
-	int ret = 0;
-
-	ret = stm32_exti_enable_rising(extra, line);
-
-	return ret;
-}
-
-static int stm32_exti_set_falling(unsigned int line, unsigned int extra)
-{
-	int ret = 0;
-
-	ret = stm32_exti_enable_falling(extra, line);
-
-	return ret;
-}
-
-struct irq_operations irq_ops = {
-	.request = stm32_exti_request_irq,
-	.set_rising = stm32_exti_set_rising,
-	.set_falling = stm32_exti_set_falling,
-};
