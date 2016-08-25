@@ -21,7 +21,6 @@
 #include <task.h>
 #include <board.h>
 #include <pio.h>
-#include <irq.h>
 #include <queue.h>
 
 static struct queue queue;
@@ -68,7 +67,7 @@ int test(void)
 
 	/* Configure wakeup button */
 	pio_set_input(GPIOA_BASE, 0, 0, 0);
-	irq_request(0, &wakeup_button, IRQF_FALLING, GPIOA_BASE);
+	pio_request_interrupt(GPIOA_BASE, 0, &wakeup_button, IRQF_FALLING, NULL);
 
 	/* Configure user button */
 //	pio_set_input(GPIOG_BASE, 15, 0, 0);
