@@ -43,7 +43,7 @@ static int irq_action(void)
 	return ret;	
 }
 
-int irq_request(unsigned int irq, void (*handler)(void), void *arg)
+int irq_request(unsigned int irq, void (*handler)(void *), void *arg)
 {
 	int ret = 0;
 	struct isr_entry entry;
