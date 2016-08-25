@@ -27,6 +27,10 @@
 #include <sizes.h>
 #endif /* CONFIG_INITCALL */
 
+#ifdef CONFIG_IRQ_SUBSYS
+#include <irq.h>
+#endif /* CONFIG_IRQ_SUBSYS */
+
 void set_sys_clock(void)
 {
 	/******************************************************************************/
@@ -131,7 +135,7 @@ int device_init(void)
 	int ret = 0;
 	struct mtd mtd;
 #ifdef CONFIG_IRQ_SUBSYS
-//	struct irq irq;
+	struct irq irq;
 #endif /* CONFIG_IRQ_SUBSYS */
 
 	mtd.base_addr = 0x08000000;
@@ -156,17 +160,19 @@ int device_init(void)
 	pio_set_alternate(GPIOC_BASE, 11, 0x7);
 
 #ifdef CONFIG_IRQ_SUBSYS
-//	irq.num_line = CONFIG_NUM_IRQS;
-//	irq_init(&irq);
+	irq.num_line = CONFIG_NUM_IRQS;
+	irq_init(&irq);
 #endif /* CONFIG_IRQ_SUBSYS */
 
-	/* Configure wakeup button interrupt */
-	stm32_exti_init(GPIOA_BASE, 0);
-	stm32_exti_enable_falling(GPIOA_BASE, 0);
+	stm32_exti_init();
+//	/* Configure wakeup button interrupt */
+//	stm32_exti_init(GPIOA_BASE, 0);
+//	stm32_exti_enable_falling(GPIOA_BASE, 0);
+//
+//	/* Configure anti-tamper button interrupt */
+//	stm32_exti_init(GPIOC_BASE, 13);
+//	stm32_exti_enable_falling(GPIOC_BASE, 13);
 
-	/* Configure anti-tamper button interrupt */
-	stm32_exti_init(GPIOC_BASE, 13);
-	stm32_exti_enable_falling(GPIOC_BASE, 13);
 	return ret;
 }
 device_initcall(device_init);
