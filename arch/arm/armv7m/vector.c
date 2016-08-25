@@ -22,18 +22,15 @@
 #include <armv7m/system.h>
 #include <armv7m/vector.h>
 
+extern void irq_action(void);
+
 static struct isr_entry sw_isr_table[CONFIG_NUM_IRQS];
 
-static void dummy_wrapper(void)
-{
-	while (1)
-		;
-}
 
 typedef void (*vect)(void);
 
 vect __attribute__((__section__(".isr_vector_cmsis"))) isr_vector_table[CONFIG_NUM_IRQS] = {
-	[0 ...(CONFIG_NUM_IRQS - 1)] = dummy_wrapper,
+	[0 ...(CONFIG_NUM_IRQS - 1)] = irq_action,
 };
 
 static inline int is_irq_valid(unsigned int irq)
