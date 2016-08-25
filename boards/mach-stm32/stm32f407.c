@@ -26,6 +26,10 @@
 #include <sizes.h>
 #endif /* CONFIG_INITCALL */
 
+#ifndef CONFIG_IRQ_SUBSYS
+#include <mach/exti-stm32.h>
+#endif /* CONFIG_IRQ_SUBSYS */
+
 void set_sys_clock(void)
 {
 	/******************************************************************************/
@@ -127,6 +131,7 @@ void low_level_init(void)
 #ifdef CONFIG_INITCALL
 int device_init(void)
 {
+	int ret = 0;
 	struct mtd mtd;
 #ifdef CONFIG_IRQ_SUBSYS
 	struct irq irq;
@@ -164,7 +169,8 @@ int device_init(void)
 	/* Configure anti-tamper button interrupt */
 	stm32_exti_init(GPIOC_BASE, 13);
 	stm32_exti_enable_falling(GPIOC_BASE, 13);
-#endif /* CONFIG_IRQ_SUBSYS */	
+#endif /* CONFIG_IRQ_SUBSYS */
+	return ret;
 }
 device_initcall(device_init);
 #endif /* CONFIG_INITCALL */
