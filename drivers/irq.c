@@ -21,80 +21,40 @@
 #include <string.h>
 #include <mm.h>
 #include <irq.h>
+#include <armv7m/vector.h>
 
-struct action {
-	void (*irq_action)(void);
-	int irq;
-	TAILQ_ENTRY(action) next;
-};
-
-static TAILQ_HEAD(, action) action_list;
-
-int irq_action(unsigned int irq)
+int irq_action(void)
 {
 	int ret = 0;
-	struct action *action = NULL;
-	void (*hook)(void) = NULL;
+	unsigned char irq;
+	struct isr_entry *entry = NULL;
 
-	TAILQ_FOREACH(action, &action_list, next)
-		if (action->irq == irq)
-			break;
+	irq = vector_current_irq();
 
-	if (!action) {
-		error_printk("no action has been found for irq: %d\n", irq);
-		return -ENOSYS;
+	entry = vector_get_isr_entry(irq);
+	if (!entry) {
+		error_printk("failed to retrieve isr entry in vector table\n");
+		return -ENXIO;
 	}
 
-	hook = action->irq_action;
-
-	hook();
+	if (entry->isr && entry->arg)
+		entry->isr(entry->arg);
 
 	return ret;	
 }
 
-int irq_request(unsigned int irq, void (*handler)(void), unsigned int flags, unsigned int extra)
+int irq_request(unsigned int irq, void (*handler)(void), void *arg)
 {
 	int ret = 0;
-	struct action *action = NULL;
+	struct isr_entry entry;
 
-	/* FIXME: hardcoded for exti stm32 driver, need to find a good interface instead of direct call */
-	if (irq > 15) {
-		error_printk("invalid line requested\n");
-		ret = -EINVAL;
-	}
+	entry.isr = handler;
+	entry.arg = arg;
 
-	ret = irq_ops.request(irq, extra);
-	if (ret < 0) {
-		error_printk("failed to request irq: %d\n", irq);
-		goto fail;
-	}
+	ret = vector_set_isr_entry(&entry, irq);
+	if (ret < 0)
+		error_printk("failed to set isr entry, for irq: %d\n", irq);
 
-	if (flags & IRQF_RISING)
-		irq_ops.set_rising(irq, extra);
-	else if (flags & IRQF_FALLING)
-		irq_ops.set_falling(irq, extra);
-	else {
-		error_printk("wrong flags for irq: %d\n", irq);
-		ret = -EINVAL;
-		goto fail;
-	}
-
-	action = (struct action *)kmalloc(sizeof(struct action));
-	if (!action) {
-		error_printk("cannot allocate irq action\n");
-		ret = -ENOMEM;
-		goto fail;
-	}
-
-	action->irq_action = handler;
-	action->irq = irq;
-
-	if (TAILQ_EMPTY(&action_list))
-		TAILQ_INSERT_HEAD(&action_list, action, next);
-	else
-		TAILQ_INSERT_TAIL(&action_list, action, next);
-
-fail:
 	return ret;
 }
 
@@ -118,7 +78,7 @@ int irq_init(struct irq *irq)
 		goto failed_out;
 	}
 
-	TAILQ_INIT(&action_list);
+	vector_set_isr_wrapper(&irq_action);
 
 	return ret;
 
