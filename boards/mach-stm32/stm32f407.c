@@ -18,6 +18,7 @@
 #include <board.h>
 #include <armv7m/system.h>
 #include <utils.h>
+#include <mach/exti-stm32.h>
 
 #ifdef CONFIG_INITCALL
 #include <init.h>
@@ -25,10 +26,6 @@
 #include <usart.h>
 #include <sizes.h>
 #endif /* CONFIG_INITCALL */
-
-#ifndef CONFIG_IRQ_SUBSYS
-#include <mach/exti-stm32.h>
-#endif /* CONFIG_IRQ_SUBSYS */
 
 void set_sys_clock(void)
 {
@@ -159,9 +156,10 @@ int device_init(void)
 	pio_set_alternate(GPIOC_BASE, 11, 0x7);
 
 #ifdef CONFIG_IRQ_SUBSYS
-	irq.num_line = 15;
+	irq.num_line = CONFIG_NUM_IRQS;
 	irq_init(&irq);
-#else
+#endif /* CONFIG_IRQ_SUBSYS */
+
 	/* Configure wakeup button interrupt */
 	stm32_exti_init(GPIOA_BASE, 0);
 	stm32_exti_enable_falling(GPIOA_BASE, 0);
@@ -169,7 +167,6 @@ int device_init(void)
 	/* Configure anti-tamper button interrupt */
 	stm32_exti_init(GPIOC_BASE, 13);
 	stm32_exti_enable_falling(GPIOC_BASE, 13);
-#endif /* CONFIG_IRQ_SUBSYS */
 	return ret;
 }
 device_initcall(device_init);
