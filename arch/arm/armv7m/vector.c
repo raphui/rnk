@@ -45,7 +45,7 @@ static inline int is_irq_valid(unsigned int irq)
 
 unsigned int vector_current_irq(void)
 {
-	return (unsigned int)IPSR();
+	return (unsigned int)IPSR() - 16;
 }
 
 void vector_set_isr_wrapper(void *wrapper)
@@ -75,7 +75,6 @@ int vector_set_isr_entry(struct isr_entry *entry, unsigned int irq)
 struct isr_entry *vector_get_isr_entry(unsigned int irq)
 {
 	int ret;
-	int idx = 0;
 	struct isr_entry *entry = NULL;
 
 	ret = is_irq_valid(irq);
@@ -84,7 +83,7 @@ struct isr_entry *vector_get_isr_entry(unsigned int irq)
 		return NULL;
 	}
 
-	entry = &sw_isr_table[idx];
+	entry = &sw_isr_table[irq];
 
 	return entry;
 }
