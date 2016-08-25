@@ -118,30 +118,14 @@ static int stm32_exti_get_nvic_number(unsigned int gpio_num)
 static void stm32_exti_isr(void *arg)
 {
 	unsigned int irq = vector_current_irq();
+	int line = EXTI->PR & 0x7FFFFF;
 
-	switch (irq) {
-	case EXTI0_IRQn:
-		stm32_exti_action(0);
-		break;
-	case EXTI1_IRQn:
-		stm32_exti_action(1);
-		break;
-	case EXTI2_IRQn:
-		stm32_exti_action(2);
-		break;
-	case EXTI3_IRQn:
-		stm32_exti_action(3);
-		break;
-	case EXTI4_IRQn:
-		stm32_exti_action(4);
-		break;
-	case EXTI9_5_IRQn:
-		stm32_exti_action(EXTI->PR & 0x3E);
-		break;
-	case EXTI15_10_IRQn:
-		stm32_exti_action(EXTI->PR & 0xFC00);
-		break;
-	}
+	line >>= 1;
+
+	EXTI->PR |= (0x7FFFFF);
+	nvic_clear_interrupt(irq);
+
+	stm32_exti_action(line);
 }
 
 int stm32_exti_init(void)
