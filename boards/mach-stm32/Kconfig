@@ -22,4 +22,7 @@ choice
 
 endchoice
 
+config NUM_IRQS
+	int "Number of IRQS"
+
 endmenu

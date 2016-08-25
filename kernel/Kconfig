@@ -28,4 +28,7 @@ config TASK_QUANTUM
 	depends on SCHEDULE_ROUND_ROBIN
 	int "Task quantum"
 
+config SW_ISR_TABLE
+	bool "Enable use of software managed isr table"
+
 endmenu

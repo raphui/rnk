@@ -9,3 +9,4 @@ obj-y := nvic.o
 obj-$(CONFIG_SWO_DEBUG) += swo.o
 obj-y += systick.o
 obj-y += handlers.o
+obj-$(CONFIG_SW_ISR_TABLE) += vector.o
