@@ -16,11 +16,27 @@ $(call prepend-dir,subdirs-y):
 
 all: $(call prepend-dir,subdirs-y) $(call prepend-dir,obj-y) $(call prepend-dir,ld-script-y) $(call prepend-dir,extra-y)
 	echo $(call prepend-dir,obj-y) >> objects.lst
+	echo $(call prepend-dir,extra-y) >> extra_objects.lst
 
 clean: $(call prepend-dir,subdirs-y)
 	rm -f $(call prepend-dir,obj-y) $(call prepend-dir,dep) \
 	      $(call prepend-dir,clean-y) $(call prepend-dir,ld-script-y) \
 	      $(call prepend-dir,extra-y)
+
+build = echo "$1 $@"
+
+%.o: %.c
+	$(call build,CC)
+	$(CC) $(CFLAGS) -c $(firstword $^) -o $@
+
+%.o: %.S
+	$(call build,CC)
+	$(CC) $(CFLAGS) -c $(firstword $^) -o $@
+
+%.lds: %.lds.S
+	$(call build,LDS)
+	$(LDS) $(LDSFLAGS) -o $@ $(firstword $^)
+	mv $@ $(KERNEL_BASE)/$(linker_files)
 
 -include $(call prepend-dir,dep)
 

@@ -70,14 +70,9 @@ LDS := $(CROSS_COMPILE)gcc -E -P
 
 endif
 
-subdirs-y := arch boards boot drivers kernel loader mm utils
+subdirs-y := arch boards boot drivers kernel ldscripts loader mm utils
 
-linker-$(CONFIG_STM32F401) := ldscripts/stm32f401.ld
-linker-$(CONFIG_STM32F407) := ldscripts/stm32f407.ld
-linker-$(CONFIG_STM32F429) := ldscripts/stm32f429.ld
-linker-$(CONFIG_STM32F746) := ldscripts/stm32f746.ld
-
-linker_files = $(foreach linker-file,$(linker-y), -T$(linker-file))
+linker_files = rnk.lds
 
 ifeq (${MAKELEVEL}, 0)
 conf:
@@ -95,8 +90,9 @@ all: kernel.img
 
 kernel.elf: conf config.h
 	rm -f objects.lst
+	rm -f extra_objects.lst
 	$(MAKE) -f tools/Makefile.common dir=. all
-	$(CC) $(LDFLAGS) $(linker_files) -o $@ \
+	$(CC) $(LDFLAGS) -T$(linker_files) -o $@ \
 		`cat objects.lst | tr '\n' ' '`
  
 include $(wildcard *.d)
@@ -124,21 +120,6 @@ clean:
 dist-clean: clean
 	$(RM) `find . -name *.d`
 endif
-
-build = echo "$1 $@"
- 
-%.o: %.c config.h
-	$(call build,CC)
-	$(CC) $(CFLAGS) -c $(firstword $^) -o $@
- 
-%.o: %.S config.h
-	$(call build,CC)
-	$(CC) $(CFLAGS) -c $(firstword $^) -o $@
-
-%.lds: %.lds.S
-	$(call build, LDS)
-	$(LDS) -o $@ $(firstword $^)
-	$(MV) $@ $(KERNEL_BASE)/$(linker_files)
 
 .config:
 	echo "ERROR: No config file loaded."
