@@ -133,7 +133,7 @@ struct task *find_next_task(void)
 #ifdef CONFIG_SCHEDULE_PRIORITY
 	task = LIST_FIRST(&runnable_tasks);
 
-	if (current_task)
+	if (current_task && current_task->state != TASK_BLOCKED)
 		if (task->priority < current_task->priority)
 			task = current_task;
 #elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
