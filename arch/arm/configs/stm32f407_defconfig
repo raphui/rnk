@@ -29,16 +29,24 @@ CONFIG_MACH_STM32=y
 CONFIG_STM32F407=y
 # CONFIG_STM32F429 is not set
 # CONFIG_STM32F746 is not set
+CONFIG_NUM_IRQS=81
 
 #
 # Kernel configuration
 #
 CONFIG_TASK_STACK_START=0x10008000
 CONFIG_INITCALL=y
+# CONFIG_SCHEDULE_ROUND_ROBIN is not set
+CONFIG_SCHEDULE_PRIORITY=y
+CONFIG_SW_ISR_TABLE=y
 
 #
 # Drivers configuration
 #
+CONFIG_IRQ_SUBSYS=y
+# CONFIG_SPI_SPIDEV is not set
+# CONFIG_ILI9341 is not set
+# CONFIG_LCD_SUBSYS is not set
 
 #
 # Memory management configuration
