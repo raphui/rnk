@@ -27,7 +27,7 @@ struct timer
 	unsigned int rcc_base;
 	unsigned char one_pulse:1;
 	unsigned char count_up:1;
-	unsigned short counter;
+	unsigned int counter;
 };
 
 struct timer_operations

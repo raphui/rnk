@@ -66,7 +66,7 @@ void schedule_task(struct task *task)
 	t = get_current_task();
 	if (t)
 		t->quantum--;
-#endif
+#endif /* CONFIG_SCHEDULE_ROUND_ROBIN */
 
 	if (task)
 		switch_task(task);
@@ -83,6 +83,10 @@ void schedule_task(struct task *task)
 	}
 	
 	task_switching = 1;
+
+#if !defined(CONFIG_HR_TIMER) && !defined(CONFIG_BW_DELAY)
+	decrease_task_delay();
+#endif
 }
 
 void schedule_isr(void)

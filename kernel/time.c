@@ -66,22 +66,35 @@ void svc_usleep(struct timer *timer)
 		LIST_INSERT_AFTER(first, task, next);
 	}
 
+#ifdef CONFIG_HR_TIMER
 	timer_init(timer);
 	timer_set_rate(timer, 1000000);
 	timer_set_counter(timer, timer->counter);
 	timer_enable(timer);
+#endif /* CONFIG_HR_TIMER */
 
 	schedule_task(NULL);
 }
 
 void usleep(unsigned int usec)
 {
+#ifdef CONFIG_HR_TIMER
 	timer.num = 2;
 	timer.one_pulse = 1;
 	timer.count_up = 0;
 	timer.counter = usec;
+#endif /* CONFIG_HR_TIMER */
 
+#ifdef CONFIG_BW_DELAY
+	int end = system_tick + (usec / 1000);
+
+	do {
+		asm("wfi");
+	} while (end > system_tick);
+#else
+	timer.counter = usec / 1000;
 	SVC_ARG(SVC_USLEEP, &timer);
+#endif /* CONFIG_BW_DELAY */
 }
 
 void decrease_task_delay(void)
@@ -100,8 +113,10 @@ void decrease_task_delay(void)
 			remove_sleeping_task(tmp);
 			insert_runnable_task(tmp);
 
+#ifdef CONFIG_HR_TIMER
 			if (LIST_EMPTY(&sleeping_tasks))
 				timer_disable(&timer);
+#endif /* CONFIG_HR_TIMER */
 
 			if (curr->priority < tmp->priority)
 				schedule_isr();

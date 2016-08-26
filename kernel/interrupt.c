@@ -104,7 +104,10 @@ void timer2_handler(void)
 	nvic_clear_interrupt(TIM2_IRQn);
 	debug_printk("timer2 trig\r\n");
 //	pio_toggle_value(GPIOE_BASE, 6);
+
+#ifdef CONFIG_HR_TIMER
 	decrease_task_delay();
+#endif /* CONFIG_HR_TIMER */
 }
 
 

@@ -28,4 +28,11 @@ config TASK_QUANTUM
 config SW_ISR_TABLE
 	bool "Enable use of software managed isr table"
 
+config HR_TIMER
+	bool "High resolution timer using hardware IP"
+
+config BW_DELAY
+	depends on !HR_TIMER
+	bool "Delay functions are implement as busy-wait"
+
 endmenu
