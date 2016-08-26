@@ -1,5 +1,5 @@
-OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
-/* Internal Memory Map*/
+#include <rnk.lds.h>
+
 MEMORY
 {
     rom (rx)  : ORIGIN = 0x08000000, LENGTH = 0x00100000
@@ -27,38 +27,24 @@ SECTIONS
     {
         _text = .;
         KEEP(*(.isr_vector .isr_vector.*))
+#ifdef CONFIG_SW_ISR_TABLE
+	KEEP(*(.isr_vector_cmsis))
+#endif
         *(.text .text.* .gnu.linkonce.t.*)
         *(.glue_7t) *(.glue_7)
         *(.rodata .rodata* .gnu.linkonce.r.*)
+#ifdef CONFIG_INITCALL
 	__rnk_initcalls_start = .;
-	KEEP(*(.initcall.0))
-	KEEP(*(.initcall.1))
-	KEEP(*(.initcall.2))
-	KEEP(*(.initcall.3))
-	KEEP(*(.initcall.4))
-	KEEP(*(.initcall.5))
-	KEEP(*(.initcall.6))
-	KEEP(*(.initcall.7))
-	KEEP(*(.initcall.8))
-	KEEP(*(.initcall.9))
-	KEEP(*(.initcall.10))
-	KEEP(*(.initcall.11))
-	KEEP(*(.initcall.12))
-	KEEP(*(.initcall.13))
-	KEEP(*(.initcall.14))
+	INITCALLS
 	__rnk_initcalls_end = .;
 
 	__rnk_exitcalls_start = .;
-	KEEP(*(.exitcall.0))
-	KEEP(*(.exitcall.1))
-	KEEP(*(.exitcall.2))
-	KEEP(*(.exitcall.3))
-	KEEP(*(.exitcall.4))
-	KEEP(*(.exitcall.5))
-	KEEP(*(.exitcall.6))
+	EXITCALLS
 	__rnk_exitcalls_end = .;
+#endif
     } > rom
  
+#ifdef CONFIG_UNWIND
     .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
@@ -70,6 +56,7 @@ SECTIONS
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     } > rom
     __exidx_end = .;
+#endif
  
     . = ALIGN(4);
     _etext = .;
