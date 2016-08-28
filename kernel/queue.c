@@ -29,16 +29,29 @@ static void insert_waiting_receive_task(struct queue *queue, struct task *t)
 	struct task *task;
 
 	if (queue->waiting_receive) {
-		LIST_FOREACH(task, &queue->waiting_receive_tasks, next) {
+		LIST_FOREACH(task, &queue->waiting_receive_tasks, event_next) {
+
+#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
+			if (!LIST_NEXT(task, event_next)) {
+				LIST_INSERT_AFTER(task, t, event_next);
+				break;
+			}
+#elif defined(CONFIG_SCHEDULE_PRIORITY)
 			if (t->priority > task->priority)
-				LIST_INSERT_BEFORE(task, t, next);
+				LIST_INSERT_BEFORE(task, t, event_next);
+#endif
 		}
 
 	} else {
-		LIST_INSERT_HEAD(&queue->waiting_receive_tasks, t, next);
+		LIST_INSERT_HEAD(&queue->waiting_receive_tasks, t, event_next);
 	}
 
 
+}
+
+static void remove_waiting_receive_task(struct queue *queue, struct task *t)
+{
+	LIST_REMOVE(t, event_next);
 }
 
 static void insert_waiting_post_task(struct queue *queue, struct task *t)
@@ -46,16 +59,29 @@ static void insert_waiting_post_task(struct queue *queue, struct task *t)
 	struct task *task;
 
 	if (queue->waiting_post) {
-		LIST_FOREACH(task, &queue->waiting_post_tasks, next) {
+		LIST_FOREACH(task, &queue->waiting_post_tasks, event_next) {
+
+#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
+			if (!LIST_NEXT(task, event_next)) {
+				LIST_INSERT_AFTER(task, t, event_next);
+				break;
+			}
+#elif defined(CONFIG_SCHEDULE_PRIORITY)
 			if (t->priority > task->priority)
-				LIST_INSERT_BEFORE(task, t, next);
+				LIST_INSERT_BEFORE(task, t, event_next);
+#endif
 		}
 
 	} else {
-		LIST_INSERT_HEAD(&queue->waiting_post_tasks, t, next);
+		LIST_INSERT_HEAD(&queue->waiting_post_tasks, t, event_next);
 	}
 
 
+}
+
+static void remove_waiting_post_task(struct queue *queue, struct task *t)
+{
+	LIST_REMOVE(t, event_next);
 }
 
 void init_queue(struct queue *queue, unsigned int size, unsigned int item_size)
@@ -77,14 +103,24 @@ void init_queue(struct queue *queue, unsigned int size, unsigned int item_size)
 
 void svc_queue_post(struct queue *queue, void *item)
 {
+	struct task *t = NULL;
+
 	if (queue->item_queued < queue->item_size) {
 		if ((queue->wr + queue->item_size) <= queue->tail) {
 			memcpy(queue->wr, item, queue->item_size);
 			printk("wr: %x, v: %d\r\n", queue->wr, *(int *)item);
 			queue->wr += queue->item_size;
 			queue->item_queued++;
+
+			if (!LIST_EMPTY(&queue->waiting_receive_tasks)) {
+				t = LIST_FIRST(&queue->waiting_receive_tasks);
+
+				t->state = TASK_RUNNABLE;
+				remove_waiting_receive_task(queue, t);
+			}
 		}
 	}
+
 }
 
 void queue_post(struct queue *queue, void *item, unsigned int timeout)
@@ -97,6 +133,7 @@ void queue_post(struct queue *queue, void *item, unsigned int timeout)
 			SVC_ARG2(SVC_QUEUE_POST, queue, item);
 			break;
 		} else if (timeout) {
+			insert_waiting_post_task(queue, get_current_task());
 			usleep(timeout);
 			back_from_sleep = 1;
 		} else if (!timeout) {
@@ -108,11 +145,21 @@ void queue_post(struct queue *queue, void *item, unsigned int timeout)
 
 void svc_queue_receive(struct queue *queue, void *item)
 {
+	struct task *t = NULL;
+
 	if (queue->item_queued) {
 		if ((queue->curr + queue->item_size) <= queue->wr) {
 			memcpy(item, queue->curr, queue->item_size);
 			queue->curr += queue->item_size;
 			queue->item_queued--;
+
+			if (!LIST_EMPTY(&queue->waiting_post_tasks)) {
+				t = LIST_FIRST(&queue->waiting_post_tasks);
+
+				t->state = TASK_RUNNABLE;
+				remove_waiting_post_task(queue, t);
+			}
+
 		}
 	}
 }
@@ -125,6 +172,7 @@ void queue_receive(struct queue *queue, void *item, unsigned int timeout)
 			SVC_ARG2(SVC_QUEUE_RECEIVE, queue, item);
 			break;
 		} else if (timeout) {
+			insert_waiting_receive_task(queue, get_current_task());
 			usleep(timeout);
 			back_from_sleep = 1;
 		} else if (back_from_sleep || !timeout) {
