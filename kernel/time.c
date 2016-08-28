@@ -106,7 +106,18 @@ void decrease_task_delay(void)
 	task = LIST_FIRST(&sleeping_tasks);
 
 	while (task) {
-		if (!task->delay) {
+		if (task->state == TASK_RUNNABLE) {
+			tmp = task;
+			task = LIST_NEXT(task, next);
+			tmp->delay = 0;
+			remove_sleeping_task(tmp);
+			insert_runnable_task(tmp);
+#ifdef CONFIG_SCHEDULE_PRIORITY
+			if (curr->priority < tmp->priority)
+				schedule_isr();
+#endif /* CONFIG_SCHEDULE_PRIORITY */
+
+		} else if (!task->delay) {
 			tmp = task;
 			task = LIST_NEXT(task, next);
 			tmp->state = TASK_RUNNABLE;
@@ -118,8 +129,10 @@ void decrease_task_delay(void)
 				timer_disable(&timer);
 #endif /* CONFIG_HR_TIMER */
 
+#ifdef CONFIG_SCHEDULE_PRIORITY
 			if (curr->priority < tmp->priority)
 				schedule_isr();
+#endif /* CONFIG_SCHEDULE_PRIORITY */
 		} else {
 
 			task->delay--;
