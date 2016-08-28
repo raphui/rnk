@@ -30,14 +30,13 @@ void main_task(void)
 	int b = 0;
 
 	while (1) {
-//		queue_receive(&queue, &b, 10000);
-
-//		if (b == 1)
-//			printk("X");
-//		else if (b == 2)
-//			printk("Y");
-//		else
-			printk("Z");
+		queue_receive(&queue, &b, 10000);
+		if (b == 1)
+			printk("X");
+		else if (b == 2)
+			printk("Y");
+		else
+			printk(".");
 	}
 }
 
@@ -46,7 +45,7 @@ void wakeup_button(void)
 	int a = 1;
 
 	printk("wakeup !\n");
-//	queue_post(&queue, &a, 0);
+	svc_queue_post(&queue, &a);
 }
 
 void user_button(void)
@@ -54,14 +53,14 @@ void user_button(void)
 	int a = 2;
 
 	printk("user !\n");
-	queue_post(&queue, &a, 0);
+	svc_queue_post(&queue, &a);
 }
 
 int test(void)
 {
 	printk("Starting app_button\n");
 
-//	init_queue(&queue, sizeof(int), 1);
+	init_queue(&queue, sizeof(int), 1);
 
 	add_task(&main_task, 30);
 
