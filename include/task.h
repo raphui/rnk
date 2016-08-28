@@ -65,6 +65,7 @@ struct task
 	void (*func)(void);
 	struct registers *regs;
 	LIST_ENTRY(task) next;
+	LIST_ENTRY(task) event_next;
 };
 
 struct registers task_regs[NR_TASK];
