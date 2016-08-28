@@ -142,7 +142,7 @@ struct task *find_next_task(void)
 			break;
 
 	if (current_task)
-		current_task->quantum = TASK_QUANTUM;
+		current_task->quantum = CONFIG_TASK_QUANTUM;
 
 	/* Only idle task is eligible */
 	if (!task)
@@ -165,7 +165,7 @@ void remove_runnable_task(struct task *task)
 	task->regs->sp = PSP();
 
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-	current_task->quantum = TASK_QUANTUM;
+	current_task->quantum = CONFIG_TASK_QUANTUM;
 #endif
 
 	LIST_REMOVE(task, next);
