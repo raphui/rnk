@@ -33,6 +33,8 @@
 #define TASK_STACK_START	CONFIG_TASK_STACK_START
 #define TASK_STACK_OFFSET	0x00001000
 
+extern unsigned long task_lock;
+
 struct registers
 {
 	unsigned int r0;

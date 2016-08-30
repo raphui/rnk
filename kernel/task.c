@@ -22,10 +22,13 @@
 #include <utils.h>
 #include <arch/svc.h>
 #include <armv7m/system.h>
+#include <spinlock.h>
 
 static struct task *current_task = NULL;
 static int task_count = 0;
 LIST_HEAD(, task) runnable_tasks = LIST_HEAD_INITIALIZER(runnable_tasks);
+
+unsigned long task_lock = SPIN_LOCK_INITIAL_VALUE;
 
 static void idle_task(void)
 {
