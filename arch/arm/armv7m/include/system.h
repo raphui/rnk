@@ -83,6 +83,11 @@ static inline void __disable_it(void)
 	asm("cpsid i":::);
 }
 
+static inline void wait_for_interrupt(void)
+{
+	asm("wfi");
+}
+
 /* Cortex M4 General Registers */
 
 /* System Control Map */
