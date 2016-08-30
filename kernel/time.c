@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <scheduler.h>
 #include <armv7m/system.h>
+#include <spinlock.h>
 
 #ifdef CONFIG_INITCALL
 #include <init.h>
@@ -54,6 +55,8 @@ void svc_usleep(struct timer *timer)
 	struct task *first = NULL;
 	struct task *task = NULL;
 
+	task_lock(state);
+
 	task = get_current_task();
 	task->delay = timer->counter;
 
@@ -73,6 +76,8 @@ void svc_usleep(struct timer *timer)
 	timer_set_counter(timer, timer->counter);
 	timer_enable(timer);
 #endif /* CONFIG_HR_TIMER */
+
+	task_unlock(state);
 
 	schedule_task(NULL);
 }
@@ -103,6 +108,8 @@ void decrease_task_delay(void)
 	struct task *task;
 	struct task *tmp;
 	struct task *curr = get_current_task();
+
+	task_lock(state);
 
 	task = LIST_FIRST(&sleeping_tasks);
 
@@ -141,4 +148,6 @@ void decrease_task_delay(void)
 			task = LIST_NEXT(task, next);
 		}
 	}
+
+	task_unlock(state);
 }
