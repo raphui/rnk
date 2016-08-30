@@ -83,10 +83,21 @@ static inline void __disable_it(void)
 	asm("cpsid i":::);
 }
 
+static inline int arch_it_disabled(void)
+{
+	unsigned int state;
+
+	asm("mrs %0, primask" : "=r"(state));
+	state &= 0x1;
+
+	return !!state;
+}
+
 static inline void wait_for_interrupt(void)
 {
 	asm("wfi");
 }
+
 
 /* Cortex M4 General Registers */
 
