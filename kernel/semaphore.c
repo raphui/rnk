@@ -29,8 +29,16 @@ static void insert_waiting_task(struct semaphore *sem, struct task *t)
 
 	if (sem->waiting) {
 		LIST_FOREACH(task, &sem->waiting_tasks, next) {
+#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
+			if (!LIST_NEXT(task, next)) {
+				LIST_INSERT_AFTER(task, t, next);
+				break;
+			}
+#elif defined(CONFIG_SCHEDULE_PRIORITY)
 			if (t->priority > task->priority)
 				LIST_INSERT_BEFORE(task, t, next);
+
+#endif
 		}
 
 	} else {
