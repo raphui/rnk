@@ -81,33 +81,10 @@ void svc_sem_wait(struct semaphore *sem)
 		insert_waiting_task(sem, current_task);
 
 		sem->waiting++;
-		
-		schedule_task(NULL);
+
 	}
 
 	task_unlock(state);
-}
-
-void sem_wait_isr(struct semaphore *sem)
-{
-	struct task *current_task;
-
-	if (sem->count < sem->value) {
-		debug_printk("sem (%x) got\r\n", sem);
-		sem->count++;
-	} else {
-		debug_printk("unable to got sem (%x)\r\n", sem);
-
-		current_task = get_current_task();
-		current_task->state = TASK_BLOCKED;
-
-		remove_runnable_task(current_task);
-		insert_waiting_task(sem, current_task);
-
-		sem->waiting++;
-		
-		schedule_isr();
-	}
 }
 
 void sem_wait(struct semaphore *sem)
@@ -124,14 +101,16 @@ void svc_sem_post(struct semaphore *sem)
 	if (sem->waiting) {
 		debug_printk("tasks are waiting for sem (%x)\r\n", sem);
 
-		task = LIST_FIRST(&sem->waiting_tasks);
-		remove_waiting_task(sem, task);
-		task->state = TASK_RUNNABLE;
 		sem->waiting--;
 		sem->count--;
 
-		insert_runnable_task(task);
-		schedule_task(task);
+		if (!LIST_EMPTY(&sem->waiting_tasks)) {
+			task = LIST_FIRST(&sem->waiting_tasks);
+			task->state = TASK_RUNNABLE;
+
+			remove_waiting_task(sem, task);
+			insert_runnable_task(task);
+		}
 
 	} else {
 		if (sem->count == 0)
@@ -143,32 +122,6 @@ void svc_sem_post(struct semaphore *sem)
 	}
 
 	task_unlock(state);
-}
-
-void sem_post_isr(struct semaphore *sem)
-{
-	struct task *task;
-
-	if (sem->waiting) {
-		debug_printk("tasks are waiting for sem (%x)\r\n", sem);
-
-		task = LIST_FIRST(&sem->waiting_tasks);
-		remove_waiting_task(sem, task);
-		task->state = TASK_RUNNABLE;
-		sem->waiting--;
-		sem->count--;
-
-		insert_runnable_task(task);
-		schedule_isr();
-
-	} else {
-		if (sem->count == 0)
-			debug_printk("all sem (%x) token has been post\r\n", sem);
-		else
-			sem->count--;
-
-		debug_printk("sem (%x) post\r\n", sem);
-	}
 }
 
 void sem_post(struct semaphore *sem)
