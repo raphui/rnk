@@ -52,14 +52,14 @@ static void insert_task(struct task *t)
 
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 		if (!LIST_NEXT(task, next)) {
-			debug_printk("inserting task %d\r\n", t->pid);
+			verbose_printk("inserting task %d\r\n", t->pid);
 			LIST_INSERT_AFTER(task, t, next);
 			break;
 		}
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
-		debug_printk("t->priority: %d, task->priority; %d\r\n", t->priority, task->priority);
+		verbose_printk("t->priority: %d, task->priority; %d\r\n", t->priority, task->priority);
 		if (t->priority > task->priority) {
-			debug_printk("inserting task %d\r\n", t->pid);
+			verbose_printk("inserting task %d\r\n", t->pid);
 			LIST_INSERT_BEFORE(task, t, next);
 			break;
 		}
@@ -152,7 +152,7 @@ struct task *find_next_task(void)
 		task = LIST_FIRST(&runnable_tasks);
 #endif
 
-	debug_printk("next task: %d\r\n", task->pid);
+	verbose_printk("next task: %d\r\n", task->pid);
 
 	return task;
 }
