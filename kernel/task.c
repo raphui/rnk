@@ -76,6 +76,9 @@ void task_init(void)
 void add_task(void (*func)(void), unsigned int priority)
 {
 	struct task *task = (struct task *)kmalloc(sizeof(struct task));
+
+	memset(task, 0, sizeof(struct task));
+
 	task->state = TASK_RUNNABLE;
 	task->pid = task_count;
 
