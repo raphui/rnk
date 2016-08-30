@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <spinlock.h>
 
 static void insert_waiting_receive_task(struct queue *queue, struct task *t)
 {
@@ -105,6 +106,8 @@ void svc_queue_post(struct queue *queue, void *item)
 {
 	struct task *t = NULL;
 
+	task_lock(state);
+
 	if (queue->item_queued < queue->item_size) {
 		if ((queue->wr + queue->item_size) <= queue->tail) {
 			memcpy(queue->wr, item, queue->item_size);
@@ -121,6 +124,8 @@ void svc_queue_post(struct queue *queue, void *item)
 		}
 	}
 
+	
+	task_unlock(state);
 }
 
 void queue_post(struct queue *queue, void *item, unsigned int timeout)
@@ -147,6 +152,9 @@ void svc_queue_receive(struct queue *queue, void *item)
 {
 	struct task *t = NULL;
 
+
+	task_lock(state);
+
 	if (queue->item_queued) {
 		if ((queue->curr + queue->item_size) <= queue->wr) {
 			memcpy(item, queue->curr, queue->item_size);
@@ -162,6 +170,9 @@ void svc_queue_receive(struct queue *queue, void *item)
 
 		}
 	}
+
+
+	task_unlock(state);
 }
 
 void queue_receive(struct queue *queue, void *item, unsigned int timeout)
