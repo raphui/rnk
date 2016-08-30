@@ -3,6 +3,8 @@
 #include <errno.h>
 #include <scheduler.h>
 #include <utils.h>
+#include <task.h>
+#include <spinlock.h>
 
 #include <arch/svc.h>
 
@@ -28,6 +30,8 @@ static int __mutex_lock(struct mutex *mutex)
 	int ret = 0;
 	struct task *current_task = get_current_task();
 
+	task_lock(state);
+
 	if (mutex->lock) {
 		debug_printk("mutex already locked\r\n");
 		ret = -EDEADLOCK;
@@ -50,6 +54,8 @@ static int __mutex_lock(struct mutex *mutex)
 		mutex->owner = current_task;
 		mutex->waiting = 0;
 	}
+
+	task_unlock(state);
 
 	return ret;
 }
@@ -143,6 +149,8 @@ void svc_mutex_unlock(struct mutex *mutex)
 	struct task *current_task = get_current_task();
 	struct task *task;
 
+	task_lock(state);
+
 	if (!mutex->lock)
 		debug_printk("mutex already unlock\r\n");
 
@@ -165,6 +173,8 @@ void svc_mutex_unlock(struct mutex *mutex)
 	} else {
 		debug_printk("mutex cannot be unlock, task is not the owner\r\n");
 	}
+
+	task_unlock(state);
 }
 
 void mutex_unlock(struct mutex *mutex)
