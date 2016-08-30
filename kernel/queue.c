@@ -108,7 +108,7 @@ void svc_queue_post(struct queue *queue, void *item)
 	if (queue->item_queued < queue->item_size) {
 		if ((queue->wr + queue->item_size) <= queue->tail) {
 			memcpy(queue->wr, item, queue->item_size);
-			printk("wr: %x, v: %d\r\n", queue->wr, *(int *)item);
+			debug_printk("wr: %x, v: %d\r\n", queue->wr, *(int *)item);
 			queue->wr += queue->item_size;
 			queue->item_queued++;
 
