@@ -19,6 +19,7 @@
 #include <semaphore.h>
 #include <task.h>
 #include <scheduler.h>
+#include <spinlock.h>
 #include <stdio.h>
 #include <arch/svc.h>
 
@@ -52,6 +53,8 @@ void svc_sem_wait(struct semaphore *sem)
 {
 	struct task *current_task;
 
+	task_lock(state);
+
 	if (sem->count < sem->value) {
 		debug_printk("sem (%x) got\r\n", sem);
 		sem->count++;
@@ -68,6 +71,8 @@ void svc_sem_wait(struct semaphore *sem)
 		
 		schedule_task(NULL);
 	}
+
+	task_unlock(state);
 }
 
 void sem_wait_isr(struct semaphore *sem)
@@ -101,6 +106,8 @@ void svc_sem_post(struct semaphore *sem)
 {
 	struct task *task;
 
+	task_lock(state);
+
 	if (sem->waiting) {
 		debug_printk("tasks are waiting for sem (%x)\r\n", sem);
 
@@ -121,6 +128,8 @@ void svc_sem_post(struct semaphore *sem)
 
 		debug_printk("sem (%x) post\r\n", sem);
 	}
+
+	task_unlock(state);
 }
 
 void sem_post_isr(struct semaphore *sem)
