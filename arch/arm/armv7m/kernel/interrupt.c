@@ -99,6 +99,7 @@ void pendsv_handler(void)
 	schedule_task(NULL);
 }
 
+#ifndef CONFIG_SW_ISR_TABLE
 void timer2_handler(void)
 {
 	nvic_clear_interrupt(TIM2_IRQn);
@@ -234,3 +235,4 @@ void spi5_handler(void)
 	}
 }
 #endif /* CONFIG_STM32F429 */
+#endif /* CONFIG_SW_ISR_TABLE */

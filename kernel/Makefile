@@ -7,7 +7,6 @@ obj-y := main.o
 obj-y += mutex.o
 obj-y += scheduler.o
 obj-y += semaphore.o
-obj-y += interrupt.o
 obj-y += queue.o
 obj-y += task.o
 obj-y += time.o
