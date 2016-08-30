@@ -22,6 +22,7 @@
 #include <arch/svc.h>
 #include <stdio.h>
 #include <scheduler.h>
+#include <armv7m/system.h>
 
 #ifdef CONFIG_INITCALL
 #include <init.h>
@@ -89,7 +90,7 @@ void usleep(unsigned int usec)
 	int end = system_tick + (usec / 1000);
 
 	do {
-		asm("wfi");
+		wait_for_interrupt();
 	} while (end > system_tick);
 #else
 	timer.counter = usec / 1000;

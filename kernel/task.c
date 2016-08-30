@@ -30,7 +30,7 @@ LIST_HEAD(, task) runnable_tasks = LIST_HEAD_INITIALIZER(runnable_tasks);
 static void idle_task(void)
 {
 	while(1)
-		;
+		wait_for_interrupt();
 }
 
 static void insert_task(struct task *t)
