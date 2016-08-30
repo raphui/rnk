@@ -28,24 +28,29 @@ static void insert_waiting_task(struct semaphore *sem, struct task *t)
 	struct task *task;
 
 	if (sem->waiting) {
-		LIST_FOREACH(task, &sem->waiting_tasks, next) {
+		LIST_FOREACH(task, &sem->waiting_tasks, event_next) {
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-			if (!LIST_NEXT(task, next)) {
-				LIST_INSERT_AFTER(task, t, next);
+			if (!LIST_NEXT(task, event_next)) {
+				LIST_INSERT_AFTER(task, t, event_next);
 				break;
 			}
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
 			if (t->priority > task->priority)
-				LIST_INSERT_BEFORE(task, t, next);
+				LIST_INSERT_BEFORE(task, t, event_next);
 
 #endif
 		}
 
 	} else {
-		LIST_INSERT_HEAD(&sem->waiting_tasks, t, next);
+		LIST_INSERT_HEAD(&sem->waiting_tasks, t, event_next);
 	}
 
 
+}
+
+static void remove_waiting_task(struct semaphore *sem, struct task *t)
+{
+	LIST_REMOVE(t, event_next);
 }
 
 void init_semaphore(struct semaphore *sem, unsigned int value)
@@ -120,7 +125,7 @@ void svc_sem_post(struct semaphore *sem)
 		debug_printk("tasks are waiting for sem (%x)\r\n", sem);
 
 		task = LIST_FIRST(&sem->waiting_tasks);
-		LIST_REMOVE(task, next);
+		remove_waiting_task(sem, task);
 		task->state = TASK_RUNNABLE;
 		sem->waiting--;
 		sem->count--;
@@ -148,7 +153,7 @@ void sem_post_isr(struct semaphore *sem)
 		debug_printk("tasks are waiting for sem (%x)\r\n", sem);
 
 		task = LIST_FIRST(&sem->waiting_tasks);
-		LIST_REMOVE(task, next);
+		remove_waiting_task(sem, task);
 		task->state = TASK_RUNNABLE;
 		sem->waiting--;
 		sem->count--;
