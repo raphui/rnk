@@ -82,6 +82,8 @@ void svc_sem_wait(struct semaphore *sem)
 
 		sem->waiting++;
 
+		schedule_task(NULL);
+
 	}
 
 	task_unlock(state);
