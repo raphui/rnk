@@ -66,8 +66,8 @@ struct task
 	unsigned int delay;
 	void (*func)(void);
 	struct registers *regs;
-	LIST_ENTRY(task) next;
-	LIST_ENTRY(task) event_next;
+	struct list_node node;
+	struct list_node event_node;
 };
 
 struct registers task_regs[NR_TASK];

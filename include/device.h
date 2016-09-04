@@ -24,7 +24,7 @@
 
 struct device {
 	char name[32];
-	LIST_ENTRY(device) next;
+	struct list_node next;
 	int (*read)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*write)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*lseek)(struct device *device, int offset, int whence);

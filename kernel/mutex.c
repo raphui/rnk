@@ -13,21 +13,21 @@ static void insert_waiting_task(struct mutex *m, struct task *t)
 	struct task *task;
 
 	if (m->waiting) {
-		LIST_FOREACH(task, &m->waiting_tasks, event_next) {
+		list_for_every_entry(&m->waiting_tasks, task, struct task, event_node) {
 
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-			if (!LIST_NEXT(task, event_next)) {
-				LIST_INSERT_AFTER(task, t, event_next);
+			if (!list_next(&m->waiting_tasks, &task->event_node)) {
+				list_add_after(&task->event_node, &t->event_node);
 				break;
 			}
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
 			if (t->priority > task->priority)
-				LIST_INSERT_BEFORE(task, t, event_next);
+				list_add_before(&task->event_node, &t->event_node);
 #endif
 		}
 
 	} else {
-		LIST_INSERT_HEAD(&m->waiting_tasks, t, event_next);
+		list_add_head(&m->waiting_tasks, &t->event_node);
 	}
 
 
@@ -35,7 +35,7 @@ static void insert_waiting_task(struct mutex *m, struct task *t)
 
 static void remove_waiting_task(struct mutex *mutex, struct task *t)
 {
-	LIST_REMOVE(t, event_next);
+	list_delete(&t->event_node);
 }
 
 static int __mutex_lock(struct mutex *mutex)
@@ -78,7 +78,7 @@ void init_mutex(struct mutex *mutex) {
 	mutex->owner = NULL;
 	mutex->waiting = 0;
 
-	LIST_INIT(&mutex->waiting_tasks);
+	list_initialize(&mutex->waiting_tasks);
 }
 
 void svc_mutex_lock(struct mutex *mutex)
@@ -116,8 +116,8 @@ void svc_mutex_unlock(struct mutex *mutex)
 		if (mutex->waiting) {
 			mutex->waiting--;
 
-			if (!LIST_EMPTY(&mutex->waiting_tasks)) {
-				task = LIST_FIRST(&mutex->waiting_tasks);
+			if (!list_is_empty(&mutex->waiting_tasks)) {
+				task = list_peek_head_type(&mutex->waiting_tasks, struct task, event_node);
 				task->state = TASK_RUNNABLE;
 
 				remove_waiting_task(mutex, task);

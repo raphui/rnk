@@ -28,21 +28,21 @@ static void insert_waiting_task(struct semaphore *sem, struct task *t)
 	struct task *task;
 
 	if (sem->waiting) {
-		LIST_FOREACH(task, &sem->waiting_tasks, event_next) {
+		list_for_every_entry(&sem->waiting_tasks, task, struct task, event_node) {
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-			if (!LIST_NEXT(task, event_next)) {
-				LIST_INSERT_AFTER(task, t, event_next);
+			if (!list_next(&sem->waiting_tasks, task->event_node)) {
+				list_add_after(&task->event_node, &t->event_node);
 				break;
 			}
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
 			if (t->priority > task->priority)
-				LIST_INSERT_BEFORE(task, t, event_next);
+				list_add_before(&task->event_node, &t->event_node);
 
 #endif
 		}
 
 	} else {
-		LIST_INSERT_HEAD(&sem->waiting_tasks, t, event_next);
+		list_add_head(&sem->waiting_tasks, &t->event_node);
 	}
 
 
@@ -50,7 +50,7 @@ static void insert_waiting_task(struct semaphore *sem, struct task *t)
 
 static void remove_waiting_task(struct semaphore *sem, struct task *t)
 {
-	LIST_REMOVE(t, event_next);
+	list_delete(&t->event_node);
 }
 
 void init_semaphore(struct semaphore *sem, unsigned int value)
@@ -59,7 +59,7 @@ void init_semaphore(struct semaphore *sem, unsigned int value)
 	sem->count = 0;
 	sem->waiting = 0;
 
-	LIST_INIT(&sem->waiting_tasks);
+	list_initialize(&sem->waiting_tasks);
 }
 
 void svc_sem_wait(struct semaphore *sem)
@@ -106,8 +106,8 @@ void svc_sem_post(struct semaphore *sem)
 		sem->waiting--;
 		sem->count--;
 
-		if (!LIST_EMPTY(&sem->waiting_tasks)) {
-			task = LIST_FIRST(&sem->waiting_tasks);
+		if (!list_is_empty(&sem->waiting_tasks)) {
+			task = list_peek_head_type(&sem->waiting_tasks, struct task, event_node);
 			task->state = TASK_RUNNABLE;
 
 			remove_waiting_task(sem, task);

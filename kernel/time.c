@@ -29,20 +29,20 @@
 #include <init.h>
 #endif /* CONFIG_INITCALL */
 
-LIST_HEAD(, task) sleeping_tasks = LIST_HEAD_INITIALIZER(sleeping_tasks);
+static struct list_node sleeping_tasks;
 
 struct timer timer;
 
 static void remove_sleeping_task(struct task *task)
 {
-	LIST_REMOVE(task, next);
+	list_delete(&task->node);
 }
 
 int time_init(void)
 {
 	int ret = 0;
 
-	LIST_INIT(&sleeping_tasks);
+	list_initialize(&sleeping_tasks);
 
 	return ret;
 }
@@ -63,11 +63,11 @@ void svc_usleep(struct timer *timer)
 	task->state = TASK_BLOCKED;
 	remove_runnable_task(task);
 
-	if (LIST_EMPTY(&sleeping_tasks))
-		LIST_INSERT_HEAD(&sleeping_tasks, task, next);
+	if (list_is_empty(&sleeping_tasks))
+		list_add_head(&sleeping_tasks, &task->node);
 	else {
-		first = LIST_FIRST(&sleeping_tasks);
-		LIST_INSERT_AFTER(first, task, next);
+		first = list_peek_head_type(&sleeping_tasks, struct task, node);
+		list_add_after(&first->node, &task->node);
 	}
 
 #ifdef CONFIG_HR_TIMER
@@ -111,12 +111,9 @@ void decrease_task_delay(void)
 
 	task_lock(state);
 
-	task = LIST_FIRST(&sleeping_tasks);
-
-	while (task) {
+	list_for_every_entry(&sleeping_tasks, task, struct task, node) {
 		if (task->state == TASK_RUNNABLE) {
 			tmp = task;
-			task = LIST_NEXT(task, next);
 			tmp->delay = 0;
 			remove_sleeping_task(tmp);
 			insert_runnable_task(tmp);
@@ -127,13 +124,12 @@ void decrease_task_delay(void)
 
 		} else if (!task->delay) {
 			tmp = task;
-			task = LIST_NEXT(task, next);
 			tmp->state = TASK_RUNNABLE;
 			remove_sleeping_task(tmp);
 			insert_runnable_task(tmp);
 
 #ifdef CONFIG_HR_TIMER
-			if (LIST_EMPTY(&sleeping_tasks))
+			if (list_is_empty(&sleeping_tasks))
 				timer_disable(&timer);
 #endif /* CONFIG_HR_TIMER */
 
@@ -145,7 +141,6 @@ void decrease_task_delay(void)
 
 			task->delay--;
 			verbose_printk("%d: %d usec remaining\r\n", task->pid, task->delay);
-			task = LIST_NEXT(task, next);
 		}
 	}
 

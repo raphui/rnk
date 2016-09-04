@@ -30,21 +30,21 @@ static void insert_waiting_receive_task(struct queue *queue, struct task *t)
 	struct task *task;
 
 	if (queue->waiting_receive) {
-		LIST_FOREACH(task, &queue->waiting_receive_tasks, event_next) {
+		list_for_every_entry(&queue->waiting_receive_tasks, task, struct task, event_node) {
 
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-			if (!LIST_NEXT(task, event_next)) {
-				LIST_INSERT_AFTER(task, t, event_next);
+			if (!list_next(&queue->waiting_receive_tasks, &task->event_node)) {
+				list_add_after(&task->event_node, &t->event_node);
 				break;
 			}
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
 			if (t->priority > task->priority)
-				LIST_INSERT_BEFORE(task, t, event_next);
+				list_add_before(&task->event_node, &t->event_node);
 #endif
 		}
 
 	} else {
-		LIST_INSERT_HEAD(&queue->waiting_receive_tasks, t, event_next);
+		list_add_head(&queue->waiting_receive_tasks, &t->event_node);
 	}
 
 
@@ -52,7 +52,7 @@ static void insert_waiting_receive_task(struct queue *queue, struct task *t)
 
 static void remove_waiting_receive_task(struct queue *queue, struct task *t)
 {
-	LIST_REMOVE(t, event_next);
+	list_delete(&t->event_node);
 }
 
 static void insert_waiting_post_task(struct queue *queue, struct task *t)
@@ -60,21 +60,21 @@ static void insert_waiting_post_task(struct queue *queue, struct task *t)
 	struct task *task;
 
 	if (queue->waiting_post) {
-		LIST_FOREACH(task, &queue->waiting_post_tasks, event_next) {
+		list_for_every_entry(&queue->waiting_post_tasks, task, struct task, event_node) {
 
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-			if (!LIST_NEXT(task, event_next)) {
-				LIST_INSERT_AFTER(task, t, event_next);
+			if (!list_next(&queue->waiting_post_tasks, &task->event_node)) {
+				list_add_after(&task->event_node, &t->event_node);
 				break;
 			}
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
 			if (t->priority > task->priority)
-				LIST_INSERT_BEFORE(task, t, event_next);
+				list_add_before(&task->event_node, &t->event_node);
 #endif
 		}
 
 	} else {
-		LIST_INSERT_HEAD(&queue->waiting_post_tasks, t, event_next);
+		list_add_head(&queue->waiting_post_tasks, &t->event_node);
 	}
 
 
@@ -82,7 +82,7 @@ static void insert_waiting_post_task(struct queue *queue, struct task *t)
 
 static void remove_waiting_post_task(struct queue *queue, struct task *t)
 {
-	LIST_REMOVE(t, event_next);
+	list_delete(&t->event_node);
 }
 
 void init_queue(struct queue *queue, unsigned int size, unsigned int item_size)
@@ -98,8 +98,8 @@ void init_queue(struct queue *queue, unsigned int size, unsigned int item_size)
 
 	queue->waiting_receive = 0;
 	queue->waiting_post = 0;
-	LIST_INIT(&queue->waiting_receive_tasks);
-	LIST_INIT(&queue->waiting_post_tasks);
+	list_initialize(&queue->waiting_receive_tasks);
+	list_initialize(&queue->waiting_post_tasks);
 }
 
 void svc_queue_post(struct queue *queue, void *item)
@@ -115,8 +115,8 @@ void svc_queue_post(struct queue *queue, void *item)
 			queue->wr += queue->item_size;
 			queue->item_queued++;
 
-			if (!LIST_EMPTY(&queue->waiting_receive_tasks)) {
-				t = LIST_FIRST(&queue->waiting_receive_tasks);
+			if (!list_is_empty(&queue->waiting_receive_tasks)) {
+				t = list_peek_head_type(&queue->waiting_receive_tasks, struct task, event_node);
 
 				t->state = TASK_RUNNABLE;
 				remove_waiting_receive_task(queue, t);
@@ -161,8 +161,8 @@ void svc_queue_receive(struct queue *queue, void *item)
 			queue->curr += queue->item_size;
 			queue->item_queued--;
 
-			if (!LIST_EMPTY(&queue->waiting_post_tasks)) {
-				t = LIST_FIRST(&queue->waiting_post_tasks);
+			if (!list_is_empty(&queue->waiting_post_tasks)) {
+				t = list_peek_head_type(&queue->waiting_post_tasks, struct task, event_node);
 
 				t->state = TASK_RUNNABLE;
 				remove_waiting_post_task(queue, t);

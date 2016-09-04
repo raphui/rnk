@@ -17,30 +17,36 @@
  */
 
 #include <device.h>
+#include <list.h>
 #include <string.h>
 #include <stdio.h>
 
 static int device_count = 0;
 
-LIST_HEAD(, device) device_list = LIST_HEAD_INITIALIZER(device_list);
+static struct list_node device_list;
 
 static void insert_device(struct device *dev)
 {
 	struct device *device;
 
-	device = LIST_FIRST(&device_list);
+	device = list_peek_head_type(&device_list, struct device, next);
 
 	if (!device_count) {
 		verbose_printk("device list is empty\r\n");
-		LIST_INSERT_HEAD(&device_list, dev, next);
+		list_add_head(&device_list, &device->next);
 	}
 	else
-		LIST_INSERT_BEFORE(device, dev, next);
+		list_add_before(&device->next, &dev->next);
+
+	device_count++;
 }
 
 int device_register(struct device *dev)
 {
 	int ret = 0;
+
+	if (!device_count)
+		list_initialize(&device_list);
 
 	insert_device(dev);
 
@@ -51,7 +57,7 @@ int device_unregister(struct device *dev)
 {
 	int ret = 0;
 
-	LIST_REMOVE(dev, next);
+	list_delete(&dev->next);
 
 	return ret;
 }
@@ -60,7 +66,7 @@ struct device *device_from_name(const char *name)
 {
 	struct device *dev = NULL;
 
-	LIST_FOREACH(dev, &device_list, next) {
+	list_for_every_entry(&device_list, dev, struct device, next) {
 		if (!strcmp(name, dev->name))
 			break;
 	}

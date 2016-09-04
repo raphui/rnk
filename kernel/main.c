@@ -324,9 +324,11 @@ void eleventh_task(void)
 	else
 		printk("efl execution done\r\n");
 
-	while (1) {
-		printk("K");
-	}
+	while (1)
+		;
+//	{
+//		printk("K");
+//	}
 	
 }
 

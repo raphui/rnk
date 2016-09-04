@@ -26,7 +26,7 @@
 
 static struct task *current_task = NULL;
 static int task_count = 0;
-LIST_HEAD(, task) runnable_tasks = LIST_HEAD_INITIALIZER(runnable_tasks);
+struct list_node runnable_tasks;
 
 unsigned long task_lock = SPIN_LOCK_INITIAL_VALUE;
 
@@ -38,29 +38,29 @@ static void idle_task(void)
 
 static void insert_task(struct task *t)
 {
-	struct task *task;
+	struct task *task = NULL;
 
-	task = LIST_FIRST(&runnable_tasks);
+	task = list_peek_head_type(&runnable_tasks, struct task, node);
 
 	if (!task_count) {
 		debug_printk("runnable list is empty\r\n");
-		LIST_INSERT_HEAD(&runnable_tasks, task, next);
+		list_add_head(&runnable_tasks, &task->node);
 		return;
 	}
 
-	LIST_FOREACH(task, &runnable_tasks, next) {
+	list_for_every_entry(&runnable_tasks, task, struct task, node) {
 
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-		if (!LIST_NEXT(task, next)) {
+		if (!list_next(&runnable_tasks, task->node)) {
 			verbose_printk("inserting task %d\r\n", t->pid);
-			LIST_INSERT_AFTER(task, t, next);
+			list_add_after(&task->node, &t->node);
 			break;
 		}
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
 		verbose_printk("t->priority: %d, task->priority; %d\r\n", t->priority, task->priority);
 		if (t->priority > task->priority) {
 			verbose_printk("inserting task %d\r\n", t->pid);
-			LIST_INSERT_BEFORE(task, t, next);
+			list_add_before(&task->node, &t->node);
 			break;
 		}
 #endif
@@ -69,7 +69,7 @@ static void insert_task(struct task *t)
 
 void task_init(void)
 {
-	LIST_INIT(&runnable_tasks);
+	list_initialize(&runnable_tasks);
 	add_task(&idle_task, 0);
 }
 
@@ -102,7 +102,7 @@ void add_task(void (*func)(void), unsigned int priority)
 	if (task_count)
 		insert_task(task);
 	else
-		LIST_INSERT_HEAD(&runnable_tasks, task, next);
+		list_add_head(&runnable_tasks, &task->node);
 
 	task_count++;
 }
@@ -137,13 +137,13 @@ struct task *find_next_task(void)
 	struct task *task = NULL;
 
 #ifdef CONFIG_SCHEDULE_PRIORITY
-	task = LIST_FIRST(&runnable_tasks);
+	task = list_peek_head_type(&runnable_tasks, struct task, node);
 
 	if (current_task && current_task->state != TASK_BLOCKED)
 		if (task->priority < current_task->priority)
 			task = current_task;
 #elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
-	LIST_FOREACH(task, &runnable_tasks, next)
+	list_for_every_entry(&runnable_tasks, task, struct task, node) {
 		if ((task->quantum > 0) && (task->pid != 0))
 			break;
 
@@ -151,8 +151,9 @@ struct task *find_next_task(void)
 		current_task->quantum = CONFIG_TASK_QUANTUM;
 
 	/* Only idle task is eligible */
-	if (!task)
-		task = LIST_FIRST(&runnable_tasks);
+	if (!task) {
+		task = list_peek_head_type(&runnable_tasks, struct task, node);
+	}
 #endif
 
 	verbose_printk("next task: %d\r\n", task->pid);
@@ -174,5 +175,5 @@ void remove_runnable_task(struct task *task)
 	current_task->quantum = CONFIG_TASK_QUANTUM;
 #endif
 
-	LIST_REMOVE(task, next);
+	list_delete(&task->node);
 }

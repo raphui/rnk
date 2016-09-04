@@ -29,10 +29,10 @@
 struct action {
 	void (*irq_action)(void);
 	int irq;
-	TAILQ_ENTRY(action) next;
+	struct list_node node;
 };
 
-static TAILQ_HEAD(, action) action_list;
+static struct list_node action_list;
 
 static int nvic_array[15] = {
 	EXTI0_IRQn,
@@ -160,7 +160,7 @@ int stm32_exti_init(void)
 	if (ret < 0)
 		goto fail;
 
-	TAILQ_INIT(&action_list);
+	list_initialize(&action_list);
 
 fail:
 	return ret;
@@ -273,7 +273,7 @@ int stm32_exti_action(unsigned int line)
 	struct action *action = NULL;
 	void (*hook)(void) = NULL;
 
-	TAILQ_FOREACH(action, &action_list, next)
+	list_for_every_entry(&action_list, action, struct action, node)
 		if (action->irq == line)
 			break;
 
@@ -320,10 +320,10 @@ int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (
 	action->irq_action = handler;
 	action->irq = gpio_num;
 
-	if (TAILQ_EMPTY(&action_list))
-		TAILQ_INSERT_HEAD(&action_list, action, next);
+	if (list_is_empty(&action_list))
+		list_add_head(&action_list, &action->node);
 	else
-		TAILQ_INSERT_TAIL(&action_list, action, next);
+		list_add_tail(&action_list, &action->node);
 
 fail:
 	return ret;
