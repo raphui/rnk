@@ -143,7 +143,7 @@ struct task *find_next_task(void)
 		if (task->priority < current_task->priority)
 			task = current_task;
 #elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
-	list_for_every_entry(&runnable_tasks, task, struct task, node) {
+	list_for_every_entry(&runnable_tasks, task, struct task, node)
 		if ((task->quantum > 0) && (task->pid != 0))
 			break;
 
