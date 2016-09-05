@@ -51,7 +51,7 @@ static void insert_task(struct task *t)
 	list_for_every_entry(&runnable_tasks, task, struct task, node) {
 
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-		if (!list_next(&runnable_tasks, task->node)) {
+		if (!list_next(&runnable_tasks, &task->node)) {
 			verbose_printk("inserting task %d\r\n", t->pid);
 			list_add_after(&task->node, &t->node);
 			break;
