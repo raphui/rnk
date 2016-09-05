@@ -115,6 +115,29 @@ static int stm32_exti_get_nvic_number(unsigned int gpio_num)
 	return nvic;
 }
 
+
+static int stm32_exti_action(unsigned int line)
+{
+	int ret = 0;
+	struct action *action = NULL;
+	void (*hook)(void) = NULL;
+
+	list_for_every_entry(&action_list, action, struct action, node)
+		if (action->irq == line)
+			break;
+
+	if (!action) {
+		error_printk("no action has been found for exti: %d\n", line);
+		return -ENOSYS;
+	}
+
+	hook = action->irq_action;
+
+	hook();
+
+	return ret;
+}
+
 static void stm32_exti_isr(void *arg)
 {
 	unsigned int irq = vector_current_irq();
@@ -263,28 +286,6 @@ int stm32_exti_disable_rising(unsigned int gpio_base, unsigned int gpio_num)
 
 	nvic_clear_interrupt(nvic);
 	nvic_disable_interrupt(nvic);
-
-	return ret;
-}
-
-int stm32_exti_action(unsigned int line)
-{
-	int ret = 0;
-	struct action *action = NULL;
-	void (*hook)(void) = NULL;
-
-	list_for_every_entry(&action_list, action, struct action, node)
-		if (action->irq == line)
-			break;
-
-	if (!action) {
-		error_printk("no action has been found for exti: %d\n", line);
-		return -ENOSYS;
-	}
-
-	hook = action->irq_action;
-
-	hook();
 
 	return ret;
 }
