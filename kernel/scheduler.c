@@ -23,6 +23,7 @@
 #include <board.h>
 #include <arch/svc.h>
 #include <armv7m/system.h>
+#include <time.h>
 
 #ifdef CONFIG_INITCALL
 #include <init.h>
