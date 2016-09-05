@@ -30,7 +30,7 @@ static void insert_waiting_task(struct semaphore *sem, struct task *t)
 	if (sem->waiting) {
 		list_for_every_entry(&sem->waiting_tasks, task, struct task, event_node) {
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-			if (!list_next(&sem->waiting_tasks, task->event_node)) {
+			if (!list_next(&sem->waiting_tasks, &task->event_node)) {
 				list_add_after(&task->event_node, &t->event_node);
 				break;
 			}
