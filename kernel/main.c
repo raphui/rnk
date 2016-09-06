@@ -399,17 +399,6 @@ int main(void)
 	init_semaphore(&sem, 1);
 	init_queue(&queue, sizeof(int), 5);
 
-	fd = open("/dev/mtd", O_RDWR);
-	if (fd < 0) {
-		error_printk("failed to open /dev/mtd\n");
-	} else {
-		c = 0xAB;
-		write(fd, &c, sizeof(unsigned char));
-		read(fd, &c, sizeof(unsigned char));
-
-		printk("write and read: %s\n", (c == 0xAB) ? "OK" : "KO");
-	}
-
 #ifdef CONFIG_UNWIND
 	unwind_init();
 #endif /* CONFIG_UNWIND */
