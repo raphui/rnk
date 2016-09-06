@@ -29,24 +29,14 @@ static void insert_waiting_receive_task(struct queue *queue, struct task *t)
 {
 	struct task *task;
 
-	if (queue->waiting_receive) {
-		list_for_every_entry(&queue->waiting_receive_tasks, task, struct task, event_node) {
-
-#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-			if (!list_next(&queue->waiting_receive_tasks, &task->event_node)) {
-				list_add_after(&task->event_node, &t->event_node);
-				break;
-			}
+#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
+		list_add_tail(&queue->waiting_receive_tasks, &t->event_node);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
+		list_for_every_entry(&queue->waiting_receive_tasks, task, struct task, event_node)
 			if (t->priority > task->priority)
 				list_add_before(&task->event_node, &t->event_node);
+
 #endif
-		}
-
-	} else {
-		list_add_head(&queue->waiting_receive_tasks, &t->event_node);
-	}
-
 
 }
 
@@ -59,24 +49,14 @@ static void insert_waiting_post_task(struct queue *queue, struct task *t)
 {
 	struct task *task;
 
-	if (queue->waiting_post) {
-		list_for_every_entry(&queue->waiting_post_tasks, task, struct task, event_node) {
-
-#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-			if (!list_next(&queue->waiting_post_tasks, &task->event_node)) {
-				list_add_after(&task->event_node, &t->event_node);
-				break;
-			}
+#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
+		list_add_tail(&queue->waiting_post_tasks, &t->event_node);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
+		list_for_every_entry(&queue->waiting_post_tasks, task, struct task, event_node)
 			if (t->priority > task->priority)
 				list_add_before(&task->event_node, &t->event_node);
+
 #endif
-		}
-
-	} else {
-		list_add_head(&queue->waiting_post_tasks, &t->event_node);
-	}
-
 
 }
 
