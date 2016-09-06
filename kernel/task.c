@@ -18,6 +18,7 @@
 
 #include <scheduler.h>
 #include <stdio.h>
+#include <string.h>
 #include <mm.h>
 #include <utils.h>
 #include <arch/svc.h>
@@ -26,7 +27,17 @@
 
 static struct task *current_task = NULL;
 static int task_count = 0;
-struct list_node runnable_tasks;
+
+#ifdef CONFIG_SCHEDULE_PREEMPT
+#define NB_RUN_QUEUE		32
+#define MAX_PRIORITIES		32
+#define HIGHEST_PRIORITY	(MAX_PRIORITIES - 1)
+#else
+#define NB_RUN_QUEUE	1
+#endif /* CONFIG_SCHEDULE_PREEMPT */
+
+static unsigned int run_queue_bitmap;
+static struct list_node run_queue[NB_RUN_QUEUE];
 
 unsigned long task_lock = SPIN_LOCK_INITIAL_VALUE;
 
@@ -36,40 +47,55 @@ static void idle_task(void)
 		wait_for_interrupt();
 }
 
+static void insert_in_run_queue_head(struct task *t)
+{
+	list_add_head(&run_queue[t->priority], &t->node);
+	run_queue_bitmap |= (1 << t->priority);
+}
+
+static void insert_in_run_queue_tail(struct task *t)
+{
+	list_add_tail(&run_queue[t->priority], &t->node);
+	run_queue_bitmap |= (1 << t->priority);
+}
+
 static void insert_task(struct task *t)
 {
 	struct task *task = NULL;
 
-	task = list_peek_head_type(&runnable_tasks, struct task, node);
-
-	if (!task_count) {
-		debug_printk("runnable list is empty\r\n");
-		list_add_head(&runnable_tasks, &task->node);
-		return;
-	}
-
-	list_for_every_entry(&runnable_tasks, task, struct task, node) {
-
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-		if (!list_next(&runnable_tasks, &task->node)) {
-			verbose_printk("inserting task %d\r\n", t->pid);
-			list_add_after(&task->node, &t->node);
-			break;
-		}
+	insert_in_run_queue_tail(t);
+	verbose_printk("inserting task %d\r\n", t->pid);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
-		verbose_printk("t->priority: %d, task->priority; %d\r\n", t->priority, task->priority);
-		if (t->priority > task->priority) {
-			verbose_printk("inserting task %d\r\n", t->pid);
-			list_add_before(&task->node, &t->node);
-			break;
+	if (list_is_empty(&run_queue[0])) {
+		list_add_head(&run_queue[0], &t->node);
+	} else {
+		list_for_every_entry(&run_queue[0], task, struct task, node) {
+			verbose_printk("t->priority: %d, task->priority; %d\r\n", t->priority, task->priority);
+			if (t->priority > task->priority) {
+				verbose_printk("inserting task %d\r\n", t->pid);
+				list_add_before(&task->node, &t->node);
+				break;
+			}
 		}
-#endif
 	}
+#elif defined(CONFIG_SCHEDULE_PREEMPT)
+	if (task->quantum > 0)
+		insert_in_run_queue_head(task);
+	else {
+		task->quantum = CONFIG_TASK_QUANTUM;
+		insert_in_run_queue_tail(task);
+	}
+#endif
 }
 
 void task_init(void)
 {
-	list_initialize(&runnable_tasks);
+	int i;
+
+	for (i = 0; i < NB_RUN_QUEUE; i++)
+		list_initialize(&run_queue[i]);
+
 	add_task(&idle_task, 0);
 }
 
@@ -86,6 +112,9 @@ void add_task(void (*func)(void), unsigned int priority)
 	task->priority = priority;
 #elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
 	task->quantum = CONFIG_TASK_QUANTUM;
+#elif defined(CONFIG_SCHEDULE_PREEMPT)
+	task->priority = priority;
+	task->quantum = CONFIG_TASK_QUANTUM;
 #endif
 
 	task->start_stack = TASK_STACK_START + (task_count * TASK_STACK_OFFSET);
@@ -99,10 +128,11 @@ void add_task(void (*func)(void), unsigned int priority)
 	/* Creating task context */
 	create_context(task->regs, task);
 
-	if (task_count)
-		insert_task(task);
-	else
-		list_add_head(&runnable_tasks, &task->node);
+#ifdef CONFIG_SCHEDULE_PREEMPT
+	insert_in_run_queue_tail(task);
+#else
+	insert_task(task);
+#endif /* CONFIG_SCHEDULE_PREEMPT */
 
 	task_count++;
 }
@@ -114,11 +144,6 @@ void first_switch_task(void)
 
 void switch_task(struct task *task)
 {
-	if (current_task && (current_task->state != TASK_BLOCKED)) {
-		current_task->regs->sp = PSP();
-		insert_task(current_task);
-	}
-
 	task->state = TASK_RUNNING;
 	SET_PSP((void *)task->regs->sp);
 	current_task = task;
@@ -136,23 +161,44 @@ struct task *find_next_task(void)
 {
 	struct task *task = NULL;
 
-#ifdef CONFIG_SCHEDULE_PRIORITY
-	task = list_peek_head_type(&runnable_tasks, struct task, node);
+#ifdef CONFIG_SCHEDULE_PREEMPT
+	unsigned int bitmap = run_queue_bitmap;
+	unsigned int next_queue;
+
+	while (bitmap)	{
+		next_queue = HIGHEST_PRIORITY - __builtin_clz(bitmap) 
+			- (sizeof(run_queue_bitmap) * 8 - MAX_PRIORITIES);
+
+		debug_printk("next_queue: %d\n", next_queue);
+
+		list_for_every_entry(&run_queue[next_queue], task, struct task, node) {
+
+			debug_printk("next task: %d\n", task->pid);
+			if (list_is_empty(&run_queue[next_queue]))
+				run_queue_bitmap &= ~(1 << next_queue);
+
+			return task;
+		}
+
+		bitmap &= ~(1 << next_queue);
+	}
+#elif defined(CONFIG_SCHEDULE_PRIORITY)
+	task = list_peek_head_type(&run_queue[0], struct task, node);
 
 	if (current_task && current_task->state != TASK_BLOCKED)
 		if (task->priority < current_task->priority)
 			task = current_task;
 #elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
-	list_for_every_entry(&runnable_tasks, task, struct task, node)
+	list_for_every_entry(&run_queue[0], task, struct task, node)
 		if ((task->quantum > 0) && (task->pid != 0))
 			break;
 
 	if (current_task)
-		current_task->quantum = CONFIG_TASK_QUANTUM;
+		current_task->quantum = TASK_QUANTUM;
 
 	/* Only idle task is eligible */
 	if (!task) {
-		task = list_peek_head_type(&runnable_tasks, struct task, node);
+		task = list_peek_head_type(&run_queue[0], struct task, node);
 	}
 #endif
 

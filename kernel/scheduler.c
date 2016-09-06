@@ -63,11 +63,14 @@ void schedule_task(struct task *task)
 {
 	struct task *t;
 
-#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
+#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
 	t = get_current_task();
 	if (t)
 		t->quantum--;
 #endif /* CONFIG_SCHEDULE_ROUND_ROBIN */
+
+	if (t && t->state != TASK_BLOCKED)
+		insert_runnable_task(t);
 
 	if (task)
 		switch_task(task);
@@ -77,7 +80,7 @@ void schedule_task(struct task *task)
 			t = find_next_task();
 			switch_task(t);
 		}
-#elif defined(CONFIG_SCHEDULE_PRIORITY)
+#elif defined(CONFIG_SCHEDULE_PRIORITY) || defined (CONFIG_SCHEDULE_PREEMPT)
 		t = find_next_task();
 		switch_task(t);
 #endif
