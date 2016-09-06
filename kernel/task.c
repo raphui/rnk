@@ -194,7 +194,7 @@ struct task *find_next_task(void)
 			break;
 
 	if (current_task)
-		current_task->quantum = TASK_QUANTUM;
+		current_task->quantum = CONFIG_TASK_QUANTUM;
 
 	/* Only idle task is eligible */
 	if (!task) {
