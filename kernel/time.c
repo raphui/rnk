@@ -63,12 +63,7 @@ void svc_usleep(struct timer *timer)
 	task->state = TASK_BLOCKED;
 	remove_runnable_task(task);
 
-	if (list_is_empty(&sleeping_tasks))
-		list_add_head(&sleeping_tasks, &task->node);
-	else {
-		first = list_peek_head_type(&sleeping_tasks, struct task, node);
-		list_add_after(&first->node, &task->node);
-	}
+	list_add_tail(&sleeping_tasks, &task->node);
 
 #ifdef CONFIG_HR_TIMER
 	timer_init(timer);
@@ -77,9 +72,9 @@ void svc_usleep(struct timer *timer)
 	timer_enable(timer);
 #endif /* CONFIG_HR_TIMER */
 
-	task_unlock(state);
-
 	schedule_task(NULL);
+
+	task_unlock(state);
 }
 
 void usleep(unsigned int usec)
