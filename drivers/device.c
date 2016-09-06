@@ -27,16 +27,7 @@ static struct list_node device_list;
 
 static void insert_device(struct device *dev)
 {
-	struct device *device;
-
-	device = list_peek_head_type(&device_list, struct device, next);
-
-	if (!device_count) {
-		verbose_printk("device list is empty\r\n");
-		list_add_head(&device_list, &device->next);
-	}
-	else
-		list_add_before(&device->next, &dev->next);
+	list_add_head(&device_list, &dev->next);
 
 	device_count++;
 }
