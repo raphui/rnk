@@ -17,7 +17,7 @@
  */
 
  .syntax unified
-  .cpu cortex-m4
+  .cpu cortex-m7
   .fpu softvfp
   .thumb
 
@@ -134,6 +134,7 @@ g_pfnVectors:
   .word  __pendsv
   .word  systick_handler
   
+#ifndef CONFIG_SW_ISR_TABLE
   /* External Interrupts */
   .word     0   /* Window WatchDog              */                                        
   .word     0	/* PVD through EXTI Line detection */                        
@@ -226,6 +227,7 @@ g_pfnVectors:
   .word     0   /* LTDC                         */
   .word     0   /* LTDC error                   */
   .word     0   /* DMA2D                        */
+#endif
                          
                          
 /*******************************************************************************
