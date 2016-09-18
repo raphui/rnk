@@ -137,11 +137,6 @@ void add_task(void (*func)(void), unsigned int priority)
 	task_count++;
 }
 
-void first_switch_task(void)
-{
-	SVC_ARG(SVC_TASK_SWITCH, NULL);
-}
-
 void switch_task(struct task *task)
 {
 	task->state = TASK_RUNNING;
