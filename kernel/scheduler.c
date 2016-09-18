@@ -63,14 +63,16 @@ void schedule_task(struct task *task)
 {
 	struct task *t;
 
-#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
 	t = get_current_task();
+#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
 	if (t)
 		t->quantum--;
 #endif /* CONFIG_SCHEDULE_ROUND_ROBIN */
 
-	if (t && t->state != TASK_BLOCKED)
+	if (t && t->state != TASK_BLOCKED) {
+		t->regs->sp = arch_get_task_stack();
 		insert_runnable_task(t);
+	}
 
 	if (task)
 		switch_task(task);
