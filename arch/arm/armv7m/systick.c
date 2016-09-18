@@ -42,9 +42,9 @@ int init_systick(void)
 	* Additionally, PendSV will not interrupt
 	* an SVC. */
 
-	nvic_set_priority_interrupt(svcall_irq, 0xFD);
-	nvic_set_priority_interrupt(pendsv_irq, 0xFE);
-	nvic_set_priority_interrupt(systick_irq, 0xFF);
+	nvic_set_priority_interrupt(systick_irq, 0xFE);
+	nvic_set_priority_interrupt(svcall_irq, 0xFF);
+	nvic_set_priority_interrupt(pendsv_irq, 0xFF);
 
 	return ret;
 }
