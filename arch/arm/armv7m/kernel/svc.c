@@ -24,6 +24,49 @@
 #include <queue.h>
 
 #include <arch/svc.h>
+#include <arch/system.h>
+
+void arch_system_call(unsigned int call, void *arg1, void *arg2)
+{
+	switch (call) {
+	case SVC_TASK_SWITCH:
+		debug_printk("System call ask for a task switch\r\n");
+		arch_request_sched();
+		break;
+	case SVC_ACQUIRE_MUTEX:
+		debug_printk("System call ask for acquiring mutex\r\n");
+		SVC_ARG(SVC_ACQUIRE_MUTEX, arg1);
+		break;
+	case SVC_RELEASE_MUTEX:
+		debug_printk("System call ask for releasing mutex\r\n");
+		SVC_ARG(SVC_RELEASE_MUTEX, arg1);
+		break;
+	case SVC_WAIT_SEM:
+		debug_printk("System call ask for wait semaphore\r\n");
+		SVC_ARG(SVC_WAIT_SEM, arg1);
+		break;
+	case SVC_POST_SEM:
+		debug_printk("System call ask for post semaphore\r\n");
+		SVC_ARG(SVC_POST_SEM, arg1);
+		break;
+	case SVC_USLEEP:
+		debug_printk("System call ask for usleep\r\n");
+		SVC_ARG(SVC_USLEEP, arg1);
+		break;
+	case SVC_QUEUE_POST:
+		debug_printk("System call ask for post in queue\r\n");
+		SVC_ARG2(SVC_QUEUE_POST, arg1, arg2);
+		break;
+	case SVC_QUEUE_RECEIVE:
+		debug_printk("System call ask for receive from queue\r\n");
+		SVC_ARG2(SVC_QUEUE_RECEIVE, arg1, arg2);
+		break;
+	default:
+		debug_printk("Invalid system call\r\n");
+		break;
+	};
+
+}
 
 void svc_handler(unsigned int call, void *arg)
 {
@@ -35,8 +78,6 @@ void svc_handler(unsigned int call, void *arg)
 	debug_printk("svc_handler: got call %d with arg (%x)\r\n", svc_number, arg);
 
 	switch (svc_number) {
-	case SVC_TASK_SWITCH:
-		debug_printk("SVC call ask for a task switch\r\n");
 		schedule_task((struct task *)arg);
 		break;
 	case SVC_ACQUIRE_MUTEX:

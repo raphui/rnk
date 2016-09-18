@@ -86,4 +86,6 @@ void svc_switch_context(struct registers *_curr_reg, struct registers *_reg);
 void svc_save_user_context(void);
 void svc_get_user_context(void);
 
+void arch_system_call(unsigned int call, void *arg1, void *arg2);
+
 #endif /* SVC_H */

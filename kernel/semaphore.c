@@ -67,7 +67,7 @@ void svc_sem_wait(struct semaphore *sem)
 		insert_waiting_task(sem, current_task);
 		sem->waiting++;
 
-		schedule_task(NULL);
+		arch_system_call(SVC_TASK_SWITCH, NULL, NULL);
 	}
 
 	task_unlock(state);
@@ -75,7 +75,7 @@ void svc_sem_wait(struct semaphore *sem)
 
 void sem_wait(struct semaphore *sem)
 {
-	SVC_ARG(SVC_WAIT_SEM, sem);
+	arch_system_call(SVC_WAIT_SEM, sem, NULL);
 }
 
 void svc_sem_post(struct semaphore *sem)
@@ -108,5 +108,5 @@ void svc_sem_post(struct semaphore *sem)
 
 void sem_post(struct semaphore *sem)
 {
-	SVC_ARG(SVC_POST_SEM, sem);
+	arch_system_call(SVC_POST_SEM, sem, NULL);
 }

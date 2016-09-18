@@ -72,7 +72,7 @@ void svc_usleep(struct timer *timer)
 	timer_enable(timer);
 #endif /* CONFIG_HR_TIMER */
 
-	schedule_task(NULL);
+	arch_system_call(SVC_TASK_SWITCH, NULL, NULL);
 
 	task_unlock(state);
 }
@@ -94,7 +94,7 @@ void usleep(unsigned int usec)
 	} while (end > system_tick);
 #else
 	timer.counter = usec / 1000;
-	SVC_ARG(SVC_USLEEP, &timer);
+	arch_system_call(SVC_USLEEP, &timer, NULL);
 #endif /* CONFIG_BW_DELAY */
 }
 
@@ -114,7 +114,7 @@ void decrease_task_delay(void)
 			insert_runnable_task(tmp);
 #ifdef CONFIG_SCHEDULE_PRIORITY
 			if (curr->priority < tmp->priority)
-				schedule_isr();
+				arch_system_call(SVC_TASK_SWITCH, NULL, NULL);
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 
 		} else if (!task->delay) {
@@ -130,7 +130,7 @@ void decrease_task_delay(void)
 
 #ifdef CONFIG_SCHEDULE_PRIORITY
 			if (curr->priority < tmp->priority)
-				schedule_isr();
+				arch_system_call(SVC_TASK_SWITCH, NULL, NULL);
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 		} else {
 

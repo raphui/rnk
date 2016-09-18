@@ -115,7 +115,7 @@ void queue_post(struct queue *queue, void *item, unsigned int timeout)
 		if (back_from_sleep) {
 			break;
 		} else if (queue->item_queued < queue->item_size) {
-			SVC_ARG2(SVC_QUEUE_POST, queue, item);
+			arch_system_call(SVC_QUEUE_POST, queue, item);
 			break;
 		} else if (timeout) {
 			insert_waiting_post_task(queue, get_current_task());
@@ -160,7 +160,7 @@ void queue_receive(struct queue *queue, void *item, unsigned int timeout)
 	int back_from_sleep = 0;
 	for (;;) {
 		if (queue->item_queued) {
-			SVC_ARG2(SVC_QUEUE_RECEIVE, queue, item);
+			arch_system_call(SVC_QUEUE_RECEIVE, queue, item);
 			break;
 		} else if (timeout) {
 			insert_waiting_receive_task(queue, get_current_task());

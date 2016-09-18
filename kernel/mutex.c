@@ -96,7 +96,7 @@ void svc_mutex_lock(struct mutex *mutex)
 
 void mutex_lock(struct mutex *mutex)
 {
-	SVC_ARG(SVC_ACQUIRE_MUTEX, mutex);
+	arch_system_call(SVC_ACQUIRE_MUTEX, mutex, NULL);
 }
 
 void svc_mutex_unlock(struct mutex *mutex)
@@ -136,5 +136,5 @@ void svc_mutex_unlock(struct mutex *mutex)
 
 void mutex_unlock(struct mutex *mutex)
 {
-	SVC_ARG(SVC_RELEASE_MUTEX, mutex);
+	arch_system_call(SVC_RELEASE_MUTEX, mutex, NULL);
 }
