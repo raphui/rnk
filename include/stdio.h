@@ -25,9 +25,23 @@
 #define SEEK_CUR	1
 #define SEEK_END	2
 
+#ifdef CONFIG_DEBUG
+#define DEBUG	1
+#else
 #define DEBUG	0
+#endif
+
+#ifdef CONFIG_ERROR
 #define ERROR	1
+#else
+#define ERROR	0
+#endif
+
+#ifdef CONFIG_VERBOSE
+#define VERBOSE 1
+#else
 #define VERBOSE 0
+#endif
 
 #define verbose_printk(...) do{ if(VERBOSE){ printk(__VA_ARGS__); } }while(0)
 #define debug_printk(...) do{ if(DEBUG){ printk(__VA_ARGS__); } }while(0)

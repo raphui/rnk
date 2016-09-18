@@ -20,4 +20,17 @@ config SWO_DEBUG
 
 endchoice
 
+menu "Debug level"
+
+config DEBUG
+    bool "Print debug logs"
+
+config ERROR
+    bool "Print error logs"
+
+config VERBOSE
+    bool "Print verbose logs"
+
+endmenu
+
 endmenu
