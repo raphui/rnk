@@ -128,11 +128,7 @@ void add_task(void (*func)(void), unsigned int priority)
 	/* Creating task context */
 	create_context(task->regs, task);
 
-#ifdef CONFIG_SCHEDULE_PREEMPT
-	insert_in_run_queue_tail(task);
-#else
 	insert_task(task);
-#endif /* CONFIG_SCHEDULE_PREEMPT */
 
 	task_count++;
 }
