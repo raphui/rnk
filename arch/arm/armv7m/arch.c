@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <task.h>
 #include <armv7m/system.h>
 
 void init_arch(void)
@@ -30,4 +31,14 @@ void arch_init_tick(void)
 void arch_request_sched(void)
 {
 	pendsv_request();
+}
+
+unsigned int arch_get_task_stack(void)
+{
+	return PSP();
+}
+
+void arch_set_task_stack(struct task *t)
+{
+	SET_PSP((void *)t->regs->sp);
 }

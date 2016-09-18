@@ -16,5 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#ifndef SYSTEM_H
+#define SYSTEM_H
+
+#include <task.h>
+
 extern void arch_init_tick(void);
 extern void arch_request_sched(void);
+extern unsigned int arch_get_task_stack(void);
+extern void arch_set_task_stack(struct task *t);
+
+#endif /* SYSTEM_H */

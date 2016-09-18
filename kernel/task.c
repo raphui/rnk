@@ -140,7 +140,7 @@ void add_task(void (*func)(void), unsigned int priority)
 void switch_task(struct task *task)
 {
 	task->state = TASK_RUNNING;
-	SET_PSP((void *)task->regs->sp);
+	arch_set_task_stack(task);
 	current_task = task;
 
 	if (task->pid != 0)
@@ -210,7 +210,7 @@ void insert_runnable_task(struct task *task)
 
 void remove_runnable_task(struct task *task)
 {
-	task->regs->sp = PSP();
+	task->regs->sp = arch_get_task_stack();
 
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 	current_task->quantum = CONFIG_TASK_QUANTUM;
