@@ -22,7 +22,7 @@
 #include <pit.h>
 #include <board.h>
 #include <arch/svc.h>
-#include <armv7m/system.h>
+#include <arch/system.h>
 #include <time.h>
 
 #ifdef CONFIG_INITCALL
@@ -46,7 +46,7 @@ core_initcall(schedule_init);
 
 void start_schedule(void)
 {
-	init_systick();
+	arch_init_tick();
 	first_switch_task();
 }
 
@@ -95,7 +95,7 @@ void schedule_task(struct task *task)
 
 void schedule_isr(void)
 {
-	pendsv_request();
+	arch_request_sched();
 }
 
 /* Since tasks cannot end, if we jump into this functions it's mean that the context switch is buggy */
