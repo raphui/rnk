@@ -106,22 +106,20 @@ void decrease_task_delay(void)
 
 	task_lock(state);
 
-	list_for_every_entry(&sleeping_tasks, task, struct task, node) {
+	list_for_every_entry_safe(&sleeping_tasks, task, tmp, struct task, node) {
 		if (task->state == TASK_RUNNABLE) {
-			tmp = task;
-			tmp->delay = 0;
-			remove_sleeping_task(tmp);
-			insert_runnable_task(tmp);
+			task->delay = 0;
+			remove_sleeping_task(task);
+			insert_runnable_task(task);
 #ifdef CONFIG_SCHEDULE_PRIORITY
-			if (curr->priority < tmp->priority)
+			if (curr->priority < task->priority)
 				arch_system_call(SVC_TASK_SWITCH, NULL, NULL);
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 
 		} else if (!task->delay) {
-			tmp = task;
-			tmp->state = TASK_RUNNABLE;
-			remove_sleeping_task(tmp);
-			insert_runnable_task(tmp);
+			task->state = TASK_RUNNABLE;
+			remove_sleeping_task(task);
+			insert_runnable_task(task);
 
 #ifdef CONFIG_HR_TIMER
 			if (list_is_empty(&sleeping_tasks))
@@ -129,7 +127,7 @@ void decrease_task_delay(void)
 #endif /* CONFIG_HR_TIMER */
 
 #ifdef CONFIG_SCHEDULE_PRIORITY
-			if (curr->priority < tmp->priority)
+			if (curr->priority < task->priority)
 				arch_system_call(SVC_TASK_SWITCH, NULL, NULL);
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 		} else {
