@@ -97,7 +97,13 @@ void systick_handler(void)
 
 void pendsv_handler(void)
 {
+	__disable_it();
+
 	schedule_task(NULL);
+
+	__enable_it();
+}
+
 void svc_handler(unsigned int call, void *arg)
 {
 	unsigned int svc_number;
