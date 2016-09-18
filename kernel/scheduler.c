@@ -93,11 +93,6 @@ void schedule_task(struct task *task)
 #endif
 }
 
-void schedule_isr(void)
-{
-	arch_request_sched();
-}
-
 /* Since tasks cannot end, if we jump into this functions it's mean that the context switch is buggy */
 void end_task(void)
 {
