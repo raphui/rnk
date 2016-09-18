@@ -23,6 +23,8 @@
 #include <scheduler.h>
 #include <armv7m/system.h>
 #include <arch/nvic.h>
+#include <arch/system.h>
+#include <arch/svc.h>
 #include <time.h>
 #include <pio.h>
 #include <irq.h>
@@ -90,8 +92,7 @@ void systick_handler(void)
 
 	system_tick++;
 
-	val |= SCB_ICSR_PENDSVSET;
-	writel(SCB_ICSR, val);
+	arch_request_sched();
 }
 
 void pendsv_handler(void)
