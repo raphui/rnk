@@ -80,11 +80,11 @@ static void insert_task(struct task *t)
 		}
 	}
 #elif defined(CONFIG_SCHEDULE_PREEMPT)
-	if (task->quantum > 0)
-		insert_in_run_queue_head(task);
+	if (t->quantum > 0)
+		insert_in_run_queue_head(t);
 	else {
-		task->quantum = CONFIG_TASK_QUANTUM;
-		insert_in_run_queue_tail(task);
+		t->quantum = CONFIG_TASK_QUANTUM;
+		insert_in_run_queue_tail(t);
 	}
 #endif
 }
