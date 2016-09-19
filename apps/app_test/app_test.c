@@ -18,10 +18,10 @@
 
 #include <stdio.h>
 #include <scheduler.h>
-#include <task.h>
+#include <thread.h>
 #include <unistd.h>
 
-void app_task(void)
+void app_thread(void)
 {
 	while (1) {
 		printk("Z");
@@ -41,7 +41,7 @@ int test(void)
 	else
 		write(fd, s, sizeof(s));
 
-	add_task(&app_task, 30);
+	add_thread(&app_thread, 30);
 
 	return 0;
 }

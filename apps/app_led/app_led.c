@@ -18,11 +18,11 @@
 
 #include <stdio.h>
 #include <scheduler.h>
-#include <task.h>
+#include <thread.h>
 #include <pio.h>
 #include <board.h>
 
-void app_task(void)
+void app_thread(void)
 {
 	while (1)
 		pio_set_output(GPIOE_BASE, 6, 0);
@@ -32,7 +32,7 @@ int test(void)
 {
 	printk("Starting app_led\n");
 
-	add_task(&app_task, 30);
+	add_thread(&app_thread, 30);
 
 	return 0;
 }

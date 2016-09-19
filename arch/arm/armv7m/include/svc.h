@@ -19,10 +19,10 @@
 #ifndef SVC_H
 #define SVC_H
 
-#include <task.h>
+#include <thread.h>
 
 enum service_calls {
-	SVC_TASK_SWITCH,
+	SVC_THREAD_SWITCH,
 	SVC_ACQUIRE_MUTEX,
 	SVC_RELEASE_MUTEX,
 	SVC_WAIT_SEM,

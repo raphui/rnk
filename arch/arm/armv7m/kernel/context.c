@@ -16,11 +16,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <task.h>
+#include <thread.h>
 #include <scheduler.h>
 #include <armv7m/svc.h>
 
-void create_context(struct registers *_regs, struct task *_task)
+void create_context(struct registers *_regs, struct thread *_thread)
 {
 
 	asm volatile(
@@ -41,9 +41,9 @@ void create_context(struct registers *_regs, struct task *_task)
                   stmdb   %[stack]!, {%[zero]}  /* R5 */                        \n\
                   stmdb   %[stack]!, {%[zero]}  /* R4 */                        \n"
                   /* Output */
-                  :[stack] "+r" (_task->regs->sp)
+                  :[stack] "+r" (_thread->regs->sp)
                   /* Input */
-                  :[pc] "r" (_task->func), [lr] "r" (_task->regs->lr), [frame] "r" (_task->start_stack + 2000),
+                  :[pc] "r" (_thread->func), [lr] "r" (_thread->regs->lr), [frame] "r" (_thread->start_stack + 2000),
                    [zero] "r" (0), [psr] "r" (0x01000000) /* Set the Thumb bit */
                   /* Clobber */
                   :);

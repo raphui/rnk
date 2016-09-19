@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <task.h>
+#include <thread.h>
 #include <time.h>
 #include <timer.h>
 #include <arch/svc.h>
@@ -29,20 +29,20 @@
 #include <init.h>
 #endif /* CONFIG_INITCALL */
 
-static struct list_node sleeping_tasks;
+static struct list_node sleeping_threads;
 
 struct timer timer;
 
-static void remove_sleeping_task(struct task *task)
+static void remove_sleeping_thread(struct thread *thread)
 {
-	list_delete(&task->node);
+	list_delete(&thread->node);
 }
 
 int time_init(void)
 {
 	int ret = 0;
 
-	list_initialize(&sleeping_tasks);
+	list_initialize(&sleeping_threads);
 
 	return ret;
 }
@@ -52,18 +52,18 @@ core_initcall(time_init);
 
 void svc_usleep(struct timer *timer)
 {
-	struct task *first = NULL;
-	struct task *task = NULL;
+	struct thread *first = NULL;
+	struct thread *thread = NULL;
 
-	task_lock(state);
+	thread_lock(state);
 
-	task = get_current_task();
-	task->delay = timer->counter;
+	thread = get_current_thread();
+	thread->delay = timer->counter;
 
-	task->state = TASK_BLOCKED;
-	remove_runnable_task(task);
+	thread->state = THREAD_BLOCKED;
+	remove_runnable_thread(thread);
 
-	list_add_tail(&sleeping_tasks, &task->node);
+	list_add_tail(&sleeping_threads, &thread->node);
 
 #ifdef CONFIG_HR_TIMER
 	timer_init(timer);
@@ -72,9 +72,9 @@ void svc_usleep(struct timer *timer)
 	timer_enable(timer);
 #endif /* CONFIG_HR_TIMER */
 
-	arch_system_call(SVC_TASK_SWITCH, NULL, NULL);
+	arch_system_call(SVC_THREAD_SWITCH, NULL, NULL);
 
-	task_unlock(state);
+	thread_unlock(state);
 }
 
 void usleep(unsigned int usec)
@@ -98,44 +98,44 @@ void usleep(unsigned int usec)
 #endif /* CONFIG_BW_DELAY */
 }
 
-void decrease_task_delay(void)
+void decrease_thread_delay(void)
 {
-	struct task *task;
-	struct task *tmp;
-	struct task *curr = get_current_task();
+	struct thread *thread;
+	struct thread *tmp;
+	struct thread *curr = get_current_thread();
 
-	task_lock(state);
+	thread_lock(state);
 
-	list_for_every_entry_safe(&sleeping_tasks, task, tmp, struct task, node) {
-		if (task->state == TASK_RUNNABLE) {
-			task->delay = 0;
-			remove_sleeping_task(task);
-			insert_runnable_task(task);
+	list_for_every_entry_safe(&sleeping_threads, thread, tmp, struct thread, node) {
+		if (thread->state == THREAD_RUNNABLE) {
+			thread->delay = 0;
+			remove_sleeping_thread(thread);
+			insert_runnable_thread(thread);
 #ifdef CONFIG_SCHEDULE_PRIORITY
-			if (curr->priority < task->priority)
-				arch_system_call(SVC_TASK_SWITCH, NULL, NULL);
+			if (curr->priority < thread->priority)
+				arch_system_call(SVC_THREAD_SWITCH, NULL, NULL);
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 
-		} else if (!task->delay) {
-			task->state = TASK_RUNNABLE;
-			remove_sleeping_task(task);
-			insert_runnable_task(task);
+		} else if (!thread->delay) {
+			thread->state = THREAD_RUNNABLE;
+			remove_sleeping_thread(thread);
+			insert_runnable_thread(thread);
 
 #ifdef CONFIG_HR_TIMER
-			if (list_is_empty(&sleeping_tasks))
+			if (list_is_empty(&sleeping_threads))
 				timer_disable(&timer);
 #endif /* CONFIG_HR_TIMER */
 
 #ifdef CONFIG_SCHEDULE_PRIORITY
-			if (curr->priority < task->priority)
-				arch_system_call(SVC_TASK_SWITCH, NULL, NULL);
+			if (curr->priority < thread->priority)
+				arch_system_call(SVC_THREAD_SWITCH, NULL, NULL);
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 		} else {
 
-			task->delay--;
-			verbose_printk("%d: %d usec remaining\r\n", task->pid, task->delay);
+			thread->delay--;
+			verbose_printk("%d: %d usec remaining\r\n", thread->pid, thread->delay);
 		}
 	}
 
-	task_unlock(state);
+	thread_unlock(state);
 }

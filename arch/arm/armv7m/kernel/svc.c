@@ -29,8 +29,8 @@
 void arch_system_call(unsigned int call, void *arg1, void *arg2)
 {
 	switch (call) {
-	case SVC_TASK_SWITCH:
-		debug_printk("System call ask for a task switch\r\n");
+	case SVC_THREAD_SWITCH:
+		debug_printk("System call ask for a thread switch\r\n");
 		arch_request_sched();
 		break;
 	case SVC_ACQUIRE_MUTEX:

@@ -20,7 +20,7 @@
 #define SPINLOCK_H
 
 #include <arch/spinlock.h>
-#include <task.h>
+#include <thread.h>
 
 #define SPIN_LOCK_FLAG_INTERRUPTS ARCH_DEFAULT_SPIN_LOCK_FLAG_INTERRUPTS
 
@@ -65,7 +65,7 @@ static inline void spin_unlock_restore(unsigned long *lock, unsigned long old_st
 #define spin_lock_irqsave(lock, statep) spin_lock_save(lock, &(statep), SPIN_LOCK_FLAG_INTERRUPTS)
 #define spin_unlock_irqrestore(lock, statep) spin_unlock_restore(lock, statep, SPIN_LOCK_FLAG_INTERRUPTS)
 
-#define task_lock(state) unsigned long state; spin_lock_irqsave(&task_lock, state)
-#define task_unlock(state) spin_unlock_irqrestore(&task_lock, state)
+#define thread_lock(state) unsigned long state; spin_lock_irqsave(&thread_lock, state)
+#define thread_unlock(state) spin_unlock_irqrestore(&thread_lock, state)
 
 #endif /* SPINLOCK_H */

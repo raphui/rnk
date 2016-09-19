@@ -16,24 +16,24 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef TASK_H
-#define TASK_H
+#ifndef THREAD_H
+#define THREAD_H
 
 #include <list.h>
 #include <stddef.h>
 
-#define NR_TASK	8
+#define NR_THREAD	8
 
-#define TASK_RUNNING		0
-#define TASK_RUNNABLE		1
-#define TASK_STOPPED		2
-#define TASK_INTERRUPTIBLE	3
-#define TASK_BLOCKED		4
+#define THREAD_RUNNING		0
+#define THREAD_RUNNABLE		1
+#define THREAD_STOPPED		2
+#define THREAD_INTERRUPTIBLE	3
+#define THREAD_BLOCKED		4
 
-#define TASK_STACK_START	CONFIG_TASK_STACK_START
-#define TASK_STACK_OFFSET	0x00001000
+#define THREAD_STACK_START	CONFIG_THREAD_STACK_START
+#define THREAD_STACK_OFFSET	0x00001000
 
-extern unsigned long task_lock;
+extern unsigned long thread_lock;
 
 struct registers
 {
@@ -56,7 +56,7 @@ struct registers
 
 };
 
-struct task
+struct thread
 {
 	unsigned int state;
 	unsigned int pid;
@@ -70,16 +70,16 @@ struct task
 	struct list_node event_node;
 };
 
-struct registers task_regs[NR_TASK];
-struct task *task[NR_TASK];
+struct registers thread_regs[NR_THREAD];
+struct thread *thread[NR_THREAD];
 
-void task_init(void);
-void add_task(void (*func)(void), unsigned int priority);
-void first_switch_task(void);
-void switch_task(struct task *task);
-struct task *get_current_task(void);
-struct task *find_next_task(void);
-void insert_runnable_task(struct task *task);
-void remove_runnable_task(struct task *task);
+void thread_init(void);
+void add_thread(void (*func)(void), unsigned int priority);
+void first_switch_thread(void);
+void switch_thread(struct thread *thread);
+struct thread *get_current_thread(void);
+struct thread *find_next_thread(void);
+void insert_runnable_thread(struct thread *thread);
+void remove_runnable_thread(struct thread *thread);
 
-#endif /* TASK_H */
+#endif /* THREAD_H */

@@ -20,12 +20,12 @@
 #define TIME_H
 
 #include <list.h>
-#include <task.h>
+#include <thread.h>
 #include <timer.h>
 
 int time_init(void);
 void svc_usleep(struct timer *timer);
 void usleep(unsigned int usec);
-void decrease_task_delay(void);
+void decrease_thread_delay(void);
 
 #endif /* TIME_H */

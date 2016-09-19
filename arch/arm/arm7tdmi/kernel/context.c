@@ -16,23 +16,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <task.h>
+#include <thread.h>
 #include <scheduler.h>
 #include <arch/svc.h>
 
-void create_context(struct registers *_regs, struct task *_task)
+void create_context(struct registers *_regs, struct thread *_thread)
 {
-	svc_create_context(_regs, _task->start_stack, (unsigned int)_task->func, (unsigned int)end_task);
+	svc_create_context(_regs, _thread->start_stack, (unsigned int)_thread->func, (unsigned int)end_thread);
 }
 
-void activate_context(struct task *_task)
+void activate_context(struct thread *_thread)
 {
-	svc_activate_context(_task->regs);
+	svc_activate_context(_thread->regs);
 }
 
-void switch_context(struct registers *_current_regs, struct registers *_task_regs)
+void switch_context(struct registers *_current_regs, struct registers *_thread_regs)
 {
-	svc_switch_context(_current_regs, _task_regs);
+	svc_switch_context(_current_regs, _thread_regs);
 }
 
 void save_user_context(void)

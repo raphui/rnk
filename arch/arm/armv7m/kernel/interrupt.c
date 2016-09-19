@@ -99,7 +99,7 @@ void pendsv_handler(void)
 {
 	__disable_it();
 
-	schedule_task(NULL);
+	schedule_thread(NULL);
 
 	__enable_it();
 }
@@ -116,7 +116,7 @@ void svc_handler(unsigned int call, void *arg)
 	debug_printk("svc_handler: got call %d with arg (%x)\r\n", svc_number, arg);
 
 	switch (svc_number) {
-		schedule_task((struct task *)arg);
+		schedule_thread((struct thread *)arg);
 		break;
 	case SVC_ACQUIRE_MUTEX:
 		debug_printk("SVC call ask for acquiring mutex\r\n");
@@ -162,7 +162,7 @@ void timer2_handler(void)
 //	pio_toggle_value(GPIOE_BASE, 6);
 
 #ifdef CONFIG_HR_TIMER
-	decrease_task_delay();
+	decrease_thread_delay();
 #endif /* CONFIG_HR_TIMER */
 }
 

@@ -8,5 +8,5 @@ obj-y += mutex.o
 obj-y += scheduler.o
 obj-y += semaphore.o
 obj-y += queue.o
-obj-y += task.o
+obj-y += thread.o
 obj-y += time.o

@@ -16,7 +16,7 @@
  */
 
 #include <queue.h>
-#include <task.h>
+#include <thread.h>
 #include <scheduler.h>
 #include <mm.h>
 #include <arch/svc.h>
@@ -25,42 +25,42 @@
 #include <time.h>
 #include <spinlock.h>
 
-static void insert_waiting_receive_task(struct queue *queue, struct task *t)
+static void insert_waiting_receive_thread(struct queue *queue, struct thread *t)
 {
-	struct task *task;
+	struct thread *thread;
 
 #if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
-		list_add_tail(&queue->waiting_receive_tasks, &t->event_node);
+		list_add_tail(&queue->waiting_receive_threads, &t->event_node);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
-		list_for_every_entry(&queue->waiting_receive_tasks, task, struct task, event_node)
-			if (t->priority > task->priority)
-				list_add_before(&task->event_node, &t->event_node);
+		list_for_every_entry(&queue->waiting_receive_threads, thread, struct thread, event_node)
+			if (t->priority > thread->priority)
+				list_add_before(&thread->event_node, &t->event_node);
 
 #endif
 
 }
 
-static void remove_waiting_receive_task(struct queue *queue, struct task *t)
+static void remove_waiting_receive_thread(struct queue *queue, struct thread *t)
 {
 	list_delete(&t->event_node);
 }
 
-static void insert_waiting_post_task(struct queue *queue, struct task *t)
+static void insert_waiting_post_thread(struct queue *queue, struct thread *t)
 {
-	struct task *task;
+	struct thread *thread;
 
 #if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
-		list_add_tail(&queue->waiting_post_tasks, &t->event_node);
+		list_add_tail(&queue->waiting_post_threads, &t->event_node);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
-		list_for_every_entry(&queue->waiting_post_tasks, task, struct task, event_node)
-			if (t->priority > task->priority)
-				list_add_before(&task->event_node, &t->event_node);
+		list_for_every_entry(&queue->waiting_post_threads, thread, struct thread, event_node)
+			if (t->priority > thread->priority)
+				list_add_before(&thread->event_node, &t->event_node);
 
 #endif
 
 }
 
-static void remove_waiting_post_task(struct queue *queue, struct task *t)
+static void remove_waiting_post_thread(struct queue *queue, struct thread *t)
 {
 	list_delete(&t->event_node);
 }
@@ -78,15 +78,15 @@ void init_queue(struct queue *queue, unsigned int size, unsigned int item_size)
 
 	queue->waiting_receive = 0;
 	queue->waiting_post = 0;
-	list_initialize(&queue->waiting_receive_tasks);
-	list_initialize(&queue->waiting_post_tasks);
+	list_initialize(&queue->waiting_receive_threads);
+	list_initialize(&queue->waiting_post_threads);
 }
 
 void svc_queue_post(struct queue *queue, void *item)
 {
-	struct task *t = NULL;
+	struct thread *t = NULL;
 
-	task_lock(state);
+	thread_lock(state);
 
 	if (queue->item_queued < queue->item_size) {
 		if ((queue->wr + queue->item_size) <= queue->tail) {
@@ -95,17 +95,17 @@ void svc_queue_post(struct queue *queue, void *item)
 			queue->wr += queue->item_size;
 			queue->item_queued++;
 
-			if (!list_is_empty(&queue->waiting_receive_tasks)) {
-				t = list_peek_head_type(&queue->waiting_receive_tasks, struct task, event_node);
+			if (!list_is_empty(&queue->waiting_receive_threads)) {
+				t = list_peek_head_type(&queue->waiting_receive_threads, struct thread, event_node);
 
-				t->state = TASK_RUNNABLE;
-				remove_waiting_receive_task(queue, t);
+				t->state = THREAD_RUNNABLE;
+				remove_waiting_receive_thread(queue, t);
 			}
 		}
 	}
 
 	
-	task_unlock(state);
+	thread_unlock(state);
 }
 
 void queue_post(struct queue *queue, void *item, unsigned int timeout)
@@ -118,7 +118,7 @@ void queue_post(struct queue *queue, void *item, unsigned int timeout)
 			arch_system_call(SVC_QUEUE_POST, queue, item);
 			break;
 		} else if (timeout) {
-			insert_waiting_post_task(queue, get_current_task());
+			insert_waiting_post_thread(queue, get_current_thread());
 			usleep(timeout);
 			back_from_sleep = 1;
 		} else if (!timeout) {
@@ -130,10 +130,10 @@ void queue_post(struct queue *queue, void *item, unsigned int timeout)
 
 void svc_queue_receive(struct queue *queue, void *item)
 {
-	struct task *t = NULL;
+	struct thread *t = NULL;
 
 
-	task_lock(state);
+	thread_lock(state);
 
 	if (queue->item_queued) {
 		if ((queue->curr + queue->item_size) <= queue->wr) {
@@ -141,18 +141,18 @@ void svc_queue_receive(struct queue *queue, void *item)
 			queue->curr += queue->item_size;
 			queue->item_queued--;
 
-			if (!list_is_empty(&queue->waiting_post_tasks)) {
-				t = list_peek_head_type(&queue->waiting_post_tasks, struct task, event_node);
+			if (!list_is_empty(&queue->waiting_post_threads)) {
+				t = list_peek_head_type(&queue->waiting_post_threads, struct thread, event_node);
 
-				t->state = TASK_RUNNABLE;
-				remove_waiting_post_task(queue, t);
+				t->state = THREAD_RUNNABLE;
+				remove_waiting_post_thread(queue, t);
 			}
 
 		}
 	}
 
 
-	task_unlock(state);
+	thread_unlock(state);
 }
 
 void queue_receive(struct queue *queue, void *item, unsigned int timeout)
@@ -163,7 +163,7 @@ void queue_receive(struct queue *queue, void *item, unsigned int timeout)
 			arch_system_call(SVC_QUEUE_RECEIVE, queue, item);
 			break;
 		} else if (timeout) {
-			insert_waiting_receive_task(queue, get_current_task());
+			insert_waiting_receive_thread(queue, get_current_thread());
 			usleep(timeout);
 			back_from_sleep = 1;
 		} else if (back_from_sleep || !timeout) {

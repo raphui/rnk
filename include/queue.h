@@ -30,8 +30,8 @@ struct queue {
 	unsigned int item_size;
 	unsigned int waiting_post;
 	unsigned int waiting_receive;
-	struct list_node waiting_receive_tasks;
-	struct list_node waiting_post_tasks;
+	struct list_node waiting_receive_threads;
+	struct list_node waiting_post_threads;
 };
 
 void init_queue(struct queue *queue, unsigned int size, unsigned int item_size);

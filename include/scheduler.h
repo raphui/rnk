@@ -19,21 +19,21 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include <task.h>
+#include <thread.h>
 
-extern int task_switching;
+extern int thread_switching;
 extern unsigned int system_tick;
 
-void create_context(struct registers *_regs, struct task *_task);
-void activate_context(struct task *_task);
-void switch_context(struct registers *_current_regs, struct registers *_task_regs);
+void create_context(struct registers *_regs, struct thread *_thread);
+void activate_context(struct thread *_thread);
+void switch_context(struct registers *_current_regs, struct registers *_thread_regs);
 void save_user_context(void);
 void get_user_context(void);
 void start_schedule(void);
 int schedule_init(void);
 void schedule(void);
-void schedule_task(struct task *task);
+void schedule_thread(struct thread *thread);
 void schedule_isr(void);
-void end_task(void);
+void end_thread(void);
 
 #endif /* SCHEDULER_H */

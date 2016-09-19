@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 #include <scheduler.h>
-#include <task.h>
+#include <thread.h>
 #include <board.h>
 #include <pio.h>
 #include <queue.h>
@@ -27,7 +27,7 @@
 static struct queue queue;
 static struct semaphore sem;
 
-void main_task(void)
+void main_thread(void)
 {
 	int b = 0;
 
@@ -66,7 +66,7 @@ int test(void)
 	init_queue(&queue, sizeof(int), 1);
 	init_semaphore(&sem, 1);
 
-	add_task(&main_task, 30);
+	add_thread(&main_thread, 30);
 
 	/* Configure wakeup button */
 	pio_set_input(GPIOA_BASE, 0, 0, 0);

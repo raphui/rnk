@@ -17,7 +17,7 @@
  */
 
 #include <scheduler.h>
-#include <task.h>
+#include <thread.h>
 #include <stdio.h>
 #include <pit.h>
 #include <board.h>
@@ -29,14 +29,14 @@
 #include <init.h>
 #endif /* CONFIG_INITCALL */
 
-int task_switching = 0;
+int thread_switching = 0;
 unsigned int system_tick = 0;
 
 int schedule_init(void)
 {
 	int ret = 0;
 
-	task_init();
+	thread_init();
 
 	return ret;
 }
@@ -52,55 +52,55 @@ void start_schedule(void)
 
 void schedule(void)
 {
-	struct task *t;
+	struct thread *t;
 
-	t = find_next_task();
-	switch_task(t);
-	task_switching = 1;
+	t = find_next_thread();
+	switch_thread(t);
+	thread_switching = 1;
 }
 
-void schedule_task(struct task *task)
+void schedule_thread(struct thread *thread)
 {
-	struct task *t;
+	struct thread *t;
 
-	t = get_current_task();
+	t = get_current_thread();
 #if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
 	if (t)
 		t->quantum--;
 #endif /* CONFIG_SCHEDULE_ROUND_ROBIN */
 
-	if (t && t->state != TASK_BLOCKED) {
-		t->regs->sp = arch_get_task_stack();
-		insert_runnable_task(t);
+	if (t && t->state != THREAD_BLOCKED) {
+		t->regs->sp = arch_get_thread_stack();
+		insert_runnable_thread(t);
 	}
 
-	if (task)
-		switch_task(task);
+	if (thread)
+		switch_thread(thread);
 	else {
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-		if (!t || !t->quantum || (t->state == TASK_BLOCKED)) {
-			t = find_next_task();
-			switch_task(t);
+		if (!t || !t->quantum || (t->state == THREAD_BLOCKED)) {
+			t = find_next_thread();
+			switch_thread(t);
 		}
 #elif defined(CONFIG_SCHEDULE_PRIORITY) || defined (CONFIG_SCHEDULE_PREEMPT)
-		t = find_next_task();
-		switch_task(t);
+		t = find_next_thread();
+		switch_thread(t);
 #endif
 	}
 	
-	task_switching = 1;
+	thread_switching = 1;
 
 #if !defined(CONFIG_HR_TIMER) && !defined(CONFIG_BW_DELAY)
-	decrease_task_delay();
+	decrease_thread_delay();
 #endif
 }
 
-/* Since tasks cannot end, if we jump into this functions it's mean that the context switch is buggy */
-void end_task(void)
+/* Since threads cannot end, if we jump into this functions it's mean that the context switch is buggy */
+void end_thread(void)
 {
-	struct task *task = get_current_task();
+	struct thread *thread = get_current_thread();
 
-	task->state = TASK_STOPPED;
+	thread->state = THREAD_STOPPED;
 
-	remove_runnable_task(task);
+	remove_runnable_thread(thread);
 }

@@ -5,8 +5,8 @@
 
 menu "Kernel configuration"
 
-config TASK_STACK_START
-	hex "Start address of kernel task stack"
+config THREAD_STACK_START
+	hex "Start address of kernel THREAD stack"
 
 config INITCALL
 	bool "Enable initcall and exitcall"
@@ -24,9 +24,9 @@ choice
         bool "Priority scheduling algorithm"
 endchoice
 
-config TASK_QUANTUM
+config THREAD_QUANTUM
 	depends on SCHEDULE_ROUND_ROBIN || SCHEDULE_PREEMPT
-	int "Task quantum"
+	int "THREAD quantum"
 
 config SW_ISR_TABLE
 	bool "Enable use of software managed isr table"

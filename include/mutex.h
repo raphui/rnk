@@ -19,14 +19,14 @@
 #ifndef MUTEX_H
 #define MUTEX_H
 
-#include <task.h>
+#include <thread.h>
 #include <list.h>
 
 struct mutex {
 	unsigned char lock;
-	struct task *owner;
+	struct thread *owner;
 	unsigned int waiting;
-	struct list_node waiting_tasks;
+	struct list_node waiting_threads;
 };
 
 void mutex_lock_isr(struct mutex *mutex);

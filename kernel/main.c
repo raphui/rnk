@@ -20,7 +20,7 @@
 #include <usart.h>
 #include <stdio.h>
 #include <scheduler.h>
-#include <task.h>
+#include <thread.h>
 #include <interrupt.h>
 #include <pio.h>
 #include <utils.h>
@@ -64,10 +64,10 @@ struct dma_transfer dma_trans;
 
 static int count = 0;
 
-void first_task(void)
+void first_thread(void)
 {
 
-	printk("starting task A\r\n");
+	printk("starting thread A\r\n");
 	while (1) {
 		mutex_lock(&mutex);
 		printk("A");
@@ -75,9 +75,9 @@ void first_task(void)
 	}
 }
 
-void second_task(void)
+void second_thread(void)
 {
-	printk("starting task B\r\n");
+	printk("starting thread B\r\n");
 	mutex_lock(&mutex);
 	while (1) {
 		printk("B");
@@ -86,9 +86,9 @@ void second_task(void)
 	}
 }
 
-void third_task(void)
+void third_thread(void)
 {
-	printk("starting task C\r\n");
+	printk("starting thread C\r\n");
 	sem_wait(&sem);
 	count = 0;
 	while (1) {
@@ -98,14 +98,14 @@ void third_task(void)
 	}
 }
 
-void fourth_task(void)
+void fourth_thread(void)
 {
 	unsigned int size = sizeof(unsigned int);
 	unsigned char *p;
 	unsigned int *array = (unsigned int *)kmalloc(size);
 	int i = 0;
 
-	printk("starting task D\r\n");
+	printk("starting thread D\r\n");
 	printk("array (%x)\r\n", array);
 
 	p = (unsigned char *)kmalloc(24);
@@ -126,9 +126,9 @@ void fourth_task(void)
 	}
 }
 
-void fifth_task(void)
+void fifth_thread(void)
 {
-	printk("starting task E\r\n");
+	printk("starting thread E\r\n");
 	while (1) {
 		sem_wait(&sem);
 		printk("E");
@@ -136,9 +136,9 @@ void fifth_task(void)
 	}
 }
 
-void sixth_task(void)
+void sixth_thread(void)
 {
-	printk("starting task F\r\n");
+	printk("starting thread F\r\n");
 	pio_set_output(GPIOE_BASE, 6, 0);
 	while (1) {
 		pio_set_value(GPIOE_BASE, 6);
@@ -148,11 +148,11 @@ void sixth_task(void)
 	}
 }
 
-void seventh_task(void)
+void seventh_thread(void)
 {
 	int a = 5;
 	count = 0;
-	printk("starting task G\r\n");
+	printk("starting thread G\r\n");
 	printk("#####a(%x): %d\r\n", &a , a);
 	while (1) {
 		printk("G");
@@ -162,10 +162,10 @@ void seventh_task(void)
 }
 
 
-void eighth_task(void)
+void eighth_thread(void)
 {
 	int b = 0;
-	printk("starting task H\r\n");
+	printk("starting thread H\r\n");
 	queue_receive(&queue, &b, 10000);
 	printk("#####b(%x): %d\r\n", &b, b);
 	while (1) {
@@ -262,9 +262,9 @@ void lcd_rgb565_fill(unsigned short rgb)
 #endif /* CONFIG_STM32F429 */
 
 
-void ninth_task(void)
+void ninth_thread(void)
 {
-	printk("starting task I\r\n");
+	printk("starting thread I\r\n");
 
 #ifdef CONFIG_STM32F429
 #if defined(CONFIG_LCD_SUBSYS) && defined(CONFIG_ILI9341)
@@ -302,21 +302,21 @@ void ninth_task(void)
 	}
 }
 
-void tenth_task(void)
+void tenth_thread(void)
 {
 	int (*fct)(void) = 0x50002540;
-	printk("starting task J\r\n");
+	printk("starting thread J\r\n");
 
 	while (1) {
 		fct();
 	}
 }
 
-void eleventh_task(void)
+void eleventh_thread(void)
 {
 	int ret;
 
-	printk("starting task K\r\n");
+	printk("starting thread K\r\n");
 
 	ret = elf_exec((char *)0x08050000, 220417, 0x08050000);
 	if (ret < 0)
@@ -403,21 +403,21 @@ int main(void)
 	unwind_init();
 #endif /* CONFIG_UNWIND */
 
-	printk("- Add task to scheduler\r\n");
+	printk("- Add thread to scheduler\r\n");
 
-//	add_task(&first_task, 1);
-//	add_task(&second_task, 6);
-//	add_task(&third_task, 2);
-//	add_task(&fourth_task, 20);
-//	add_task(&fifth_task, 1);
-//	add_task(&sixth_task, 1);
-//	add_task(&seventh_task, 1);
-//	add_task(&eighth_task, 1);
-//	add_task(&ninth_task, 1);
+//	add_thread(&first_thread, 1);
+//	add_thread(&second_thread, 6);
+//	add_thread(&third_thread, 2);
+//	add_thread(&fourth_thread, 20);
+//	add_thread(&fifth_thread, 1);
+//	add_thread(&sixth_thread, 1);
+//	add_thread(&seventh_thread, 1);
+//	add_thread(&eighth_thread, 1);
+//	add_thread(&ninth_thread, 1);
 #ifdef FAULT
-	add_task(&tenth_task, 1);
+	add_thread(&tenth_thread, 1);
 #endif /* FAULT */
-	add_task(&eleventh_task, 2);
+	add_thread(&eleventh_thread, 2);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();

@@ -26,9 +26,9 @@ void svc_handler(unsigned int call, void *arg)
 	printk("svc_handler: got call %d with arg (%x)\r\n", call, arg);
 
 	switch (call) {
-	case SVC_TASK_SWITCH:
-		printk("SVC call ask for a task switch\r\n");
-		schedule_task((struct task *)arg);
+	case SVC_THREAD_SWITCH:
+		printk("SVC call ask for a thread switch\r\n");
+		schedule_thread((struct thread *)arg);
 		break;
 	default:
 		printk("Invalid svc call\r\n");
