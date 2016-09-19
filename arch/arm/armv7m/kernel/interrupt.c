@@ -88,8 +88,6 @@ void usagefault_handler(void)
 
 void systick_handler(void)
 {
-	unsigned int val = readl(SCB_ICSR);
-
 	system_tick++;
 
 	arch_request_sched();
