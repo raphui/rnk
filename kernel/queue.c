@@ -147,6 +147,7 @@ void svc_queue_receive(struct queue *queue, void *item)
 		if ((queue->curr + queue->item_size) <= queue->wr) {
 			memcpy(item, queue->curr, queue->item_size);
 			queue->curr += queue->item_size;
+			queue->item_queued--;
 
 			if (!list_is_empty(&queue->waiting_post_threads)) {
 				t = list_peek_head_type(&queue->waiting_post_threads, struct thread, event_node);
