@@ -28,14 +28,6 @@
 static struct thread *current_thread = NULL;
 static int thread_count = 0;
 
-#ifdef CONFIG_SCHEDULE_PREEMPT
-#define NB_RUN_QUEUE		32
-#define MAX_PRIORITIES		32
-#define HIGHEST_PRIORITY	(MAX_PRIORITIES - 1)
-#else
-#define NB_RUN_QUEUE	1
-#endif /* CONFIG_SCHEDULE_PREEMPT */
-
 #if defined(CONFIG_SCHEDULE_PREEMPT) || defined(CONFIG_SCHEDULE_ROUND_ROBIN)
 static unsigned int run_queue_bitmap;
 #endif

@@ -33,6 +33,15 @@
 #define THREAD_STACK_START	CONFIG_THREAD_STACK_START
 #define THREAD_STACK_OFFSET	0x00001000
 
+
+#ifdef CONFIG_SCHEDULE_PREEMPT
+#define NB_RUN_QUEUE		32
+#define MAX_PRIORITIES		32
+#define HIGHEST_PRIORITY	(MAX_PRIORITIES - 1)
+#else
+#define NB_RUN_QUEUE	1
+#endif /* CONFIG_SCHEDULE_PREEMPT */
+
 extern unsigned long thread_lock;
 
 struct registers
