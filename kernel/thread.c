@@ -32,10 +32,13 @@ static int thread_count = 0;
 #define NB_RUN_QUEUE		32
 #define MAX_PRIORITIES		32
 #define HIGHEST_PRIORITY	(MAX_PRIORITIES - 1)
-static unsigned int run_queue_bitmap;
 #else
 #define NB_RUN_QUEUE	1
 #endif /* CONFIG_SCHEDULE_PREEMPT */
+
+#if defined(CONFIG_SCHEDULE_PREEMPT) || defined(CONFIG_SCHEDULE_ROUND_ROBIN)
+static unsigned int run_queue_bitmap;
+#endif
 
 static struct list_node run_queue[NB_RUN_QUEUE];
 
@@ -47,7 +50,7 @@ static void idle_thread(void)
 		wait_for_interrupt();
 }
 
-#ifdef CONFIG_SCHEDULE_PREEMPT
+#if defined(CONFIG_SCHEDULE_PREEMPT) || defined(CONFIG_SCHEDULE_ROUND_ROBIN)
 static void insert_in_run_queue_head(struct thread *t)
 {
 	list_add_head(&run_queue[t->priority], &t->node);
@@ -59,7 +62,7 @@ static void insert_in_run_queue_tail(struct thread *t)
 	list_add_tail(&run_queue[t->priority], &t->node);
 	run_queue_bitmap |= (1 << t->priority);
 }
-#endif /* CONFIG_SCHEDULE_PREEMPT */
+#endif
 
 static void insert_thread(struct thread *t)
 {
