@@ -64,7 +64,7 @@ void schedule_thread(struct thread *thread)
 	struct thread *t;
 
 	t = get_current_thread();
-#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
+#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_RR_PRIO)
 	if (t)
 		t->quantum--;
 #endif /* CONFIG_SCHEDULE_ROUND_ROBIN */
@@ -82,7 +82,7 @@ void schedule_thread(struct thread *thread)
 			t = find_next_thread();
 			switch_thread(t);
 		}
-#elif defined(CONFIG_SCHEDULE_PRIORITY) || defined (CONFIG_SCHEDULE_PREEMPT)
+#elif defined(CONFIG_SCHEDULE_PRIORITY) || defined (CONFIG_SCHEDULE_RR_PRIO)
 		t = find_next_thread();
 		switch_thread(t);
 #endif

@@ -27,7 +27,7 @@ static void insert_waiting_thread(struct semaphore *sem, struct thread *t)
 {
 	struct thread *thread;
 
-#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
+#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_RR_PRIO)
 		list_add_tail(&sem->waiting_threads, &t->event_node);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
 		list_for_every_entry(&sem->waiting_threads, thread, struct thread, event_node)

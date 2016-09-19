@@ -14,7 +14,7 @@ config INITCALL
 choice
     prompt "Scheduling algorithms"
 
-    config SCHEDULE_PREEMPT
+    config SCHEDULE_RR_PRIO
         bool "Round Robin Priority scheduling algorithm"
 
     config SCHEDULE_ROUND_ROBIN
@@ -25,7 +25,7 @@ choice
 endchoice
 
 config THREAD_QUANTUM
-	depends on SCHEDULE_ROUND_ROBIN || SCHEDULE_PREEMPT
+	depends on SCHEDULE_ROUND_ROBIN || SCHEDULE_RR_PRIO
 	int "THREAD quantum"
 
 config SW_ISR_TABLE

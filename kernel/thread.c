@@ -28,7 +28,7 @@
 static struct thread *current_thread = NULL;
 static int thread_count = 0;
 
-#if defined(CONFIG_SCHEDULE_PREEMPT) || defined(CONFIG_SCHEDULE_ROUND_ROBIN)
+#if defined(CONFIG_SCHEDULE_RR_PRIO) || defined(CONFIG_SCHEDULE_ROUND_ROBIN)
 static unsigned int run_queue_bitmap;
 #endif
 
@@ -42,7 +42,7 @@ static void idle_thread(void)
 		wait_for_interrupt();
 }
 
-#if defined(CONFIG_SCHEDULE_PREEMPT) || defined(CONFIG_SCHEDULE_ROUND_ROBIN)
+#if defined(CONFIG_SCHEDULE_RR_PRIO) || defined(CONFIG_SCHEDULE_ROUND_ROBIN)
 static void insert_in_run_queue_head(struct thread *t)
 {
 	list_add_head(&run_queue[t->priority], &t->node);
@@ -76,7 +76,7 @@ static void insert_thread(struct thread *t)
 			}
 		}
 	}
-#elif defined(CONFIG_SCHEDULE_PREEMPT)
+#elif defined(CONFIG_SCHEDULE_RR_PRIO)
 	if (t->quantum > 0)
 		insert_in_run_queue_head(t);
 	else {
@@ -109,7 +109,7 @@ void add_thread(void (*func)(void), unsigned int priority)
 	thread->priority = priority;
 #elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
 	thread->quantum = CONFIG_THREAD_QUANTUM;
-#elif defined(CONFIG_SCHEDULE_PREEMPT)
+#elif defined(CONFIG_SCHEDULE_RR_PRIO)
 	thread->priority = priority;
 	thread->quantum = CONFIG_THREAD_QUANTUM;
 #endif
@@ -149,7 +149,7 @@ struct thread *find_next_thread(void)
 {
 	struct thread *thread = NULL;
 
-#ifdef CONFIG_SCHEDULE_PREEMPT
+#ifdef CONFIG_SCHEDULE_RR_PRIO
 	unsigned int bitmap = run_queue_bitmap;
 	unsigned int next_queue;
 

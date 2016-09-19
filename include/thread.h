@@ -32,13 +32,13 @@
 #define THREAD_STACK_OFFSET	0x00001000
 
 
-#ifdef CONFIG_SCHEDULE_PREEMPT
+#ifdef CONFIG_SCHEDULE_RR_PRIO
 #define NB_RUN_QUEUE		32
 #define MAX_PRIORITIES		32
 #define HIGHEST_PRIORITY	(MAX_PRIORITIES - 1)
 #else
 #define NB_RUN_QUEUE	1
-#endif /* CONFIG_SCHEDULE_PREEMPT */
+#endif /* CONFIG_SCHEDULE_RR_PRIO */
 
 extern unsigned long thread_lock;
 

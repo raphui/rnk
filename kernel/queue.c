@@ -29,7 +29,7 @@ static void insert_waiting_receive_thread(struct queue *queue, struct thread *t)
 {
 	struct thread *thread;
 
-#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
+#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_RR_PRIO)
 		list_add_tail(&queue->waiting_receive_threads, &t->event_node);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
 		list_for_every_entry(&queue->waiting_receive_threads, thread, struct thread, event_node)
@@ -49,7 +49,7 @@ static void insert_waiting_post_thread(struct queue *queue, struct thread *t)
 {
 	struct thread *thread;
 
-#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_PREEMPT)
+#if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_RR_PRIO)
 		list_add_tail(&queue->waiting_post_threads, &t->event_node);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
 		list_for_every_entry(&queue->waiting_post_threads, thread, struct thread, event_node)
