@@ -82,13 +82,20 @@ void init_queue(struct queue *queue, unsigned int size, unsigned int item_size)
 	list_initialize(&queue->waiting_post_threads);
 }
 
+static void clear_queue(struct queue *queue)
+{
+	queue->item_queued = 0;
+	queue->wr = queue->head;
+	queue->curr = queue->head;
+}
+
 void svc_queue_post(struct queue *queue, void *item)
 {
 	struct thread *t = NULL;
 
 	thread_lock(state);
 
-	if (queue->item_queued < queue->item_size) {
+	if (queue->item_queued < queue->size) {
 		if ((queue->wr + queue->item_size) <= queue->tail) {
 			memcpy(queue->wr, item, queue->item_size);
 			debug_printk("wr: %x, v: %d\r\n", queue->wr, *(int *)item);
@@ -139,7 +146,6 @@ void svc_queue_receive(struct queue *queue, void *item)
 		if ((queue->curr + queue->item_size) <= queue->wr) {
 			memcpy(item, queue->curr, queue->item_size);
 			queue->curr += queue->item_size;
-			queue->item_queued--;
 
 			if (!list_is_empty(&queue->waiting_post_threads)) {
 				t = list_peek_head_type(&queue->waiting_post_threads, struct thread, event_node);
@@ -149,6 +155,9 @@ void svc_queue_receive(struct queue *queue, void *item)
 			}
 
 		}
+
+		if (queue->curr == queue->wr)
+			clear_queue(queue);
 	}
 
 
