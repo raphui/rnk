@@ -16,26 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <board.h>
-#include <usart.h>
 #include <stdio.h>
 #include <scheduler.h>
 #include <thread.h>
-#include <interrupt.h>
-#include <pio.h>
-#include <utils.h>
 #include <mm.h>
-#include <mutex.h>
-#include <semaphore.h>
-#include <queue.h>
-#include <arch/svc.h>
 #include <time.h>
-#include <spi.h>
-#include <dma.h>
-#include <common.h>
 #include <elfloader.h>
-#include <unistd.h>
-#include <mtd.h>
 
 #ifdef CONFIG_UNWIND
 #include <backtrace.h>
@@ -66,9 +52,6 @@ void loading_thread(void)
 
 int main(void)
 {
-	int fd;
-	unsigned char c;
-
 #ifdef CONFIG_INITCALL
 	int ret;
 	initcall_t *initcall;
