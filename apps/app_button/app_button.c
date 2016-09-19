@@ -32,8 +32,7 @@ void main_thread(void)
 	int b = 0;
 
 	while (1) {
-		sem_wait(&sem);
-//		queue_receive(&queue, &b, 10000);
+		queue_receive(&queue, &b, 10000);
 		if (b == 1)
 			printk("X");
 		else if (b == 2)
@@ -45,10 +44,10 @@ void main_thread(void)
 
 void wakeup_button(void)
 {
+	int a = 1;
 
 	printk("wakeup !\n");
-	svc_sem_post(&sem);
-//	svc_queue_post(&queue, &a);
+	svc_queue_post(&queue, &a);
 }
 
 void user_button(void)
@@ -63,8 +62,7 @@ int test(void)
 {
 	printk("Starting app_button\n");
 
-	init_queue(&queue, sizeof(int), 1);
-	init_semaphore(&sem, 1);
+	init_queue(&queue, 1, sizeof(int));
 
 	add_thread(&main_thread, 30);
 
