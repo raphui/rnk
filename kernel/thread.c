@@ -22,7 +22,7 @@
 #include <mm.h>
 #include <utils.h>
 #include <arch/svc.h>
-#include <armv7m/system.h>
+#include <arch/system.h>
 #include <spinlock.h>
 
 static struct thread *current_thread = NULL;
@@ -32,11 +32,11 @@ static int thread_count = 0;
 #define NB_RUN_QUEUE		32
 #define MAX_PRIORITIES		32
 #define HIGHEST_PRIORITY	(MAX_PRIORITIES - 1)
+static unsigned int run_queue_bitmap;
 #else
 #define NB_RUN_QUEUE	1
 #endif /* CONFIG_SCHEDULE_PREEMPT */
 
-static unsigned int run_queue_bitmap;
 static struct list_node run_queue[NB_RUN_QUEUE];
 
 unsigned long thread_lock = SPIN_LOCK_INITIAL_VALUE;
@@ -47,6 +47,7 @@ static void idle_thread(void)
 		wait_for_interrupt();
 }
 
+#ifdef CONFIG_SCHEDULE_PREEMPT
 static void insert_in_run_queue_head(struct thread *t)
 {
 	list_add_head(&run_queue[t->priority], &t->node);
@@ -58,6 +59,7 @@ static void insert_in_run_queue_tail(struct thread *t)
 	list_add_tail(&run_queue[t->priority], &t->node);
 	run_queue_bitmap |= (1 << t->priority);
 }
+#endif /* CONFIG_SCHEDULE_PREEMPT */
 
 static void insert_thread(struct thread *t)
 {
