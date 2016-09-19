@@ -100,6 +100,7 @@ void svc_sem_post(struct semaphore *sem)
 
 			remove_waiting_thread(sem, thread);
 			insert_runnable_thread(thread);
+			arch_system_call(SVC_THREAD_SWITCH, NULL, NULL);
 		}
 	}
 
