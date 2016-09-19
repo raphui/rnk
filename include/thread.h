@@ -22,8 +22,6 @@
 #include <list.h>
 #include <stddef.h>
 
-#define NR_THREAD	8
-
 #define THREAD_RUNNING		0
 #define THREAD_RUNNABLE		1
 #define THREAD_STOPPED		2
@@ -79,12 +77,8 @@ struct thread
 	struct list_node event_node;
 };
 
-struct registers thread_regs[NR_THREAD];
-struct thread *thread[NR_THREAD];
-
 void thread_init(void);
 void add_thread(void (*func)(void), unsigned int priority);
-void first_switch_thread(void);
 void switch_thread(struct thread *thread);
 struct thread *get_current_thread(void);
 struct thread *find_next_thread(void);
