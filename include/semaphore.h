@@ -29,8 +29,6 @@ struct semaphore {
 };
 
 void init_semaphore(struct semaphore *sem, unsigned int value);
-void sem_wait_isr(struct semaphore *sem);
-void sem_post_isr(struct semaphore *sem);
 void svc_sem_wait(struct semaphore *sem);
 void svc_sem_post(struct semaphore *sem);
 void sem_wait(struct semaphore *sem);
