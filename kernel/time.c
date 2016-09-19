@@ -52,7 +52,6 @@ core_initcall(time_init);
 
 void svc_usleep(struct timer *timer)
 {
-	struct thread *first = NULL;
 	struct thread *thread = NULL;
 
 	thread_lock(state);
