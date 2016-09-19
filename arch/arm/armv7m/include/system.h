@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#ifndef ARMV7M_SYSTEM_H
+#define ARMV7M_SYSTEM_H
 
 #include <utils.h>
 
@@ -240,4 +240,4 @@ static inline void pendsv_request(void)
 	writel(SCB_ICSR, val);
 }
 
-#endif /* SYSTEM_H */
+#endif /* ARMV7M_SYSTEM_H */
