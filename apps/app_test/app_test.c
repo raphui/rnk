@@ -28,7 +28,7 @@ void app_thread(void)
 	}
 }
 
-int test(void)
+int main(void)
 {
 	int fd;
 	char s[] = "test from write function\n";

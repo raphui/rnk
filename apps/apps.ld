@@ -1,4 +1,4 @@
-ENTRY(test)
+ENTRY(main)
 
 SECTIONS
 {

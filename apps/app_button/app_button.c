@@ -58,7 +58,7 @@ void user_button(void)
 	svc_queue_post(&queue, &a);
 }
 
-int test(void)
+int main(void)
 {
 	printk("Starting app_button\n");
 
