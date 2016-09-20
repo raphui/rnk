@@ -22,7 +22,7 @@
 #include <init.h>
 #endif /* CONFIG_INITCALL */
 
-int init_heap(void)
+int heap_init(void)
 {
 	int i;
 	int ret = 0;
@@ -35,5 +35,5 @@ int init_heap(void)
 	return ret;
 }
 #ifdef CONFIG_INITCALL
-pure_initcall(init_heap);
+pure_initcall(heap_init);
 #endif /* CONFIG_INITCALL */

@@ -62,7 +62,7 @@ int main(void)
 {
 	printk("Starting app_button\n");
 
-	init_queue(&queue, 1, sizeof(int));
+	queue_init(&queue, 1, sizeof(int));
 
 	add_thread(&main_thread, 30);
 

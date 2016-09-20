@@ -65,7 +65,7 @@ static void remove_waiting_post_thread(struct queue *queue, struct thread *t)
 	list_delete(&t->event_node);
 }
 
-void init_queue(struct queue *queue, unsigned int size, unsigned int item_size)
+void queue_init(struct queue *queue, unsigned int size, unsigned int item_size)
 {
 	queue->item_queued = 0;
 	queue->size = size;

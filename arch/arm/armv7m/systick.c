@@ -28,7 +28,7 @@
 #define SYSTICK_FREQ	100//4000
 #endif /* CONFIG_STM32F429 */
 
-int init_systick(void)
+int systick_init(void)
 {
 	int ret = 0;
 

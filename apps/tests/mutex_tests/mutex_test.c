@@ -50,7 +50,7 @@ int main(void)
 {
 	printk("Starting mutex tests\n");
 
-	init_mutex(&mutex);
+	mutex_init(&mutex);
 
 	printk("- adding thread A (%x)\n", &thread_a);
 	add_thread(&thread_a, 10);

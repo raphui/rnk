@@ -34,7 +34,7 @@ struct queue {
 	struct list_node waiting_post_threads;
 };
 
-void init_queue(struct queue *queue, unsigned int size, unsigned int item_size);
+void queue_init(struct queue *queue, unsigned int size, unsigned int item_size);
 void svc_queue_post(struct queue *queue, void *item);
 void svc_queue_receive(struct queue *queue, void *item);
 void queue_post(struct queue *queue, void *item, unsigned int timeout);

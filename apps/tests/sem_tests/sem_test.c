@@ -62,7 +62,7 @@ int main(void)
 {
 	printk("Starting mutex tests\n");
 
-	init_semaphore(&sem, 2);
+	sem_init(&sem, 2);
 
 	printk("- adding thread A (%x)\n", &thread_a);
 	add_thread(&thread_a, HIGHEST_PRIORITY);

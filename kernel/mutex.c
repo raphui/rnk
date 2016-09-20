@@ -73,7 +73,7 @@ static int __mutex_lock(struct mutex *mutex)
 	return ret;
 }
 
-void init_mutex(struct mutex *mutex) {
+void mutex_init(struct mutex *mutex) {
 	mutex->lock = 0;
 	mutex->owner = NULL;
 	mutex->waiting = 0;

@@ -21,7 +21,7 @@
 
 #include <stddef.h>
 
-extern int init_heap(void);
+extern int heap_init(void);
 extern void *kmalloc(size_t size);
 extern void kfree(void *mem);
 

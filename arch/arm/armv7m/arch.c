@@ -19,13 +19,13 @@
 #include <thread.h>
 #include <armv7m/system.h>
 
-void init_arch(void)
+void arch_init(void)
 {
 }
 
 void arch_init_tick(void)
 {
-	init_systick();
+	systick_init();
 }
 
 void arch_request_sched(void)

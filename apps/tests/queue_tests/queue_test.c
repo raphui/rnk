@@ -58,7 +58,7 @@ int main(void)
 
 	printk("- init queue with size of %d and item_size of %d\n", size, item_size);
 
-	init_queue(&queue, size, item_size);
+	queue_init(&queue, size, item_size);
 
 	printk("- adding thread A (%x)\n", &thread_a);
 	add_thread(&thread_a, HIGHEST_PRIORITY);

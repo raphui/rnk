@@ -33,6 +33,6 @@ void svc_mutex_lock(struct mutex *mutex);
 void svc_mutex_unlock(struct mutex *mutex);
 void mutex_lock(struct mutex *mutex);
 void mutex_unlock(struct mutex *mutex);
-void init_mutex(struct mutex *mutex);
+void mutex_init(struct mutex *mutex);
 
 #endif /* MUTEX_H */

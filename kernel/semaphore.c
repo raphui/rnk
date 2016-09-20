@@ -43,7 +43,7 @@ static void remove_waiting_thread(struct semaphore *sem, struct thread *t)
 	list_delete(&t->event_node);
 }
 
-void init_semaphore(struct semaphore *sem, unsigned int value)
+void sem_init(struct semaphore *sem, unsigned int value)
 {
 	sem->value = value;
 	sem->count = 0;
