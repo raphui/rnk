@@ -54,7 +54,7 @@ SECTIONS
 		*(.gnu.linkonce.d.*)
 		. = ALIGN(4);
 		_edata = .;
-	} >flash
+	} >sram
 
 #ifdef CONFIG_UNWIND
 	.ARM.extab : AT (_edata)
