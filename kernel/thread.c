@@ -93,7 +93,7 @@ void thread_init(void)
 	for (i = 0; i < NB_RUN_QUEUE; i++)
 		list_initialize(&run_queue[i]);
 
-	add_thread(&idle_thread, 0);
+	add_thread(&idle_thread, IDLE_PRIORITY);
 }
 
 void add_thread(void (*func)(void), unsigned int priority)
