@@ -89,7 +89,7 @@ int pio_init(struct pio *pio)
 
 	memcpy(piodev, pio, sizeof(struct pio));
 
-	ret = device_register(&pio->dev);
+	ret = device_register(&piodev->dev);
 	if (ret < 0) {
 		error_printk("failed to register device\n");
 		ret = -ENOMEM;
