@@ -49,7 +49,7 @@ struct timer_operations
 };
 
 int timer_init(void);
-int timer_oneshot(unsigned int delay);
+int timer_oneshot(unsigned int delay, void (*handler)(void), void *arg);
 void timer_set_rate(struct timer *timer, unsigned long rate);
 void timer_set_counter(struct timer *timer, unsigned short counter);
 void timer_enable(struct timer *timer);

@@ -53,7 +53,7 @@ void timer_clear_it_flags(struct timer *timer, unsigned int flags)
 	tim_ops.clear_it_flags(timer, flags);
 }
 
-static struct timer *timer_request(void)
+static int *timer_request(void)
 {
 	int i;
 	int ret;
@@ -82,7 +82,13 @@ static struct timer *timer_request(void)
 
 	timer->num = i;
 
-	return tim_ops.init(timer);
+	ret = tim_ops.init(timer);
+	if (ret < 0) {
+		printk("failed to init timer via hardware IP\n");
+		goto failed_out;
+	}
+
+	return i;
 
 failed_out:
 	kfree(timer);
@@ -102,15 +108,26 @@ static int timer_release(struct timer *timer)
 	return 0;
 }
 
-int timer_oneshot(unsigned int delay)
+int timer_oneshot(unsigned int delay, void (*handler)(void), void *arg)
 {
+	int ret = 0;
 	struct timer *timer = NULL;
 
-	timer = timer_request();
+	ret = timer_request();
+	if (ret < 0) {
+		error_printk("failed to request timer\n");
+		return ret;
+	}
+
+	timer = timer_list[ret];
 
 	timer->one_pulse = 1;
 	timer->count_up = 0;
 	timer->counter = delay;
+
+	timer_enable(timer);
+
+	return ret;
 }
 
 int timer_init(void)
