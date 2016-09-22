@@ -65,10 +65,10 @@ void svc_usleep(struct timer *timer)
 	list_add_tail(&sleeping_threads, &thread->node);
 
 #ifdef CONFIG_HR_TIMER
-	timer_init(timer);
-	timer_set_rate(timer, 1000000);
-	timer_set_counter(timer, timer->counter);
-	timer_enable(timer);
+//	timer_init(timer);
+//	timer_set_rate(timer, 1000000);
+//	timer_set_counter(timer, timer->counter);
+//	timer_enable(timer);
 #endif /* CONFIG_HR_TIMER */
 
 	arch_system_call(SVC_THREAD_SWITCH, NULL, NULL);

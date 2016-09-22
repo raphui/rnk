@@ -66,6 +66,8 @@ static int stm32_timer_init(struct timer *timer)
 	int irq_line = 0;
 	unsigned int base_reg = 0;
 
+	timer->num += 2;
+
 	if (timer->num < 2 || timer->num > 5)
 		return -EINVAL;
 

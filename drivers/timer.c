@@ -17,11 +17,16 @@
 
 #include <board.h>
 #include <timer.h>
+#include <errno.h>
+#include <mm.h>
+#include <string.h>
+#include <bitops.h>
+#include <mutex.h>
 
-int timer_init(struct timer *timer)
-{
-	return tim_ops.init(timer);
-}
+static unsigned int timer_bitmap = 0;
+static unsigned int timer_mask = 0;
+static struct timer *timer_list[CONFIG_TIMER_NB];
+static struct mutex timer_mutex;
 
 void timer_set_rate(struct timer *timer, unsigned long rate)
 {
@@ -47,3 +52,96 @@ void timer_clear_it_flags(struct timer *timer, unsigned int flags)
 {
 	tim_ops.clear_it_flags(timer, flags);
 }
+
+static struct timer *timer_request(void)
+{
+	int i;
+	int ret;
+	struct timer *timer = NULL;
+
+	timer = (struct timer *)kmalloc(sizeof(struct timer));
+	if (!timer) {
+		error_printk("failed to allocate timer");
+		return -ENOMEM;
+	}
+
+	mutex_lock(&timer_mutex);
+
+	i = ffz(timer_bitmap & timer_mask);
+	if (i > CONFIG_TIMER_NB) {
+		error_printk("all timers are allocate\n");
+		ret = -EAGAIN;
+		goto failed_out;
+	}
+
+	timer_list[i] = timer;
+
+	timer_bitmap |= (1 << i);
+
+	mutex_unlock(&timer_mutex);
+
+	timer->num = i;
+
+	return tim_ops.init(timer);
+
+failed_out:
+	kfree(timer);
+	return ret;
+}
+
+static int timer_release(struct timer *timer)
+{
+	mutex_lock(&timer_mutex);
+
+	timer_bitmap &= ~(timer->num);
+	
+	mutex_unlock(&timer_mutex);
+
+	kfree(timer_list[timer->num]);
+
+	return 0;
+}
+
+int timer_oneshot(unsigned int delay)
+{
+	struct timer *timer = NULL;
+
+	timer = timer_request();
+
+	timer->one_pulse = 1;
+	timer->count_up = 0;
+	timer->counter = delay;
+}
+
+int timer_init(void)
+{
+	int ret = 0;
+	struct timer_device *timer_dev = NULL;
+
+	timer_dev = (struct timer *)kmalloc(sizeof(struct timer_device));
+	if (!timer_dev) {
+		error_printk("cannot allocate timer_device\n");
+		return -ENOMEM;
+	}
+
+	ret = device_register(&timer_dev->dev);
+	if (ret < 0) {
+		error_printk("failed to register device\n");
+		ret = -ENOMEM;
+		goto failed_out;
+	}
+
+	timer_mask ^= (-1 ^ timer_mask) & (1 << CONFIG_TIMER_NB);
+
+	mutex_init(&timer_mutex);
+
+	return ret;
+
+failed_out:
+	kfree(timer_dev);
+	return ret;
+}
+
+#ifdef CONFIG_INITCALL
+device_initcall(timer_init);
+#endif /* CONFIG_INITCALL */

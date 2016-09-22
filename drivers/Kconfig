@@ -17,4 +17,11 @@ config ILI9341
 config LCD_SUBSYS
 	bool "LCD subsystem driver"
 
+config TIMER_SUBSYS
+	bool "Timer subsystem driver"
+
+config TIMER_NB
+	depends on TIMER_SUBSYS
+	int "Number of hardware timer"
+
 endmenu

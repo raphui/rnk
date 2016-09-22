@@ -18,6 +18,13 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include <device.h>
+
+struct timer_device
+{
+	struct device dev;
+};
+
 struct timer
 {
 	unsigned int num;
@@ -41,7 +48,8 @@ struct timer_operations
 
 };
 
-int timer_init(struct timer *timer);
+int timer_init(void);
+int timer_oneshot(unsigned int delay);
 void timer_set_rate(struct timer *timer, unsigned long rate);
 void timer_set_counter(struct timer *timer, unsigned short counter);
 void timer_enable(struct timer *timer);
