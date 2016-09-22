@@ -20,6 +20,7 @@
 #include <timer.h>
 #include <stddef.h>
 #include <arch/nvic.h>
+#include <irq.h>
 
 #include <mach/rcc-stm32.h>
 
@@ -46,9 +47,23 @@ static int stm32_timer_get_nvic_number(struct timer *timer)
 	return nvic;
 }
 
+static void stm32_timer_isr(void *arg)
+{
+	TIM_TypeDef *tim = NULL;
+	struct timer *timer = (struct timer *)arg;
+	unsigned int irq = vector_current_irq();
+
+	tim = (TIM_TypeDef *)timer->base_reg;
+
+	tim->SR = ~TIM_SR_UIF;
+
+	nvic_clear_interrupt(irq);
+}
+
 static int stm32_timer_init(struct timer *timer)
 {
 	int ret = 0;
+	int irq_line = 0;
 	unsigned int base_reg = 0;
 
 	if (timer->num < 2 || timer->num > 5)
@@ -79,6 +94,12 @@ static int stm32_timer_init(struct timer *timer)
 
 	timer->rate = (APB1_PRES > 1) ? APB1_CLK * 2 : APB1_CLK;
 	timer->prescaler = 0;
+
+	irq_line = stm32_timer_get_nvic_number(timer);
+
+	ret = irq_request(irq_line, &stm32_timer_isr, timer);
+	if (ret < 0)
+		error_printk("cannot request isr for irq line: %d\n", irq_line);
 
 	return ret;
 }
