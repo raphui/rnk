@@ -122,6 +122,7 @@ int stm32_ltdc_init(struct ltdc *ltdc)
 	ret = stm32_ltdc_enable_fb(ltdc);
 	if (ret < 0) {
 		error_printk("failed to enable framebuffer\r\n");
+		ret = stm32_rcc_disable_clk(LTDC_BASE);
 		return ret;
 	}
 
