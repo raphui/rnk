@@ -179,7 +179,8 @@ int stm32_dma_init(struct dma *dma)
 
 	if ((dma->num == 1) && (dma->dir == DMA_M_M)) {
 		debug_printk("DMA1 does not support mem to mem transfer\r\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err_disabled_clk;
 	}
 
 
@@ -194,6 +195,14 @@ int stm32_dma_init(struct dma *dma)
 	}
 
 	return 0;
+
+err_disabled_clk:
+	if (dma->num == 1)
+		ret = stm32_rcc_disable_clk(DMA1_BASE);
+	else
+		ret = stm32_rcc_disable_clk(DMA2_BASE);
+
+	return ret;
 }
 
 int stm32_dma_transfer(struct dma *dma, struct dma_transfer *dma_trans)
