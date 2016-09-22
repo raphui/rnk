@@ -22,10 +22,10 @@
 
 #ifdef CONFIG_STM32F429
 #define SYS_CLOCK	180000000
-#define SYSTICK_FREQ	100//4000
+#define SYSTICK_FREQ	1000//4000
 #else
 #define SYS_CLOCK	168000000
-#define SYSTICK_FREQ	100//4000
+#define SYSTICK_FREQ	1000//4000
 #endif /* CONFIG_STM32F429 */
 
 int systick_init(void)
