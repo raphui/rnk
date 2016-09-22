@@ -98,8 +98,10 @@ static int stm32_timer_init(struct timer *timer)
 	irq_line = stm32_timer_get_nvic_number(timer);
 
 	ret = irq_request(irq_line, &stm32_timer_isr, timer);
-	if (ret < 0)
+	if (ret < 0) {
 		error_printk("cannot request isr for irq line: %d\n", irq_line);
+		ret = stm32_rcc_disable_clk(timer->base_reg);
+	}
 
 	return ret;
 }
