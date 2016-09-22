@@ -109,3 +109,24 @@ int stm32_rcc_enable_clk(int periph_base)
 
 	return ret;
 }
+
+int stm32_rcc_disable_clk(int periph_base)
+{
+	int ret = 0;
+	int i = 0;
+	unsigned int *reg_base;
+	unsigned int mask;
+
+	i = stm32_rcc_find_periph(periph_base);
+	if (i < 0) {
+		error_printk("cannot find periph base: 0x%x\r\n", periph_base);
+		return i;
+	}
+
+	reg_base = (unsigned int *)clk_lut[i].reg_base;
+	mask = clk_lut[i].mask;
+
+	*reg_base &= ~mask;
+
+	return ret;
+}
