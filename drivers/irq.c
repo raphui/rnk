@@ -71,7 +71,7 @@ int irq_init(struct irq *irq)
 
 	memcpy(irqdev, irq, sizeof(struct irq));
 
-	ret = device_register(&irq->dev);
+	ret = device_register(&irqdev->dev);
 	if (ret < 0) {
 		error_printk("failed to register device\n");
 		ret = -ENOMEM;
