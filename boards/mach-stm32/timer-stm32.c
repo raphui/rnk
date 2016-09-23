@@ -66,6 +66,9 @@ static int stm32_timer_init(struct timer *timer)
 	int irq_line = 0;
 	unsigned int base_reg = 0;
 
+	/* XXX: timer generic driver start from 0 to CONFIG_TIMER_NB
+	 *	but stm32 driver start from 2 to 5, so we made the conversion in this way
+	 */
 	timer->num += 2;
 
 	if (timer->num < 2 || timer->num > 5)
