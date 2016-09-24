@@ -20,9 +20,20 @@
 #include <timer.h>
 #include <stddef.h>
 #include <arch/nvic.h>
+#include <armv7m/vector.h>
 #include <irq.h>
+#include <mm.h>
 
 #include <mach/rcc-stm32.h>
+
+struct action {
+	void (*irq_action)(void *arg);
+	void *arg;
+	int irq;
+	struct list_node node;
+};
+
+static struct list_node action_list;
 
 static int stm32_timer_get_nvic_number(struct timer *timer)
 {
@@ -47,17 +58,49 @@ static int stm32_timer_get_nvic_number(struct timer *timer)
 	return nvic;
 }
 
-static void stm32_timer_isr(void *arg)
+static void stm32_timer_clear_it_flags(struct timer *timer, unsigned int flags)
 {
 	TIM_TypeDef *tim = NULL;
-	struct timer *timer = (struct timer *)arg;
-	unsigned int irq = vector_current_irq();
 
 	tim = (TIM_TypeDef *)timer->base_reg;
 
-	tim->SR = ~TIM_SR_UIF;
+	tim->SR &= ~flags;
+}
+
+static int stm32_timer_action(struct timer *timer)
+{
+	int ret = 0;
+	void *arg = NULL;
+	struct action *action = NULL;
+	void (*hook)(void *) = NULL;
+
+	list_for_every_entry(&action_list, action, struct action, node)
+		if (action->irq == timer->num)
+			break;
+
+	if (!action) {
+		error_printk("no action has been found for exti: %d\n", timer->num);
+		return -ENOSYS;
+	}
+
+	hook = action->irq_action;
+	arg = action->arg;
+
+	hook(arg);
+
+	return ret;
+}
+
+static void stm32_timer_isr(void *arg)
+{
+	struct timer *timer = (struct timer *)arg;
+	unsigned int irq = vector_current_irq();
+
+	stm32_timer_clear_it_flags(timer, TIM_SR_UIF);
 
 	nvic_clear_interrupt(irq);
+
+	stm32_timer_action(timer);
 }
 
 static int stm32_timer_init(struct timer *timer)
@@ -107,6 +150,8 @@ static int stm32_timer_init(struct timer *timer)
 		error_printk("cannot request isr for irq line: %d\n", irq_line);
 		ret = stm32_rcc_disable_clk(timer->base_reg);
 	}
+
+	list_initialize(&action_list);
 
 	return ret;
 }
@@ -204,13 +249,26 @@ static void stm32_timer_disable(struct timer *timer)
 	nvic_disable_interrupt(nvic);
 }
 
-static void stm32_timer_clear_it_flags(struct timer *timer, unsigned int flags)
+static int stm32_timer_request_irq(struct timer *timer, void (*handler)(void *), void *arg)
 {
-	TIM_TypeDef *tim = NULL;
+	int ret = 0;
+	struct action *action = NULL;
 
-	tim = (TIM_TypeDef *)timer->base_reg;
+	action = (struct action *)kmalloc(sizeof(struct action));
+	if (!action) {
+		error_printk("cannot allocate exti irq action\n");
+		ret = -ENOMEM;
+		goto fail;
+	}
 
-	tim->SR &= ~flags;	
+	action->irq_action = handler;
+	action->arg = arg;
+	action->irq = timer->num;
+	
+	list_add_tail(&action_list, &action->node);
+
+fail:
+	return ret;	
 }
 
 struct timer_operations tim_ops = {
@@ -220,4 +278,5 @@ struct timer_operations tim_ops = {
 	.enable = stm32_timer_enable,
 	.disable = stm32_timer_disable,
 	.clear_it_flags = stm32_timer_clear_it_flags,
+	.request_irq = stm32_timer_request_irq,
 };
