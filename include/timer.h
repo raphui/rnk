@@ -45,11 +45,11 @@ struct timer_operations
 	void (*enable)(struct timer *timer);
 	void (*disable)(struct timer *timer);
 	void (*clear_it_flags)(struct timer *timer, unsigned int flags);
-
+	int (*request_irq)(struct timer *timer, void (*handler)(void *), void *arg);
 };
 
 int timer_init(void);
-int timer_oneshot(unsigned int delay, void (*handler)(void), void *arg);
+int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg);
 void timer_set_rate(struct timer *timer, unsigned long rate);
 void timer_set_counter(struct timer *timer, unsigned short counter);
 void timer_enable(struct timer *timer);

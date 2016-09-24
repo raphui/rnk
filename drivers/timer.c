@@ -22,6 +22,7 @@
 #include <string.h>
 #include <bitops.h>
 #include <mutex.h>
+#include <device.h>
 
 static unsigned int timer_bitmap = 0;
 static unsigned int timer_mask = 0;
@@ -53,7 +54,7 @@ void timer_clear_it_flags(struct timer *timer, unsigned int flags)
 	tim_ops.clear_it_flags(timer, flags);
 }
 
-static int *timer_request(void)
+static int timer_request(void)
 {
 	int i;
 	int ret;
@@ -108,7 +109,7 @@ static int timer_release(struct timer *timer)
 	return 0;
 }
 
-int timer_oneshot(unsigned int delay, void (*handler)(void), void *arg)
+int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 {
 	int ret = 0;
 	struct timer *timer = NULL;
@@ -125,9 +126,11 @@ int timer_oneshot(unsigned int delay, void (*handler)(void), void *arg)
 	timer->count_up = 0;
 	timer->counter = delay;
 
+	tim_ops.request_irq(timer, handler, arg);
+
 	timer_enable(timer);
 
-	return ret;
+	return 0;
 }
 
 int timer_init(void)
@@ -135,7 +138,7 @@ int timer_init(void)
 	int ret = 0;
 	struct timer_device *timer_dev = NULL;
 
-	timer_dev = (struct timer *)kmalloc(sizeof(struct timer_device));
+	timer_dev = (struct timer_device *)kmalloc(sizeof(struct timer_device));
 	if (!timer_dev) {
 		error_printk("cannot allocate timer_device\n");
 		return -ENOMEM;
@@ -158,7 +161,6 @@ failed_out:
 	kfree(timer_dev);
 	return ret;
 }
-
-#ifdef CONFIG_INITCALL
-device_initcall(timer_init);
-#endif /* CONFIG_INITCALL */
+//#ifdef CONFIG_INITCALL
+//device_initcall(timer_init);
+//#endif /* CONFIG_INITCALL */
