@@ -23,6 +23,7 @@
 #include <bitops.h>
 #include <mutex.h>
 #include <device.h>
+#include <init.h>
 
 static unsigned int timer_bitmap = 0;
 static unsigned int timer_mask = 0;
@@ -161,6 +162,6 @@ failed_out:
 	kfree(timer_dev);
 	return ret;
 }
-//#ifdef CONFIG_INITCALL
-//device_initcall(timer_init);
-//#endif /* CONFIG_INITCALL */
+#ifdef CONFIG_INITCALL
+device_initcall(timer_init);
+#endif /* CONFIG_INITCALL */
