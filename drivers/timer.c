@@ -110,6 +110,29 @@ static int timer_release(struct timer *timer)
 	return 0;
 }
 
+static int timer_release_from_isr(struct timer *timer)
+{
+	timer_bitmap &= ~(timer->num);
+	
+	kfree(timer_list[timer->num]);
+
+	return 0;
+}
+
+static void timer_isr(void *arg)
+{
+	struct timer *timer = (struct timer *)arg;
+	void (*callback)(void *) = timer->callback.handler;
+	void *callback_arg = timer->callback.arg;
+
+	callback(callback_arg);
+
+	if (timer->one_shot) {
+		timer_disable(timer);
+		timer_release_from_isr(timer);
+	}
+}
+
 int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 {
 	int ret = 0;
@@ -123,11 +146,14 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 
 	timer = timer_list[ret];
 
+	timer->one_shot = 1;
 	timer->one_pulse = 1;
 	timer->count_up = 0;
 	timer->counter = delay;
+	timer->callback.handler = handler;
+	timer->callback.arg = arg;
 
-	tim_ops.request_irq(timer, handler, arg);
+	tim_ops.request_irq(timer, &timer_isr, timer);
 
 	timer_enable(timer);
 

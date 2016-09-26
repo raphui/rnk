@@ -25,16 +25,23 @@ struct timer_device
 	struct device dev;
 };
 
+struct timer_callback {
+	void (*handler)(void *);
+	void *arg;
+};
+
 struct timer
 {
 	unsigned int num;
 	unsigned int base_reg;
+	unsigned int one_shot;
 	unsigned long rate;
 	unsigned int prescaler;
 	unsigned int rcc_base;
 	unsigned char one_pulse:1;
 	unsigned char count_up:1;
 	unsigned int counter;
+	struct timer_callback callback;
 };
 
 struct timer_operations
