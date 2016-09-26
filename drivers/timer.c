@@ -67,8 +67,6 @@ static int timer_request(void)
 		return -ENOMEM;
 	}
 
-	mutex_lock(&timer_mutex);
-
 	i = ffz(timer_bitmap & timer_mask);
 	if (i > CONFIG_TIMER_NB) {
 		error_printk("all timers are allocate\n");
@@ -79,8 +77,6 @@ static int timer_request(void)
 	timer_list[i] = timer;
 
 	timer_bitmap |= (1 << i);
-
-	mutex_unlock(&timer_mutex);
 
 	timer->num = i;
 
@@ -138,6 +134,8 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 	int ret = 0;
 	struct timer *timer = NULL;
 
+	mutex_lock(&timer_mutex);
+
 	ret = timer_request();
 	if (ret < 0) {
 		error_printk("failed to request timer\n");
@@ -156,6 +154,8 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 	tim_ops.request_irq(timer, &timer_isr, timer);
 
 	timer_enable(timer);
+
+	mutex_unlock(&timer_mutex);
 
 	return 0;
 }
