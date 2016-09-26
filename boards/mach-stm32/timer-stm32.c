@@ -39,7 +39,7 @@ static int stm32_timer_get_nvic_number(struct timer *timer)
 {
 	int nvic = 0;
 
-	switch (timer->num) {
+	switch (timer->num + 2) {
 		case 2:
 			nvic = TIM2_IRQn;
 			break;
@@ -75,11 +75,11 @@ static int stm32_timer_action(struct timer *timer)
 	void (*hook)(void *) = NULL;
 
 	list_for_every_entry(&action_list, action, struct action, node)
-		if (action->irq == timer->num)
+		if (action->irq == (timer->num + 2))
 			break;
 
 	if (!action) {
-		error_printk("no action has been found for exti: %d\n", timer->num);
+		error_printk("no action has been found for exti: %d\n", timer->num + 2);
 		return -ENOSYS;
 	}
 
@@ -112,12 +112,10 @@ static int stm32_timer_init(struct timer *timer)
 	/* XXX: timer generic driver start from 0 to CONFIG_TIMER_NB
 	 *	but stm32 driver start from 2 to 5, so we made the conversion in this way
 	 */
-	timer->num += 2;
-
-	if (timer->num < 2 || timer->num > 5)
+	if ((timer->num + 2) < 2 || (timer->num + 2) > 5)
 		return -EINVAL;
 
-	switch (timer->num) {
+	switch (timer->num + 2) {
 		case 2:
 			base_reg = TIM2_BASE;
 			break;
@@ -136,7 +134,7 @@ static int stm32_timer_init(struct timer *timer)
 
 	ret = stm32_rcc_enable_clk(timer->base_reg);
 	if (ret < 0) {
-		error_printk("cannot enable TIM%d clock\r\n", timer->num);
+		error_printk("cannot enable TIM%d clock\r\n", timer->num + 2);
 		return ret;
 	}
 
@@ -263,7 +261,7 @@ static int stm32_timer_request_irq(struct timer *timer, void (*handler)(void *),
 
 	action->irq_action = handler;
 	action->arg = arg;
-	action->irq = timer->num;
+	action->irq = timer->num + 2;
 	
 	list_add_tail(&action_list, &action->node);
 
