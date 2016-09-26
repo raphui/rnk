@@ -53,6 +53,7 @@ struct timer_operations
 	void (*disable)(struct timer *timer);
 	void (*clear_it_flags)(struct timer *timer, unsigned int flags);
 	int (*request_irq)(struct timer *timer, void (*handler)(void *), void *arg);
+	int (*release_irq)(struct timer *timer);
 };
 
 int timer_init(void);

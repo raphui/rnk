@@ -269,6 +269,23 @@ fail:
 	return ret;	
 }
 
+static int stm32_timer_release_irq(struct timer *timer)
+{
+	int ret = 0;
+	struct action *action = NULL;
+
+	list_for_every_entry(&action_list, action, struct action, node)
+		if (action->irq == timer->num + 2)
+			break;
+
+	if (action)
+		list_delete(&action->node);
+	else
+		ret = -ENOENT;
+
+	return ret;
+}
+
 struct timer_operations tim_ops = {
 	.init = stm32_timer_init,
 	.set_rate = stm32_timer_set_rate,
@@ -277,4 +294,5 @@ struct timer_operations tim_ops = {
 	.disable = stm32_timer_disable,
 	.clear_it_flags = stm32_timer_clear_it_flags,
 	.request_irq = stm32_timer_request_irq,
+	.release_irq = stm32_timer_release_irq,
 };

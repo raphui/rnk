@@ -95,7 +95,15 @@ failed_out:
 
 static int timer_release(struct timer *timer)
 {
+	int ret = 0;
+
 	mutex_lock(&timer_mutex);
+
+	ret = tim_ops.release_irq(timer);
+	if (ret < 0) {
+		error_printk("failed to release timer via hardware IP\n");
+		goto failed;
+	}
 
 	timer_bitmap &= ~(timer->num);
 	
@@ -103,15 +111,25 @@ static int timer_release(struct timer *timer)
 
 	kfree(timer_list[timer->num]);
 
+failed:
 	return 0;
 }
 
 static int timer_release_from_isr(struct timer *timer)
 {
+	int ret = 0;
+
+	ret = tim_ops.release_irq(timer);
+	if (ret < 0) {
+		error_printk("failed to release timer via hardware IP\n");
+		goto failed;
+	}
+
 	timer_bitmap &= ~(timer->num);
 	
 	kfree(timer_list[timer->num]);
 
+failed:
 	return 0;
 }
 
