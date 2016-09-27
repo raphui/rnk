@@ -171,6 +171,8 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 
 	tim_ops.request_irq(timer, &timer_isr, timer);
 
+	timer_set_rate(timer, 1000000);
+	timer_set_counter(timer, timer->counter);
 	timer_enable(timer);
 
 	mutex_unlock(&timer_mutex);
