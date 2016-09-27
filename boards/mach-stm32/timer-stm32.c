@@ -301,6 +301,8 @@ static int stm32_timer_release_irq(struct timer *timer)
 	else
 		ret = -ENOENT;
 
+	kfree(action);
+
 	return ret;
 }
 
