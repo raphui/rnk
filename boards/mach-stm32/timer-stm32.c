@@ -142,6 +142,10 @@ static int stm32_timer_init(struct timer *timer)
 	timer->prescaler = 0;
 
 	irq_line = stm32_timer_get_nvic_number(timer);
+	if (irq_line < 0) {
+		error_printk("invalid irq line\n");
+		goto clk_disable;
+	}
 
 	ret = irq_request(irq_line, &stm32_timer_isr, timer);
 	if (ret < 0) {
@@ -151,6 +155,10 @@ static int stm32_timer_init(struct timer *timer)
 
 	list_initialize(&action_list);
 
+	return ret;
+
+clk_disable:
+	stm32_rcc_disable_clk(timer->base_reg);
 	return ret;
 }
 
@@ -215,6 +223,11 @@ static void stm32_timer_enable(struct timer *timer)
 	TIM_TypeDef *tim = NULL;
 	int nvic = stm32_timer_get_nvic_number(timer);
 
+	if (nvic < 0) {
+		error_printk("invalid nvic line\n");
+		return;
+	}
+
 	tim = (TIM_TypeDef *)timer->base_reg;
 
 	if (timer->one_pulse)
@@ -238,6 +251,11 @@ static void stm32_timer_disable(struct timer *timer)
 {
 	TIM_TypeDef *tim = NULL;
 	int nvic = stm32_timer_get_nvic_number(timer);
+
+	if (nvic < 0) {
+		error_printk("invalid nvic line\n");
+		return;
+	}
 
 	tim = (TIM_TypeDef *)timer->base_reg;
 
