@@ -21,13 +21,21 @@
 #include <board.h>
 #include <pio.h>
 #include <time.h>
+#include <timer.h>
+
+void callback(void *arg)
+{
+	pio_toggle_value(GPIOC_BASE, 7);
+}
 
 void thread_a(void)
 {
 	while (1) {
+		printk("Timer launched !\n");
+		timer_oneshot(100, &callback, NULL);
 		printk("Sleeping...");
 		pio_set_value(GPIOA_BASE, 3);
-		usleep(10000);
+		usleep(100000);
 		pio_clear_value(GPIOA_BASE, 3);
 		printk("Waking up !\n");
 	}
@@ -38,8 +46,10 @@ int main(void)
 	printk("Starting timer tests\n");
 
 	pio_set_output(GPIOA_BASE, 3, 0);
+	pio_set_output(GPIOC_BASE, 7, 0);
 
 	add_thread(&thread_a, DEFAULT_PRIORITY);
 
 	return 0;
+
 }
