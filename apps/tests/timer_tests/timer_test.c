@@ -23,21 +23,39 @@
 #include <time.h>
 #include <timer.h>
 
+//#define DEBUG_IO_SLEEP
+
 void callback(void *arg)
 {
+#ifdef DEBUG_IO_SLEEP
 	pio_toggle_value(GPIOC_BASE, 7);
+#else
+	pio_clear_value(GPIOA_BASE, 3);
+#endif /* DEBUG_IO_SLEEP */
 }
 
 void thread_a(void)
 {
 	while (1) {
 		printk("Timer launched !\n");
-		timer_oneshot(100, &callback, NULL);
+
+#ifdef DEBUG_IO_SLEEP
+		timer_oneshot(200, &callback, NULL);
 		printk("Sleeping...");
 		pio_set_value(GPIOA_BASE, 3);
-		usleep(100000);
+		usleep(200000);
 		pio_clear_value(GPIOA_BASE, 3);
 		printk("Waking up !\n");
+#else
+		pio_set_value(GPIOA_BASE, 3);
+		timer_oneshot(200, &callback, NULL);
+		printk("Sleeping...");
+		pio_set_value(GPIOC_BASE, 7);
+		usleep(100000);
+		pio_clear_value(GPIOC_BASE, 7);
+		printk("Waking up !\n");
+
+#endif /* DEBUG_IO_SLEEP */
 	}
 }
 
