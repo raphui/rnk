@@ -61,6 +61,10 @@ void arch_system_call(unsigned int call, void *arg1, void *arg2, void *arg3)
 		debug_printk("System call ask for receive from queue\r\n");
 		SVC_ARG2(SVC_QUEUE_RECEIVE, arg1, arg2);
 		break;
+	case SVC_TIMER_ONESHOT:
+		debug_printk("System call ask for oneshot timer\r\n");
+		SVC_ARG3(SVC_TIMER_ONESHOT, arg1, arg2, arg3);
+		break;
 	default:
 		debug_printk("Invalid system call\r\n");
 		break;

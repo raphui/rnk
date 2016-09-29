@@ -97,6 +97,14 @@ void usleep(unsigned int usec)
 #endif /* CONFIG_BW_DELAY */
 }
 
+void svc_timer_oneshot(int delay, void (*handler)(void *), void *arg)
+{
+	thread_lock(state);
+
+
+	thread_unlock(state);
+}
+
 void decrease_thread_delay(void)
 {
 	struct thread *thread;

@@ -32,6 +32,7 @@ enum service_calls {
 	SVC_USLEEP,
 	SVC_QUEUE_POST,
 	SVC_QUEUE_RECEIVE,
+	SVC_TIMER_ONESHOT,
 };
 
 /*
