@@ -97,10 +97,20 @@ void usleep(unsigned int usec)
 #endif /* CONFIG_BW_DELAY */
 }
 
+void timer_soft(int delay, void (*handler)(void *), void *arg)
+{
+	arch_system_call(SVC_TIMER_ONESHOT, delay, handler, arg);
+}
+
 void svc_timer_oneshot(int delay, void (*handler)(void *), void *arg)
 {
+	int ret;
+
 	thread_lock(state);
 
+	ret = timer_oneshot_soft(delay, handler, arg);
+	if (ret < 0)
+		error_printk("failed to create software timer oneshot\n");
 
 	thread_unlock(state);
 }
@@ -145,4 +155,9 @@ void decrease_thread_delay(void)
 	}
 
 	thread_unlock(state);
+}
+
+void decrease_timer_delay(void)
+{
+	timer_soft_decrease_delay();
 }

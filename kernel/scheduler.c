@@ -93,6 +93,8 @@ void schedule_thread(struct thread *thread)
 #if !defined(CONFIG_HR_TIMER) && !defined(CONFIG_BW_DELAY)
 	decrease_thread_delay();
 #endif
+
+	decrease_timer_delay();
 }
 
 /* Since threads cannot end, if we jump into this functions it's mean that the context switch is buggy */
