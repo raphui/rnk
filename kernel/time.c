@@ -22,7 +22,7 @@
 #include <arch/svc.h>
 #include <stdio.h>
 #include <scheduler.h>
-#include <armv7m/system.h>
+#include <arch/system.h>
 #include <spinlock.h>
 
 #ifdef CONFIG_INITCALL
