@@ -19,6 +19,7 @@
 #define TIMER_H
 
 #include <device.h>
+#include <list.h>
 
 struct timer_device
 {
@@ -26,8 +27,10 @@ struct timer_device
 };
 
 struct timer_callback {
+	int delay;
 	void (*handler)(void *);
 	void *arg;
+	struct list_node node;
 };
 
 struct timer
@@ -58,10 +61,13 @@ struct timer_operations
 
 int timer_init(void);
 int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg);
+int timer_oneshot_soft(unsigned int delay, void (*handler)(void *), void *arg);
 void timer_set_rate(struct timer *timer, unsigned long rate);
 void timer_set_counter(struct timer *timer, unsigned short counter);
 void timer_enable(struct timer *timer);
 void timer_disable(struct timer *timer);
 void timer_clear_it_flags(struct timer *timer, unsigned int flags);
+void timer_soft_decrease_delay(void);
+
 
 #endif /* TIMER_H*/

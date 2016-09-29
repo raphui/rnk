@@ -29,6 +29,7 @@ static unsigned int timer_bitmap = 0;
 static unsigned int timer_mask = 0;
 static struct timer *timer_list[CONFIG_TIMER_NB];
 static struct mutex timer_mutex;
+static struct list_node timer_soft_list;
 
 void timer_set_rate(struct timer *timer, unsigned long rate)
 {
@@ -180,6 +181,52 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 	return 0;
 }
 
+
+int timer_oneshot_soft(unsigned int delay, void (*handler)(void *), void *arg)
+{
+	int ret = 0;
+	struct timer_callback *timer = NULL;
+	struct timer_callback *t = NULL;
+
+	timer = (struct timer_callback *)kmalloc(sizeof(struct timer_callback));
+	if (!timer) {
+		error_printk("cannot allocate soft timer\n");
+		return -ENOMEM;
+	}
+
+	timer->delay = delay;
+	timer->handler = handler;
+	timer->arg = arg;
+
+	list_for_every_entry(&timer_soft_list, t, struct timer_callback, node) {
+		if (t->delay > timer->delay) {
+			list_add_before(&t->node, &timer->node);
+			goto out;
+		}
+	}
+
+	list_add_tail(&timer_soft_list, &timer->node);
+
+out:
+	return ret;
+}
+
+void timer_soft_decrease_delay(void)
+{
+	struct timer_callback *t = NULL;
+	struct timer_callback *tmp = NULL;
+
+	list_for_every_entry_safe(&timer_soft_list, t, tmp, struct timer_callback, node) {
+		if (!t->delay) {
+			t->handler(t->arg);
+			list_delete(&t->node);
+			kfree(t);
+		}
+
+		t->delay--;
+	}
+}
+
 int timer_init(void)
 {
 	int ret = 0;
@@ -201,6 +248,7 @@ int timer_init(void)
 	timer_mask ^= (-1 ^ timer_mask) & (1 << CONFIG_TIMER_NB);
 
 	mutex_init(&timer_mutex);
+	list_initialize(&timer_soft_list);
 
 	return ret;
 
