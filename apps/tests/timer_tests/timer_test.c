@@ -24,6 +24,7 @@
 #include <timer.h>
 
 //#define DEBUG_IO_SLEEP
+#define SOFT_TIMER
 
 void callback(void *arg)
 {
@@ -40,7 +41,11 @@ void thread_a(void)
 		printk("Timer launched !\n");
 
 #ifdef DEBUG_IO_SLEEP
+#ifdef SOFT_TIMER
+		timer_soft(5000, &callback, NULL);
+#else
 		timer_oneshot(200, &callback, NULL);
+#endif
 		printk("Sleeping...");
 		pio_set_value(GPIOA_BASE, 3);
 		usleep(200000);
@@ -48,7 +53,12 @@ void thread_a(void)
 		printk("Waking up !\n");
 #else
 		pio_set_value(GPIOA_BASE, 3);
+#ifdef SOFT_TIMER
+		timer_soft(5000, &callback, NULL);
+#else
 		timer_oneshot(200, &callback, NULL);
+
+#endif
 		printk("Sleeping...");
 		pio_set_value(GPIOC_BASE, 7);
 		usleep(100000);
