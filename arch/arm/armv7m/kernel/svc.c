@@ -26,7 +26,7 @@
 #include <arch/svc.h>
 #include <arch/system.h>
 
-void arch_system_call(unsigned int call, void *arg1, void *arg2)
+void arch_system_call(unsigned int call, void *arg1, void *arg2, void *arg3)
 {
 	switch (call) {
 	case SVC_THREAD_SWITCH:

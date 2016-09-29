@@ -67,7 +67,7 @@ void svc_sem_wait(struct semaphore *sem)
 		insert_waiting_thread(sem, current_thread);
 		sem->waiting++;
 
-		arch_system_call(SVC_THREAD_SWITCH, NULL, NULL);
+		arch_system_call(SVC_THREAD_SWITCH, NULL, NULL, NULL);
 	}
 
 	thread_unlock(state);
@@ -75,7 +75,7 @@ void svc_sem_wait(struct semaphore *sem)
 
 void sem_wait(struct semaphore *sem)
 {
-	arch_system_call(SVC_WAIT_SEM, sem, NULL);
+	arch_system_call(SVC_WAIT_SEM, sem, NULL, NULL);
 }
 
 void svc_sem_post(struct semaphore *sem)
@@ -100,7 +100,7 @@ void svc_sem_post(struct semaphore *sem)
 
 			remove_waiting_thread(sem, thread);
 			insert_runnable_thread(thread);
-			arch_system_call(SVC_THREAD_SWITCH, NULL, NULL);
+			arch_system_call(SVC_THREAD_SWITCH, NULL, NULL, NULL);
 		}
 	}
 
@@ -109,5 +109,5 @@ void svc_sem_post(struct semaphore *sem)
 
 void sem_post(struct semaphore *sem)
 {
-	arch_system_call(SVC_POST_SEM, sem, NULL);
+	arch_system_call(SVC_POST_SEM, sem, NULL, NULL);
 }

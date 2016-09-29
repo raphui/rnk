@@ -96,7 +96,7 @@ void svc_mutex_lock(struct mutex *mutex)
 
 void mutex_lock(struct mutex *mutex)
 {
-	arch_system_call(SVC_ACQUIRE_MUTEX, mutex, NULL);
+	arch_system_call(SVC_ACQUIRE_MUTEX, mutex, NULL, NULL);
 }
 
 void svc_mutex_unlock(struct mutex *mutex)
@@ -122,7 +122,7 @@ void svc_mutex_unlock(struct mutex *mutex)
 
 				remove_waiting_thread(mutex, thread);
 				insert_runnable_thread(thread);
-				arch_system_call(SVC_THREAD_SWITCH, NULL, NULL);
+				arch_system_call(SVC_THREAD_SWITCH, NULL, NULL, NULL);
 			}
 		}
 
@@ -137,5 +137,5 @@ void svc_mutex_unlock(struct mutex *mutex)
 
 void mutex_unlock(struct mutex *mutex)
 {
-	arch_system_call(SVC_RELEASE_MUTEX, mutex, NULL);
+	arch_system_call(SVC_RELEASE_MUTEX, mutex, NULL, NULL);
 }
