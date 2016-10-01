@@ -16,15 +16,114 @@
  */
 
 #include <board.h>
-#include <ldc.h>
+#include <lcd.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <mm.h>
+#include <init.h>
 
-int lcd_init(struct lcd *lcd)
-{
-	return lcd_ops.init(lcd);
-}
-
+static int dev_count = 0;
+static char dev_prefix[10] = "/dev/fb";
+static struct list_node lcd_device_list;
 
 void lcd_init_gpio(void)
 {
 	lcd_ops.init_gpio();
 }
+
+struct lcd *lcd_new_device(void)
+{
+	struct lcd *lcddev = NULL;
+
+	lcddev = (struct lcd *)kmalloc(sizeof(struct lcd));
+	if (!lcddev) {
+		error_printk("cannot allocate lcd device\n");
+		return NULL;
+	}
+
+	dev_count++;
+
+	return lcddev;
+}
+
+int lcd_remove_device(struct lcd *lcd)
+{
+	int ret = 0;
+	struct lcd *lcddev = NULL;
+
+	list_for_every_entry(&lcd_device_list, lcddev, struct lcd, node)
+		if (lcddev == lcd)
+			break;
+
+	if (lcddev) {
+		list_delete(&lcddev->node);
+		kfree(lcddev);
+	}
+	else
+		ret = -ENOENT;
+
+
+	dev_count--;
+
+	return ret;
+}
+
+int lcd_register_device(struct lcd *lcd)
+{
+	int ret = 0;
+	char tmp[10] = {0};
+
+	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
+
+	/* XXX: ascii 0 start at 0x30
+	 *	and (dev_count - 1) to start at 0
+	 */
+	tmp[8] = 0x30 + (dev_count - 1);
+
+	memcpy(lcd->dev.name, tmp, sizeof(tmp));
+
+	ret = device_register(&lcd->dev);
+	if (ret < 0) {
+		error_printk("failed to register device\n");
+		ret = -ENOMEM;
+		goto failed_out;
+	}
+
+	list_add_tail(&lcd_device_list, &lcd->node);
+
+	return lcd_ops.init(lcd);
+
+failed_out:
+	/* XXX: deallocate here ? */
+	kfree(lcd);
+	return ret;
+}
+
+int lcd_init(void)
+{
+	int ret = 0;
+	struct lcd_bus *bus = NULL;
+
+	bus = (struct lcd_bus *)kmalloc(sizeof(struct lcd_bus));
+	if (!bus) {
+		error_printk("cannot allocate lcd bus\n");
+		return -ENOMEM;
+	}
+
+	ret = device_register(&bus->dev);
+	if (ret < 0) {
+		error_printk("failed to register bus\n");
+		ret = -ENOMEM;
+		goto failed_out;
+	}
+
+	return ret;
+
+failed_out:
+	kfree(bus);
+	return ret;
+}
+#ifdef CONFIG_INITCALL
+coredevice_initcall(lcd_init);
+#endif /* CONFIG_INITCALL */

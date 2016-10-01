@@ -19,6 +19,9 @@
 #ifndef LCD_H
 #define LCD_H
 
+#include <device.h>
+#include <list.h>
+
 struct lcd {
 	unsigned short hsync;
 	unsigned short vsync;
@@ -30,6 +33,12 @@ struct lcd {
 	unsigned int height;
 	unsigned char bpp;
 	unsigned int fb_addr;
+	struct list_node node;
+	struct device dev;
+};
+
+struct lcd_bus {
+	struct device dev;
 };
 
 struct lcd_operations
@@ -38,7 +47,10 @@ struct lcd_operations
 	void (*init_gpio)(void);
 };
 
-int lcd_init(struct lcd *lcd);
+struct lcd *lcd_new_device(void);
+int lcd_remove_device(struct lcd *lcd);
+int lcd_register_device(struct lcd *lcd);
 void lcd_init_gpio(void);
+int lcd_init(void);
 
 #endif /* LCD_H */
