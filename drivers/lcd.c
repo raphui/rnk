@@ -16,11 +16,11 @@
  */
 
 #include <board.h>
-#include <ltdc.h>
+#include <ldc.h>
 
-int lcd_init(struct ltdc *ltdc)
+int lcd_init(struct lcd *lcd)
 {
-	return lcd_ops.init(ltdc);
+	return lcd_ops.init(lcd);
 }
 
 

@@ -16,10 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef LTDC_H
-#define LTDC_H
+#ifndef LCD_H
+#define LCD_H
 
-struct ltdc {
+struct lcd {
 	unsigned short hsync;
 	unsigned short vsync;
 	unsigned short hbp;
@@ -34,11 +34,11 @@ struct ltdc {
 
 struct lcd_operations
 {
-	int (*init)(struct ltdc *ltdc);
+	int (*init)(struct lcd *lcd);
 	void (*init_gpio)(void);
 };
 
-int lcd_init(struct ltdc *ltdc);
+int lcd_init(struct lcd *lcd);
 void lcd_init_gpio(void);
 
-#endif /* LTDC_H */
+#endif /* LCD_H */
