@@ -18,7 +18,9 @@
 #ifndef SPI_H
 #define SPI_H
 
+#include <device.h>
 #include <dma.h>
+#include <list.h>
 
 struct spi {
 	unsigned int num;
@@ -31,6 +33,11 @@ struct spi {
 	unsigned char only_tx;
 	unsigned char only_rx;
 	unsigned char use_dma;
+	struct list_node node;
+	struct device dev;
+};
+
+struct spi_bus {
 	struct device dev;
 };
 
@@ -41,6 +48,9 @@ struct spi_operations
 	int (*read)(struct spi *spi, unsigned char *buff, unsigned int size);
 };
 
-int spi_init(struct spi *spi);
+struct spi *spi_new_device(void);
+int spi_remove_device(struct spi *spi);
+int spi_register_device(struct spi *spi);
+int spi_init(void);
 
 #endif /* SPI_H */
