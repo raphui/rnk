@@ -18,26 +18,27 @@
 #include <board.h>
 #include <ili9341.h>
 #include <pio.h>
-#include <spi.h>
 #include <time.h>
+#include <init.h>
+#include <mm.h>
+#include <errno.h>
 
-struct spi spi;
+static struct ili9341_device *dev = NULL;
 
-void ili9341_init(void)
+void ili9341_send_command(unsigned char data)
 {
-	pio_set_alternate(GPIOF_BASE, 7, 0x5);
-	pio_set_alternate(GPIOF_BASE, 8, 0x5);
-	pio_set_alternate(GPIOF_BASE, 9, 0x5);
+	pio_clear_value(GPIOD_BASE, 13);
+	pio_clear_value(GPIOC_BASE, 2);
+	spi_transfer(dev->spi, data, sizeof(unsigned char), SPI_TRANSFER_WRITE);
+	pio_set_value(GPIOC_BASE, 2);
+}
 
-	spi.num = 5;
-	spi.base_reg = SPI5_BASE;
-	spi.rate = 0;
-	spi.speed = 10000000;
-	spi.mode = 1;
-	spi.only_tx = 1;
-	spi.use_dma = 0;
-
-	spi_init(&spi);
+void ili9341_send_data(unsigned char data)
+{
+	pio_set_value(GPIOD_BASE, 13);
+	pio_clear_value(GPIOC_BASE, 2);
+	spi_transfer(dev->spi, data, sizeof(unsigned char), SPI_TRANSFER_WRITE);
+	pio_set_value(GPIOC_BASE, 2);
 }
 
 void ili9341_init_lcd(void)
@@ -157,18 +158,83 @@ void ili9341_init_lcd(void)
 	ili9341_send_command(ILI9341_GRAM);
 }
 
-void ili9341_send_command(unsigned char data)
+int ili9341_init(void)
 {
-	pio_clear_value(GPIOD_BASE, 13);
-	pio_clear_value(GPIOC_BASE, 2);
-	spi_write(&spi, data);
-	pio_set_value(GPIOC_BASE, 2);
-}
+	int ret = 0;
+	struct spi *spi = NULL;
+	struct lcd *lcd = NULL;
 
-void ili9341_send_data(unsigned char data)
-{
-	pio_set_value(GPIOD_BASE, 13);
-	pio_clear_value(GPIOC_BASE, 2);
-	spi_write(&spi, data);
-	pio_set_value(GPIOC_BASE, 2);
+	dev = (struct ili9341_device *)kmalloc(sizeof(struct ili9341_device));
+	if (!dev) {
+		error_printk("cannot allocate ili9341 device\n");
+		return -ENOMEM;
+	}
+
+	spi = spi_new_device();
+	if (!spi) {
+		error_printk("failed to retrive new spi device\n");
+		ret = -EIO;
+		goto free_ilidev;
+	}
+
+	spi->num = 5;
+	spi->base_reg = SPI5_BASE;
+	spi->rate = 0;
+	spi->speed = 10000000;
+	spi->mode = 1;
+	spi->only_tx = 1;
+	spi->use_dma = 0;
+
+	ret = spi_register_device(spi);
+	if (ret < 0) {
+		error_printk("failed to register spi device\n");
+		goto free_spi;
+	}
+
+	dev->spi = spi;
+
+	lcd = lcd_new_device();
+	if (!lcd) {
+		error_printk("failed to retrive new lcd device\n");
+		ret = -EIO;
+		goto free_spi;
+	}
+
+	lcd->hsync = ILI9341_HSYNC;
+	lcd->vsync = ILI9341_VSYNC;
+	lcd->hbp = ILI9341_HBP;
+	lcd->hfp = ILI9341_HFP;
+	lcd->vbp = ILI9341_VBP;
+	lcd->vfp = ILI9341_VFP;
+	lcd->width = ILI9341_WIDTH;
+	lcd->height = ILI9341_HEIGHT;
+	lcd->bpp = ILI9341_BPP;
+	lcd->fb_addr = CONFIG_ILI9341_FRAME_BUFFER;
+
+	ret = lcd_register_device(lcd);
+	if (ret < 0) {
+		error_printk("failed to register lcd device\n");
+		goto free_lcd;
+	}
+
+	dev->lcd = lcd;
+
+	pio_set_alternate(GPIOF_BASE, 7, 0x5);
+	pio_set_alternate(GPIOF_BASE, 8, 0x5);
+	pio_set_alternate(GPIOF_BASE, 9, 0x5);
+
+	ili9341_init_lcd();
+
+	return ret;
+
+free_lcd:
+	kfree(lcd);
+free_spi:
+	kfree(spi);
+free_ilidev:
+	kfree(dev);
+	return ret;
 }
+#ifdef CONFIG_INITCALL
+device_initcall(ili9341_init);
+#endif /* CONFIG_INITCALL */

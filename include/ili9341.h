@@ -18,13 +18,28 @@
 #ifndef ILI9341_H
 #define ILI9341_H
 
+#include <device.h>
+#include <spi.h>
+#include <lcd.h>
+
+struct ili9341_device {
+	unsigned int fb_addr;
+	struct spi *spi;
+	struct lcd *lcd;
+	struct device dev;
+};
+
 /* LCD settings */
 #define ILI9341_WIDTH				240
 #define ILI9341_HEIGHT				320
+#define ILI9341_HSYNC				16
+#define ILI9341_VSYNC				2
+#define ILI9341_HBP				40
+#define ILI9341_HFP				10
+#define ILI9341_VBP				2
+#define ILI9341_VFP				4
+#define ILI9341_BPP				2
 #define ILI9341_PIXEL				76800
-
-/* Starting buffer address in RAM */
-#define ILI9341_FRAME_BUFFER			0xD0000000
 
 /* Commands */
 #define ILI9341_RESET				0x01
@@ -58,7 +73,7 @@
 #define ILI9341_INTERFACE			0xF6
 #define ILI9341_PRC				0xF7
 
-void ili9341_init(void);
+int ili9341_init(void);
 void ili9341_init_lcd(void);
 void ili9341_send_command(unsigned char data);
 void ili9341_send_data(unsigned char data);
