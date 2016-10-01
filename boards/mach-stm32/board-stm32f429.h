@@ -23,7 +23,7 @@
 #include <usart.h>
 #include <pio.h>
 #include <timer.h>
-#include <ltdc.h>
+#include <lcd.h>
 #include <spi.h>
 #include <dma.h>
 #include <mtd.h>
