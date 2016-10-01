@@ -34,11 +34,11 @@ struct lcd {
 
 struct lcd_operations
 {
-	int (*init)(struct ltdc *ltdc);
+	int (*init)(struct lcd *lcd);
 	void (*init_gpio)(void);
 };
 
-int lcd_init(struct ltdc *ltdc);
+int lcd_init(struct lcd *lcd);
 void lcd_init_gpio(void);
 
 #endif /* LCD_H */
