@@ -26,8 +26,8 @@
 int time_init(void);
 void svc_usleep(struct timer *timer);
 void usleep(unsigned int usec);
-void timer_soft(int delay, void (*handler)(void *), void *arg);
-void svc_timer_oneshot(int delay, void (*handler)(void *), void *arg);
+void timer_soft_oneshot(int delay, void (*handler)(void *), void *arg);
+void svc_timer_soft_oneshot(int delay, void (*handler)(void *), void *arg);
 void decrease_thread_delay(void);
 
 #endif /* TIME_H */

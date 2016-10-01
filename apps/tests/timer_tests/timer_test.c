@@ -42,7 +42,7 @@ void thread_a(void)
 
 #ifdef DEBUG_IO_SLEEP
 #ifdef SOFT_TIMER
-		timer_soft(5000, &callback, NULL);
+		timer_soft_oneshot(5000, &callback, NULL);
 #else
 		timer_oneshot(200, &callback, NULL);
 #endif
@@ -54,7 +54,7 @@ void thread_a(void)
 #else
 		pio_set_value(GPIOA_BASE, 3);
 #ifdef SOFT_TIMER
-		timer_soft(5000, &callback, NULL);
+		timer_soft_oneshot(5000, &callback, NULL);
 #else
 		timer_oneshot(200, &callback, NULL);
 

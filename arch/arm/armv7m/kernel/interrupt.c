@@ -146,7 +146,7 @@ void svc_handler(unsigned int call, void *arg)
 		break;
 	case SVC_TIMER_ONESHOT:
 		debug_printk("SVC call ask for oneshot timer\r\n");
-		svc_timer_oneshot((int)psp[1], (void (*)(void *))psp[2], (void *)psp[3]);
+		svc_timer_soft_oneshot((int)psp[1], (void (*)(void *))psp[2], (void *)psp[3]);
 		break;
 	default:
 		debug_printk("Invalid svc call\r\n");
