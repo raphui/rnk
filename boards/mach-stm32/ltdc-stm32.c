@@ -17,7 +17,7 @@
  */
 
 #include <board.h>
-#include <ltdc.h>
+#include <lcd.h>
 #include <utils.h>
 #include <stdio.h>
 #include <mach/pio-stm32.h>
@@ -41,7 +41,7 @@ static void stm32_ltdc_clk_divconfig(unsigned int div_r)
 	RCC->DCKCFGR |= div_r;
 }
 
-static int stm32_ltdc_enable_fb(struct ltdc *ltdc)
+static int stm32_ltdc_enable_fb(struct lcd *ltdc)
 {
 	int ret = 0;
 
@@ -70,7 +70,7 @@ static int stm32_ltdc_enable_fb(struct ltdc *ltdc)
 	return ret;
 }
 
-int stm32_ltdc_init(struct ltdc *ltdc)
+int stm32_ltdc_init(struct lcd *ltdc)
 {
 	unsigned int h_cycles;
 	unsigned int v_cycles;
