@@ -8,6 +8,9 @@ menu "Kernel configuration"
 config THREAD_STACK_START
 	hex "Start address of kernel THREAD stack"
 
+config THREAD_STACK_SIZE
+	hex "Size of kernel THREAD stack"
+
 config INITCALL
 	bool "Enable initcall and exitcall"
 
