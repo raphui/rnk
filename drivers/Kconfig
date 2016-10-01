@@ -14,6 +14,10 @@ config SPI_SPIDEV
 config ILI9341
 	bool "TFT driver for ILI9341"
 
+config ILI9341_FRAME_BUFFER
+	depends on ILI9341
+	hex "Address of the frame buffer"
+
 config LCD_SUBSYS
 	bool "LCD subsystem driver"
 
