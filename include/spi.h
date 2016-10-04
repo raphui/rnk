@@ -22,6 +22,9 @@
 #include <dma.h>
 #include <list.h>
 
+#define SPI_TRANSFER_READ	1
+#define SPI_TRANSFER_WRITE	2
+
 struct spi {
 	unsigned int num;
 	unsigned int base_reg;
@@ -48,6 +51,7 @@ struct spi_operations
 	int (*read)(struct spi *spi, unsigned char *buff, unsigned int size);
 };
 
+int spi_transfer(struct spi *spi, unsigned char *buff, unsigned int size, int direction);
 struct spi *spi_new_device(void);
 int spi_remove_device(struct spi *spi);
 int spi_register_device(struct spi *spi);

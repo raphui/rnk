@@ -44,6 +44,24 @@ static int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
 	return spi_ops.read(spi, buff, size);
 }
 
+int spi_transfer(struct spi *spi, unsigned char *buff, unsigned int size, int direction)
+{
+	int ret = 0;
+
+	verbose_printk("spi %s transfer\n", (direction == SPI_TRANSFER_READ) ? "read" : "write");
+
+	if (direction == SPI_TRANSFER_READ)
+		ret = spi_read(&spi->dev, buff, size);
+	else if (direction == SPI_TRANSFER_WRITE)
+		ret = spi_write(&spi->dev, buff, size);
+	else {
+		error_printk("invalid spi transfer direction\n");
+		ret = -EINVAL;
+	}
+
+	return ret;
+}
+
 struct spi *spi_new_device(void)
 {
 	struct spi *spidev = NULL;
