@@ -48,6 +48,8 @@ KCONFIG_AUTOHEADER=config.h
 ifeq (${MAKELEVEL}, 0)
 INCLUDES	+= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
+# XXX: find a more elegant way to handle include depending of CONFIG_
+INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/fdt/include
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
 CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -nostdinc -g $(INCLUDES)
@@ -70,7 +72,7 @@ LDS := $(CROSS_COMPILE)gcc -E -P
 
 endif
 
-subdirs-y := arch boards boot drivers kernel ldscripts loader mm utils
+subdirs-y := arch boards boot drivers kernel ldscripts loader mm third_party utils
 
 linker_files = rnk.lds
 
