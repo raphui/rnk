@@ -28,4 +28,7 @@ config TIMER_NB
 	depends on TIMER_SUBSYS
 	int "Number of hardware timer"
 
+config OF
+	bool "Use device tree probing"
+
 endmenu
