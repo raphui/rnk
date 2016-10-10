@@ -18,6 +18,9 @@
 #ifndef I2C_H
 #define I2C_H
 
+#define I2C_MASTER	0
+#define I2C_SLAVE	1
+
 struct i2c {
 	unsigned char bus;
 	unsigned char mode;
