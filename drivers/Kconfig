@@ -8,6 +8,9 @@ menu "Drivers configuration"
 config IRQ_SUBSYS
 	bool "IRQ subsystem driver"
 
+config I2C_SUBSYS
+	bool "I2C subsystem driver"
+
 config SPI_SPIDEV
 	bool "Usermode SPI driver support"
 

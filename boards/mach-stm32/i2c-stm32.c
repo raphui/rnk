@@ -17,13 +17,14 @@
 
 #include <board.h>
 #include <utils.h>
+#include <stdio.h>
 #include <i2c.h>
+#include <mach/rcc-stm32.h>
+#include <arch/nvic.h>
+#include <errno.h>
 
-static unsigned int i2c_rcc_bit[] = {
-	RCC_APB1ENR_I2C1EN,
-	RCC_APB1ENR_I2C2EN,
-	RCC_APB1ENR_I2C3EN,
-};
+#define I2C_MIN_SPEED	2
+#define I2C_MAX_SPEED	42
 
 static unsigned int i2c_bus_base[] = {
 	I2C1_BASE,
@@ -31,14 +32,58 @@ static unsigned int i2c_bus_base[] = {
 	I2C3_BASE,
 };
 
-void stm32_i2c_init(struct i2c *i2c)
+static int stm32_i2c_check_speed(unsigned int speed)
 {
+	int ret = -EINVAL;
+
+	if (speed => I2C_MIN_SPEED && speed <= I2C_MAX_SPEED)
+		ret = 0;
+
+	return ret;
+}
+
+int stm32_i2c_init(struct i2c *i2c)
+{
+	int ret = 0;
 	unsigned char bus_index = i2c->bus - 1;
-	unsigned int rcc_off = bus_index;
 	unsigned int i2c_base = i2c_bus_base[bus_index];
-	I2C_TypeDef *i2c_reg = (I2C_TypeDef *)i2c_base;
+	I2C_TypeDef *I2C = (I2C_TypeDef *)i2c_base;
 
-	RCC->APB1ENR |= i2c_rcc_bit[rcc_off];
+	ret = stm32_rcc_enable_clk(i2c_base);
+	if (ret < 0) {
+		error_printk("cannot enable I2C periph clock\n");
+		return ret;
+	}
 
-	i2c_reg->CCR |= I2C_CCR_FS; 
+	ret = stm32_i2c_check_speed(i2c->clk_rate);
+	if (ret < 0) {
+		error_printk("I2C speed is incorrect\n");
+		goto disable_clk;
+	}
+
+	I2C->CR2 |= i2c->clk_rate;
+
+	return ret;
+
+disable_clk:
+	stm32_rcc_disable_clk(i2c_base);
+	return ret;
+}
+
+
+int stm32_spi_write(struct spi *spi, unsigned char *buff, unsigned int size)
+{
+	int ret = 0;
+
+
+	return ret;
+}
+
+
+int stm32_spi_read(struct spi *spi, unsigned char *buff, unsigned int size)
+{
+	int ret = 0;
+
+
+	return ret;
 }
