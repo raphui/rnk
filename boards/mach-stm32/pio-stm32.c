@@ -19,12 +19,25 @@
 #include <utils.h>
 #include <mach/rcc-stm32.h>
 #include <mach/exti-stm32.h>
+#include <errno.h>
+#include <fdtparse.h>
 
 #define GPIO_MODER(pin)			(3 << (pin * 2))
 #define GPIO_MODER_OUTPUT(pin)		(1 << (pin * 2))
 #define GPIO_MODER_ALTERNATE(pin)	(2 << (pin * 2))
 #define GPIO_OSPEEDR(pin)		(3 << (pin * 2))
 #define GPIO_PUPDR_PULLUP(pin)		(1 << (pin * 2))
+
+struct gpio_options
+{
+	unsigned char val:1;			/* 0: low, 1: high */
+	unsigned char mode:1;			/* 0: in, 1: out */
+	unsigned char output:1;			/* 0: pp, 1: od */
+	unsigned char speed:2;			/* 0 slow ... 3 fast */
+	unsigned char pull:2;			/* 0: no, 1 pu, 2, pd */
+	unsigned char analog:1;
+	unsigned char edge:2;
+};
 
 static void stm32_pio_set_clock(unsigned int port)
 {
@@ -104,6 +117,87 @@ static void stm32_pio_enable_interrupt(unsigned int port, unsigned int mask)
 
 static void stm32_pio_disable_interrupt(unsigned int port, unsigned int mask)
 {
+}
+
+int stm32_pio_of_configure(int fdt_offset)
+{
+	const void *fdt_blob = fdtparse_get_blob();
+	const struct fdt_property *prop;
+	fdt32_t *cell;
+	fdt32_t address;
+	struct gpio_options *options;
+	unsigned int base;
+	int gpio;
+	int gpio_num;
+	int alt_func;
+	unsigned short flags;
+	int len, num, i;
+	int parent_phandle, parent_offset;
+
+	prop = fdt_get_property(fdt_blob, fdt_offset, "gpios", &len);
+	if (len < 0) {
+		return len;
+	}
+
+	/* XXX: gpio cells have 3 fields */
+	num = len / (3 * sizeof(fdt32_t));
+
+	cell = (fdt32_t *)prop->data;
+
+	for(i = 0; i < num; i++, cell += 3) {
+		options = (struct gpio_options *)&flags;
+
+		/* XXX: cell[0] is gpio path, cell[1] is number, cell[2] is flags */
+		// get gpio handle and start pio clock
+		parent_phandle = fdt32_to_cpu(cell[0]);
+		parent_offset = fdt_node_offset_by_phandle(fdt_blob, parent_phandle);
+//		fdt_enable_clock(fdt_blob, parent_offset, 0);
+
+		base = (unsigned int)fdtparse_get_addr32(parent_offset, "reg");
+		gpio = fdt32_to_cpu(cell[1]);
+		flags = fdt32_to_cpu(cell[2]);
+
+		if(options->mode)
+			stm32_pio_set_output(base, gpio_num, options->pull);
+//		if(options->output)
+//			makePioOutputOD(pio, gpio);
+//		if(options->speed)
+//			setPioSpeed(pio, gpio, options->speed);
+
+		gpio_num = gpio & 0xFF;		
+
+		if(gpio & 0xF00) {
+			alt_func = (gpio >> 8) & 0xF;
+			stm32_pio_set_alternate(base, gpio_num, alt_func);
+		} else {
+			if(options->val)
+				stm32_pio_set_value(base, gpio_num);
+			else
+				stm32_pio_clear_value(base, gpio_num);
+		}
+		
+		if(options->edge)
+		{
+//			// configure syscfg and unmask it
+//			unsigned int tmp;
+//			int pin_source = getPioPin(gpio);
+//			int port_source;
+//			Syscfg_t *syscfg = pOsState->syscfg;
+//
+//			int syscfg_id, off = fdt_path_offset(fdt, "/apb2/syscfg");
+//			fdtparse_get_int(off, "id", &syscfg_id);
+//			enablePeriphClock(syscfg_id);
+//
+//			fdtparse_get_int(parent_offset, "id", &port_source);
+//			tmp = ((uint32_t)0x0F) << (0x04 * (pin_source & (uint8_t)0x03));
+//			syscfg->SYSCFG_EXTICR[pin_source >> 0x02] &= ~tmp;
+//			syscfg->SYSCFG_EXTICR[pin_source >> 0x02] |= (((uint32_t)port_source) << (0x04 * (pin_source & (uint8_t)0x03)));
+//
+//			unmaskPioInterrupt(pio, gpio, options->edge);
+		}
+	}
+
+	return num;
 }
 
 struct pio_operations pio_ops = {
