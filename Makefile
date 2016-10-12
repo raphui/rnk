@@ -68,6 +68,7 @@ CC := $(CROSS_COMPILE)gcc
 AS := $(CROSS_COMPILE)as
 AR := $(CROSS_COMPILE)ar
 LD := $(CROSS_COMPILE)ld
+OBJCOPY := $(CROSS_COMPILE)objcopy
 LDS := $(CROSS_COMPILE)gcc -E -P
 DTC := dtc
 
@@ -76,6 +77,7 @@ endif
 subdirs-y := arch boards boot drivers kernel ldscripts loader mm third_party utils
 
 linker_files = rnk.lds
+dtb = rnk.dtb
 
 ifeq (${MAKELEVEL}, 0)
 conf:
@@ -110,7 +112,7 @@ symbols-clean:
 
 kernel.img: kernel.elf 
 	@@echo "OBJCOPY " $<
-	@$(CROSS_COMPILE)objcopy kernel.elf -O binary kernel.bin
+	@$(OBJCOPY) kernel.elf -O binary kernel.bin
 
 clean:
 	$(MAKE) -f tools/Makefile.common dir=. $@
