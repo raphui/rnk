@@ -22,6 +22,10 @@
 #include <string.h>
 #include <utils.h>
 
+#ifdef CONFIG_INITCALL
+#include <init.h>
+#endif /* CONFIG_INITCALL */
+
 static int dev_count = 0;
 static char dev_prefix[10] = "/dev/spi";
 static struct list_node spi_device_list;
@@ -158,5 +162,5 @@ failed_out:
 	return ret;
 }
 #ifdef CONFIG_INITCALL
-coredevice_initcall(spi_init);
+pure_initcall(spi_init);
 #endif /* CONFIG_INITCALL */
