@@ -20,10 +20,15 @@
 #include <stdio.h>
 #include <mach/dma-stm32.h>
 #include <mach/rcc-stm32.h>
+#include <mach/pio-stm32.h>
 #include <arch/nvic.h>
 #include <errno.h>
 #include <queue.h>
 #include <common.h>
+#include <fdtparse.h>
+#include <init.h>
+
+#define SPI_COMPAT	"st,stm32f4xx-spi"
 
 static int stm32_spi_get_nvic_number(struct spi_master *spi)
 {
@@ -209,6 +214,50 @@ int stm32_spi_read(struct spi_device *spidev, unsigned char *buff, unsigned int 
 	return n;
 }
 
+int stm32_spi_of_init(struct spi_master *spi)
+{
+	int offset;
+	int ret = 0;
+	const void *fdt_blob = fdtparse_get_blob();
+
+	offset = fdt_path_offset(fdt_blob, spi->dev.of_path);
+	if (offset < 0) {
+		ret = -ENOENT;
+		goto out;
+	}
+
+	ret = fdt_node_check_compatible(fdt_blob, offset, SPI_COMPAT);
+	if (ret < 0)
+		goto out;
+
+	spi->base_reg = (unsigned int)fdtparse_get_addr32(offset, "reg");
+	if (!spi->base_reg) {
+		error_printk("failed to retrieve spi base reg from fdt\n");
+		ret = -ENOENT;
+		goto out;
+	}
+
+	ret = stm32_pio_of_configure(offset);
+	if (ret < 0) {
+		error_printk("failed to configure spi gpio\n");
+		goto out;
+	}
+
+	ret = fdtparse_get_int(offset, "clock", (int *)&spi->source_clk);
+	if (ret < 0) {
+		error_printk("failed to retrieve spi source clk\n");
+		ret = -EIO;
+		goto out;
+	}
+
+	spi->source_clk = stm32_rcc_get_freq_clk(spi->source_clk);
+
+	/* TODO: retrieve bus num, etc. */
+
+out:
+	return ret;
+}
+
 int stm32_spi_init(void)
 {
 	int ret = 0;
@@ -222,6 +271,12 @@ int stm32_spi_init(void)
 		goto err;
 	}
 
+	ret = stm32_spi_of_init(spi);
+	if (ret < 0) {
+		error_printk("failed to init spi with fdt data\n");
+		goto err;
+	}
+
 	SPI = (SPI_TypeDef *)spi->base_reg;
 
 	ret = stm32_rcc_enable_clk(spi->base_reg);
@@ -230,7 +285,7 @@ int stm32_spi_init(void)
 		goto err;
 	}
 
-	spi->rate = APB2_CLK;
+	spi->rate = spi->source_clk;
 	spi->rate = stm32_spi_find_best_pres(spi->rate, spi->speed);
 
 	SPI->CR1 &= ~SPI_CR1_SPE;
