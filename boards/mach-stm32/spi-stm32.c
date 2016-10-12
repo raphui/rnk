@@ -25,7 +25,7 @@
 #include <queue.h>
 #include <common.h>
 
-static int stm32_spi_get_nvic_number(struct spi *spi)
+static int stm32_spi_get_nvic_number(struct spi_master *spi)
 {
 	int nvic = 0;
 
@@ -85,7 +85,7 @@ static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long r
 	return best_pres;
 }
 
-static void stm32_spi_init_dma(struct spi *spi)
+static void stm32_spi_init_dma(struct spi_master *spi)
 {
 	struct dma *dma = &spi->dma;
 	dma->num = 2;
@@ -104,46 +104,9 @@ static void stm32_spi_init_dma(struct spi *spi)
 	stm32_dma_init(dma);
 }
 
-int stm32_spi_init(struct spi *spi)
+static unsigned short stm32_spi_dma_write(struct spi_device *spidev, unsigned short data)
 {
-	int ret = 0;
-	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
-
-	ret = stm32_rcc_enable_clk(spi->base_reg);
-	if (ret < 0) {
-		error_printk("cannot enable SPI periph clock\r\n");
-		return ret;
-	}
-
-	spi->rate = APB2_CLK;
-	spi->rate = stm32_spi_find_best_pres(spi->rate, spi->speed);
-
-	SPI->CR1 &= ~SPI_CR1_SPE;
-
-	SPI->CR1 |= (0x2 << 3);
-
-	/* Set master mode */
-	SPI->CR1 |= SPI_CR1_MSTR;
-
-	/* Handle slave selection via software */
-	SPI->CR1 |= SPI_CR1_SSM;
-	SPI->CR1 |= SPI_CR1_SSI;
-
-	SPI->CR1 |= SPI_CR1_BIDIOE;
-
-	SPI->CR2 |= SPI_CR2_TXEIE;
-	SPI->CR2 |= SPI_CR2_ERRIE;
-
-	if (spi->use_dma)
-		stm32_spi_init_dma(spi);
-
-	SPI->CR1 |= SPI_CR1_SPE;
-
-	return ret;
-}
-
-static unsigned short stm32_spi_dma_write(struct spi *spi, unsigned short data)
-{
+	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
 	struct dma *dma = &spi->dma;
@@ -184,8 +147,9 @@ static unsigned short stm32_spi_dma_write(struct spi *spi, unsigned short data)
 
 }
 
-int stm32_spi_write(struct spi *spi, unsigned char *buff, unsigned int size)
+int stm32_spi_write(struct spi_device *spidev, unsigned char *buff, unsigned int size)
 {
+	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 	int i;
 	int ret;
@@ -196,7 +160,7 @@ int stm32_spi_write(struct spi *spi, unsigned char *buff, unsigned int size)
 		data = *(unsigned short *)(buff + i);
 
 		if (spi->use_dma) {
-			ret = stm32_spi_dma_write(spi, data);
+			ret = stm32_spi_dma_write(spidev, data);
 			if (ret < 0)
 				return ret;
 
@@ -220,8 +184,9 @@ int stm32_spi_write(struct spi *spi, unsigned char *buff, unsigned int size)
 	return n;
 }
 
-int stm32_spi_read(struct spi *spi, unsigned char *buff, unsigned int size)
+int stm32_spi_read(struct spi_device *spidev, unsigned char *buff, unsigned int size)
 {
+	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 	int i;
 	int n = 0;
@@ -244,8 +209,69 @@ int stm32_spi_read(struct spi *spi, unsigned char *buff, unsigned int size)
 	return n;
 }
 
+int stm32_spi_init(void)
+{
+	int ret = 0;
+	struct spi_master *spi = NULL;
+	SPI_TypeDef *SPI = NULL;
+
+	spi = spi_new_master();
+	if (!spi) {
+		error_printk("failed to retrieve new spi master\n");
+		ret = -EIO;
+		goto err;
+	}
+
+	SPI = (SPI_TypeDef *)spi->base_reg;
+
+	ret = stm32_rcc_enable_clk(spi->base_reg);
+	if (ret < 0) {
+		error_printk("cannot enable SPI periph clock\r\n");
+		goto err;
+	}
+
+	spi->rate = APB2_CLK;
+	spi->rate = stm32_spi_find_best_pres(spi->rate, spi->speed);
+
+	SPI->CR1 &= ~SPI_CR1_SPE;
+
+	SPI->CR1 |= (0x2 << 3);
+
+	/* Set master mode */
+	SPI->CR1 |= SPI_CR1_MSTR;
+
+	/* Handle slave selection via software */
+	SPI->CR1 |= SPI_CR1_SSM;
+	SPI->CR1 |= SPI_CR1_SSI;
+
+	SPI->CR1 |= SPI_CR1_BIDIOE;
+
+	SPI->CR2 |= SPI_CR2_TXEIE;
+	SPI->CR2 |= SPI_CR2_ERRIE;
+
+	if (spi->use_dma)
+		stm32_spi_init_dma(spi);
+
+	SPI->CR1 |= SPI_CR1_SPE;
+
+	ret = spi_register_master(spi);
+	if (ret < 0) {
+		error_printk("failed to register spi master\n");
+		goto disable_clk;
+	}
+
+	return ret;
+
+disable_clk:
+	stm32_rcc_disable_clk(spi->base_reg);
+err:
+	return ret;
+}
+#ifdef CONFIG_INITCALL
+coredevice_initcall(stm32_spi_init);
+#endif /* CONFIG_INITCALL */
+
 struct spi_operations spi_ops = {
-	.init = stm32_spi_init,
 	.write = stm32_spi_write,
 	.read = stm32_spi_read,
 };
