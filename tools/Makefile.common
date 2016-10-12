@@ -38,6 +38,12 @@ build = echo "$1 $@"
 	$(LDS) $(LDSFLAGS) -o $@ $(firstword $^)
 	mv $@ $(KERNEL_BASE)/$(linker_files)
 
+%.o: %.dts
+	$(call build,DTC)
+	$(DTC) -Idts -Odtb $(firstword $^) > $(dtb)
+	@$(OBJCOPY) -I binary -O elf32-littlearm -B arm --rename-section .data=.text,contents,readonly $(dtb) $@
+
+
 -include $(call prepend-dir,dep)
 
 .PHONY: all clean $(call prepend-dir,subdirs-y)
