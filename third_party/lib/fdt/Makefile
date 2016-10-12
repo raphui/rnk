@@ -11,3 +11,4 @@ obj-y += fdt_rw.o
 obj-y += fdt_strerror.o
 obj-y += fdt_empty_tree.o
 obj-y += fdt_addresses.o
+obj-y += fdtparse.o
