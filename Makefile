@@ -69,6 +69,7 @@ AS := $(CROSS_COMPILE)as
 AR := $(CROSS_COMPILE)ar
 LD := $(CROSS_COMPILE)ld
 LDS := $(CROSS_COMPILE)gcc -E -P
+DTC := dtc
 
 endif
 
