@@ -1,0 +1,159 @@
+/ {
+    compatible = "st,stm32f4";
+
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+	clocks
+	{
+		sources
+		{
+			hsi = <16000000>;
+			hse = <25000000>;
+			lsi = <32000>;
+		};
+
+		fast
+		{
+			source = <2>;			// hse is source
+			pll = <1 25 336 2 7>;		// hsi, m, n, p, q
+			prescaler = <1 4 2>;		// ahb div1, apb1&apb2 div=2
+		};
+	};
+
+	ahb1
+	{
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		gpioa: gpioa
+		{
+			reg = <0x40020000 0x400>;
+		};
+
+		gpiob: gpiob
+		{
+			reg = <0x40020400 0x400>;
+		};
+
+		gpioc: gpioc
+		{
+			reg = <0x40020800 0x400>;
+		};
+
+		gpiod: gpiod
+		{
+			reg = <0x40020c00 0x400>;
+		};
+
+		gpioe: gpioe
+		{
+			reg = <0x40021000 0x400>;
+		};
+
+		flash: flash
+		{
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4xx-flash";
+			reg = <0x40023c00 0x400>;
+			base = <0x08000000>;
+		};
+
+		rcc
+		{
+			#clock-cells = <2>;
+			reg = <0x40023800 0x400>;
+			compatible = "st,stm32f4xx-rcc";
+		};
+
+		dma0: dma0
+		{
+			id = <21>;
+			reg = <0x40026000 0x400>;
+		};
+
+		dma1: dma1
+		{
+			id = <22>;
+			reg = <0x40026400 0x400>;
+		};
+	};
+
+	ahb2
+	{
+
+	};
+
+	apb1
+	{
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		usart3: usart3
+		{
+			compatible = "st,stm32f4xx-usart";
+			reg = <0x40004800 0x1C>;
+			gpios = <&gpioc 0x711 2>,     /* TX PA2 */
+				<&gpioc 0x710 0>;     /* RX PA3 */
+			clock = <2>;
+			baudrate = <115200>;
+		};
+
+		i2c1: i2c1
+		{
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4xx-i2c";
+			reg = <0x40005400 0x24>;
+			gpios = <&gpiob 0x418 0x0E>,    /* SCL PB8 */
+					<&gpiob 0x419 0x0E>;    /* SDA PB9 */
+			id = <21>;
+		};
+
+		timer2
+		{
+			reg = <0x40000000 0x24>;
+			id = <0>;
+			it = <28>;
+		};
+	};
+
+	apb2
+	{
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		spi1: spi1
+		{
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4xx-spi";
+			reg = <0x40013000 0x20>;
+			gpios =	<&gpioa 0x505 0x0A>,     /* SCK, PA5 */
+					<&gpioa 0x506 0x08>,     /* MISO PA6 */
+					<&gpioa 0x507 0x0A>;     /* MOSI PA7 */
+			clock = <3>;
+			dma = <&dma1 3 5 68>, // tx
+				<&dma1 3 0 56>; // rx
+		};
+
+		syscfg
+		{
+			reg = <0x40013800 0x20>;
+			if = <14>;
+		};
+
+		exti
+		{
+			reg = <0x40013C00 0x20>;
+		};
+	};
+
+	conf
+	{
+		gpios =	<&gpioc 0x2D 0x20>,     /* IRQ PC13, input with pullup */
+				<&gpiob 0x1C 0x20>,     /* NCS PB12 */
+				<&gpioa 0x0C 0x20>;     /* DP PA12 */
+	};
+};

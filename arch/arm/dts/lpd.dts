@@ -1,0 +1,36 @@
+/dts-v1/;
+/include/ "stm32f429.dtsi"
+
+/ {
+	aliases
+	{
+	};
+
+	led
+	{
+		gpios = <&gpiob 0x014 2>,  // cs, PB0, output 0
+				<&gpiob 0x015 2>;  // reset, PA1, output 0
+	};
+
+	ahb1
+	{
+		flash: flash
+		{
+			ws = <2>;
+			mode = <0>;
+		};
+	};
+};
+
+&spi1
+{
+	nor@0
+	{
+		compatible = "lpd,at45db161";
+		reg = <0>;
+		speed = <8000000>;
+		gpios = <&gpiob 0x010 3>,  // cs, PB0, output 1
+				<&gpioa 0x001 3>,  // reset, PA1, output 1
+				<&gpioa 0x6000 0x300>;  // ready, PA0, input, no pull, it
+	};
+};
