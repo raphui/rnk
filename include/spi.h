@@ -25,9 +25,24 @@
 #define SPI_TRANSFER_READ	1
 #define SPI_TRANSFER_WRITE	2
 
-struct spi {
+struct spi_device {
+	struct spi_master *master;
+	unsigned int cs;
+	unsigned int speed;
+	struct device dev;
+	struct list_node node;
+};
+
+struct spi_operations
+{
+	int (*write)(struct spi_device *spi, unsigned char *buff, unsigned int size);
+	int (*read)(struct spi_device *spi, unsigned char *buff, unsigned int size);
+};
+
+struct spi_master {
 	unsigned int num;
 	unsigned int base_reg;
+	unsigned int source_clk;
 	unsigned int rate;	/* current rate */
 	unsigned int speed;	/* wanted speed */
 	unsigned short mode;
@@ -38,23 +53,20 @@ struct spi {
 	unsigned char use_dma;
 	struct list_node node;
 	struct device dev;
+	struct spi_operations spi_ops;
 };
 
 struct spi_bus {
 	struct device dev;
 };
 
-struct spi_operations
-{
-	int (*init)(struct spi *spi);
-	int (*write)(struct spi *spi, unsigned char *buff, unsigned int size);
-	int (*read)(struct spi *spi, unsigned char *buff, unsigned int size);
-};
-
-int spi_transfer(struct spi *spi, unsigned char *buff, unsigned int size, int direction);
-struct spi *spi_new_device(void);
-int spi_remove_device(struct spi *spi);
-int spi_register_device(struct spi *spi);
+int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size, int direction);
+struct spi_device *spi_new_device(void);
+int spi_remove_device(struct spi_device *spi);
+int spi_register_device(struct spi_device *spi);
+struct spi_master *spi_new_master(void);
+int spi_remove_master(struct spi_master *spi);
+int spi_register_master(struct spi_master *spi);
 int spi_init(void);
 
 #endif /* SPI_H */
