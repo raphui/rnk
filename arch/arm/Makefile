@@ -4,3 +4,4 @@
 # Provided under the three clause BSD license found in the LICENSE file.
 
 subdirs-$(CONFIG_CPU_ARMV7M) += armv7m
+subdirs-y += dts
