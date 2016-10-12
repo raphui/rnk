@@ -26,4 +26,6 @@ extern void stm32_pio_set_value(unsigned int port, unsigned int mask);
 extern void stm32_pio_clear_value(unsigned int port, unsigned int mask);
 extern void stm32_pio_toggle_value(unsigned int port, unsigned int mask);
 
+extern int stm32_pio_of_configure(int fdt_offset);
+
 #endif /* PIO_STM32_H */
