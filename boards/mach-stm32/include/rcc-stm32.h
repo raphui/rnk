@@ -19,6 +19,7 @@
 #define RCC_STM32_H
 
 extern int stm32_rcc_enable_clk(int periph_base);
-int stm32_rcc_disable_clk(int periph_base);
+extern int stm32_rcc_disable_clk(int periph_base);
+extern int stm32_rcc_enable_sys_clk(void);
 
 #endif  /* RCC_STM32_H */

@@ -17,12 +17,42 @@
 
 #include <board.h>
 #include <errno.h>
+#include <fdtparse.h>
+
+#ifdef CONFIG_INITCALL
+#include <init.h>
+#endif /* CONFIG_INITCALL */
+
+/* system clock source */
+#define RCC_CFGR_HSI      	0
+#define RCC_CFGR_HSE      	1
+#define RCC_CFGR_PLL      	2
+
 
 struct clk
 {
 	unsigned int periph_base;
 	unsigned int reg_base;
 	unsigned int mask;
+};
+
+struct clk_div_table {
+        unsigned int val;
+        unsigned int div;
+};
+
+static const struct clk_div_table ahb_div_table[] = {
+        { 0x0,   1 }, { 0x1,   1 }, { 0x2,   1 }, { 0x3,   1 },
+        { 0x4,   1 }, { 0x5,   1 }, { 0x6,   1 }, { 0x7,   1 },
+        { 0x8,   2 }, { 0x9,   4 }, { 0xa,   8 }, { 0xb,  16 },
+        { 0xc,  64 }, { 0xd, 128 }, { 0xe, 256 }, { 0xf, 512 },
+        { 0 },
+};
+
+static const struct clk_div_table apb_div_table[] = {
+        { 0,  1 }, { 0,  1 }, { 0,  1 }, { 0,  1 },
+        { 4,  2 }, { 5,  4 }, { 6,  8 }, { 7, 16 },
+        { 0 },
 };
 
 static struct clk clk_lut[] = {
@@ -89,6 +119,38 @@ static int stm32_rcc_find_periph(int periph_base)
 	return ret;
 }
 
+static int stm32_rcc_find_ahb_div(int pres)
+{
+	int i;
+	int ret = -EINVAL;
+	int size = sizeof(ahb_div_table) / sizeof(struct clk_div_table);
+
+	for (i = 0; i < size; i++) {
+		if (pres == ahb_div_table[i].div) {
+			ret = ahb_div_table[i].val;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+static int stm32_rcc_find_apb_div(int pres)
+{
+	int i;
+	int ret = -EINVAL;
+	int size = sizeof(apb_div_table) / sizeof(struct clk_div_table);
+
+	for (i = 0; i < size; i++) {
+		if (pres == apb_div_table[i].div) {
+			ret = apb_div_table[i].val;
+			break;
+		}
+	}
+
+	return ret;
+}
+
 int stm32_rcc_enable_clk(int periph_base)
 {
 	int ret = 0;
@@ -130,3 +192,134 @@ int stm32_rcc_disable_clk(int periph_base)
 
 	return ret;
 }
+
+int stm32_rcc_enable_sys_clk(void)
+{
+	int ret = 0;
+	int offset;
+	int len;
+	int pll_source, pll_m, pll_q, pll_n, pll_p;
+	int pres_ahb, pres_apb1, pres_apb2;
+	int source;
+	const void *fdt_blob = fdtparse_get_blob();
+	const struct fdt_property *prop;
+	fdt32_t *cell;
+
+	offset = fdt_path_offset(fdt_blob, "/clocks/fast");
+	if (offset < 0) {
+		error_printk("cannot find clock definition in fdt\n");
+		ret = -ENOENT;
+		goto out;
+	}
+
+	prop = fdt_get_property(fdt_blob, offset, "pll", &len);
+	if (!prop) {
+		error_printk("cannot find pll clocks in fdt\n");
+		ret = -ENOENT;
+		goto out;
+	}
+
+	if (len < 5) {
+		error_printk("not enough parameters for pll (has to be 5)\n");
+		ret = -EINVAL;
+		goto out;
+	}
+
+	fdtparse_get_int(offset, "source", &source);
+
+	cell = (fdt32_t *)prop->data;
+
+	pll_source = fdt32_to_cpu(cell[0]);
+	pll_m = fdt32_to_cpu(cell[1]);
+	pll_n = fdt32_to_cpu(cell[2]);
+	pll_p = fdt32_to_cpu(cell[3]);
+	pll_q = fdt32_to_cpu(cell[4]);
+
+	prop = fdt_get_property(fdt_blob, offset, "prescaler", &len);
+	if (!prop) {
+		error_printk("cannot find prescaler clocks in fdt\n");
+		ret = -ENOENT;
+		goto out;
+	}
+
+	if (len < 5) {
+		error_printk("not enough parameters for prescaler (has to be 3)\n");
+		ret = -EINVAL;
+		goto out;
+	}
+
+	cell = (fdt32_t *)prop->data;
+
+	pres_ahb = stm32_rcc_find_ahb_div(fdt32_to_cpu(cell[0]));
+	if (pres_ahb < 0) {
+		error_printk("cannot find ahb pres value\n");
+		ret = pres_ahb;
+		goto out;
+	}
+
+	pres_apb1 = stm32_rcc_find_apb_div(fdt32_to_cpu(cell[1]));
+	if (pres_apb1 < 0) {
+		error_printk("cannot find apb1 pres value\n");
+		ret = pres_apb1;
+		goto out;
+	}
+
+	pres_apb2 = stm32_rcc_find_apb_div(fdt32_to_cpu(cell[2]));
+	if (pres_apb2 < 0) {
+		error_printk("cannot find ap2 pres value\n");
+		ret = pres_apb2;
+		goto out;
+	}
+
+	RCC->CFGR |= (pres_ahb << 4);
+	RCC->CFGR |= (pres_apb1 << 10);
+	RCC->CFGR |= (pres_apb2 << 13);
+
+	switch (source) {
+	case RCC_CFGR_HSI:
+		break;
+	case RCC_CFGR_HSE:
+		break;
+	case RCC_CFGR_PLL:
+		if (pll_source == 0) {
+			RCC->CR |= RCC_CFGR_HSI;
+			RCC->PLLCFGR = pll_m | (pll_n << 6) | (((pll_p >> 1) -1) << 16) | (pll_q << 24);
+		} else {
+			RCC->CR |= RCC_CR_HSEON;
+
+			// Wait till HSE is ready
+			while(!(RCC->CR & RCC_CR_HSERDY))
+				;
+
+			RCC->PLLCFGR = pll_m | (pll_n << 6) | (((pll_p >> 1) -1) << 16) | (RCC_PLLCFGR_PLLSRC_HSE) | (pll_q << 24);
+		}
+
+		RCC->CR |= RCC_CR_PLLON;
+
+		while(!(RCC->CR & RCC_CR_PLLRDY))
+			; // Wait till the main PLL is ready
+
+		break;
+	}
+
+	/* Select regulator voltage output Scale 1 mode */
+	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+	PWR->CR |= PWR_CR_VOS;
+
+	/* Configure Flash prefetch, Instruction cache, Data cache and wait state */
+	FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN | FLASH_ACR_LATENCY_5WS;
+
+
+	/* Select the main PLL as system clock source */
+	RCC->CFGR &= (unsigned int)((unsigned int)~(RCC_CFGR_SW));
+	RCC->CFGR |= RCC_CFGR_SW_PLL;
+
+	/* Wait till the main PLL is used as system clock source */
+	while ((RCC->CFGR & (unsigned int)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL);
+		;
+out:
+	return ret;
+}
+#ifdef CONFIG_INITCALL
+pure_initcall(stm32_rcc_enable_sys_clk);
+#endif /* CONFIG_INITCALL */
