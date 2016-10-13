@@ -106,7 +106,6 @@ int spi_remove_device(struct spi_device *spi)
 
 int spi_register_device(struct spi_device *spi)
 {
-	int ret = 0;
 	char tmp[10] = {0};
 
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
@@ -116,21 +115,9 @@ int spi_register_device(struct spi_device *spi)
 
 	memcpy(spi->dev.name, tmp, sizeof(tmp));
 
-	ret = device_register(&spi->dev);
-	if (ret < 0) {
-		error_printk("failed to register device\n");
-		ret = -ENOMEM;
-		goto failed_out;
-	}
-
 	list_add_tail(&spi_device_list, &spi->node);
 
-	return 0;//spi_ops.init(spi);
-
-failed_out:
-	/* XXX: deallocate here ? */
-	kfree(spi);
-	return ret;
+	return 0;
 }
 
 struct spi_master *spi_new_master(void)
@@ -170,7 +157,6 @@ int spi_remove_master(struct spi_master *spi)
 
 int spi_register_master(struct spi_master *spi)
 {
-	int ret = 0;
 	char tmp[10] = {0};
 
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
@@ -180,21 +166,9 @@ int spi_register_master(struct spi_master *spi)
 
 	memcpy(spi->dev.name, tmp, sizeof(tmp));
 
-	ret = device_register(&spi->dev);
-	if (ret < 0) {
-		error_printk("failed to register device\n");
-		ret = -ENOMEM;
-		goto failed_out;
-	}
-
 	list_add_tail(&spi_master_list, &spi->node);
 
 	return 0;
-
-failed_out:
-	/* XXX: deallocate here ? */
-	kfree(spi);
-	return ret;
 }
 
 int spi_init(void)
