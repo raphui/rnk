@@ -232,6 +232,37 @@ static int elf_section_reloc(elf32_shdr *shdr)
 	return ret;
 }
 
+static int elf_check_type(elf32_ehdr *ehdr)
+{
+	int ret = 0;
+
+	if (!ehdr)
+		return -ENOENT;
+
+	if (ehdr->e_ident[EI_MAG0] != ELFMAG0) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	if (ehdr->e_ident[EI_MAG1] != ELFMAG1) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	if (ehdr->e_ident[EI_MAG2] != ELFMAG2) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	if (ehdr->e_ident[EI_MAG3] != ELFMAG3) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+out:
+	return ret;
+}
+
 int elf_load(char *elf_data, int elf_size, int reloc_addr)
 {
 	char *str;
@@ -246,6 +277,12 @@ int elf_load(char *elf_data, int elf_size, int reloc_addr)
 	printk("[+] ELF at %p (size: %d)\n", buff, size);
 
 	ehdr = (elf32_ehdr *)buff;
+
+	ret = elf_check_type(ehdr);
+	if (ret < 0) {
+		error_printk("Invalid ELF format\n");
+		goto out;
+	}
 
 	debug_printk("[+] Info: \n");
 	debug_printk("\t- bit format: %#x\n", ehdr->e_ident[EI_CLASS]);
