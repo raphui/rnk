@@ -17,7 +17,12 @@
 
 #include <board.h>
 #include <mach/rcc-stm32.h>
+#include <mach/pio-stm32.h>
 #include <errno.h>
+#include <fdtparse.h>
+#include <device.h>
+#include <init.h>
+#include <string.h>
 
 /* Calculates the value for the USART_BRR */
 static unsigned short stm32_baud_rate(long clock, unsigned int baud)
@@ -30,34 +35,99 @@ static unsigned short stm32_baud_rate(long clock, unsigned int baud)
 	return (mantissa << 4) | (fraction & 0xf);
 }
 
-static int stm32_usart_init(struct usart *usart)
+static int stm32_usart_of_init(struct usart_master *usart)
+{
+	int offset;
+	int ret = 0;
+	const void *fdt_blob = fdtparse_get_blob();
+
+	offset = fdt_path_offset(fdt_blob, usart->dev.of_path);
+	if (offset < 0) {
+		ret = -ENOENT;
+		goto out;
+	}
+
+	ret = fdt_node_check_compatible(fdt_blob, offset, usart->dev.of_compat);
+	if (ret < 0)
+		goto out;
+
+	usart->base_reg = (unsigned int)fdtparse_get_addr32(offset, "reg");
+	if (!usart->base_reg) {
+		error_printk("failed to retrieve usart base reg from fdt\n");
+		ret = -ENOENT;
+		goto out;
+	}
+
+	ret = stm32_pio_of_configure(offset);
+	if (ret < 0) {
+		error_printk("failed to configure usart gpio\n");
+		goto out;
+	}
+
+	ret = fdtparse_get_int(offset, "clock", (int *)&usart->source_clk);
+	if (ret < 0) {
+		error_printk("failed to retrieve usart source clk\n");
+		ret = -EIO;
+		goto out;
+	}
+
+	usart->source_clk = stm32_rcc_get_freq_clk(usart->source_clk);
+
+	ret = fdtparse_get_int(offset, "baudrate", (int *)&usart->baud_rate);
+	if (ret < 0) {
+		error_printk("failed to retrieve usart baudrate\n");
+		ret = -EIO;
+		goto out;
+	}
+
+out:
+	return ret;
+}
+
+static int stm32_usart_init(struct device *dev)
 {
 	int ret = 0;
-	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
+	struct usart_master *usart = NULL;
+	USART_TypeDef *USART = NULL;
+
+	usart = usart_new_master();
+	if (!usart) {
+		error_printk("failed to retrieve new usart master\n");
+		ret = -EIO;
+		goto err;
+	}
+
+	memcpy(&usart->dev, dev, sizeof(struct device));
+
+	ret = stm32_usart_of_init(usart);
+	if (ret < 0) {
+		error_printk("failed to init usart with fdt data\n");
+		goto err;
+	}
+
+	USART = (USART_TypeDef *)usart->base_reg;
 
 	ret = stm32_rcc_enable_clk(usart->base_reg);
 	if (ret < 0) {
 		error_printk("cannot enable clk for usart\r\n");
-		return ret;
+		goto err;
 	}
 
 	USART->CR1 &= ~USART_CR1_M;
 	USART->CR1 &= ~USART_CR1_UE;
 
-#ifdef CONFIG_STM32F429
-	USART->BRR = stm32_baud_rate(APB2_CLK, usart->baud_rate);
-#else
-	USART->BRR = stm32_baud_rate(APB1_CLK, usart->baud_rate);
-#endif /* CONFIG_STM32F429 */
+	USART->BRR = stm32_baud_rate(usart->source_clk, usart->baud_rate);
 
 	USART->CR1 |= USART_CR1_RE;
 	USART->CR1 |= USART_CR1_TE;
 	USART->CR1 |= USART_CR1_UE;
 
+	return 0;
+err:
 	return ret;
 }
 
-static void stm32_usart_print(struct usart *usart, unsigned char byte)
+static void stm32_usart_print(struct usart_master *usart, unsigned char byte)
 {
 	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 
@@ -67,7 +137,7 @@ static void stm32_usart_print(struct usart *usart, unsigned char byte)
 	USART->DR = byte;
 }
 
-static int stm32_usart_printl(struct usart *usart, const char *string)
+static int stm32_usart_printl(struct usart_master *usart, const char *string)
 {
 	int size = 0;
 
@@ -79,7 +149,7 @@ static int stm32_usart_printl(struct usart *usart, const char *string)
 	return size;
 }
 
-static int stm32_usart_write(struct usart *usart, unsigned char *buff, unsigned int len)
+static int stm32_usart_write(struct usart_master *usart, unsigned char *buff, unsigned int len)
 {
 	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 	int i = 0;
@@ -102,7 +172,7 @@ static int stm32_usart_write(struct usart *usart, unsigned char *buff, unsigned 
 	return ret;
 }
 
-static int stm32_usart_read(struct usart *usart, unsigned char *buff, unsigned int len)
+static int stm32_usart_read(struct usart_master *usart, unsigned char *buff, unsigned int len)
 {
 	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 	int i = 0;
@@ -126,9 +196,26 @@ static int stm32_usart_read(struct usart *usart, unsigned char *buff, unsigned i
 }
 
 struct usart_operations usart_ops = {
-	.init = stm32_usart_init,
 	.read = stm32_usart_read,
 	.write = stm32_usart_write,
 	.print = stm32_usart_print,
 	.printl = stm32_usart_printl,
 };
+
+struct device stm32_usart_driver = {
+	.of_compat = "st,stm32f4xx-usart",
+	.probe = stm32_usart_init,
+};
+
+static int stm32_usart_register(void)
+{
+	int ret = 0;
+
+	ret = device_register(&stm32_usart_driver);
+	if (ret < 0)
+		error_printk("failed to register stm32_usart device\n");
+	return ret;
+}
+#ifdef CONFIG_INITCALL
+pure_initcall(stm32_usart_register);
+#endif /* CONFIG_INITCALL */
