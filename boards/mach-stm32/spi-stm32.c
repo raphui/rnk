@@ -27,8 +27,6 @@
 #include <common.h>
 #include <fdtparse.h>
 #include <init.h>
-
-#define SPI_COMPAT	"st,stm32f4xx-spi"
 #include <device.h>
 
 static int stm32_spi_get_nvic_number(struct spi_master *spi)
@@ -227,7 +225,7 @@ int stm32_spi_of_init(struct spi_master *spi)
 		goto out;
 	}
 
-	ret = fdt_node_check_compatible(fdt_blob, offset, SPI_COMPAT);
+	ret = fdt_node_check_compatible(fdt_blob, offset, spi->dev.of_compat);
 	if (ret < 0)
 		goto out;
 
