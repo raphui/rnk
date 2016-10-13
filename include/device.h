@@ -24,7 +24,10 @@
 
 struct device {
 	char name[32];
+	const char *of_compat;
 	struct list_node next;
+	int (*probe)(struct device *device);
+	int (*remove)(struct device *device);
 	int (*read)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*write)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*lseek)(struct device *device, int offset, int whence);
