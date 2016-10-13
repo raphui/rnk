@@ -79,9 +79,9 @@ int device_init(void)
 
 	mtd_init(&mtd);
 
-	usart_init(3, USART3_BASE, 115200);
-	pio_set_alternate(GPIOC_BASE, 10, 0x7);
-	pio_set_alternate(GPIOC_BASE, 11, 0x7);
+//	usart_init(3, USART3_BASE, 115200);
+//	pio_set_alternate(GPIOC_BASE, 10, 0x7);
+//	pio_set_alternate(GPIOC_BASE, 11, 0x7);
 
 #ifdef CONFIG_IRQ_SUBSYS
 	irq.num_line = CONFIG_NUM_IRQS;
