@@ -25,6 +25,7 @@
 struct device {
 	char name[32];
 	const char *of_compat;
+	char of_path[256];
 	struct list_node next;
 	int (*probe)(struct device *device);
 	int (*remove)(struct device *device);
@@ -36,5 +37,6 @@ struct device {
 int device_register(struct device *dev);
 int device_unregister(struct device *dev);
 struct device *device_from_name(const char *name);
+int device_of_probe(void);
 
 #endif /* DEVICE_H */

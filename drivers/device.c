@@ -20,6 +20,8 @@
 #include <list.h>
 #include <string.h>
 #include <stdio.h>
+#include <fdtparse.h>
+#include <init.h>
 
 static int device_count = 0;
 
@@ -64,3 +66,49 @@ struct device *device_from_name(const char *name)
 
 	return dev;
 }
+
+int device_of_probe(void)
+{
+	int ret = 0;
+	int offset = 0;
+	const void *blob = fdtparse_get_blob();
+	const struct fdt_property *prop;
+	const char *compat;
+	char *path;
+	int listlen, compatlen;
+	struct device *dev = NULL;
+
+	do {
+		offset = fdt_next_node(blob, offset, NULL);
+
+		prop = fdt_get_property(blob, offset, "compatible", &listlen);
+		if (!prop)
+			continue;
+
+		compat = (const char *)prop->data;
+		while (listlen > 0) {
+			list_for_every_entry(&device_list, dev, struct device, next) {
+				if (!strcmp(compat, dev->of_compat)) {
+					path = fdtparse_get_path(offset);
+					if (!path) {
+						error_printk("cannot find fdt path for of compat: %s\n", dev->of_compat);
+						continue;
+					}
+
+					memcpy(dev->of_path, path, strlen(path));
+
+					dev->probe(dev);
+
+					continue;
+				}
+			}
+
+			compatlen = strlen(compat);
+			compat += compatlen + 1;
+			listlen -= compatlen + 1;
+		}
+	} while (offset >= 0);
+
+	return 0;
+}
+coredevice_initcall(device_of_probe);
