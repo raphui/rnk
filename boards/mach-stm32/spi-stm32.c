@@ -29,6 +29,7 @@
 #include <init.h>
 
 #define SPI_COMPAT	"st,stm32f4xx-spi"
+#include <device.h>
 
 static int stm32_spi_get_nvic_number(struct spi_master *spi)
 {
@@ -258,7 +259,7 @@ out:
 	return ret;
 }
 
-int stm32_spi_init(void)
+int stm32_spi_init(struct device *device)
 {
 	int ret = 0;
 	struct spi_master *spi = NULL;
@@ -270,6 +271,8 @@ int stm32_spi_init(void)
 		ret = -EIO;
 		goto err;
 	}
+
+	memcpy(&spi->dev, device, sizeof(struct device));
 
 	ret = stm32_spi_of_init(spi);
 	if (ret < 0) {
@@ -322,11 +325,26 @@ disable_clk:
 err:
 	return ret;
 }
-#ifdef CONFIG_INITCALL
-coredevice_initcall(stm32_spi_init);
-#endif /* CONFIG_INITCALL */
 
 struct spi_operations spi_ops = {
 	.write = stm32_spi_write,
 	.read = stm32_spi_read,
 };
+
+struct device stm32_spi_driver = {
+	.of_compat = "st,stm32f4xx-spi",
+	.probe = stm32_spi_init,
+};
+
+static int stm32_spi_register(void)
+{
+	int ret = 0;
+
+	ret = device_register(&stm32_spi_driver);
+	if (ret < 0)
+		error_printk("failed to register stm32_spi device\n");
+	return ret;
+}
+#ifdef CONFIG_INITCALL
+pure_initcall(stm32_spi_register);
+#endif /* CONFIG_INITCALL */
