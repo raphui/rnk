@@ -16,6 +16,7 @@
  */
 
 #include <board.h>
+#include <mach/rcc-stm32.h>
 #include <errno.h>
 #include <fdtparse.h>
 
@@ -103,6 +104,11 @@ static struct clk clk_lut[] = {
 	{ /* sentinel */ }
 };
 
+static int sysclk_freq;
+static int ahb_freq;
+static int apb1_freq;
+static int apb2_freq;
+
 static int stm32_rcc_find_periph(int periph_base)
 {
 	int ret = -ENODEV;
@@ -146,6 +152,31 @@ static int stm32_rcc_find_apb_div(int pres)
 			ret = apb_div_table[i].val;
 			break;
 		}
+	}
+
+	return ret;
+}
+
+int stm32_rcc_get_freq_clk(unsigned int clk)
+{
+	int ret = 0;
+
+	switch (clk) {
+	case SYSCLK:
+		ret = sysclk_freq;
+		break;
+	case AHB_CLK:
+		ret = ahb_freq;
+		break;
+	case APB1_CLK:
+		ret = apb1_freq;
+		break;
+	case APB2_CLK:
+		ret = apb2_freq;
+		break;
+	default:
+		ret = -EINVAL;
+		break;
 	}
 
 	return ret;
@@ -200,7 +231,8 @@ int stm32_rcc_enable_sys_clk(void)
 	int len;
 	int pll_source, pll_m, pll_q, pll_n, pll_p;
 	int pres_ahb, pres_apb1, pres_apb2;
-	int source;
+	int div_ahb, div_apb1, div_apb2;
+	int source, source_freq;
 	const void *fdt_blob = fdtparse_get_blob();
 	const struct fdt_property *prop;
 	fdt32_t *cell;
@@ -250,41 +282,79 @@ int stm32_rcc_enable_sys_clk(void)
 
 	cell = (fdt32_t *)prop->data;
 
-	pres_ahb = stm32_rcc_find_ahb_div(fdt32_to_cpu(cell[0]));
-	if (pres_ahb < 0) {
+	pres_ahb = fdt32_to_cpu(cell[0]);
+	div_ahb = stm32_rcc_find_ahb_div(pres_ahb);
+	if (div_ahb < 0) {
 		error_printk("cannot find ahb pres value\n");
-		ret = pres_ahb;
+		ret = div_ahb;
 		goto out;
 	}
 
-	pres_apb1 = stm32_rcc_find_apb_div(fdt32_to_cpu(cell[1]));
-	if (pres_apb1 < 0) {
+	pres_apb1 = fdt32_to_cpu(cell[1]);
+	div_apb1 = stm32_rcc_find_apb_div(pres_apb1);
+	if (div_apb1 < 0) {
 		error_printk("cannot find apb1 pres value\n");
-		ret = pres_apb1;
+		ret = div_apb1;
 		goto out;
 	}
 
-	pres_apb2 = stm32_rcc_find_apb_div(fdt32_to_cpu(cell[2]));
-	if (pres_apb2 < 0) {
+	pres_apb2 = fdt32_to_cpu(cell[2]);
+	div_apb2 = stm32_rcc_find_apb_div(pres_apb2);
+	if (div_apb2 < 0) {
 		error_printk("cannot find ap2 pres value\n");
-		ret = pres_apb2;
+		ret = div_apb2;
 		goto out;
 	}
 
-	RCC->CFGR |= (pres_ahb << 4);
-	RCC->CFGR |= (pres_apb1 << 10);
-	RCC->CFGR |= (pres_apb2 << 13);
+	RCC->CFGR |= (div_ahb << 4);
+	RCC->CFGR |= (div_apb1 << 10);
+	RCC->CFGR |= (div_apb2 << 13);
+
+	offset = fdt_path_offset(fdt_blob, "/clocks/sources");
+	if (offset < 0) {
+		error_printk("cannot find clock sources in fdt\n");
+		ret = -ENOENT;
+		goto out;
+	}
+
 
 	switch (source) {
 	case RCC_CFGR_HSI:
+		ret = fdtparse_get_int(offset, "hsi", &source_freq);
+		if (ret < 0) {
+			error_printk("failed to retrieve hsi freq\n");
+			ret = -EIO;
+			goto out;
+		}
 		break;
 	case RCC_CFGR_HSE:
+		ret = fdtparse_get_int(offset, "hse", &source_freq);
+		if (ret < 0) {
+			error_printk("failed to retrieve hsi freq\n");
+			ret = -EIO;
+			goto out;
+		}
+
+		sysclk_freq = source_freq;
 		break;
 	case RCC_CFGR_PLL:
 		if (pll_source == 0) {
+			ret = fdtparse_get_int(offset, "hse", &source_freq);
+			if (ret < 0) {
+				error_printk("failed to retrieve hsi freq\n");
+				ret = -EIO;
+				goto out;
+			}
 			RCC->CR |= RCC_CFGR_HSI;
 			RCC->PLLCFGR = pll_m | (pll_n << 6) | (((pll_p >> 1) -1) << 16) | (pll_q << 24);
 		} else {
+			ret = fdtparse_get_int(offset, "hse", &source_freq);
+			if (ret < 0) {
+				error_printk("failed to retrieve hsi freq\n");
+				ret = -EIO;
+				goto out;
+			}
+
 			RCC->CR |= RCC_CR_HSEON;
 
 			// Wait till HSE is ready
@@ -299,8 +369,14 @@ int stm32_rcc_enable_sys_clk(void)
 		while(!(RCC->CR & RCC_CR_PLLRDY))
 			; // Wait till the main PLL is ready
 
+		sysclk_freq = ((source_freq / pll_m) * pll_n) / pll_p;
+
 		break;
 	}
+
+	ahb_freq = sysclk_freq / pres_ahb;
+	apb1_freq = (sysclk_freq / pres_ahb) / pres_apb1;
+	apb2_freq = (sysclk_freq / pres_ahb) / pres_apb2;
 
 	/* Select regulator voltage output Scale 1 mode */
 	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
