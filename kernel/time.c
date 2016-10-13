@@ -99,7 +99,7 @@ void usleep(unsigned int usec)
 
 void timer_soft_oneshot(int delay, void (*handler)(void *), void *arg)
 {
-	arch_system_call(SVC_TIMER_ONESHOT, delay, handler, arg);
+	arch_system_call(SVC_TIMER_ONESHOT, &delay, handler, arg);
 }
 
 void svc_timer_soft_oneshot(int delay, void (*handler)(void *), void *arg)
