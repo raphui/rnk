@@ -28,6 +28,7 @@
 #include <fdtparse.h>
 #include <init.h>
 #include <device.h>
+#include <spi.h>
 
 static int stm32_spi_get_nvic_number(struct spi_master *spi)
 {
@@ -213,6 +214,11 @@ int stm32_spi_read(struct spi_device *spidev, unsigned char *buff, unsigned int 
 	return n;
 }
 
+struct spi_operations spi_ops = {
+	.write = stm32_spi_write,
+	.read = stm32_spi_read,
+};
+
 int stm32_spi_of_init(struct spi_master *spi)
 {
 	int offset;
@@ -289,6 +295,8 @@ int stm32_spi_init(struct device *device)
 	spi->rate = spi->source_clk;
 	spi->rate = stm32_spi_find_best_pres(spi->rate, spi->speed);
 
+	spi->spi_ops = &spi_ops;
+
 	SPI->CR1 &= ~SPI_CR1_SPE;
 
 	SPI->CR1 |= (0x2 << 3);
@@ -323,11 +331,6 @@ disable_clk:
 err:
 	return ret;
 }
-
-struct spi_operations spi_ops = {
-	.write = stm32_spi_write,
-	.read = stm32_spi_read,
-};
 
 struct device stm32_spi_driver = {
 	.of_compat = "st,stm32f4xx-spi",
