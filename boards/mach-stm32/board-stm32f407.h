@@ -23,7 +23,6 @@
 #include <usart.h>
 #include <pio.h>
 #include <timer.h>
-#include <spi.h>
 #include <dma.h>
 #include <mtd.h>
 
@@ -34,7 +33,6 @@
 struct usart_operations usart_ops;
 struct pio_operations pio_ops;
 struct timer_operations tim_ops;
-struct spi_operations spi_ops;
 struct dma_operations dma_ops;
 struct mtd_operations mtd_ops;
 
