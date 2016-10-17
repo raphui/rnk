@@ -37,7 +37,7 @@ static int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("writing from spi !\n");
 
-	return spi_ops.write(spi, buff, size);
+	return spi->master->spi_ops->write(spi, buff, size);
 }
 
 static int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
@@ -46,7 +46,7 @@ static int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("reading from spi !\n");
 
-	return spi_ops.read(spi, buff, size);
+	return spi->master->spi_ops->read(spi, buff, size);
 }
 
 int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size, int direction)

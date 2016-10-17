@@ -53,7 +53,7 @@ struct spi_master {
 	unsigned char use_dma;
 	struct list_node node;
 	struct device dev;
-	struct spi_operations spi_ops;
+	struct spi_operations *spi_ops;
 };
 
 struct spi_bus {
