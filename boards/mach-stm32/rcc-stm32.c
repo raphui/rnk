@@ -108,6 +108,9 @@ static int sysclk_freq;
 static int ahb_freq;
 static int apb1_freq;
 static int apb2_freq;
+static int ahb_pres;
+static int apb1_pres;
+static int apb2_pres;
 
 static int stm32_rcc_find_periph(int periph_base)
 {
@@ -182,6 +185,28 @@ int stm32_rcc_get_freq_clk(unsigned int clk)
 	return ret;
 }
 
+int stm32_rcc_get_pres_clk(unsigned int clk)
+{
+	int ret = 0;
+
+	switch (clk) {
+	case AHB_CLK:
+		ret = ahb_pres;
+		break;
+	case APB1_CLK:
+		ret = apb1_pres;
+		break;
+	case APB2_CLK:
+		ret = apb2_pres;
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+
+	return ret;
+}
+
 int stm32_rcc_enable_clk(int periph_base)
 {
 	int ret = 0;
@@ -230,7 +255,6 @@ int stm32_rcc_enable_sys_clk(void)
 	int offset;
 	int len;
 	int pll_source, pll_m, pll_q, pll_n, pll_p;
-	int pres_ahb, pres_apb1, pres_apb2;
 	int div_ahb, div_apb1, div_apb2;
 	int source, source_freq;
 	const void *fdt_blob = fdtparse_get_blob();
@@ -282,24 +306,24 @@ int stm32_rcc_enable_sys_clk(void)
 
 	cell = (fdt32_t *)prop->data;
 
-	pres_ahb = fdt32_to_cpu(cell[0]);
-	div_ahb = stm32_rcc_find_ahb_div(pres_ahb);
+	ahb_pres = fdt32_to_cpu(cell[0]);
+	div_ahb = stm32_rcc_find_ahb_div(ahb_pres);
 	if (div_ahb < 0) {
 		error_printk("cannot find ahb pres value\n");
 		ret = div_ahb;
 		goto out;
 	}
 
-	pres_apb1 = fdt32_to_cpu(cell[1]);
-	div_apb1 = stm32_rcc_find_apb_div(pres_apb1);
+	apb1_pres = fdt32_to_cpu(cell[1]);
+	div_apb1 = stm32_rcc_find_apb_div(apb1_pres);
 	if (div_apb1 < 0) {
 		error_printk("cannot find apb1 pres value\n");
 		ret = div_apb1;
 		goto out;
 	}
 
-	pres_apb2 = fdt32_to_cpu(cell[2]);
-	div_apb2 = stm32_rcc_find_apb_div(pres_apb2);
+	apb2_pres = fdt32_to_cpu(cell[2]);
+	div_apb2 = stm32_rcc_find_apb_div(apb2_pres);
 	if (div_apb2 < 0) {
 		error_printk("cannot find ap2 pres value\n");
 		ret = div_apb2;
@@ -374,9 +398,9 @@ int stm32_rcc_enable_sys_clk(void)
 		break;
 	}
 
-	ahb_freq = sysclk_freq / pres_ahb;
-	apb1_freq = (sysclk_freq / pres_ahb) / pres_apb1;
-	apb2_freq = (sysclk_freq / pres_ahb) / pres_apb2;
+	ahb_freq = sysclk_freq / ahb_pres;
+	apb1_freq = (sysclk_freq / ahb_pres) / apb1_pres;
+	apb2_freq = (sysclk_freq / ahb_pres) / apb2_pres;
 
 	/* Select regulator voltage output Scale 1 mode */
 	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
