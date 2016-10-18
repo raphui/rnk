@@ -38,29 +38,6 @@ struct action {
 
 static struct list_node action_list;
 
-static int stm32_timer_get_nvic_number(struct timer *timer)
-{
-	int nvic = 0;
-
-	switch (timer->num + 2) {
-		case 2:
-			nvic = TIM2_IRQn;
-			break;
-		case 3:
-			nvic = TIM3_IRQn;
-			break;
-		case 4:
-			nvic = TIM4_IRQn;
-			break;
-		case 5:
-			nvic = TIM5_IRQn;
-			break;
-
-	};
-
-	return nvic;
-}
-
 static void stm32_timer_clear_it_flags(struct timer *timer, unsigned int flags)
 {
 	TIM_TypeDef *tim = NULL;
@@ -78,11 +55,11 @@ static int stm32_timer_action(struct timer *timer)
 	void (*hook)(void *) = NULL;
 
 	list_for_every_entry(&action_list, action, struct action, node)
-		if (action->irq == (timer->num + 2))
+		if (action->irq == timer->irq)
 			break;
 
 	if (!action) {
-		error_printk("no action has been found for exti: %d\n", timer->num + 2);
+		error_printk("no action has been found for action: %d\n", timer->irq);
 		return -ENOSYS;
 	}
 
@@ -165,12 +142,7 @@ static void stm32_timer_set_counter(struct timer *timer, unsigned short counter)
 static void stm32_timer_enable(struct timer *timer)
 {
 	TIM_TypeDef *tim = NULL;
-	int nvic = stm32_timer_get_nvic_number(timer);
-
-	if (nvic < 0) {
-		error_printk("invalid nvic line\n");
-		return;
-	}
+	int nvic = timer->irq;
 
 	tim = (TIM_TypeDef *)timer->base_reg;
 
@@ -194,12 +166,7 @@ static void stm32_timer_enable(struct timer *timer)
 static void stm32_timer_disable(struct timer *timer)
 {
 	TIM_TypeDef *tim = NULL;
-	int nvic = stm32_timer_get_nvic_number(timer);
-
-	if (nvic < 0) {
-		error_printk("invalid nvic line\n");
-		return;
-	}
+	int nvic = timer->irq;
 
 	tim = (TIM_TypeDef *)timer->base_reg;
 
@@ -223,7 +190,7 @@ static int stm32_timer_request_irq(struct timer *timer, void (*handler)(void *),
 
 	action->irq_action = handler;
 	action->arg = arg;
-	action->irq = timer->num + 2;
+	action->irq = timer->irq;
 	
 	list_add_tail(&action_list, &action->node);
 
@@ -237,7 +204,7 @@ static int stm32_timer_release_irq(struct timer *timer)
 	struct action *action = NULL;
 
 	list_for_every_entry(&action_list, action, struct action, node)
-		if (action->irq == timer->num + 2)
+		if (action->irq == timer->irq)
 			break;
 
 	if (action)
@@ -283,6 +250,13 @@ static int stm32_timer_of_init(struct timer *timer)
 		goto out;
 	}
 
+	ret = fdtparse_get_int(offset, "interrupts", (int *)&timer->irq);
+	if (ret < 0) {
+		error_printk("failed to retrieve timer irq\n");
+		ret = -EIO;
+		goto out;
+	}
+
 out:
 	return ret;
 }
@@ -290,7 +264,6 @@ out:
 static int stm32_timer_init(struct device *dev)
 {
 	int ret = 0;
-	int irq_line = 0;
 	int freq, pres;
 	struct timer *timer = NULL;
 
@@ -312,7 +285,7 @@ static int stm32_timer_init(struct device *dev)
 
 	ret = stm32_rcc_enable_clk(timer->base_reg);
 	if (ret < 0) {
-		error_printk("cannot enable TIM%d clock\r\n", timer->num + 2);
+		error_printk("cannot enable TIM%d clock\r\n", timer->num);
 		goto err;
 	}
 
@@ -331,15 +304,9 @@ static int stm32_timer_init(struct device *dev)
 	timer->rate = (pres > 1) ? freq * 2 : freq;
 	timer->prescaler = 0;
 
-	irq_line = stm32_timer_get_nvic_number(timer);
-	if (irq_line < 0) {
-		error_printk("invalid irq line\n");
-		goto clk_disable;
-	}
-
-	ret = irq_request(irq_line, &stm32_timer_isr, timer);
+	ret = irq_request(timer->irq, &stm32_timer_isr, timer);
 	if (ret < 0) {
-		error_printk("cannot request isr for irq line: %d\n", irq_line);
+		error_printk("cannot request isr for irq line: %d\n", timer->irq);
 		goto clk_disable;
 	}
 
