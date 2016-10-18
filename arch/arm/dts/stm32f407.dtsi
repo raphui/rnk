@@ -114,8 +114,7 @@
 		timer2
 		{
 			reg = <0x40000000 0x24>;
-			id = <0>;
-			it = <28>;
+			compatible = "st,stm32f4xx-timer";
 		};
 	};
 
