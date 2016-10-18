@@ -45,6 +45,7 @@ struct spi_master {
 	unsigned int source_clk;
 	unsigned int rate;	/* current rate */
 	unsigned int speed;	/* wanted speed */
+	unsigned int irq;
 	unsigned short mode;
 	struct dma dma;
 	struct dma_transfer dma_trans;
