@@ -20,78 +20,58 @@
 #include <errno.h>
 #include <mm.h>
 #include <string.h>
-#include <bitops.h>
 #include <mutex.h>
 #include <device.h>
 #include <init.h>
+#include <stdio.h>
 
-static unsigned int timer_bitmap = 0;
-static unsigned int timer_mask = 0;
-static struct timer *timer_list[CONFIG_TIMER_NB];
 static struct mutex timer_mutex;
+static struct list_node timer_list;
 static struct list_node timer_soft_list;
 
 void timer_set_rate(struct timer *timer, unsigned long rate)
 {
-	tim_ops.set_rate(timer, rate);
+	timer->tim_ops->set_rate(timer, rate);
 }
 
 void timer_set_counter(struct timer *timer, unsigned short counter)
 {
-	tim_ops.set_counter(timer, counter);
+	timer->tim_ops->set_counter(timer, counter);
 }
 
 void timer_enable(struct timer *timer)
 {
-	tim_ops.enable(timer);
+	timer->tim_ops->enable(timer);
 }
 
 void timer_disable(struct timer *timer)
 {
-	tim_ops.disable(timer);
+	timer->tim_ops->disable(timer);
 }
 
 void timer_clear_it_flags(struct timer *timer, unsigned int flags)
 {
-	tim_ops.clear_it_flags(timer, flags);
+	timer->tim_ops->clear_it_flags(timer, flags);
 }
 
-static int timer_request(void)
+static struct timer *timer_request(void)
 {
 	int i;
 	int ret;
 	struct timer *timer = NULL;
 
-	timer = (struct timer *)kmalloc(sizeof(struct timer));
+	list_for_every_entry(&timer_list, timer, struct timer, node)
+		if (!timer->is_used)
+			break;
+
 	if (!timer) {
-		error_printk("failed to allocate timer");
-		return -ENOMEM;
+		error_printk("all timers are used\n");
+		return NULL;
 	}
 
-	i = ffz(timer_bitmap & timer_mask);
-	if (i > CONFIG_TIMER_NB) {
-		error_printk("all timers are allocate\n");
-		ret = -EAGAIN;
-		goto failed_out;
-	}
+	timer->is_used = 1;
 
-	timer_list[i] = timer;
-
-	timer_bitmap |= (1 << i);
-
-	timer->num = i;
-
-	ret = tim_ops.init(timer);
-	if (ret < 0) {
-		printk("failed to init timer via hardware IP\n");
-		goto failed_out;
-	}
-
-	return i;
-
-failed_out:
-	kfree(timer);
-	return ret;
+	return timer;
 }
 
 static int timer_release(struct timer *timer)
@@ -100,38 +80,27 @@ static int timer_release(struct timer *timer)
 
 	mutex_lock(&timer_mutex);
 
-	ret = tim_ops.release_irq(timer);
-	if (ret < 0) {
+	ret = timer->tim_ops->release_irq(timer);
+	if (ret < 0)
 		error_printk("failed to release timer via hardware IP\n");
-		goto failed;
-	}
 
-	timer_bitmap &= ~(timer->num);
 	
+	timer->is_used = 0;
+
 	mutex_unlock(&timer_mutex);
 
-	kfree(timer_list[timer->num]);
-
-failed:
-	return 0;
+	return ret;
 }
 
 static int timer_release_from_isr(struct timer *timer)
 {
 	int ret = 0;
 
-	ret = tim_ops.release_irq(timer);
-	if (ret < 0) {
+	ret = timer->tim_ops->release_irq(timer);
+	if (ret < 0)
 		error_printk("failed to release timer via hardware IP\n");
-		goto failed;
-	}
 
-	timer_bitmap &= ~(timer->num);
-	
-	kfree(timer_list[timer->num]);
-
-failed:
-	return 0;
+	return ret;
 }
 
 static void timer_isr(void *arg)
@@ -155,13 +124,11 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 
 	mutex_lock(&timer_mutex);
 
-	ret = timer_request();
-	if (ret < 0) {
+	timer = timer_request();
+	if (!timer) {
 		error_printk("failed to request timer\n");
-		return ret;
+		return -ENOENT;
 	}
-
-	timer = timer_list[ret];
 
 	timer->one_shot = 1;
 	timer->one_pulse = 1;
@@ -170,7 +137,7 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 	timer->callback.handler = handler;
 	timer->callback.arg = arg;
 
-	tim_ops.request_irq(timer, &timer_isr, timer);
+	timer->tim_ops->request_irq(timer, &timer_isr, timer);
 
 	timer_set_rate(timer, 1000000);
 	timer_set_counter(timer, timer->counter);
@@ -227,6 +194,47 @@ void timer_soft_decrease_delay(void)
 	}
 }
 
+struct timer *timer_new(void)
+{
+	struct timer *timer = NULL;
+
+	timer = (struct timer *)kmalloc(sizeof(struct timer));
+	if (!timer) {
+		error_printk("cannot allocate timer\n");
+		return NULL;
+	}
+
+	memset(timer, 0, sizeof(struct timer));
+
+	return timer;
+}
+
+int timer_remove(struct timer *timer)
+{
+	int ret = 0;
+	struct timer *timerdev = NULL;
+
+	list_for_every_entry(&timer_list, timerdev, struct timer, node)
+		if (timerdev == timer)
+			break;
+
+	if (timerdev) {
+		list_delete(&timerdev->node);
+		kfree(timerdev);
+	}
+	else
+		ret = -ENOENT;
+
+	return ret;
+}
+
+int timer_register(struct timer *timer)
+{
+	list_add_tail(&timer_list, &timer->node);
+
+	return 0;
+}
+
 int timer_init(void)
 {
 	int ret = 0;
@@ -244,8 +252,6 @@ int timer_init(void)
 		ret = -ENOMEM;
 		goto failed_out;
 	}
-
-	timer_mask ^= (-1 ^ timer_mask) & (1 << CONFIG_TIMER_NB);
 
 	mutex_init(&timer_mutex);
 	list_initialize(&timer_soft_list);

@@ -44,12 +44,15 @@ struct timer
 	unsigned char one_pulse:1;
 	unsigned char count_up:1;
 	unsigned int counter;
+	unsigned int is_used;
+	struct device dev;
 	struct timer_callback callback;
+	struct timer_operations *tim_ops;
+	struct list_node node;
 };
 
 struct timer_operations
 {
-	int (*init)(struct timer *timer);
 	void (*set_rate)(struct timer *timer, unsigned long rate);
 	void (*set_counter)(struct timer *timer, unsigned short counter);
 	void (*enable)(struct timer *timer);
@@ -68,6 +71,9 @@ void timer_enable(struct timer *timer);
 void timer_disable(struct timer *timer);
 void timer_clear_it_flags(struct timer *timer, unsigned int flags);
 void timer_soft_decrease_delay(void);
+struct timer *timer_new(void);
+int timer_remove(struct timer *timer);
+int timer_register(struct timer *timer);
 
 
 #endif /* TIMER_H*/
