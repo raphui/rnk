@@ -20,7 +20,6 @@
 #define BOARD_STM32F407_H
 
 #include <stm32f407.h>
-#include <usart.h>
 #include <pio.h>
 #include <timer.h>
 #include <dma.h>
@@ -30,7 +29,6 @@
 /*#define VECT_TAB_SRAM */
 #define VECT_TAB_OFFSET 0x00
  
-struct usart_operations usart_ops;
 struct pio_operations pio_ops;
 struct timer_operations tim_ops;
 struct dma_operations dma_ops;
