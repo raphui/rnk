@@ -30,34 +30,6 @@
 #include <device.h>
 #include <spi.h>
 
-static int stm32_spi_get_nvic_number(struct spi_master *spi)
-{
-	int nvic = 0;
-
-	switch (spi->base_reg) {
-		case SPI1_BASE:
-			nvic = SPI1_IRQn;
-			break;
-		case SPI2_BASE:
-			nvic = SPI2_IRQn;
-			break;
-		case SPI3_BASE:
-			nvic = SPI3_IRQn;
-			break;
-#ifdef CONFIG_STM32F429
-		case SPI4_BASE:
-			nvic = SPI4_IRQn;
-			break;
-		case SPI5_BASE:
-			nvic = SPI5_IRQn;
-			break;
-#endif /* CONFIG_STM32F429 */
-	}
-
-
-	return nvic;
-}
-
 static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long rate)
 {
 	unsigned int i;
@@ -117,7 +89,7 @@ static unsigned short stm32_spi_dma_write(struct spi_device *spidev, unsigned sh
 	struct dma *dma = &spi->dma;
 	struct dma_transfer *dma_trans = &spi->dma_trans;
 
-	int nvic = stm32_spi_get_nvic_number(spi);
+	int nvic = spi->irq;
 	int ready = 0;
 	int ret = 0;
 
@@ -257,7 +229,12 @@ int stm32_spi_of_init(struct spi_master *spi)
 
 	spi->source_clk = stm32_rcc_get_freq_clk(spi->source_clk);
 
-	/* TODO: retrieve bus num, etc. */
+	ret = fdtparse_get_int(offset, "interrupts", (int *)&spi->irq);
+	if (ret < 0) {
+		error_printk("failed to retrieve spi irq\n");
+		ret = -EIO;
+		goto out;
+	}
 
 out:
 	return ret;
