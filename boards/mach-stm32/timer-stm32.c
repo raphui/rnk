@@ -340,7 +340,13 @@ static int stm32_timer_init(struct device *dev)
 	ret = irq_request(irq_line, &stm32_timer_isr, timer);
 	if (ret < 0) {
 		error_printk("cannot request isr for irq line: %d\n", irq_line);
-		ret = stm32_rcc_disable_clk(timer->base_reg);
+		goto clk_disable;
+	}
+
+	ret = timer_register(timer);
+	if (ret < 0) {
+		error_printk("failed to register stm32 timer\n");
+		goto clk_disable;
 	}
 
 	list_initialize(&action_list);
