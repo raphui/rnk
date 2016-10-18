@@ -15,7 +15,6 @@
  * along with this program; if not, write to the Frrestore * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <board.h>
 #include <timer.h>
 #include <errno.h>
 #include <mm.h>
@@ -56,8 +55,6 @@ void timer_clear_it_flags(struct timer *timer, unsigned int flags)
 
 static struct timer *timer_request(void)
 {
-	int i;
-	int ret;
 	struct timer *timer = NULL;
 
 	list_for_every_entry(&timer_list, timer, struct timer, node)
@@ -145,7 +142,7 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 
 	mutex_unlock(&timer_mutex);
 
-	return 0;
+	return ret;
 }
 
 
