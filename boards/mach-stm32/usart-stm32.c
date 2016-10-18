@@ -199,7 +199,16 @@ static int stm32_usart_init(struct device *dev)
 	USART->CR1 |= USART_CR1_TE;
 	USART->CR1 |= USART_CR1_UE;
 
+	ret = usart_register_master(usart);
+	if (ret < 0) {
+		error_printk("failed to register stm32 usart\n");
+		goto disable_clk;
+	}
+
 	return 0;
+
+disable_clk:
+	stm32_rcc_disable_clk(usart->base_reg);
 err:
 	return ret;
 }
