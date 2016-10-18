@@ -111,7 +111,7 @@ int spi_register_device(struct spi_device *spi)
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
 	
 	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + spi->master->num;
+	tmp[8] = 0x30 + dev_count;
 
 	memcpy(spi->dev.name, tmp, sizeof(tmp));
 
