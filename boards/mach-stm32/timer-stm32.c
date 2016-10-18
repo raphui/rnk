@@ -23,7 +23,10 @@
 #include <armv7m/vector.h>
 #include <irq.h>
 #include <mm.h>
-
+#include <fdtparse.h>
+#include <timer.h>
+#include <init.h>
+#include <stdio.h>
 #include <mach/rcc-stm32.h>
 
 struct action {
@@ -101,65 +104,6 @@ static void stm32_timer_isr(void *arg)
 	nvic_clear_interrupt(irq);
 
 	stm32_timer_action(timer);
-}
-
-static int stm32_timer_init(struct timer *timer)
-{
-	int ret = 0;
-	int irq_line = 0;
-	unsigned int base_reg = 0;
-
-	/* XXX: timer generic driver start from 0 to CONFIG_TIMER_NB
-	 *	but stm32 driver start from 2 to 5, so we made the conversion in this way
-	 */
-	if ((timer->num + 2) < 2 || (timer->num + 2) > 5)
-		return -EINVAL;
-
-	switch (timer->num + 2) {
-		case 2:
-			base_reg = TIM2_BASE;
-			break;
-		case 3:
-			base_reg = TIM3_BASE;
-			break;
-		case 4:
-			base_reg = TIM4_BASE;
-			break;
-		case 5:
-			base_reg = TIM5_BASE;
-			break;
-	}
-
-	timer->base_reg = base_reg;
-
-	ret = stm32_rcc_enable_clk(timer->base_reg);
-	if (ret < 0) {
-		error_printk("cannot enable TIM%d clock\r\n", timer->num + 2);
-		return ret;
-	}
-
-	timer->rate = (APB1_PRES > 1) ? APB1_CLK * 2 : APB1_CLK;
-	timer->prescaler = 0;
-
-	irq_line = stm32_timer_get_nvic_number(timer);
-	if (irq_line < 0) {
-		error_printk("invalid irq line\n");
-		goto clk_disable;
-	}
-
-	ret = irq_request(irq_line, &stm32_timer_isr, timer);
-	if (ret < 0) {
-		error_printk("cannot request isr for irq line: %d\n", irq_line);
-		ret = stm32_rcc_disable_clk(timer->base_reg);
-	}
-
-	list_initialize(&action_list);
-
-	return ret;
-
-clk_disable:
-	stm32_rcc_disable_clk(timer->base_reg);
-	return ret;
 }
 
 static short stm32_timer_find_best_pres(unsigned long parent_rate, unsigned long rate)
@@ -307,7 +251,6 @@ static int stm32_timer_release_irq(struct timer *timer)
 }
 
 struct timer_operations tim_ops = {
-	.init = stm32_timer_init,
 	.set_rate = stm32_timer_set_rate,
 	.set_counter = stm32_timer_set_counter,
 	.enable = stm32_timer_enable,
@@ -316,3 +259,114 @@ struct timer_operations tim_ops = {
 	.request_irq = stm32_timer_request_irq,
 	.release_irq = stm32_timer_release_irq,
 };
+
+static int stm32_timer_of_init(struct timer *timer)
+{
+	int offset;
+	int ret = 0;
+	const void *fdt_blob = fdtparse_get_blob();
+
+	offset = fdt_path_offset(fdt_blob, timer->dev.of_path);
+	if (offset < 0) {
+		ret = -ENOENT;
+		goto out;
+	}
+
+	ret = fdt_node_check_compatible(fdt_blob, offset, timer->dev.of_compat);
+	if (ret < 0)
+		goto out;
+
+	timer->base_reg = (unsigned int)fdtparse_get_addr32(offset, "reg");
+	if (!timer->base_reg) {
+		error_printk("failed to retrieve usart base reg from fdt\n");
+		ret = -ENOENT;
+		goto out;
+	}
+
+out:
+	return ret;
+}
+
+static int stm32_timer_init(struct device *dev)
+{
+	int ret = 0;
+	int irq_line = 0;
+	int freq, pres;
+	struct timer *timer = NULL;
+
+	timer = timer_new();
+	if (!timer) {
+		error_printk("failed to retrieve new timer\n");
+		ret = -EIO;
+		goto err;
+	}
+
+	memcpy(&timer->dev, dev, sizeof(struct device));
+	timer->tim_ops = &tim_ops;
+
+	ret = stm32_timer_of_init(timer);
+	if (ret < 0) {
+		error_printk("failed to init timer with fdt data\n");
+		goto err;
+	}
+
+	ret = stm32_rcc_enable_clk(timer->base_reg);
+	if (ret < 0) {
+		error_printk("cannot enable TIM%d clock\r\n", timer->num + 2);
+		goto err;
+	}
+
+	pres = stm32_rcc_get_pres_clk(AHB_CLK);
+	if (pres < 0) {
+		error_printk("failed to retrieve ahb prescaler\n");
+		goto clk_disable;
+	}
+
+	freq = stm32_rcc_get_freq_clk(APB1_CLK);
+	if (freq < 0) {
+		error_printk("failed to retrieve apb1 freq\n");
+		goto clk_disable;
+	}
+
+	timer->rate = (pres > 1) ? freq * 2 : freq;
+	timer->prescaler = 0;
+
+	irq_line = stm32_timer_get_nvic_number(timer);
+	if (irq_line < 0) {
+		error_printk("invalid irq line\n");
+		goto clk_disable;
+	}
+
+	ret = irq_request(irq_line, &stm32_timer_isr, timer);
+	if (ret < 0) {
+		error_printk("cannot request isr for irq line: %d\n", irq_line);
+		ret = stm32_rcc_disable_clk(timer->base_reg);
+	}
+
+	list_initialize(&action_list);
+
+	return ret;
+
+clk_disable:
+	stm32_rcc_disable_clk(timer->base_reg);
+err:
+	return ret;
+}
+
+struct device stm32_timer_driver = {
+	.of_compat = "st,stm32f4xx-timer",
+	.probe = stm32_timer_init,
+};
+
+static int stm32_timer_register(void)
+{
+	int ret = 0;
+
+	ret = device_register(&stm32_timer_driver);
+	if (ret < 0)
+		error_printk("failed to register stm32_timer device\n");
+	return ret;
+}
+#ifdef CONFIG_INITCALL
+pure_initcall(stm32_timer_register);
+#endif /* CONFIG_INITCALL */
