@@ -124,6 +124,6 @@ int device_of_probe(void)
 		}
 	} while (offset >= 0);
 
-	return 0;
+	return ret;
 }
 coredevice_initcall(device_of_probe);
