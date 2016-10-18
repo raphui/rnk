@@ -21,7 +21,6 @@
 
 #include <stm32f407.h>
 #include <pio.h>
-#include <timer.h>
 #include <dma.h>
 #include <mtd.h>
 
@@ -30,7 +29,6 @@
 #define VECT_TAB_OFFSET 0x00
  
 struct pio_operations pio_ops;
-struct timer_operations tim_ops;
 struct dma_operations dma_ops;
 struct mtd_operations mtd_ops;
 
