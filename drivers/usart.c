@@ -36,7 +36,7 @@ static int usart_read(struct device *dev, unsigned char *buff, unsigned int size
 
 	verbose_printk("reading from usart !\n");
 
-	return usart_ops.read(usart, buff, size);
+	return usart->usart_ops->read(usart, buff, size);
 }
 
 static int usart_write(struct device *dev, unsigned char *buff, unsigned int size)
@@ -45,7 +45,7 @@ static int usart_write(struct device *dev, unsigned char *buff, unsigned int siz
 
 	verbose_printk("writing from usart !\n");
 
-	return usart_ops.write(usart, buff, size);
+	return usart->usart_ops->write(usart, buff, size);
 }
 
 struct usart_device *usart_new_device(void)

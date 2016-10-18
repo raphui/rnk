@@ -47,7 +47,7 @@ struct usart_master {
 	unsigned int baud_rate;
 	struct list_node node;
 	struct device dev;
-	struct usart_operations usart_ops;
+	struct usart_operations *usart_ops;
 };
 
 struct usart_bus {
