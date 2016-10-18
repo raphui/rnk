@@ -17,6 +17,7 @@
 
 #include <board.h>
 #include <errno.h>
+#include <stdio.h>
 
 #define FLASH_PSIZE_BYTE	0x200
 #define CR_PSIZE_MASK		0xFFFFFCFF
