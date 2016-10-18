@@ -143,7 +143,7 @@ int usart_register_master(struct usart_master *usart)
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
 
 	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + usart->num;
+	tmp[8] = 0x30 + dev_count;
 
 	memcpy(usart->dev.name, tmp, sizeof(tmp));
 
