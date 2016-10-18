@@ -45,6 +45,7 @@ struct timer
 	unsigned char count_up:1;
 	unsigned int counter;
 	unsigned int is_used;
+	unsigned int irq;
 	struct device dev;
 	struct timer_callback callback;
 	struct timer_operations *tim_ops;
