@@ -222,7 +222,7 @@ static int stm32_usart_register(void)
 {
 	int ret = 0;
 
-	ret = device_register(&stm32_usart_driver);
+	ret = device_of_register(&stm32_usart_driver);
 	if (ret < 0)
 		error_printk("failed to register stm32_usart device\n");
 	return ret;
