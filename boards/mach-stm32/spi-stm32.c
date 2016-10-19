@@ -324,5 +324,5 @@ static int stm32_spi_register(void)
 	return ret;
 }
 #ifdef CONFIG_INITCALL
-pure_initcall(stm32_spi_register);
+postarch_initcall(stm32_spi_register);
 #endif /* CONFIG_INITCALL */
