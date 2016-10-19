@@ -228,5 +228,5 @@ static int stm32_usart_register(void)
 	return ret;
 }
 #ifdef CONFIG_INITCALL
-pure_initcall(stm32_usart_register);
+postarch_initcall(stm32_usart_register);
 #endif /* CONFIG_INITCALL */
