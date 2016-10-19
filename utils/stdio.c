@@ -18,10 +18,11 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <console.h>
 
 static void putchar(unsigned char c)
 {
-	io_op.write(c);
+	console_write(&c, sizeof(unsigned char));
 }
 
 static void puts_x(char *str, int width, const char pad)
