@@ -145,6 +145,7 @@
 			#size-cells = <0>;
 			compatible = "st,stm32f4xx-spi";
 			reg = <0x40013000 0x20>;
+                        interrupts = <35>;
 			gpios =	<&gpioa 0x505 0x0A>,     /* SCK, PA5 */
 					<&gpioa 0x506 0x08>,     /* MISO PA6 */
 					<&gpioa 0x507 0x0A>;     /* MOSI PA7 */
