@@ -62,7 +62,4 @@ int usart_remove_master(struct usart_master *usart);
 int usart_register_master(struct usart_master *usart);
 int usart_init(void);
 
-void usart_print(unsigned char byte);
-int usart_printl(const char *string);
-
 #endif /* USART_H */
