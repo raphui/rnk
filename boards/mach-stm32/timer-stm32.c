@@ -341,5 +341,5 @@ static int stm32_timer_register(void)
 	return ret;
 }
 #ifdef CONFIG_INITCALL
-pure_initcall(stm32_timer_register);
+postarch_initcall(stm32_timer_register);
 #endif /* CONFIG_INITCALL */
