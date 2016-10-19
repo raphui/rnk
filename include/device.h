@@ -37,6 +37,7 @@ struct device {
 int device_register(struct device *dev);
 int device_unregister(struct device *dev);
 struct device *device_from_name(const char *name);
+struct device *device_from_of_path(const char *path);
 int device_of_probe(void);
 
 #endif /* DEVICE_H */

@@ -67,6 +67,18 @@ struct device *device_from_name(const char *name)
 	return dev;
 }
 
+struct device *device_from_of_path(const char *path)
+{
+	struct device *dev = NULL;
+
+	list_for_every_entry(&device_list, dev, struct device, next) {
+		if (!strcmp(path, dev->of_path))
+			break;
+	}
+
+	return dev;
+}
+
 int device_of_probe(void)
 {
 	int ret = 0;
