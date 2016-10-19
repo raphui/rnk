@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <string.h>
 #include <init.h>
+#include <console.h>
 
 static int dev_count = 0;
 static char dev_prefix[10] = "/dev/tty";
@@ -182,28 +183,12 @@ failed_out:
 	kfree(bus);
 	return ret;
 }
-pure_initcall(usart_init);
-
-void usart_print(unsigned char byte)
-{
-//	usart_ops.print(usart, byte);
-	return 0;
-}
-
-
-int usart_printl(const char *string)
-{
-//	return usart_ops.printl(usart, string);
-	return 0;
-}
-
 postcore_initcall(usart_init);
 
 #ifdef CONFIG_USART_DEBUG
 
 struct io_operations io_op = {
-	.write = usart_print,
-	.write_string = usart_printl,
+	.write = usart_write,
 };
 
 #endif /* CONFIG_USART_DEBUG */
