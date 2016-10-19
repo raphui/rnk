@@ -318,7 +318,7 @@ static int stm32_spi_register(void)
 {
 	int ret = 0;
 
-	ret = device_register(&stm32_spi_driver);
+	ret = device_of_register(&stm32_spi_driver);
 	if (ret < 0)
 		error_printk("failed to register stm32_spi device\n");
 	return ret;
