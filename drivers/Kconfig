@@ -27,10 +27,6 @@ config LCD_SUBSYS
 config TIMER_SUBSYS
 	bool "Timer subsystem driver"
 
-config TIMER_NB
-	depends on TIMER_SUBSYS
-	int "Number of hardware timer"
-
 config OF
 	bool "Use device tree probing"
 
