@@ -47,14 +47,6 @@
 #define debug_printk(...) do{ if(DEBUG){ printk(__VA_ARGS__); } }while(0)
 #define error_printk(...) do{ if(ERROR){ printk(__VA_ARGS__); } }while(0)
 
-struct io_operations
-{
-	void (*write)(unsigned char c);
-	int (*write_string)(const char *string);
-};
-
-extern struct io_operations io_op;
-
 void printk(char *fmt, ...);
 void vprintf(char *fmt, va_list va);
 
