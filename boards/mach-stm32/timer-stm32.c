@@ -335,7 +335,7 @@ static int stm32_timer_register(void)
 {
 	int ret = 0;
 
-	ret = device_register(&stm32_timer_driver);
+	ret = device_of_register(&stm32_timer_driver);
 	if (ret < 0)
 		error_printk("failed to register stm32_timer device\n");
 	return ret;
