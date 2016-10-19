@@ -5,6 +5,7 @@
 
 obj-y := device.o
 obj-y += clk.o
+obj-y += console.o
 obj-y += pio.o
 obj-y += usart.o
 obj-y += timer.o
