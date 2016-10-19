@@ -202,5 +202,5 @@ failed_out:
 	return ret;
 }
 #ifdef CONFIG_INITCALL
-pure_initcall(spi_init);
+postcore_initcall(spi_init);
 #endif /* CONFIG_INITCALL */

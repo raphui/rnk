@@ -197,6 +197,7 @@ int usart_printl(const char *string)
 	return 0;
 }
 
+postcore_initcall(usart_init);
 
 #ifdef CONFIG_USART_DEBUG
 
