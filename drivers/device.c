@@ -24,8 +24,17 @@
 #include <init.h>
 
 static int device_count = 0;
+static int device_of_count = 0;
 
 static struct list_node device_list;
+static struct list_node device_of_list;
+
+static void insert_of_device(struct device *dev)
+{
+	list_add_head(&device_of_list, &dev->next);
+
+	device_of_count++;
+}
 
 static void insert_device(struct device *dev)
 {
@@ -79,6 +88,27 @@ struct device *device_from_of_path(const char *path)
 	return dev;
 }
 
+int device_of_register(struct device *dev)
+{
+	int ret = 0;
+
+	if (!device_of_count)
+		list_initialize(&device_of_list);
+
+	insert_of_device(dev);
+
+	return ret;
+}
+
+int device_of_unregister(struct device *dev)
+{
+	int ret = 0;
+
+	list_delete(&dev->next);
+
+	return ret;
+}
+
 int device_of_probe(void)
 {
 	int ret = 0;
@@ -113,7 +143,7 @@ int device_of_probe(void)
 	
 
 		while (listlen > 0) {
-			list_for_every_entry(&device_list, dev, struct device, next) {
+			list_for_every_entry(&device_of_list, dev, struct device, next) {
 				if (!strcmp(compat, dev->of_compat)) {
 					path = fdtparse_get_path(offset);
 					if (!path) {
