@@ -422,5 +422,5 @@ out:
 	return ret;
 }
 #ifdef CONFIG_INITCALL
-pure_initcall(stm32_rcc_enable_sys_clk);
+arch_initcall(stm32_rcc_enable_sys_clk);
 #endif /* CONFIG_INITCALL */
