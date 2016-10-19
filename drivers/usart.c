@@ -69,6 +69,12 @@ int usart_remove_device(struct usart_device *usart)
 	int ret = 0;
 	struct usart_device *usartdev = NULL;
 
+	ret = device_unregister(&usart->dev);
+	if (ret < 0) {
+		error_printk("failed to unregister usart device");
+		return ret;
+	}
+
 	list_for_every_entry(&usart_device_list, usartdev, struct usart_device, node)
 		if (usartdev == usart)
 			break;
@@ -88,6 +94,7 @@ int usart_remove_device(struct usart_device *usart)
 
 int usart_register_device(struct usart_device *usart)
 {
+	int ret = 0;
 	char tmp[10] = {0};
 
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
@@ -99,7 +106,11 @@ int usart_register_device(struct usart_device *usart)
 
 	list_add_tail(&usart_device_list, &usart->node);
 
-	return 0;
+	ret = device_register(&usart->dev);
+	if (ret < 0)
+		error_printk("failed to register usart device\n");
+
+	return ret;
 }
 
 struct usart_master *usart_new_master(void)
@@ -120,6 +131,12 @@ int usart_remove_master(struct usart_master *usart)
 	int ret = 0;
 	struct usart_master *usartdev = NULL;
 
+	ret = device_unregister(&usart->dev);
+	if (ret < 0) {
+		error_printk("failed to unregister usart master");
+		return ret;
+	}
+
 	list_for_every_entry(&usart_master_list, usartdev, struct usart_master, node)
 		if (usartdev == usart)
 			break;
@@ -132,6 +149,7 @@ int usart_remove_master(struct usart_master *usart)
 		ret = -ENOENT;
 
 
+
 	dev_count--;
 
 	return ret;
@@ -139,6 +157,7 @@ int usart_remove_master(struct usart_master *usart)
 
 int usart_register_master(struct usart_master *usart)
 {
+	int ret = 0;
 	char tmp[10] = {0};
 
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
@@ -150,7 +169,11 @@ int usart_register_master(struct usart_master *usart)
 
 	list_add_tail(&usart_master_list, &usart->node);
 
-	return 0;
+	ret = device_register(&usart->dev);
+	if (ret < 0)
+		error_printk("failed to register usart master\n");
+
+	return ret;
 }
 
 int usart_init(void)
