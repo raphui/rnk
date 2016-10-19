@@ -87,6 +87,12 @@ int spi_remove_device(struct spi_device *spi)
 	int ret = 0;
 	struct spi_device *spidev = NULL;
 
+	ret = device_unregister(&spi->dev);
+	if (ret < 0) {
+		error_printk("failed to unregister spi device");
+		return ret;
+	}
+
 	list_for_every_entry(&spi_device_list, spidev, struct spi_device, node)
 		if (spidev == spi)
 			break;
@@ -106,6 +112,7 @@ int spi_remove_device(struct spi_device *spi)
 
 int spi_register_device(struct spi_device *spi)
 {
+	int ret = 0;
 	char tmp[10] = {0};
 
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
@@ -117,7 +124,11 @@ int spi_register_device(struct spi_device *spi)
 
 	list_add_tail(&spi_device_list, &spi->node);
 
-	return 0;
+	ret = device_register(&spi->dev);
+	if (ret < 0)
+		error_printk("failed to register spi device\n");
+
+	return ret;
 }
 
 struct spi_master *spi_new_master(void)
@@ -138,6 +149,12 @@ int spi_remove_master(struct spi_master *spi)
 	int ret = 0;
 	struct spi_master *spidev = NULL;
 
+	ret = device_unregister(&spi->dev);
+	if (ret < 0) {
+		error_printk("failed to unregister spi master");
+		return ret;
+	}
+
 	list_for_every_entry(&spi_master_list, spidev, struct spi_master, node)
 		if (spidev == spi)
 			break;
@@ -157,6 +174,7 @@ int spi_remove_master(struct spi_master *spi)
 
 int spi_register_master(struct spi_master *spi)
 {
+	int ret = 0;
 	char tmp[10] = {0};
 
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
@@ -168,7 +186,11 @@ int spi_register_master(struct spi_master *spi)
 
 	list_add_tail(&spi_master_list, &spi->node);
 
-	return 0;
+	ret = device_register(&spi->dev);
+	if (ret < 0)
+		error_printk("failed to register spi device\n");
+
+	return ret;
 }
 
 int spi_init(void)
