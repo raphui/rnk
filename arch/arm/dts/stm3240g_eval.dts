@@ -4,6 +4,7 @@
 / {
 	aliases
 	{
+		console = &usart3;
 	};
 
 	led
