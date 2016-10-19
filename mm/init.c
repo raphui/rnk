@@ -22,6 +22,8 @@
 #include <init.h>
 #endif /* CONFIG_INITCALL */
 
+int heap_size = MAX_KERNEL_SIZE;
+
 int heap_init(void)
 {
 	int i;

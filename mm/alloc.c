@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include "memory.h"
 
+int mem_alloc = 0;
+
 static void *alloc(struct memory_block *heap, unsigned int heap_size, unsigned int chunks, void *base)
 {
 	void *ret = NULL;
@@ -105,6 +107,9 @@ void *kmalloc(size_t size)
 	chunks = chunks / CHUNK_SIZE;
 
 	mem = alloc(kernel_heap, KERNEL_NUM_BLOCKS, chunks, (void *)KERNEL_HEAP_START);
+
+	if (mem)
+		mem_alloc += size;
 
 	return mem;
 }
