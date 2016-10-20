@@ -60,7 +60,7 @@ struct usart_device *usart_new_device(void)
 		return NULL;
 	}
 	
-	memcpy(usartdev, 0, sizeof(struct usart_device));
+	memset(usartdev, 0, sizeof(struct usart_device));
 
 	dev_count++;
 
@@ -126,7 +126,7 @@ struct usart_master *usart_new_master(void)
 		return NULL;
 	}
 
-	memcpy(usart, 0, sizeof(struct usart_master));
+	memset(usart, 0, sizeof(struct usart_master));
 
 	master_count++;
 
