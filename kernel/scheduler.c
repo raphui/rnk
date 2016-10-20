@@ -20,7 +20,6 @@
 #include <thread.h>
 #include <stdio.h>
 #include <pit.h>
-#include <board.h>
 #include <arch/svc.h>
 #include <arch/system.h>
 #include <time.h>
