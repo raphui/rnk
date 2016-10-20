@@ -26,27 +26,27 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 
-		gpioa: gpioa@40020000 {
+		gpioa: gpio@40020000 {
 			reg = <0x40020000 0x400>;
                         status = "okay";
 		};
 
-		gpiob: gpiob@40020400 {
+		gpiob: gpio@40020400 {
 			reg = <0x40020400 0x400>;
                         status = "okay";
 		};
 
-		gpioc: gpioc@40020800 {
+		gpioc: gpio@40020800 {
 			reg = <0x40020800 0x400>;
                         status = "okay";
 		};
 
-		gpiod: gpiod@40020C00 {
+		gpiod: gpio@40020C00 {
 			reg = <0x40020C00 0x400>;
                         status = "okay";
 		};
 
-		gpioe: gpioe@40021000 {
+		gpioe: gpio@40021000 {
 			reg = <0x40021000 0x400>;
                         status = "okay";
 		};
@@ -67,11 +67,11 @@
                         status = "okay";
 		};
 
-		dma0: dma0@40026000 {
+		dma1: dma0@40026000 {
 			reg = <0x40026000 0x400>;
 		};
 
-		dma1: dma1@40026400 {
+		dma2: dma1@40026400 {
 			reg = <0x40026400 0x400>;
 		};
 	};
