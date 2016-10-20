@@ -45,7 +45,6 @@ static int console_init(void)
 	int ret = 0;
 	char *path = NULL;
 	struct device *dev = NULL;
-	void *blob = fdtparse_get_blob();
 
 	offset = fdtparse_alias_offset("console");
 	if (offset < 0) {
