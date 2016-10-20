@@ -58,6 +58,8 @@ struct usart_device *usart_new_device(void)
 		error_printk("cannot allocate usart device\n");
 		return NULL;
 	}
+	
+	memcpy(usartdev, 0, sizeof(struct usart_device));
 
 	dev_count++;
 
@@ -122,6 +124,8 @@ struct usart_master *usart_new_master(void)
 		error_printk("cannot allocate usart master\n");
 		return NULL;
 	}
+
+	memcpy(usart, 0, sizeof(struct usart_master));
 
 	return usart;
 }
