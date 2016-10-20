@@ -19,8 +19,18 @@
 #define MTD_H
 
 #include <device.h>
+#include <list.h>
 
 #define MAX_SECTORS	32
+
+struct mtd;
+
+struct mtd_operations
+{
+	int (*erase)(struct mtd *mtd, unsigned int sector);
+	int (*write)(struct mtd *mtd, unsigned char *buff, unsigned int size);
+	int (*read)(struct mtd *mtd, unsigned char *buff, unsigned int size);
+};
 
 struct mtd {
 	unsigned int base_addr;
@@ -28,17 +38,14 @@ struct mtd {
 	unsigned int num_sectors;
 	unsigned int total_size;
 	int curr_off;
+	struct mtd_operations *mtd_ops;
 	struct device dev;
+	struct list_node node;
 };
 
-struct mtd_operations
-{
-	int (*init)(struct mtd *mtd);
-	int (*erase)(struct mtd *mtd, unsigned int sector);
-	int (*write)(struct mtd *mtd, unsigned char *buff, unsigned int size);
-	int (*read)(struct mtd *mtd, unsigned char *buff, unsigned int size);
-};
-
-int mtd_init(struct mtd *mtd);
+struct mtd *mtd_new_controller(void);
+int mtd_remove_controller(struct mtd *mtd);
+int mtd_register_controller(struct mtd *mtd);
+int mtd_init(void);
 
 #endif /* MTD_H */

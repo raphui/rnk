@@ -15,16 +15,17 @@
  * along with this program; if not, write to the Frrestore * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <board.h>
 #include <utils.h>
 #include <mtd.h>
 #include <mm.h>
 #include <errno.h>
 #include <string.h>
+#include <init.h>
 #include <stdio.h>
 
 static int dev_count = 0;
 static char dev_prefix[10] = "/dev/mtd";
+static struct list_node mtd_controller_list;
 
 static int mtd_check_addr(struct device *dev, unsigned int addr)
 {
@@ -50,7 +51,7 @@ static int mtd_read(struct device *dev, unsigned char *buff, unsigned int size)
 	if (ret < 0)
 		return ret;
 
-	ret = mtd_ops.read(mtd, buff, size);
+	ret = mtd->mtd_ops->read(mtd, buff, size);
 	if (ret < 0)
 		return ret;
 
@@ -70,7 +71,7 @@ static int mtd_write(struct device *dev, unsigned char *buff, unsigned int size)
 	if (ret < 0)
 		return ret;
 
-	ret = mtd_ops.write(mtd, buff, size);
+	ret = mtd->mtd_ops->write(mtd, buff, size);
 	if (ret < 0)
 		return ret;
 
@@ -111,42 +112,93 @@ static int mtd_lseek(struct device *dev, int offset, int whence)
 	return ret;
 }
 
-int mtd_init(struct mtd *mtd)
+struct mtd *mtd_new_controller(void)
+{
+	struct mtd *mtd = NULL;
+
+	mtd = (struct mtd *)kmalloc(sizeof(struct mtd));
+	if (!mtd) {
+		error_printk("cannot allocate mtd controller");
+		return NULL;
+	}
+
+	memset(mtd, 0, sizeof(struct mtd));
+
+	dev_count++;
+
+	return mtd;
+}
+
+int mtd_remove_controller(struct mtd *mtd)
+{
+	int ret = 0;
+
+	struct mtd *mtddev = NULL;
+
+	ret = device_unregister(&mtd->dev);
+	if (ret < 0) {
+		error_printk("failed to unregister mtd controller");
+		return ret;
+	}
+
+	list_for_every_entry(&mtd_controller_list, mtddev, struct mtd, node)
+		if (mtddev == mtd)
+			break;
+
+	if (mtddev) {
+		list_delete(&mtddev->node);
+		kfree(mtddev);
+	}
+	else
+		ret = -ENOENT;
+
+
+
+	dev_count--;
+
+	return ret;
+}
+
+int mtd_register_controller(struct mtd *mtd)
 {
 	int i;
 	int ret = 0;
 	int total_size = 0;
-	struct mtd *_mtd = NULL;
+	char tmp[10] = {0};
 
-	_mtd = (struct mtd *)kmalloc(sizeof(struct mtd));
-	if (!_mtd) {
-		error_printk("cannot allocate mtd\n");
-		return -ENOMEM;
-	}
-
-	memcpy(_mtd, mtd, sizeof(struct mtd));
-
-	_mtd->curr_off = 0;
+	mtd->curr_off = 0;
 
 	for (i = 0; i < mtd->num_sectors; i++) {
-		total_size += _mtd->sector_size[i];
+		total_size += mtd->sector_size[i];
 	}
 
-	memcpy(mtd->dev.name, dev_prefix, 10);
+	mtd->total_size = total_size;
 
-	_mtd->dev.read = mtd_read;
-	_mtd->dev.write = mtd_write;
+	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
 
-	ret = device_register(&_mtd->dev);
-	if (ret < 0) {
-		error_printk("failed to register device\n");
-		ret = -ENOMEM;
-		goto failed_out;
-	}
+	/* XXX: ascii 0 start at 0x30 */
+	tmp[8] = 0x30 + dev_count;
 
-	return mtd_ops.init(_mtd);
+	memcpy(mtd->dev.name, tmp, 10);
 
-failed_out:
-	kfree(mtd);
+	mtd->dev.read = mtd_read;
+	mtd->dev.write = mtd_write;
+
+	list_add_tail(&mtd_controller_list, &mtd->node);
+
+	ret = device_register(&mtd->dev);
+	if (ret < 0)
+		error_printk("failed to register mtd controller\n");
+
 	return ret;
 }
+
+int mtd_init(void)
+{
+	int ret = 0;
+
+	list_initialize(&mtd_controller_list);
+
+	return ret;
+}
+postcore_initcall(mtd_init);
