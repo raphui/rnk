@@ -19,6 +19,9 @@
 #ifndef DMA_H
 #define DMA_H
 
+#include <device.h>
+#include <list.h>
+
 #define INCR0	0x0
 #define INCR4	0x1
 #define INCR8	0x2
@@ -32,8 +35,7 @@
 #define DMA_M_P		0x1
 #define DMA_M_M		0x2
 
-struct dma {
-	unsigned char num;
+struct dma_stream {
 	unsigned int stream_base;
 	unsigned char stream_num;
 	unsigned char channel;
@@ -45,6 +47,16 @@ struct dma {
 	unsigned char minc;	
 	unsigned char pinc;	
 	unsigned char use_fifo;
+	struct dma_controller *dma;
+};
+
+struct dma_controller {
+	unsigned char num;
+	unsigned int base_reg;
+	unsigned int mem2mem;
+	struct device dev;
+	struct list_node node;
+	struct dma_operations *dma_ops;
 };
 
 struct dma_transfer {
@@ -55,15 +67,18 @@ struct dma_transfer {
 
 struct dma_operations
 {
-	int (*init)(struct dma *dma);
-	int (*transfer)(struct dma *dma, struct dma_transfer *dma_trans);
-	void (*enable)(struct dma *dma);
-	void (*disable)(struct dma *dma);
+	int (*stream_init)(struct dma_stream *dma_stream);
+	int (*transfer)(struct dma_stream *dma_stream, struct dma_transfer *dma_trans);
+	int (*enable)(struct dma_stream *dma_stream);
+	int (*disable)(struct dma_stream *dma_stream);
 };
 
-int dma_init(struct dma *dma);
-int dma_transfer(struct dma *dma, struct dma_transfer *dma_trans);
-void dma_enable(struct dma *dma);
-void dma_disable(struct dma *dma);
+int dma_transfer(struct dma_stream *dma_stream, struct dma_transfer *dma_trans);
+int dma_enable(struct dma_stream *dma_stream);
+int dma_disable(struct dma_stream *dma_stream);
+struct dma_controller *dma_new_controller(void);
+int dma_remove_controller(struct dma_controller *dma);
+int dma_register_controller(struct dma_controller *dma);
+int dma_init(void);
 
 #endif /* DMA_H */
