@@ -69,10 +69,13 @@
 
 		dma1: dma@40026000 {
 			reg = <0x40026000 0x400>;
+			compatible = "st,stm32f4xx-dma";
 		};
 
 		dma2: dma@40026400 {
 			reg = <0x40026400 0x400>;
+			compatible = "st,stm32f4xx-dma";
+			st,mem2mem;
 		};
 	};
 
