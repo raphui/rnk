@@ -103,7 +103,7 @@ int usart_register_device(struct usart_device *usart)
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
 	
 	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + usart->master->num;
+	tmp[8] = 0x30 + dev_count;
 
 	memcpy(usart->dev.name, tmp, sizeof(tmp));
 
