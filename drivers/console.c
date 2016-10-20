@@ -26,7 +26,7 @@
 
 static struct console *cons;
 
-int console_write(unsigned char *buff, int len)
+int console_write(unsigned char *buff, unsigned int len)
 {
 	int ret = 0;
 
