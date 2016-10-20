@@ -57,27 +57,27 @@ void low_level_init(void)
 int device_init(void)
 {
 	int ret = 0;
-	struct mtd mtd;
+//	struct mtd mtd;
 #ifdef CONFIG_IRQ_SUBSYS
 	struct irq irq;
 #endif /* CONFIG_IRQ_SUBSYS */
 
-	mtd.base_addr = 0x08000000;
-	mtd.sector_size[0] = SZ_16K;
-	mtd.sector_size[1] = SZ_16K;
-	mtd.sector_size[2] = SZ_16K;
-	mtd.sector_size[3] = SZ_16K;
-	mtd.sector_size[4] = SZ_64K;
-	mtd.sector_size[5] = SZ_128K;
-	mtd.sector_size[6] = SZ_128K;
-	mtd.sector_size[7] = SZ_128K;
-	mtd.sector_size[8] = SZ_128K;
-	mtd.sector_size[9] = SZ_128K;
-	mtd.sector_size[10] = SZ_128K;
-	mtd.sector_size[11] = SZ_128K;
-	mtd.num_sectors = 12;
-
-	mtd_init(&mtd);
+//	mtd.base_addr = 0x08000000;
+//	mtd.sector_size[0] = SZ_16K;
+//	mtd.sector_size[1] = SZ_16K;
+//	mtd.sector_size[2] = SZ_16K;
+//	mtd.sector_size[3] = SZ_16K;
+//	mtd.sector_size[4] = SZ_64K;
+//	mtd.sector_size[5] = SZ_128K;
+//	mtd.sector_size[6] = SZ_128K;
+//	mtd.sector_size[7] = SZ_128K;
+//	mtd.sector_size[8] = SZ_128K;
+//	mtd.sector_size[9] = SZ_128K;
+//	mtd.sector_size[10] = SZ_128K;
+//	mtd.sector_size[11] = SZ_128K;
+//	mtd.num_sectors = 12;
+//
+//	mtd_init(&mtd);
 
 //	usart_init(3, USART3_BASE, 115200);
 //	pio_set_alternate(GPIOC_BASE, 10, 0x7);
