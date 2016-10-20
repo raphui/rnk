@@ -77,6 +77,8 @@ struct spi_device *spi_new_device(void)
 		return NULL;
 	}
 
+	memset(spidev, 0, sizeof(struct spi_device));
+
 	dev_count++;
 
 	return spidev;
@@ -140,6 +142,8 @@ struct spi_master *spi_new_master(void)
 		error_printk("cannot allocate spi master\n");
 		return NULL;
 	}
+
+	memset(spi, 0, sizeof(struct spi_master));
 
 	return spi;
 }
