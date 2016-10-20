@@ -21,7 +21,6 @@
 
 #include <device.h>
 #include <stdio.h>
-#include <device.h>
 
 struct usart_master;
 
