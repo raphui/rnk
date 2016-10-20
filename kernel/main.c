@@ -27,12 +27,10 @@
 #include <backtrace.h>
 #endif /* CONFIG_UNWIND */
 
-#ifdef CONFIG_INITCALL
 #include <init.h>
 
 extern initcall_t __rnk_initcalls_start[], __rnk_initcalls_end[];
 extern exitcall_t __rnk_exitcalls_start[], __rnk_exitcalls_end[];
-#endif /* CONFIG_INITCALL */
 
 void loading_thread(void)
 {
@@ -52,7 +50,6 @@ void loading_thread(void)
 
 int main(void)
 {
-#ifdef CONFIG_INITCALL
 	int ret;
 	initcall_t *initcall;
 
@@ -62,16 +59,10 @@ int main(void)
 		if (ret < 0)
 			error_printk("initcall %pS failed: %d\n", *initcall, ret);
 	}
-#endif /* CONFIG_INITCALL */
 
 	printk("Welcome to rnk\r\n");
 
 	printk("- Initialise scheduler...\r\n");
-
-#ifndef CONFIG_INITCALL
-	schedule_init();
-	time_init();
-#endif /* CONFIG_INITCALL */
 
 #ifdef CONFIG_UNWIND
 	unwind_init();

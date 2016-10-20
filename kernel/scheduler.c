@@ -23,10 +23,7 @@
 #include <arch/svc.h>
 #include <arch/system.h>
 #include <time.h>
-
-#ifdef CONFIG_INITCALL
 #include <init.h>
-#endif /* CONFIG_INITCALL */
 
 int thread_switching = 0;
 unsigned int system_tick = 0;
@@ -39,9 +36,7 @@ int schedule_init(void)
 
 	return ret;
 }
-#ifdef CONFIG_INITCALL
 core_initcall(schedule_init);
-#endif /* CONFIG_INITCALL */
 
 void start_schedule(void)
 {

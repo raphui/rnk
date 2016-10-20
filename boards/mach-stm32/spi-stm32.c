@@ -323,6 +323,4 @@ static int stm32_spi_register(void)
 		error_printk("failed to register stm32_spi device\n");
 	return ret;
 }
-#ifdef CONFIG_INITCALL
 postarch_initcall(stm32_spi_register);
-#endif /* CONFIG_INITCALL */

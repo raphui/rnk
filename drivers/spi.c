@@ -21,10 +21,7 @@
 #include <errno.h>
 #include <string.h>
 #include <utils.h>
-
-#ifdef CONFIG_INITCALL
 #include <init.h>
-#endif /* CONFIG_INITCALL */
 
 static int dev_count = 0;
 static int master_count = 0;
@@ -230,6 +227,4 @@ failed_out:
 	kfree(bus);
 	return ret;
 }
-#ifdef CONFIG_INITCALL
 postcore_initcall(spi_init);
-#endif /* CONFIG_INITCALL */

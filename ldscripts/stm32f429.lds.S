@@ -33,7 +33,6 @@ SECTIONS
         *(.text .text.* .gnu.linkonce.t.*)
         *(.glue_7t) *(.glue_7)
         *(.rodata .rodata* .gnu.linkonce.r.*)
-#ifdef CONFIG_INITCALL
 	__rnk_initcalls_start = .;
 	INITCALLS
 	__rnk_initcalls_end = .;
@@ -41,7 +40,6 @@ SECTIONS
 	__rnk_exitcalls_start = .;
 	EXITCALLS
 	__rnk_exitcalls_end = .;
-#endif
     } > rom
  
 #ifdef CONFIG_UNWIND

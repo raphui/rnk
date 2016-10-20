@@ -124,6 +124,4 @@ failed_out:
 	kfree(bus);
 	return ret;
 }
-#ifdef CONFIG_INITCALL
 coredevice_initcall(lcd_init);
-#endif /* CONFIG_INITCALL */

@@ -340,6 +340,4 @@ static int stm32_timer_register(void)
 		error_printk("failed to register stm32_timer device\n");
 	return ret;
 }
-#ifdef CONFIG_INITCALL
 postarch_initcall(stm32_timer_register);
-#endif /* CONFIG_INITCALL */

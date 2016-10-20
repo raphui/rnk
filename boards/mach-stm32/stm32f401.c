@@ -19,10 +19,7 @@
 #include <board.h>
 #include <armv7m/system.h>
 #include <utils.h>
-
-#ifdef CONFIG_INITCALL
 #include <init.h>
-#endif /* CONFIG_INITCALL */
 
 void set_sys_clock(void)
 {
