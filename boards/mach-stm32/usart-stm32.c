@@ -227,6 +227,4 @@ static int stm32_usart_register(void)
 		error_printk("failed to register stm32_usart device\n");
 	return ret;
 }
-#ifdef CONFIG_INITCALL
 postarch_initcall(stm32_usart_register);
-#endif /* CONFIG_INITCALL */

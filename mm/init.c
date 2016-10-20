@@ -17,10 +17,7 @@
  */
 
 #include "memory.h"
-
-#ifdef CONFIG_INITCALL
 #include <init.h>
-#endif /* CONFIG_INITCALL */
 
 int heap_size = MAX_KERNEL_SIZE;
 
@@ -36,6 +33,4 @@ int heap_init(void)
 
 	return ret;
 }
-#ifdef CONFIG_INITCALL
 pure_initcall(heap_init);
-#endif /* CONFIG_INITCALL */

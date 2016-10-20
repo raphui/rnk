@@ -20,10 +20,7 @@
 #include <errno.h>
 #include <fdtparse.h>
 #include <stdio.h>
-
-#ifdef CONFIG_INITCALL
 #include <init.h>
-#endif /* CONFIG_INITCALL */
 
 /* system clock source */
 #define RCC_CFGR_HSI      	0
@@ -421,6 +418,4 @@ int stm32_rcc_enable_sys_clk(void)
 out:
 	return ret;
 }
-#ifdef CONFIG_INITCALL
 arch_initcall(stm32_rcc_enable_sys_clk);
-#endif /* CONFIG_INITCALL */

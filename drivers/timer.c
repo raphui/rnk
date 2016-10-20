@@ -259,6 +259,4 @@ failed_out:
 	kfree(timer_dev);
 	return ret;
 }
-#ifdef CONFIG_INITCALL
 device_initcall(timer_init);
-#endif /* CONFIG_INITCALL */

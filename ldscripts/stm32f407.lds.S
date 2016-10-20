@@ -26,7 +26,6 @@ SECTIONS
 		*(.gcc_except_table)
 		*(.gnu.linkonce.r.*)
 
-#ifdef CONFIG_INITCALL
 		__rnk_initcalls_start = .;
 		INITCALLS
 		__rnk_initcalls_end = .;
@@ -34,7 +33,6 @@ SECTIONS
 		__rnk_exitcalls_start = .;
 		EXITCALLS
 		__rnk_exitcalls_end = .;
-#endif
 
 		. = ALIGN(4);
 		_etext = .;

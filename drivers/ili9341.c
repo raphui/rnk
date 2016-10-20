@@ -235,6 +235,4 @@ free_ilidev:
 	kfree(dev);
 	return ret;
 }
-#ifdef CONFIG_INITCALL
 device_initcall(ili9341_init);
-#endif /* CONFIG_INITCALL */

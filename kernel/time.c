@@ -24,10 +24,7 @@
 #include <scheduler.h>
 #include <arch/system.h>
 #include <spinlock.h>
-
-#ifdef CONFIG_INITCALL
 #include <init.h>
-#endif /* CONFIG_INITCALL */
 
 static struct list_node sleeping_threads;
 
@@ -46,9 +43,7 @@ int time_init(void)
 
 	return ret;
 }
-#ifdef CONFIG_INITCALL
 core_initcall(time_init);
-#endif /* CONFIG_INITCALL */
 
 void svc_usleep(struct timer *timer)
 {

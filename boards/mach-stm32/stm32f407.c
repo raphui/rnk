@@ -19,13 +19,10 @@
 #include <armv7m/system.h>
 #include <utils.h>
 #include <mach/exti-stm32.h>
-
-#ifdef CONFIG_INITCALL
 #include <init.h>
 #include <mtd.h>
 #include <usart.h>
 #include <sizes.h>
-#endif /* CONFIG_INITCALL */
 
 #ifdef CONFIG_IRQ_SUBSYS
 #include <irq.h>
@@ -53,7 +50,6 @@ void low_level_init(void)
 #endif
 }
 
-#ifdef CONFIG_INITCALL
 int device_init(void)
 {
 	int ret = 0;
@@ -100,4 +96,3 @@ int device_init(void)
 	return ret;
 }
 device_initcall(device_init);
-#endif /* CONFIG_INITCALL */
