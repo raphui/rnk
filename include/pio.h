@@ -24,10 +24,6 @@
 #define IRQF_RISING	1
 #define IRQF_FALLING	2
 
-struct pio {
-	struct device dev;
-};
-
 struct pio_operations
 {
 	void (*set_output)(unsigned int port, unsigned int mask, int pull_up);
@@ -39,6 +35,11 @@ struct pio_operations
 	int (*request_interrupt)(unsigned int port, unsigned int mask, void (*handler)(void), int flags, void *arg);
 	void (*enable_interrupt)(unsigned int port, unsigned int mask);
 	void (*disable_interrupt)(unsigned int port, unsigned int mask);
+};
+
+struct pio {
+	struct pio_operations *pio_ops;
+	struct device dev;
 };
 
 int pio_init(struct pio *pio);
