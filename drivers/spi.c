@@ -27,6 +27,7 @@
 #endif /* CONFIG_INITCALL */
 
 static int dev_count = 0;
+static int master_count = 0;
 static char dev_prefix[10] = "/dev/spi";
 static struct list_node spi_device_list;
 static struct list_node spi_master_list;
@@ -145,6 +146,8 @@ struct spi_master *spi_new_master(void)
 
 	memset(spi, 0, sizeof(struct spi_master));
 
+	master_count++;
+
 	return spi;
 }
 
@@ -171,7 +174,7 @@ int spi_remove_master(struct spi_master *spi)
 		ret = -ENOENT;
 
 
-	dev_count--;
+	master_count--;
 
 	return ret;
 }
