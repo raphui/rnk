@@ -92,10 +92,11 @@
 		usart3: usart3@40004800 {
 			compatible = "st,stm32f4xx-usart";
 			reg = <0x40004800 0x1C>;
-			gpios = <&gpioc 0x711 2>,     /* TX PA2 */
-				<&gpioc 0x710 0>;     /* RX PA3 */
+			gpios = <&gpioc 0x70B 0>,     /* TX PA2 */
+				<&gpioc 0x70A 0>;     /* RX PA3 */
 			clock = <2>;
 			baudrate = <115200>;
+                        status = "okay";
 		};
 
 		i2c1: i2c1@40005400 {
