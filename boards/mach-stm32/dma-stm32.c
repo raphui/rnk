@@ -271,6 +271,58 @@ struct dma_operations dma_ops = {
 	.disable = stm32_dma_disable,
 };
 
+int stm32_dma_stream_of_configure(struct dma_stream *dma_stream, void (*handler)(struct device *dev), int fdt_offset)
+{
+	int len, num, i;
+	int parent_phandle, parent_offset, irq;
+	int ret = 0;
+	fdt32_t *cell;
+	char *path = NULL;
+	struct dma_controller *dma_ctrl = NULL;
+	struct device *dev = NULL;
+	const void *fdt = fdtparse_get_blob();
+	const struct fdt_property *prop;
+
+	prop = fdt_get_property(fdt, fdt_offset, "dma", &len);
+	if (len < 0)  {
+		return len;
+	}
+
+	/* XXX: DMA cells have 3 fields dma controller, channel, stream, it */
+	num = len / (4 * sizeof(fdt32_t));
+
+	cell = (fdt32_t *)prop->data;
+
+	for (i = 0; i < num; i++, cell += 4) {
+		parent_phandle = fdt32_to_cpu(cell[0]);
+		parent_offset = fdt_node_offset_by_phandle(fdt, parent_phandle);
+
+		path = fdtparse_get_path(parent_offset);
+		if (!path) {
+			error_printk("failed to retrieve parent dma path\n");
+			return -ENOENT;
+		}
+
+		dev = device_from_of_path(path);
+		if (!dev) {
+			error_printk("failed to retrieve parent device struct\n");
+			return -ENOENT;
+		}
+
+		dma_ctrl = container_of(dev, struct dma_controller, dev);
+
+		irq = fdt32_to_cpu(cell[3]);
+
+		dma_stream[i].channel = fdt32_to_cpu(cell[1]);
+		dma_stream[i].stream_num = fdt32_to_cpu(cell[2]);
+		dma_stream[i].handler = handler;
+		dma_stream[i].dma = dma_ctrl;
+		dma_stream[i].irq = irq;
+	}
+
+	return ret;
+}
+
 int stm32_dma_of_init(struct dma_controller *dma)
 {
 	int offset;

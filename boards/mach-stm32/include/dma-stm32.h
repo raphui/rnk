@@ -24,6 +24,7 @@
 int stm32_dma_transfer(struct dma_stream *dma, struct dma_transfer *dma_trans);
 int stm32_dma_enable(struct dma_stream *dma);
 int stm32_dma_disable(struct dma_stream *dma);
+int stm32_dma_stream_of_configure(struct dma_stream *dma_stream, void (*handler)(struct device *dev), int fdt_offset)
 int stm32_dma_stream_init(struct dma_stream *dma_stream);
 
 #endif /* DMA_STM32_H */
