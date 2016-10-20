@@ -187,7 +187,7 @@ int spi_register_master(struct spi_master *spi)
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
 
 	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + spi->num;
+	tmp[8] = 0x30 + master_count;
 
 	memcpy(spi->dev.name, tmp, sizeof(tmp));
 
