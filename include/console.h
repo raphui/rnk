@@ -21,7 +21,7 @@
 
 struct io_operations
 {
-	int (*write)(struct device *dev, unsigned char *buff, int len);
+	int (*write)(struct device *dev, unsigned char *buff, unsigned int len);
 };
 
 extern struct io_operations io_op;
@@ -32,7 +32,7 @@ struct console
 	struct io_operations *io_ops;
 };
 
-int console_write(unsigned char *buff, int len);
+int console_write(unsigned char *buff, unsigned int len);
 
 
 #endif /* CONSOLE_H */
