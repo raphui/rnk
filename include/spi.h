@@ -54,6 +54,7 @@ struct spi_master {
 	unsigned char use_dma;
 	struct list_node node;
 	struct device dev;
+	struct dma_stream dma_stream[2];
 	struct spi_operations *spi_ops;
 };
 
