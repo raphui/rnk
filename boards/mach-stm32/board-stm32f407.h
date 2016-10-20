@@ -21,13 +21,11 @@
 
 #include <stm32f407.h>
 #include <pio.h>
-#include <mtd.h>
 
 
 /*#define VECT_TAB_SRAM */
 #define VECT_TAB_OFFSET 0x00
  
 struct pio_operations pio_ops;
-struct mtd_operations mtd_ops;
 
 #endif /* BOARD_STM32F407_H */
