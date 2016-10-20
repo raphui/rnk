@@ -26,6 +26,7 @@
 #include <console.h>
 
 static int dev_count = 0;
+static int master_count = 0;
 static char dev_prefix[10] = "/dev/tty";
 static struct list_node usart_device_list;
 static struct list_node usart_master_list;
@@ -127,6 +128,8 @@ struct usart_master *usart_new_master(void)
 
 	memcpy(usart, 0, sizeof(struct usart_master));
 
+	master_count++;
+
 	return usart;
 }
 
@@ -154,7 +157,7 @@ int usart_remove_master(struct usart_master *usart)
 
 
 
-	dev_count--;
+	master_count--;
 
 	return ret;
 }
@@ -167,7 +170,7 @@ int usart_register_master(struct usart_master *usart)
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
 
 	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + dev_count;
+	tmp[8] = 0x30 + master_count;
 
 	memcpy(usart->dev.name, tmp, sizeof(tmp));
 
