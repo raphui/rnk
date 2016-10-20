@@ -21,10 +21,9 @@
 
 #include <dma.h>
 
-void stm32_dma_init(struct dma *dma);
-void stm32_dma_transfer(struct dma *dma, struct dma_transfer *dma_trans);
-void stm32_dma_enable(struct dma *dma);
-void stm32_dma_disable(struct dma *dma);
-
+int stm32_dma_transfer(struct dma_stream *dma, struct dma_transfer *dma_trans);
+int stm32_dma_enable(struct dma_stream *dma);
+int stm32_dma_disable(struct dma_stream *dma);
+int stm32_dma_stream_init(struct dma_stream *dma_stream);
 
 #endif /* DMA_STM32_H */
