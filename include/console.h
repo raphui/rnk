@@ -19,6 +19,8 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
+#include <device.h>
+
 struct io_operations
 {
 	int (*write)(struct device *dev, unsigned char *buff, unsigned int len);

@@ -22,7 +22,6 @@
 #include <init.h>
 #include <fdtparse.h>
 #include <stdio.h>
-#include <device.h>
 
 static struct console *cons;
 
