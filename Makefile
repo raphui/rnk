@@ -21,18 +21,22 @@ endif
 
 ifeq ($(CONFIG_STM32F401),y)
 SOC=stm32f401
+FAMILY=stm32f4xx
 endif
 
 ifeq ($(CONFIG_STM32F407),y)
 SOC=stm32f407
+FAMILY=stm32f4xx
 endif
 
 ifeq ($(CONFIG_STM32F429),y)
 SOC=stm32f429
+FAMILY=stm32f4xx
 endif
 
 ifeq ($(CONFIG_STM32F746),y)
 SOC=stm32f746
+FAMILY=stm32f7xx
 endif
 
 ifeq ($(CONFIG_CPU_ARM_CORTEX_M4),y)
