@@ -22,6 +22,7 @@
 #include <mm.h>
 #include <irq.h>
 #include <armv7m/vector.h>
+#include <init.h>
 
 int irq_action(void)
 {
@@ -58,20 +59,20 @@ int irq_request(unsigned int irq, void (*handler)(void *), void *arg)
 	return ret;
 }
 
-int irq_init(struct irq *irq)
+int irq_init(void)
 {
 	int ret = 0;
-	struct irq *irqdev = NULL;
+	struct irq *irq = NULL;
 
-	irqdev = (struct irq *)kmalloc(sizeof(struct irq));
-	if (!irqdev) {
+	irq = (struct irq *)kmalloc(sizeof(struct irq));
+	if (!irq) {
 		error_printk("cannot allocate irq\n");
 		return -ENOMEM;
 	}
 
-	memcpy(irqdev, irq, sizeof(struct irq));
+	irq->num_line = CONFIG_NUM_IRQS;
 
-	ret = device_register(&irqdev->dev);
+	ret = device_register(&irq->dev);
 	if (ret < 0) {
 		error_printk("failed to register device\n");
 		ret = -ENOMEM;
@@ -83,6 +84,7 @@ int irq_init(struct irq *irq)
 	return ret;
 
 failed_out:
-	kfree(irqdev);
+	kfree(irq);
 	return ret;
 }
+coredevice_initcall(irq_init);
