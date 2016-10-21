@@ -85,8 +85,8 @@ dtb = rnk.dtb
 
 ifeq (${MAKELEVEL}, 0)
 conf:
-	@@echo "CP mach-$(MACH)/board-$(SOC).h -> board.h"
-	@cp boards/mach-$(MACH)/board-$(SOC).h boards/board.h
+	@@echo "CP mach-$(MACH)/board-$(FAMILY).h -> board.h"
+	@cp boards/mach-$(MACH)/board-$(FAMILY).h boards/board.h
 	@ln -s $(KERNEL_BASE)/boards/mach-$(MACH)/include $(KERNEL_BASE)/include/mach
 	@ln -s $(KERNEL_BASE)/arch/arm/include $(KERNEL_BASE)/include/arch
 	@ln -s $(KERNEL_BASE)/arch/arm/$(ARMV)/include $(KERNEL_BASE)/include/$(ARMV)
