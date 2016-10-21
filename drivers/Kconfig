@@ -11,8 +11,8 @@ config IRQ_SUBSYS
 config I2C_SUBSYS
 	bool "I2C subsystem driver"
 
-config SPI_SPIDEV
-	bool "Usermode SPI driver support"
+config SPI_SUBSYS
+	bool "SPI subsystem driver"
 
 config ILI9341
 	bool "TFT driver for ILI9341"
