@@ -3,6 +3,12 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
+config STM32F4XX
+	bool
+
+config STM32F7XX
+	bool
+
 menu "STM32 configuration"
 
 choice
@@ -10,15 +16,19 @@ choice
 
     config STM32F401
         bool "STM32F401"
+	select STM32F4XX
 
     config STM32F407
         bool "STM32F407"
+	select STM32F4XX
 
     config STM32F429
         bool "STM32F429"
+	select STM32F4XX
 
     config STM32F746
         bool "STM32F746"
+	select STM32F7XX
 
 endchoice
 
