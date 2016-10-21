@@ -72,7 +72,7 @@ int device_init(void)
 //	pio_set_alternate(GPIOC_BASE, 10, 0x7);
 //	pio_set_alternate(GPIOC_BASE, 11, 0x7);
 
-	stm32_exti_init();
+//	stm32_exti_init();
 //	/* Configure wakeup button interrupt */
 //	stm32_exti_init(GPIOA_BASE, 0);
 //	stm32_exti_enable_falling(GPIOA_BASE, 0);
