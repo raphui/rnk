@@ -25,6 +25,7 @@
 #include <list.h>
 #include <irq.h>
 #include <mm.h>
+#include <init.h>
 
 struct action {
 	void (*irq_action)(void);
@@ -101,6 +102,7 @@ static unsigned char stm32_exti_base_mask(unsigned int gpio_base)
 	return mask;
 }
 
+
 static int stm32_exti_get_nvic_number(unsigned int gpio_num)
 {
 	int nvic = 0;
@@ -149,44 +151,6 @@ static void stm32_exti_isr(void *arg)
 	nvic_clear_interrupt(irq);
 
 	stm32_exti_action(line);
-}
-
-int stm32_exti_init(void)
-{
-	int ret = 0;
-
-	ret = irq_request(EXTI0_IRQn, &stm32_exti_isr, NULL);
-	if (ret < 0)
-		goto fail;
-
-	ret = irq_request(EXTI1_IRQn, &stm32_exti_isr, NULL);
-	if (ret < 0)
-		goto fail;
-
-	ret = irq_request(EXTI2_IRQn, &stm32_exti_isr, NULL);
-	if (ret < 0)
-		goto fail;
-
-	ret = irq_request(EXTI3_IRQn, &stm32_exti_isr, NULL);
-	if (ret < 0)
-		goto fail;
-
-	ret = irq_request(EXTI4_IRQn, &stm32_exti_isr, NULL);
-	if (ret < 0)
-		goto fail;
-
-	ret = irq_request(EXTI9_5_IRQn, &stm32_exti_isr, NULL);
-	if (ret < 0)
-		goto fail;
-
-	ret = irq_request(EXTI15_10_IRQn, &stm32_exti_isr, NULL);
-	if (ret < 0)
-		goto fail;
-
-	list_initialize(&action_list);
-
-fail:
-	return ret;
 }
 
 int stm32_exti_configure_line(unsigned int gpio_base, unsigned int gpio_num)
@@ -329,3 +293,42 @@ int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (
 fail:
 	return ret;
 }
+
+int stm32_exti_init(void)
+{
+	int ret = 0;
+
+	ret = irq_request(EXTI0_IRQn, &stm32_exti_isr, NULL);
+	if (ret < 0)
+		goto fail;
+
+	ret = irq_request(EXTI1_IRQn, &stm32_exti_isr, NULL);
+	if (ret < 0)
+		goto fail;
+
+	ret = irq_request(EXTI2_IRQn, &stm32_exti_isr, NULL);
+	if (ret < 0)
+		goto fail;
+
+	ret = irq_request(EXTI3_IRQn, &stm32_exti_isr, NULL);
+	if (ret < 0)
+		goto fail;
+
+	ret = irq_request(EXTI4_IRQn, &stm32_exti_isr, NULL);
+	if (ret < 0)
+		goto fail;
+
+	ret = irq_request(EXTI9_5_IRQn, &stm32_exti_isr, NULL);
+	if (ret < 0)
+		goto fail;
+
+	ret = irq_request(EXTI15_10_IRQn, &stm32_exti_isr, NULL);
+	if (ret < 0)
+		goto fail;
+
+	list_initialize(&action_list);
+
+fail:
+	return ret;
+}
+postarch_initcall(stm32_exti_init);
