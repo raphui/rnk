@@ -24,10 +24,6 @@
 #include <usart.h>
 #include <sizes.h>
 
-#ifdef CONFIG_IRQ_SUBSYS
-#include <irq.h>
-#endif /* CONFIG_IRQ_SUBSYS */
-
 void low_level_init(void)
 {
 	/* Reset RCC clock */
@@ -54,9 +50,6 @@ int device_init(void)
 {
 	int ret = 0;
 //	struct mtd mtd;
-#ifdef CONFIG_IRQ_SUBSYS
-	struct irq irq;
-#endif /* CONFIG_IRQ_SUBSYS */
 
 //	mtd.base_addr = 0x08000000;
 //	mtd.sector_size[0] = SZ_16K;
@@ -78,11 +71,6 @@ int device_init(void)
 //	usart_init(3, USART3_BASE, 115200);
 //	pio_set_alternate(GPIOC_BASE, 10, 0x7);
 //	pio_set_alternate(GPIOC_BASE, 11, 0x7);
-
-#ifdef CONFIG_IRQ_SUBSYS
-	irq.num_line = CONFIG_NUM_IRQS;
-	irq_init(&irq);
-#endif /* CONFIG_IRQ_SUBSYS */
 
 	stm32_exti_init();
 //	/* Configure wakeup button interrupt */
