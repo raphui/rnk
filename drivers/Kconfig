@@ -27,7 +27,4 @@ config LCD_SUBSYS
 config TIMER_SUBSYS
 	bool "Timer subsystem driver"
 
-config OF
-	bool "Use device tree probing"
-
 endmenu
