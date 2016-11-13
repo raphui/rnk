@@ -185,6 +185,7 @@ void timer_soft_decrease_delay(void)
 			t->handler(t->arg);
 			list_delete(&t->node);
 			kfree(t);
+			continue;
 		}
 
 		t->delay--;
