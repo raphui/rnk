@@ -122,6 +122,9 @@ int spi_register_device(struct spi_device *spi)
 
 	memcpy(spi->dev.name, tmp, sizeof(tmp));
 
+	spi->dev.read = spi_read;
+	spi->dev.write = spi_write;
+
 	list_add_tail(&spi_device_list, &spi->node);
 
 	ret = device_register(&spi->dev);
