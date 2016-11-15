@@ -25,7 +25,7 @@ void thread_a(void)
 {
 	while (1) {
 		printk("Starting spi tests\n");
-		printk("Valide using your logical analyser\n");
+		printk("Validate using your logical analyser\n");
 	}
 }
 
