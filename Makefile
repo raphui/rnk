@@ -101,8 +101,8 @@ kernel.elf: conf config.h
 	rm -f objects.lst
 	rm -f extra_objects.lst
 	$(MAKE) -f tools/Makefile.common dir=. all
-	$(CC) $(LDFLAGS) -T$(linker_files) -o $@ \
-		`cat objects.lst | tr '\n' ' '`
+	$(CC) -T$(linker_files) -o $@ \
+		`cat objects.lst | tr '\n' ' '` $(LDFLAGS)
  
 include $(wildcard *.d)
  
