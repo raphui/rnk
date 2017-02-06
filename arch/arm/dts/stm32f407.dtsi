@@ -106,7 +106,6 @@
 			reg = <0x40005400 0x24>;
 			gpios = <&gpiob 0x418 0x0E>,    /* SCL PB8 */
 					<&gpiob 0x419 0x0E>;    /* SDA PB9 */
-			id = <21>;
 		};
 
 
@@ -154,8 +153,8 @@
 					<&gpioa 0x506 0x08>,     /* MISO PA6 */
 					<&gpioa 0x507 0x0A>;     /* MOSI PA7 */
 			clock = <3>;
-			dma = <&dma1 3 5 68>, // tx
-				<&dma1 3 0 56>; // rx
+			dma = <&dma2 3 5 0x10400 0x3>,
+				<&dma2 3 0x10200 0x3>;
 		};
 
 		syscfg: syscfg@40013800 {
