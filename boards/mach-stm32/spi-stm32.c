@@ -62,31 +62,12 @@ static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long r
 	return best_pres;
 }
 
-static void stm32_spi_init_dma(struct spi_master *spi)
-{
-	struct dma *dma = &spi->dma;
-	dma->num = 2;
-	dma->stream_base = DMA2_Stream4_BASE;
-	dma->stream_num = 4;
-	dma->channel = 2;
-	dma->dir = DMA_M_P;
-	dma->mdata_size = DATA_SIZE_HALF_WORD;
-	dma->pdata_size = DATA_SIZE_HALF_WORD;
-	dma->mburst = INCR0;
-	dma->pburst = INCR0;
-	dma->minc = 0;
-	dma->pinc = 0;
-	dma->use_fifo = 0;
-
-	stm32_dma_init(dma);
-}
-
 static unsigned short stm32_spi_dma_write(struct spi_device *spidev, unsigned short data)
 {
 	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
-	struct dma *dma = &spi->dma;
+//	struct dma *dma = &spi->dma;
 	struct dma_transfer *dma_trans = &spi->dma_trans;
 
 	int nvic = spi->irq;
@@ -193,6 +174,7 @@ struct spi_operations spi_ops = {
 
 int stm32_spi_of_init(struct spi_master *spi)
 {
+	int i;
 	int offset;
 	int ret = 0;
 	const void *fdt_blob = fdtparse_get_blob();
@@ -234,6 +216,24 @@ int stm32_spi_of_init(struct spi_master *spi)
 		error_printk("failed to retrieve spi irq\n");
 		ret = -EIO;
 		goto out;
+	}
+
+	ret = stm32_dma_of_configure(offset, NULL, spi->dma_stream, 2);
+	if (ret < 0) {
+		error_printk("failed to retrieve spi dma conf, switching to polling\n");
+		spi->use_dma = 0;
+		ret = 0;
+		goto out;
+	}
+
+	/* XXX: make this based on device tree or deduced */
+	for (i = 0; i < 2; i++) {
+		spi->dma_stream[i].dir = DMA_M_P;
+		spi->dma_stream[i].mdata_size = DATA_SIZE_HALF_WORD;
+		spi->dma_stream[i].pdata_size = DATA_SIZE_HALF_WORD;
+		spi->dma_stream[i].mburst = INCR0;
+		spi->dma_stream[i].pburst = INCR0;
+		spi->dma_stream[i].use_fifo = 0;
 	}
 
 out:
@@ -289,9 +289,6 @@ int stm32_spi_init(struct device *device)
 
 	SPI->CR2 |= SPI_CR2_TXEIE;
 	SPI->CR2 |= SPI_CR2_ERRIE;
-
-	if (spi->use_dma)
-		stm32_spi_init_dma(spi);
 
 	SPI->CR1 |= SPI_CR1_SPE;
 
