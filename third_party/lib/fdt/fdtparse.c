@@ -150,6 +150,26 @@ int fdtparse_get_gpios( int offset, const char *name, struct fdt_gpio *gpio, int
     return num;
 }
 
+int fdtparse_get_u32_array(int offset, const char *name, unsigned int *out_values, int size)
+{
+	const void *fdt = fdtparse_get_blob();
+    const struct fdt_property *prop;
+    int len;
+    fdt32_t *cell;
+
+    prop = fdt_get_property(fdt, offset, name, &len);
+    if (len < 0) {
+        return len;
+    }
+
+    cell = (fdt32_t *)prop->data;
+
+    while (size--)
+        *out_values++ = fdt32_to_cpu(*cell++);
+
+    return 0;
+}
+
 char current_path[32] ;
 char *fdtparse_get_path( int offset )
 {

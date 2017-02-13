@@ -184,4 +184,7 @@ int fdtparse_get_interrupt_parent( int nodeoffset);
 const char *fdtparse_stringlist_next(const char *strlist, const char *curr,
                                      int listlen);
 
+
+int fdtparse_get_u32_array(int offset, const char *name, unsigned int *out_values, int size);
+
 #endif
