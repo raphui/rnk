@@ -153,7 +153,7 @@
 					<&gpioa 0x506 0x08>,     /* MISO PA6 */
 					<&gpioa 0x507 0x0A>;     /* MOSI PA7 */
 			clock = <3>;
-			dma = <&dma2 3 5 0x10400 0x3>,
+			dmas = <&dma2 3 5 0x10400 0x3>,
 				<&dma2 3 0x10200 0x3>;
 		};
 
