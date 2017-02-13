@@ -155,6 +155,7 @@
 			clock = <3>;
 			dmas = <&dma2 3 5 0x10400 0x3>,
 				<&dma2 3 0x10200 0x3>;
+			dma-names = "rx", "tx";
 		};
 
 		syscfg: syscfg@40013800 {
