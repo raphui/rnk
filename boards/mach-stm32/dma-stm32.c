@@ -30,6 +30,21 @@
 
 #define MAX_DMA_SIZE 0xFFFF
 
+#define DMA_OF_PINC_MASK	0x200
+#define DMA_OF_MINC_MASK	0x400
+#define DMA_OF_PINCOS_MASK	0x8000
+#define DMA_OF_PRIO_MASK	0x30000
+
+#define DMA_OF_FIFO_THRESH_MASK 0x3
+
+struct __attribute__((packed)) dma_of {
+	unsigned int controller;
+	unsigned int channel;
+	unsigned int line;
+	unsigned int dma_conf;
+	unsigned int dma_fifo_conf;
+};
+
 static inline unsigned int stm32_dma_get_base(struct dma_stream *dma_stream)
 {
 	return dma_stream->dma->base_reg;
@@ -271,55 +286,60 @@ struct dma_operations dma_ops = {
 	.disable = stm32_dma_disable,
 };
 
-int stm32_dma_stream_of_configure(struct dma_stream *dma_stream, void (*handler)(struct device *dev), int fdt_offset)
+int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device *dev), struct dma_stream *dma_stream, int size)
 {
-	int len, num, i;
-	int parent_phandle, parent_offset, irq;
+	int i;
+	int parent_phandle, parent_offset;
 	int ret = 0;
-	fdt32_t *cell;
 	char *path = NULL;
 	struct dma_controller *dma_ctrl = NULL;
+	struct dma_of dmas[2];
 	struct device *dev = NULL;
 	const void *fdt = fdtparse_get_blob();
-	const struct fdt_property *prop;
 
-	prop = fdt_get_property(fdt, fdt_offset, "dma", &len);
-	if (len < 0)  {
-		return len;
+	if (size > 2) {
+		ret = -EINVAL;
+		goto out;
 	}
 
-	/* XXX: DMA cells have 3 fields dma controller, channel, stream, it */
-	num = len / (4 * sizeof(fdt32_t));
+	memset(dmas, 0, 2 * sizeof(struct dma_of));
 
-	cell = (fdt32_t *)prop->data;
+	ret = fdtparse_get_u32_array(fdt_offset, "dmas", (unsigned int *)dmas, 2 * sizeof(struct dma_of));
+	if (ret < 0)
+		goto out;
 
-	for (i = 0; i < num; i++, cell += 4) {
-		parent_phandle = fdt32_to_cpu(cell[0]);
+	for (i = 0; i < size; i++) {
+		parent_phandle = dmas[i].controller;
 		parent_offset = fdt_node_offset_by_phandle(fdt, parent_phandle);
 
 		path = fdtparse_get_path(parent_offset);
 		if (!path) {
 			error_printk("failed to retrieve parent dma path\n");
-			return -ENOENT;
+			ret = -ENOENT;
+			goto out;
 		}
 
 		dev = device_from_of_path(path);
 		if (!dev) {
 			error_printk("failed to retrieve parent device struct\n");
-			return -ENOENT;
+			ret = -ENOENT;
+			goto out;
 		}
 
 		dma_ctrl = container_of(dev, struct dma_controller, dev);
 
-		irq = fdt32_to_cpu(cell[3]);
-
-		dma_stream[i].channel = fdt32_to_cpu(cell[1]);
-		dma_stream[i].stream_num = fdt32_to_cpu(cell[2]);
-		dma_stream[i].handler = handler;
 		dma_stream[i].dma = dma_ctrl;
-		dma_stream[i].irq = irq;
+		dma_stream[i].channel = dmas[i].channel;
+		dma_stream[i].stream_num = dmas[i].line;
+		dma_stream[i].minc = (dmas[i].dma_conf & DMA_OF_MINC_MASK);
+		dma_stream[i].pinc = (dmas[i].dma_conf & DMA_OF_PINC_MASK);
+		dma_stream[i].pincos = (dmas[i].dma_conf & DMA_OF_PINCOS_MASK);
+		dma_stream[i].priority = (dmas[i].dma_conf & DMA_OF_PRIO_MASK);
+		dma_stream[i].handler = handler;
+		dma_stream[i].irq = stm32_dma_get_nvic_number(&dma_stream[i]);
 	}
 
+out:
 	return ret;
 }
 

@@ -45,8 +45,10 @@ struct dma_stream {
 	unsigned char mburst;
 	unsigned char pburst;
 	unsigned char minc;	
-	unsigned char pinc;	
+	unsigned char pinc;
+	unsigned char pincos;
 	unsigned char use_fifo;
+	unsigned char priority;
 	unsigned int irq;
 	void (*handler)(struct device *dev);
 	struct dma_controller *dma;
