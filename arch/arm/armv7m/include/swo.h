@@ -20,9 +20,10 @@
 #define SWO_H
 
 #include <stdio.h>
+#include <device.h>
 
 void swo_init(unsigned int masterclock);
-void swo_print(unsigned char c);
+void swo_print(struct device *dev, unsigned char c);
 int swo_println(const char *s);
 
 #endif /* SWO_H */

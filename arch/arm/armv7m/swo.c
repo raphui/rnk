@@ -17,6 +17,7 @@
  */
 
 #include <armv7m/swo.h>
+#include <console.h>
 
 #define ITM_STIM_U32 (*(volatile unsigned int *)0xE0000000)    // Stimulus Port Register word acces
 #define ITM_STIM_U8  (*(volatile char *)0xE0000000)    // Stimulus Port Register byte acces
@@ -102,7 +103,7 @@ void swo_init(unsigned int masterclock)
 }
 
 
-void swo_print(unsigned char c)
+void swo_print(struct device *dev, unsigned char c)
 {
 	if ((ITM_TCR & 1) == 0) {
 		return;
@@ -121,19 +122,6 @@ void swo_print(unsigned char c)
 		;
 }
 
-int swo_printl(const char *s)
-{
-	int size = 0;
-
-	while (*s) {
-		swo_print(*s++);
-		size++;
-	}
-
-	return size;
-}
-
 struct io_operations io_op = {
 	.write = swo_print,
-	.write_string = swo_printl,
 };
