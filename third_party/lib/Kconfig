@@ -3,7 +3,7 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
-menu "Library configuration"
+menu "Third party library configuration"
 
 config LIBFDT
 	bool "Enable use of libfdt"
