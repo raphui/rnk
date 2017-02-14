@@ -1,4 +1,5 @@
 /*
+ * Copyright 2017 Poggi Raphaël <poggi.raph@gmail.com>
  * Copyright 2014 Broadcom Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -19,11 +20,15 @@
 
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02
+#define SYSWRITE	0x05
 #define SYSREAD		0x06
 #define SYSFLEN		0x0C
 
 #define MODE_READ	0x0
 #define MODE_READBIN	0x1
+
+#define MODE_WRITE	0x4
+#define MODE_WRITEBIN	0x5
 
 /*
  * Call the handler
@@ -63,6 +68,10 @@ static long smh_open(const char *fname, char *modestr)
 		mode = MODE_READ;
 	} else if (!(strcmp(modestr, "rb"))) {
 		mode = MODE_READBIN;
+	} else if (!(strcmp(modestr, "w"))) {
+		mode = MODE_WRITE;
+	} else if (!(strcmp(modestr, "wb"))) {
+		mode = MODE_WRITEBIN;
 	} else {
 		error_printk("%s: ERROR mode \'%s\' not supported\n", __func__,
 		       modestr);
@@ -80,6 +89,40 @@ static long smh_open(const char *fname, char *modestr)
 		       fname);
 
 	return fd;
+}
+
+/*
+ * Write 'len' bytes of mem into 'fd'. Returns 0 on success, else failure
+ */
+static long smh_write(long fd, void *memp, size_t len)
+{
+	long ret;
+	struct smh_write_s {
+		long fd;
+		void *memp;
+		size_t len;
+	} write;
+
+	debug_printk("%s: fd %ld, memp %p, len %zu\n", __func__, fd, memp, len);
+
+	write.fd = fd;
+	write.memp = memp;
+	write.len = len;
+
+	ret = smh_trap(SYSWRITE, &write);
+	if (ret < 0) {
+		/*
+		 * The ARM handler allows for returning partial lengths,
+		 * but in practice this never happens so rather than create
+		 * hard to maintain partial read loops and such, just fail
+		 * with an error message.
+		 */
+		error_printk("%s: ERROR ret %ld, fd %ld, len %zu memp %p\n",
+		       __func__, ret, fd, len, memp);
+		return -1;
+	}
+
+	return 0;
 }
 
 /*
