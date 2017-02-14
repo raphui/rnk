@@ -12,6 +12,7 @@ config ARCH
 source "arch/$ARCH/Kconfig"
 source boards/Kconfig
 source kernel/Kconfig
+source lib/Kconfig
 source drivers/Kconfig
 source mm/Kconfig
 source third_party/Kconfig
