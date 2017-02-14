@@ -50,4 +50,7 @@ config LITTLE_ENDIAN
 
 endchoice
 
+
+source arch/arm/lib/Kconfig
+
 endmenu
