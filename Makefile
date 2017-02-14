@@ -1,9 +1,3 @@
-#SOURCES_ASM := $(wildcard *.S)
-#SOURCES_C   := $(wildcard *.c)
- 
-#OBJS        := $(patsubst %.S,%.o,$(SOURCES_ASM))
-#OBJS        += $(patsubst %.c,%.o,$(SOURCES_C))
-
 export
 
 CONFIG := $(wildcard .config)
