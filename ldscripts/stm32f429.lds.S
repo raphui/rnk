@@ -3,11 +3,11 @@
 MEMORY
 {
     rom (rx)  : ORIGIN = 0x08000000, LENGTH = 0x00100000
-    ram (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00002000
+    ram (rwx) : ORIGIN = 0x20000000, LENGTH = 0x0002FFFF
     ccm (rwx) : ORIGIN = 0x10000000, LENGTH = 0x00010000
 }
  
-_eram = 0x20000000 + 0x00020000;
+_eram = 0x20000000 + 0x0002FFFF;
 
 /* Section Definitions */
 SECTIONS
@@ -72,10 +72,12 @@ SECTIONS
     .bss (NOLOAD) :
     {
         _sbss = . ;
+	__bss_start__ = . ;
         *(.bss .bss.*)
         *(COMMON)
         . = ALIGN(4);
         _ebss = . ;
+	__bss_end__ = . ;
     } > ram
  
     /* stack section */
@@ -87,5 +89,5 @@ SECTIONS
  
     . = ALIGN(4);
     _end = . ;
-    PROVIDE( _estack = 0x20020000 );
+    PROVIDE( _estack = 0x2001FFFF );
 }
