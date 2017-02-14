@@ -125,7 +125,6 @@ int stm32_pio_of_configure(int fdt_offset)
 	const void *fdt_blob = fdtparse_get_blob();
 	const struct fdt_property *prop;
 	fdt32_t *cell;
-	fdt32_t address;
 	struct gpio_options *options;
 	unsigned int base;
 	int gpio;
