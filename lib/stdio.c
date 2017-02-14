@@ -20,6 +20,10 @@
 #include <stdio.h>
 #include <console.h>
 
+#ifdef CONFIG_SEMIHOSTING
+#include <arch/semihosting.h>
+#endif /* CONFIG_SEMIHOSTING */
+
 static void putchar(unsigned char c)
 {
 	console_write(&c, sizeof(unsigned char));
@@ -173,4 +177,40 @@ void vprintf(char *fmt, va_list va)
 
 		fmt++;
 	}
+}
+
+FILE *fopen(const char *path, const char *mode)
+{
+#ifdef CONFIG_SEMIHOSTING
+
+	return smh_open(path, (char *)mode);
+
+#endif /* CONFIG_SEMIHOSTING */
+}
+
+int fclose(FILE *stream)
+{
+#ifdef CONFIG_SEMIHOSTING
+
+	return smh_close((long)stream);
+
+#endif /* CONFIG_SEMIHOSTING */
+}
+
+size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream)
+{
+#ifdef CONFIG_SEMIHOSTING
+
+	return smh_write((long)stream, (void *)ptr, size * nmemb);
+
+#endif /* CONFIG_SEMIHOSTING */
+}
+
+size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
+{
+#ifdef CONFIG_SEMIHOSTING
+
+	return smh_read((long)stream, (void *)ptr, size * nmemb);
+
+#endif /* CONFIG_SEMIHOSTING */
 }
