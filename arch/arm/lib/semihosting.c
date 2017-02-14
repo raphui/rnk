@@ -225,30 +225,3 @@ static int smh_load_file(const char * const name, unsigned long load_addr,
 
 	return 0;
 }
-
-//static int do_smhload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-//{
-//	if (argc == 3 || argc == 4) {
-//		unsigned long load_addr;
-//		unsigned long end_addr = 0;
-//		unsigned long ret;
-//		char end_str[64];
-//
-//		load_addr = simple_strtoul(argv[2], NULL, 16);
-//		if (!load_addr)
-//			return -1;
-//
-//		ret = smh_load_file(argv[1], load_addr, &end_addr);
-//		if (ret < 0)
-//			return 1;
-//
-//		/* Optionally save returned end to the environment */
-//		if (argc == 4) {
-//			serror_printk(end_str, "0x%08lx", end_addr);
-//			setenv(argv[3], end_str);
-//		}
-//	} else {
-//		return CMD_RET_USAGE;
-//	}
-//	return 0;
-//}
