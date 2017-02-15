@@ -293,20 +293,27 @@ int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device 
 	int ret = 0;
 	char *path = NULL;
 	struct dma_controller *dma_ctrl = NULL;
-	struct dma_of dmas[2];
+	struct dma_of *dmas;
 	struct device *dev = NULL;
 	const void *fdt = fdtparse_get_blob();
 
 	if (size > 2) {
 		ret = -EINVAL;
-		goto out;
+		goto err_malloc;
+	}
+
+	dmas = (struct dma_of *)kmalloc(2 * sizeof(struct dma_of));
+	if (!dmas) {
+		error_printk("failed to allocate temp dma_of\n");
+		ret = -ENOMEM;
+		goto err_malloc;
 	}
 
 	memset(dmas, 0, 2 * sizeof(struct dma_of));
 
 	ret = fdtparse_get_u32_array(fdt_offset, "dmas", (unsigned int *)dmas, 2 * sizeof(struct dma_of));
 	if (ret < 0)
-		goto out;
+		goto err;
 
 	for (i = 0; i < size; i++) {
 		parent_phandle = dmas[i].controller;
@@ -316,14 +323,14 @@ int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device 
 		if (!path) {
 			error_printk("failed to retrieve parent dma path\n");
 			ret = -ENOENT;
-			goto out;
+			goto err;
 		}
 
 		dev = device_from_of_path(path);
 		if (!dev) {
 			error_printk("failed to retrieve parent device struct\n");
 			ret = -ENOENT;
-			goto out;
+			goto err;
 		}
 
 		dma_ctrl = container_of(dev, struct dma_controller, dev);
@@ -339,7 +346,10 @@ int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device 
 		dma_stream[i].irq = stm32_dma_get_nvic_number(&dma_stream[i]);
 	}
 
-out:
+	return ret;
+err:
+	kfree(dmas);
+err_malloc:
 	return ret;
 }
 
