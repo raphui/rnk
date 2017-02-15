@@ -19,6 +19,11 @@
 #include <utils.h>
 #include <init.h>
 #include <armv7m/system.h>
+#include <mach/rcc-stm32.h>
+
+#ifdef CONFIG_SWO_DEBUG
+#include <armv7m/swo.h>
+#endif /* CONFIG_SWO_DEBUG */
 
 void low_level_init(void)
 {
@@ -76,6 +81,13 @@ int device_init(void)
 //	/* Configure anti-tamper button interrupt */
 //	stm32_exti_init(GPIOC_BASE, 13);
 //	stm32_exti_enable_falling(GPIOC_BASE, 13);
+
+#ifdef CONFIG_SWO_DEBUG
+
+	stm32_pio_set_alternate(GPIOB_BASE, 3, 0x0);
+	swo_init(stm32_rcc_get_freq_clk(SYSCLK));
+	DBGMCU->CR |= DBGMCU_CR_TRACE_IOEN; // Enable IO trace pins
+#endif /* CONFIG_SWO_DEBUG */
 
 	return ret;
 }
