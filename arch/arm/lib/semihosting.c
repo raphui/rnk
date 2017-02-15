@@ -18,8 +18,11 @@
 #include <stddef.h>
 #include <string.h>
 
+#include <console.h>
+
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02
+#define SYSWRITEC	0x03
 #define SYSWRITE	0x05
 #define SYSREAD		0x06
 #define SYSFLEN		0x0C
@@ -89,6 +92,19 @@ long smh_open(const char *fname, char *modestr)
 		       fname);
 
 	return fd;
+}
+
+static void smh_writec(struct device *dev, unsigned char c)
+{
+	struct smh_writec_s {
+		void *memp;
+	} writec;
+
+	debug_printk("%s: char %c\n", __func__, c);
+
+	writec.memp = &c;
+
+	smh_trap(SYSWRITEC, &writec);
 }
 
 /*
@@ -225,3 +241,9 @@ static int smh_load_file(const char * const name, unsigned long load_addr,
 
 	return 0;
 }
+
+#ifdef CONFIG_SEMIHOSTING_DEBUG
+struct io_operations io_op = {
+	.write = smh_writec,
+};
+#endif /* CONFIG_SEMIHOSTING_DEBUG */

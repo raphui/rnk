@@ -29,10 +29,8 @@ int console_write(unsigned char *buff, unsigned int len)
 {
 	int ret = 0;
 
-	if (!cons || !cons->io_ops) {
-		error_printk("io operation not set\n");
+	if (!cons || !cons->io_ops)
 		return -ENOTTY;
-	}
 
 	ret = cons->io_ops->write(cons->pdata, buff, len);
 
@@ -46,7 +44,7 @@ static int console_init(void)
 	char *path = NULL;
 	struct device *dev = NULL;
 
-#ifndef CONFIG_SWO_DEBUG
+#if !defined(CONFIG_SWO_DEBUG) && !defined(CONFIG_SEMIHOSTING_DEBUG)
 	offset = fdtparse_alias_offset("console");
 	if (offset < 0) {
 		error_printk("failed to get offset for alias: console\n");
@@ -64,7 +62,7 @@ static int console_init(void)
 		error_printk("failed to retrieve console device struct\n");
 		return -ENOENT;
 	}
-#endif /* CONFIG_SWO_DEBUG */
+#endif
 
 	cons = (struct console *)kmalloc(sizeof(struct console));
 	if (!cons) {
@@ -77,4 +75,8 @@ static int console_init(void)
 
 	return ret;
 }
+#if defined(CONFIG_SWO_DEBUG) || defined(CONFIG_SEMIHOSTING_DEBUG)
+pure_initcall(console_init);
+#else
 late_initcall(console_init);
+#endif

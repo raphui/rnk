@@ -18,6 +18,10 @@ config USART_DEBUG
 config SWO_DEBUG
     bool "SWO"
 
+config SEMIHOSTING_DEBUG
+    depends on SEMIHOSTING
+    bool "Semihosting"
+
 endchoice
 
 menu "Debug level"
