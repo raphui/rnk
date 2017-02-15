@@ -22,8 +22,8 @@
 #include <dma.h>
 #include <list.h>
 
-#define SPI_TRANSFER_READ	1
-#define SPI_TRANSFER_WRITE	2
+#define SPI_TRANSFER_READ	0
+#define SPI_TRANSFER_WRITE	1
 
 struct spi_device {
 	struct spi_master *master;
@@ -47,7 +47,6 @@ struct spi_master {
 	unsigned int speed;	/* wanted speed */
 	unsigned int irq;
 	unsigned short mode;
-	struct dma dma;
 	struct dma_transfer dma_trans;
 	unsigned char only_tx;
 	unsigned char only_rx;
