@@ -171,7 +171,7 @@ static int stm32_dma_get_interrupt_flags(struct dma_stream *dma_stream)
 	return mask;
 }
 
-static int stm32_dma_transfer(struct dma_stream *dma_stream, struct dma_transfer *dma_trans)
+int stm32_dma_transfer(struct dma_stream *dma_stream, struct dma_transfer *dma_trans)
 {
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma_stream->stream_base;
 
@@ -198,7 +198,7 @@ static int stm32_dma_transfer(struct dma_stream *dma_stream, struct dma_transfer
 	return 0;
 }
 
-static int stm32_dma_enable(struct dma_stream *dma_stream)
+int stm32_dma_enable(struct dma_stream *dma_stream)
 {
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma_stream->stream_base;
 	DMA_TypeDef *DMA_BASE;
@@ -236,7 +236,7 @@ static int stm32_dma_enable(struct dma_stream *dma_stream)
 	return 0;
 }
 
-static int stm32_dma_disable(struct dma_stream *dma_stream)
+int stm32_dma_disable(struct dma_stream *dma_stream)
 {
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma_stream->stream_base;
 	int nvic = stm32_dma_get_nvic_number(dma_stream);
