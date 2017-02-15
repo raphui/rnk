@@ -67,7 +67,7 @@ static unsigned short stm32_spi_dma_write(struct spi_device *spidev, unsigned sh
 	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
-//	struct dma *dma = &spi->dma;
+	struct dma_stream *dma = &spi->dma_stream[SPI_TRANSFER_WRITE];
 	struct dma_transfer *dma_trans = &spi->dma_trans;
 
 	int nvic = spi->irq;
@@ -218,7 +218,7 @@ int stm32_spi_of_init(struct spi_master *spi)
 		goto out;
 	}
 
-	ret = stm32_dma_of_configure(offset, NULL, spi->dma_stream, 2);
+	ret = stm32_dma_stream_of_configure(offset, NULL, spi->dma_stream, 2);
 	if (ret < 0) {
 		error_printk("failed to retrieve spi dma conf, switching to polling\n");
 		spi->use_dma = 0;
