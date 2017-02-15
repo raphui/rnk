@@ -18,6 +18,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <errno.h>
 #include <console.h>
 
 #ifdef CONFIG_SEMIHOSTING
@@ -184,6 +185,8 @@ FILE *fopen(const char *path, const char *mode)
 #ifdef CONFIG_SEMIHOSTING
 
 	return smh_open(path, (char *)mode);
+#else
+	return (FILE *)ERR_PTR(-ENOSYS);
 
 #endif /* CONFIG_SEMIHOSTING */
 }
@@ -193,6 +196,8 @@ int fclose(FILE *stream)
 #ifdef CONFIG_SEMIHOSTING
 
 	return smh_close((long)stream);
+#else
+	return -ENOSYS;
 
 #endif /* CONFIG_SEMIHOSTING */
 }
@@ -202,6 +207,8 @@ size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream)
 #ifdef CONFIG_SEMIHOSTING
 
 	return smh_write((long)stream, (void *)ptr, size * nmemb);
+#else
+	return -ENOSYS;
 
 #endif /* CONFIG_SEMIHOSTING */
 }
@@ -211,6 +218,8 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
 #ifdef CONFIG_SEMIHOSTING
 
 	return smh_read((long)stream, (void *)ptr, size * nmemb);
+#else
+	return -ENOSYS;
 
 #endif /* CONFIG_SEMIHOSTING */
 }
