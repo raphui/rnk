@@ -27,6 +27,7 @@
 #include <init.h>
 #include <string.h>
 #include <fdtparse.h>
+#include <mm.h>
 
 #define MAX_DMA_SIZE 0xFFFF
 

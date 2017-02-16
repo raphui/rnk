@@ -22,6 +22,7 @@
 #include <mach/rcc-stm32.h>
 
 #ifdef CONFIG_SWO_DEBUG
+#include <mach/pio-stm32.h>
 #include <armv7m/swo.h>
 #endif /* CONFIG_SWO_DEBUG */
 
