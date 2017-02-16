@@ -22,6 +22,11 @@ config SEMIHOSTING_DEBUG
     depends on SEMIHOSTING
     bool "Semihosting"
 
+config SEMIHOSTING_DEBUG_BUFFERED
+    depends on SEMIHOSTING_DEBUG
+    bool "Buffered output (faster)"
+
+
 endchoice
 
 menu "Debug level"

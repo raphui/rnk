@@ -34,6 +34,15 @@
 #define MODE_WRITE	0x4
 #define MODE_WRITEBIN	0x5
 
+#ifdef CONFIG_SEMIHOSTING_DEBUG_BUFFERED
+
+#define PRINT_BUFFER_SIZE	128
+
+static char print_buffer[PRINT_BUFFER_SIZE];
+static int print_n;
+
+#endif /* CONFIG_SEMIHOSTING_DEBUG_BUFFERED */
+
 /*
  * Call the handler
  */
@@ -95,9 +104,33 @@ long smh_open(const char *fname, char *modestr)
 	return fd;
 }
 
+static int smh_write0(struct device *dev, unsigned char *buff, unsigned int len)
+{
+	smh_trap(SYSWRITE0, buff);
+
+	return 0;
+}
+
 static int smh_writec(struct device *dev, unsigned char *buff, unsigned int len)
 {
 	int i;
+
+#ifdef CONFIG_SEMIHOSTING_DEBUG_BUFFERED
+	for (i = 0; i < len; i++) {
+		if (print_n == (PRINT_BUFFER_SIZE - 1)) {
+			print_buffer[print_n] = '\0';
+
+			smh_write0(dev, print_buffer, PRINT_BUFFER_SIZE);
+	
+			print_n = 0;
+			print_buffer[print_n] = buff[i];
+		} else {
+			print_buffer[print_n] = buff[i];
+		}
+
+		print_n++;
+	}
+#else
 	struct smh_writec_s {
 		char memp;
 	} writec;
@@ -108,19 +141,7 @@ static int smh_writec(struct device *dev, unsigned char *buff, unsigned int len)
 
 		smh_trap(SYSWRITEC, &writec);
 	}
-
-	return 0;
-}
-
-static int smh_write0(struct device *dev, unsigned char *buff, unsigned int len)
-{
-	struct smh_write0_s {
-		void *memp;
-	} write0;
-
-	write0.memp = (void *)buff;
-
-	smh_trap(SYSWRITE0, &write0);
+#endif
 
 	return 0;
 }
