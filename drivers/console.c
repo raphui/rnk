@@ -76,7 +76,7 @@ static int console_init(void)
 	return ret;
 }
 #if defined(CONFIG_SWO_DEBUG) || defined(CONFIG_SEMIHOSTING_DEBUG)
-pure_initcall(console_init);
+core_initcall(console_init);
 #else
 late_initcall(console_init);
 #endif
