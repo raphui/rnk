@@ -20,12 +20,21 @@
 #include <thread.h>
 #include <board.h>
 #include <spi.h>
+#include <unistd.h>
+
+#define SPI_DEVICE	"/dev/spi"
 
 void thread_a(void)
 {
+	int fd;
+
 	while (1) {
 		printk("Starting spi tests\n");
 		printk("Validate using your logical analyser\n");
+
+		fd = open(SPI_DEVICE, O_RDWR);
+		if (fd < 0)
+			printk("failed to open: %s\n", SPI_DEVICE);
 	}
 }
 
