@@ -23,6 +23,7 @@
 #include <list.h>
 
 struct lcd {
+	unsigned int base_reg;
 	unsigned short hsync;
 	unsigned short vsync;
 	unsigned short hbp;
@@ -33,6 +34,7 @@ struct lcd {
 	unsigned int height;
 	unsigned char bpp;
 	unsigned int fb_addr;
+	struct lcd_operations *lcd_ops;
 	struct list_node node;
 	struct device dev;
 };
@@ -43,10 +45,12 @@ struct lcd_bus {
 
 struct lcd_operations
 {
-	int (*init)(struct lcd *lcd);
+	int (*configure)(struct lcd *lcd);
 	void (*init_gpio)(void);
 };
 
+struct lcd *lcd_get_device(void);
+int lcd_configure_device(struct lcd *lcd);
 struct lcd *lcd_new_device(void);
 int lcd_remove_device(struct lcd *lcd);
 int lcd_register_device(struct lcd *lcd);

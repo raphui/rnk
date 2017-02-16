@@ -29,7 +29,21 @@ static struct list_node lcd_device_list;
 
 void lcd_init_gpio(void)
 {
-	lcd_ops.init_gpio();
+//	lcd_ops.init_gpio();
+}
+
+struct lcd *lcd_get_device(void)
+{
+	struct lcd *lcddev = NULL;
+
+	lcddev = list_peek_head_type(&lcd_device_list, struct lcd, node);
+
+	return lcddev;
+}
+
+int lcd_configure_device(struct lcd *lcd)
+{
+	return lcd->lcd_ops->configure(lcd);
 }
 
 struct lcd *lcd_new_device(void)
@@ -92,7 +106,7 @@ int lcd_register_device(struct lcd *lcd)
 
 	list_add_tail(&lcd_device_list, &lcd->node);
 
-	return lcd_ops.init(lcd);
+	return ret;
 
 failed_out:
 	/* XXX: deallocate here ? */
