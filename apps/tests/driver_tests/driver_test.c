@@ -27,14 +27,24 @@
 void thread_a(void)
 {
 	int fd;
+	int ret;
+	char buff[4] = {0x1, 0x2, 0x3, 0x4};
 
 	while (1) {
 		printk("Starting spi tests\n");
 		printk("Validate using your logical analyser\n");
 
 		fd = open(SPI_DEVICE, O_RDWR);
-		if (fd < 0)
-			printk("failed to open: %s\n", SPI_DEVICE);
+		if (fd < 0) {
+			error_printk("failed to open: %s\n", SPI_DEVICE);
+			break;
+		}
+
+		ret = write(fd, buff, 4);
+		if (ret != 4) {
+			error_printk("failed to write spi buff\n");
+			break;
+		}
 	}
 }
 
