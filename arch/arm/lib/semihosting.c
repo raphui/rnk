@@ -94,15 +94,19 @@ long smh_open(const char *fname, char *modestr)
 	return fd;
 }
 
-static void smh_writec(struct device *dev, unsigned char c)
+static void smh_writec(struct device *dev, unsigned char *buff, unsigned int len)
 {
+	int i;
 	struct smh_writec_s {
 		void *memp;
 	} writec;
 
-	writec.memp = &c;
+	for (i = 0; i < len; i++) {
 
-	smh_trap(SYSWRITEC, &writec);
+		writec.memp = buff[i];
+
+		smh_trap(SYSWRITEC, &writec);
+	}
 }
 
 /*
