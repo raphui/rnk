@@ -100,8 +100,6 @@ static void smh_writec(struct device *dev, unsigned char c)
 		void *memp;
 	} writec;
 
-	debug_printk("%s: char %c\n", __func__, c);
-
 	writec.memp = &c;
 
 	smh_trap(SYSWRITEC, &writec);
