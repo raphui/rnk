@@ -24,7 +24,7 @@
 
 struct ili9341_device {
 	unsigned int fb_addr;
-	struct spi *spi;
+	struct spi_device *spi;
 	struct lcd *lcd;
 	struct device dev;
 };
@@ -73,8 +73,6 @@ struct ili9341_device {
 #define ILI9341_INTERFACE			0xF6
 #define ILI9341_PRC				0xF7
 
-int ili9341_init(void);
-void ili9341_init_lcd(void);
 void ili9341_send_command(unsigned char data);
 void ili9341_send_data(unsigned char data);
 

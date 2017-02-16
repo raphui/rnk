@@ -22,14 +22,15 @@
 #include <init.h>
 #include <mm.h>
 #include <errno.h>
-
-static struct ili9341_device *dev = NULL;
+#include <fdtparse.h>
+#include <stdio.h>
+#include <string.h>
 
 void ili9341_send_command(unsigned char data)
 {
 	pio_clear_value(GPIOD_BASE, 13);
 	pio_clear_value(GPIOC_BASE, 2);
-	spi_transfer(dev->spi, data, sizeof(unsigned char), SPI_TRANSFER_WRITE);
+//	spi_transfer(dev->spi, data, sizeof(unsigned char), SPI_TRANSFER_WRITE);
 	pio_set_value(GPIOC_BASE, 2);
 }
 
@@ -37,7 +38,7 @@ void ili9341_send_data(unsigned char data)
 {
 	pio_set_value(GPIOD_BASE, 13);
 	pio_clear_value(GPIOC_BASE, 2);
-	spi_transfer(dev->spi, data, sizeof(unsigned char), SPI_TRANSFER_WRITE);
+//	spi_transfer(dev->spi, data, sizeof(unsigned char), SPI_TRANSFER_WRITE);
 	pio_set_value(GPIOC_BASE, 2);
 }
 
@@ -158,32 +159,80 @@ void ili9341_init_lcd(void)
 	ili9341_send_command(ILI9341_GRAM);
 }
 
-int ili9341_init(void)
+static int ili9341_of_configure_spi(struct ili9341_device *ili9341)
 {
+	int offset;
 	int ret = 0;
-	struct spi *spi = NULL;
+	const void *fdt_blob = fdtparse_get_blob();
+
+	offset = fdt_path_offset(fdt_blob, ili9341->dev.of_path);
+	if (offset < 0) {
+		ret = -ENOENT;
+		goto out;
+	}
+
+	ret = fdtparse_get_int(offset, "speed", (int *)&ili9341->spi->speed);
+out:
+	return ret;
+}
+
+static int ili9341_of_init(struct ili9341_device *ili9341)
+{
+	int offset;
+	int ret = 0;
+	const void *fdt_blob = fdtparse_get_blob();
+
+	offset = fdt_path_offset(fdt_blob, ili9341->dev.of_path);
+	if (offset < 0) {
+		ret = -ENOENT;
+		goto out;
+	}
+
+	ret = fdt_node_check_compatible(fdt_blob, offset, ili9341->dev.of_compat);
+	if (ret < 0)
+		goto out;
+
+	ret = offset;
+
+out:
+	return ret;
+}
+
+static int ili9341_init(struct device *dev)
+{
+	int offset;
+	int ret = 0;
+	struct ili9341_device *ili9341;
+	struct spi_device *spi = NULL;
 	struct lcd *lcd = NULL;
 
-	dev = (struct ili9341_device *)kmalloc(sizeof(struct ili9341_device));
-	if (!dev) {
+	ili9341 = (struct ili9341_device *)kmalloc(sizeof(struct ili9341_device));
+	if (!ili9341) {
 		error_printk("cannot allocate ili9341 device\n");
 		return -ENOMEM;
 	}
 
-	spi = spi_new_device();
+
+	memcpy(&ili9341->dev, dev, sizeof(struct device));
+
+	offset = ili9341_of_init(ili9341);
+	if (offset < 0) {
+		error_printk("failed to init ili9341 with fdt data\n");
+		goto free_ilidev;
+	}
+
+	spi = spi_new_device_with_master(offset);
 	if (!spi) {
 		error_printk("failed to retrive new spi device\n");
 		ret = -EIO;
 		goto free_ilidev;
 	}
 
-	spi->num = 5;
-	spi->base_reg = SPI5_BASE;
-	spi->rate = 0;
-	spi->speed = 10000000;
-	spi->mode = 1;
-	spi->only_tx = 1;
-	spi->use_dma = 0;
+	ret = ili9341_of_configure_spi(ili9341);
+	if (ret < 0) {
+		error_printk("failed to init ili9341 spi with fdt data\n");
+		goto free_spi;
+	}
 
 	ret = spi_register_device(spi);
 	if (ret < 0) {
@@ -191,11 +240,11 @@ int ili9341_init(void)
 		goto free_spi;
 	}
 
-	dev->spi = spi;
+	ili9341->spi = spi;
 
-	lcd = lcd_new_device();
+	lcd = lcd_get_device();
 	if (!lcd) {
-		error_printk("failed to retrive new lcd device\n");
+		error_printk("failed to retrive lcd device\n");
 		ret = -EIO;
 		goto free_spi;
 	}
@@ -211,17 +260,13 @@ int ili9341_init(void)
 	lcd->bpp = ILI9341_BPP;
 	lcd->fb_addr = CONFIG_ILI9341_FRAME_BUFFER;
 
-	ret = lcd_register_device(lcd);
+	ret = lcd_configure_device(lcd);
 	if (ret < 0) {
 		error_printk("failed to register lcd device\n");
 		goto free_lcd;
 	}
 
-	dev->lcd = lcd;
-
-	pio_set_alternate(GPIOF_BASE, 7, 0x5);
-	pio_set_alternate(GPIOF_BASE, 8, 0x5);
-	pio_set_alternate(GPIOF_BASE, 9, 0x5);
+	ili9341->lcd = lcd;
 
 	ili9341_init_lcd();
 
@@ -235,4 +280,19 @@ free_ilidev:
 	kfree(dev);
 	return ret;
 }
-device_initcall(ili9341_init);
+
+struct device ili9341_driver = {
+	.of_compat = "lcd,ili9341",
+	.probe = ili9341_init,
+};
+
+static int ili9341_register(void)
+{
+	int ret = 0;
+
+	ret = device_of_register(&ili9341_driver);
+	if (ret < 0)
+		error_printk("failed to register ili9341 device\n");
+	return ret;
+}
+device_initcall(ili9341_register);
