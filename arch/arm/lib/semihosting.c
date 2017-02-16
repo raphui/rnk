@@ -23,6 +23,7 @@
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02
 #define SYSWRITEC	0x03
+#define SYSWRITE0	0x04
 #define SYSWRITE	0x05
 #define SYSREAD		0x06
 #define SYSFLEN		0x0C
@@ -107,6 +108,18 @@ static void smh_writec(struct device *dev, unsigned char *buff, unsigned int len
 
 		smh_trap(SYSWRITEC, &writec);
 	}
+}
+
+static void smh_write0(struct device *dev, unsigned char *buff, unsigned int len)
+{
+	int i;
+	struct smh_write0_s {
+		void *memp;
+	} write0;
+
+	write0.memp = buff;
+
+	smh_trap(SYSWRITE0, &write0);
 }
 
 /*
