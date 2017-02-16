@@ -113,6 +113,7 @@ int device_of_probe(void)
 {
 	int ret = 0;
 	int offset = 0;
+	int subnode_offset = 0;
 	int available = 0;
 	const void *blob = fdtparse_get_blob();
 	const struct fdt_property *prop;
@@ -140,7 +141,7 @@ int device_of_probe(void)
 			available = 1;
 		else
 			available = 0;
-	
+
 
 		while (listlen > 0) {
 			list_for_every_entry(&device_of_list, dev, struct device, next) {
@@ -164,6 +165,55 @@ int device_of_probe(void)
 			compat += compatlen + 1;
 			listlen -= compatlen + 1;
 		}
+
+		subnode_offset = fdt_first_subnode(blob, offset);
+		if (subnode_offset < 0)
+			continue;
+
+		do {
+			subnode_offset = fdt_next_subnode(blob, subnode_offset);
+
+			prop = fdt_get_property(blob, subnode_offset, "compatible", &listlen);
+			if (!prop)
+				continue;
+
+			compat = (const char *)prop->data;
+
+			prop = fdt_get_property(blob, subnode_offset, "status", &statuslen);
+
+			if (prop)
+				status = (const char *)prop->data;
+
+			if (!strcmp(status, "okay"))
+				available = 1;
+			else
+				available = 0;
+
+
+			while (listlen > 0) {
+				list_for_every_entry(&device_of_list, dev, struct device, next) {
+					if (!strcmp(compat, dev->of_compat)) {
+						path = fdtparse_get_path(offset);
+						if (!path) {
+							error_printk("cannot find fdt path for of compat: %s\n", dev->of_compat);
+							continue;
+						}
+
+						memcpy(dev->of_path, path, strlen(path));
+
+						if (available)
+							dev->probe(dev);
+
+						continue;
+					}
+				}
+
+				compatlen = strlen(compat);
+				compat += compatlen + 1;
+				listlen -= compatlen + 1;
+			}
+		} while (subnode_offset >= 0);
+
 	} while (offset >= 0);
 
 	return ret;
