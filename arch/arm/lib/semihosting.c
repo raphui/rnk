@@ -99,12 +99,12 @@ static int smh_writec(struct device *dev, unsigned char *buff, unsigned int len)
 {
 	int i;
 	struct smh_writec_s {
-		void *memp;
+		char memp;
 	} writec;
 
 	for (i = 0; i < len; i++) {
 
-		writec.memp = (void *)&buff[i];
+		writec.memp = buff[i];
 
 		smh_trap(SYSWRITEC, &writec);
 	}
