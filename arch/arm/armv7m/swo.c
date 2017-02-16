@@ -103,8 +103,10 @@ void swo_init(unsigned int masterclock)
 }
 
 
-void swo_print(struct device *dev, unsigned char c)
+static void swo_print(struct device *dev, unsigned char *buff, unsigned int len)
 {
+	int i;
+
 	if ((ITM_TCR & 1) == 0) {
 		return;
 	}
@@ -113,13 +115,16 @@ void swo_print(struct device *dev, unsigned char c)
 		return;
 	}
 
-	while ((ITM_STIM_U8 & 1) == 0)
-		;
+	for (i = 0; i < len; i++) {
 
-	ITM_STIM_U8 = c;
+		while ((ITM_STIM_U8 & 1) == 0)
+			;
 
-	while ((ITM_STIM_U8 & 1) == 0)
-		;
+		ITM_STIM_U8 = buff[i];
+
+		while ((ITM_STIM_U8 & 1) == 0)
+			;
+	}
 }
 
 struct io_operations io_op = {
