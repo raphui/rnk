@@ -62,6 +62,7 @@ struct spi_bus {
 };
 
 int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size, int direction);
+struct spi_device *spi_new_device_with_master(int fdt_offset);
 struct spi_device *spi_new_device(void);
 int spi_remove_device(struct spi_device *spi);
 int spi_register_device(struct spi_device *spi);

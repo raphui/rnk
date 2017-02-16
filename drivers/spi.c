@@ -22,6 +22,7 @@
 #include <string.h>
 #include <utils.h>
 #include <init.h>
+#include <fdtparse.h>
 
 static int dev_count = 0;
 static int master_count = 0;
@@ -80,6 +81,56 @@ struct spi_device *spi_new_device(void)
 	dev_count++;
 
 	return spidev;
+}
+
+struct spi_device *spi_new_device_with_master(int fdt_offset)
+{
+	int ret;
+	int parent_offset;
+	char fdt_path[64];
+	struct device *dev;
+	struct spi_master *spi;
+	struct spi_device *spidev = NULL;
+	const void *fdt_blob = fdtparse_get_blob();
+
+	spidev = (struct spi_device *)kmalloc(sizeof(struct spi_device));
+	if (!spidev) {
+		error_printk("cannot allocate spi device\n");
+		goto err;
+	}
+
+	memset(spidev, 0, sizeof(struct spi_device));
+
+	parent_offset = fdt_parent_offset(fdt_blob, fdt_offset);
+	if (parent_offset < 0) {
+		error_printk("failed to retrive spi master for this spi device\n");
+		goto err;
+	}
+
+	memset(fdt_path, 0, 64 * sizeof(char));
+
+	ret = fdt_get_path(fdt_blob, parent_offset, fdt_path, 64);
+	if (ret < 0) {
+		error_printk("failed to fdt path of spi device parent node\n");
+		goto err;
+	}
+
+	dev = device_from_of_path((const char *)fdt_path);
+	if (!dev) {
+		error_printk("failed to find device with fdt path: %s\n", fdt_path);
+		goto err;
+	}
+
+	spi = container_of(dev, struct spi_master, dev);
+
+	spidev->master = spi;
+
+	dev_count++;
+
+	return spidev;
+
+err:
+	return NULL;
 }
 
 int spi_remove_device(struct spi_device *spi)
