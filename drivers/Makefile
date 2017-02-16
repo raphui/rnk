@@ -11,6 +11,7 @@ obj-y += usart.o
 obj-y += timer.o
 obj-y += i2c.o
 obj-$(CONFIG_SPI_SUBSYS) += spi.o
+obj-$(CONFIG_SPI_SUBSYS) += spidev.o
 obj-y += dma.o
 obj-y += mtd.o
 obj-$(CONFIG_LCD_SUBSYS) += lcd.o
