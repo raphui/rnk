@@ -11,6 +11,7 @@ MCPU=cortex-m4
 
 INCLUDES	+= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
+INCLUDES	+= -I$(KERNEL_BASE)/lib
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
 
 CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections
