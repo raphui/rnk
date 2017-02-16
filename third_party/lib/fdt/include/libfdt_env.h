@@ -64,11 +64,13 @@
 #define __bitwise
 #endif
 
+typedef uint8_t __bitwise fdt8_t;
 typedef uint16_t __bitwise fdt16_t;
 typedef uint32_t __bitwise fdt32_t;
 typedef uint64_t __bitwise fdt64_t;
 
 #define EXTRACT_BYTE(x, n)	((unsigned long long)((uint8_t *)&x)[n])
+#define CPU_TO_FDT8(x)	((EXTRACT_BYTE(x, 0)))
 #define CPU_TO_FDT16(x) ((EXTRACT_BYTE(x, 0) << 8) | EXTRACT_BYTE(x, 1))
 #define CPU_TO_FDT32(x) ((EXTRACT_BYTE(x, 0) << 24) | (EXTRACT_BYTE(x, 1) << 16) | \
 			 (EXTRACT_BYTE(x, 2) << 8) | EXTRACT_BYTE(x, 3))
@@ -76,6 +78,14 @@ typedef uint64_t __bitwise fdt64_t;
 			 (EXTRACT_BYTE(x, 2) << 40) | (EXTRACT_BYTE(x, 3) << 32) | \
 			 (EXTRACT_BYTE(x, 4) << 24) | (EXTRACT_BYTE(x, 5) << 16) | \
 			 (EXTRACT_BYTE(x, 6) << 8) | EXTRACT_BYTE(x, 7))
+static inline uint8_t fdt8_to_cpu(fdt8_t x)
+{
+	return (__force uint8_t)CPU_TO_FDT8(x);
+}
+static inline fdt8_t cpu_to_fdt8(uint8_t x)
+{
+	return (__force fdt8_t)CPU_TO_FDT8(x);
+}
 
 static inline uint16_t fdt16_to_cpu(fdt16_t x)
 {

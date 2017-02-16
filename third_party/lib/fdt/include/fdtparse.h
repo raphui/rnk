@@ -187,4 +187,7 @@ const char *fdtparse_stringlist_next(const char *strlist, const char *curr,
 
 int fdtparse_get_u32_array(int offset, const char *name, unsigned int *out_values, int size);
 
+int fdtparse_get_u16_array(int offset, const char *name, unsigned short *out_values, int size);
+
+int fdtparse_get_u8_array(int offset, const char *name, unsigned char *out_values, int size);
 #endif
