@@ -163,6 +163,16 @@
 			dmas = <&dma2 3 2 0x10400 0x3>,
 				<&dma2 3 3 0x10200 0x3>;
 			dma-names = "rx", "tx";
+
+			nor@0
+			{
+				compatible = "lpd,at45db161";
+				reg = <0>;
+				speed = <8000000>;
+				gpios = <&gpiob 0x010 3>,  // cs, PB0, output 1
+						<&gpioa 0x001 3>,  // reset, PA1, output 1
+						<&gpioa 0x6000 0x300>;  // ready, PA0, input, no pull, it
+			};
 		};
 
 		spi5: spi5@40015000 {
@@ -179,6 +189,13 @@
 				<&dma2 7 6 0x10200 0x3>;
 			dma-names = "rx", "tx";
                         status = "okay";
+
+			ili9341@0
+			{
+				compatible = "lcd,ili9341";
+				speed = <8000000>;
+				status = "okay";
+			};
 		};
 
 		syscfg: syscfg@40013800 {
@@ -188,6 +205,17 @@
 
 		exti: exti@40013C00 {
 			reg = <0x40013C00 0x20>;
+		};
+
+		ltdc: ltdc@40016800 {
+			compatible = "st,stm32f4xx-ltdc";
+			reg = <0x40016800 0x400>;
+			pll_sai = <127 7 5>;
+			sync = <16 2>;
+			porch = <40 10 2 4>;
+			resolution = <240 320>;
+			bpp = <2>;
+			status = "okay";
 		};
 	};
 

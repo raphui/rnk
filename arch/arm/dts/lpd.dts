@@ -20,17 +20,5 @@
 			mode = <0>;
 		};
 	};
-};
 
-&spi1
-{
-	nor@0
-	{
-		compatible = "lpd,at45db161";
-		reg = <0>;
-		speed = <8000000>;
-		gpios = <&gpiob 0x010 3>,  // cs, PB0, output 1
-				<&gpioa 0x001 3>,  // reset, PA1, output 1
-				<&gpioa 0x6000 0x300>;  // ready, PA0, input, no pull, it
-	};
 };
