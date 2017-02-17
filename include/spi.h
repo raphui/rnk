@@ -57,10 +57,6 @@ struct spi_master {
 	struct spi_operations *spi_ops;
 };
 
-struct spi_bus {
-	struct device dev;
-};
-
 int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size, int direction);
 struct spi_device *spi_new_device_with_master(int fdt_offset);
 struct spi_device *spi_new_device(void);

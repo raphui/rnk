@@ -254,31 +254,10 @@ int spi_register_master(struct spi_master *spi)
 int spi_init(void)
 {
 	int ret = 0;
-	struct spi_bus *bus = NULL;
-
-	bus = (struct spi_bus *)kmalloc(sizeof(struct spi_bus));
-	if (!bus) {
-		error_printk("cannot allocate spi bus\n");
-		return -ENOMEM;
-	}
-
-	bus->dev.read = spi_read;
-	bus->dev.write = spi_write;
-
-	ret = device_register(&bus->dev);
-	if (ret < 0) {
-		error_printk("failed to register bus\n");
-		ret = -ENOMEM;
-		goto failed_out;
-	}
 
 	list_initialize(&spi_device_list);
 	list_initialize(&spi_master_list);
 
-	return ret;
-
-failed_out:
-	kfree(bus);
 	return ret;
 }
 postcore_initcall(spi_init);
