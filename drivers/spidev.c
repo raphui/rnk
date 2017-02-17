@@ -85,4 +85,4 @@ static int spidev_register(void)
 		error_printk("failed to register spidev device\n");
 	return ret;
 }
-device_initcall(spidev_register);
+coredevice_initcall(spidev_register);
