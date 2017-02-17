@@ -295,4 +295,4 @@ static int ili9341_register(void)
 		error_printk("failed to register ili9341 device\n");
 	return ret;
 }
-device_initcall(ili9341_register);
+coredevice_initcall(ili9341_register);
