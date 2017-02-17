@@ -21,6 +21,10 @@
 #include <armv7m/system.h>
 #include <mach/rcc-stm32.h>
 
+#ifdef CONFIG_STM32F429
+#include <mach/fmc-stm32.h>
+#endif /* CONFIG_STM32F429 */
+
 #ifdef CONFIG_SWO_DEBUG
 #include <mach/pio-stm32.h>
 #include <armv7m/swo.h>
@@ -51,6 +55,7 @@ void low_level_init(void)
 int device_init(void)
 {
 	int ret = 0;
+
 //	struct mtd mtd;
 
 //	mtd.base_addr = 0x08000000;
@@ -92,4 +97,4 @@ int device_init(void)
 
 	return ret;
 }
-device_initcall(device_init);
+coredevice_initcall(device_init);
