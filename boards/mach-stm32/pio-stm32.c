@@ -139,7 +139,6 @@ int stm32_pio_of_configure(int fdt_offset)
 		return len;
 	}
 
-	/* XXX: gpio cells have 3 fields */
 	num = len / (3 * sizeof(fdt32_t));
 
 	cell = (fdt32_t *)prop->data;
@@ -147,22 +146,15 @@ int stm32_pio_of_configure(int fdt_offset)
 	for(i = 0; i < num; i++, cell += 3) {
 		options = (struct gpio_options *)&flags;
 
-		/* XXX: cell[0] is gpio path, cell[1] is number, cell[2] is flags */
-		// get gpio handle and start pio clock
 		parent_phandle = fdt32_to_cpu(cell[0]);
 		parent_offset = fdt_node_offset_by_phandle(fdt_blob, parent_phandle);
-//		fdt_enable_clock(fdt_blob, parent_offset, 0);
 
 		base = (unsigned int)fdtparse_get_addr32(parent_offset, "reg");
 		gpio = fdt32_to_cpu(cell[1]);
 		flags = fdt32_to_cpu(cell[2]);
 
-		if(options->mode)
+		if (options->mode)
 			stm32_pio_set_output(base, gpio_num, options->pull);
-//		if(options->output)
-//			makePioOutputOD(pio, gpio);
-//		if(options->speed)
-//			setPioSpeed(pio, gpio, options->speed);
 
 		gpio_num = gpio & 0xFF;		
 
@@ -178,22 +170,6 @@ int stm32_pio_of_configure(int fdt_offset)
 		
 		if(options->edge)
 		{
-//			// configure syscfg and unmask it
-//			unsigned int tmp;
-//			int pin_source = getPioPin(gpio);
-//			int port_source;
-//			Syscfg_t *syscfg = pOsState->syscfg;
-//
-//			int syscfg_id, off = fdt_path_offset(fdt, "/apb2/syscfg");
-//			fdtparse_get_int(off, "id", &syscfg_id);
-//			enablePeriphClock(syscfg_id);
-//
-//			fdtparse_get_int(parent_offset, "id", &port_source);
-//			tmp = ((uint32_t)0x0F) << (0x04 * (pin_source & (uint8_t)0x03));
-//			syscfg->SYSCFG_EXTICR[pin_source >> 0x02] &= ~tmp;
-//			syscfg->SYSCFG_EXTICR[pin_source >> 0x02] |= (((uint32_t)port_source) << (0x04 * (pin_source & (uint8_t)0x03)));
-//
-//			unmaskPioInterrupt(pio, gpio, options->edge);
 		}
 	}
 
