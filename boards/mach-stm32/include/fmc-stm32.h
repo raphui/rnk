@@ -21,10 +21,4 @@
 
 #include <fmc.h>
 
-struct fmc_sdram_cmd_config sdram_cmd_conf;
-struct fmc_sdram_timing sdram_timing;
-struct fmc_sdram sdram;
-
-extern void stm32_fmc_init(struct fmc_sdram *fmc_sdram);
-
 #endif /* FMC_STM32_H */

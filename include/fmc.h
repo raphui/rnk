@@ -18,6 +18,8 @@
 #ifndef FMC_H
 #define FMC_H
 
+#include <device.h>
+
 struct fmc_sdram_cmd_config {
 	unsigned int cmd_mode;
 	unsigned int cmd_target;
@@ -36,7 +38,7 @@ struct fmc_sdram_timing {
 };
 
 struct fmc_sdram {
-	unsigned char num_bank;
+	unsigned int num_bank;
 	unsigned int column;
 	unsigned int row;
 	unsigned int data_width;
@@ -46,8 +48,15 @@ struct fmc_sdram {
 	unsigned int clk_period;
 	unsigned int read_burst;
 	unsigned int read_pipe_delay;
+	unsigned int conf_to_load;
+	unsigned int refresh_count;
 	struct fmc_sdram_timing *fmc_sdram_timing;
 	struct fmc_sdram_cmd_config *fmc_sdram_cmd_config;
+};
+
+struct fmc {
+	unsigned int mem_type;
+	struct device dev;
 };
 
 
