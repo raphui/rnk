@@ -56,6 +56,31 @@
                         status = "okay";
 		};
 
+		gpiog: gpio@40021800 {
+			reg = <0x40021800 0x400>;
+                        status = "okay";
+		};
+
+		gpioh: gpio@40021C00 {
+			reg = <0x40021C00 0x400>;
+                        status = "okay";
+		};
+
+		gpioi: gpio@40022000 {
+			reg = <0x40022000 0x400>;
+                        status = "okay";
+		};
+
+		gpioj: gpio@40022400 {
+			reg = <0x40022400 0x400>;
+                        status = "okay";
+		};
+
+		gpiok: gpio@40022800 {
+			reg = <0x40022800 0x400>;
+                        status = "okay";
+		};
+
 		flash {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -89,6 +114,81 @@
 	ahb2
 	{
 
+	};
+
+	ahb3
+	{
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		fmc: fmc@A0000000 {
+			reg = <0xA0000000 0x1000>;
+			compatible = "st,stm32f4xx-fmc";
+			status = "okay";
+			mem-type = <1>;
+
+			load_to_active_delay = <2>;
+			exit_self_refresh_delay = <6>;
+			self_refresh_time = <4>;
+			row_cycle_delay = <5>;
+			write_recovery_time = <2>;
+			rp_delay = <2>;
+			rc_delay = <2>;
+
+			num_bank = <0x1>;
+			column = <0x0>;			/* 8 bit */
+			row = <0x4>;			/* 12 bit */
+			data_width = <0x10>;		/* 16 bit */
+			internal_bank = <0x40>;		/* Bank 4 */
+			cas = <0x180>;			/* CAS Latency 3 */
+			write_protection = <0x0>;	/* Disable */
+			clk_period = <0x800>;		/* Clk Period 2 */
+			read_burst = <0x1000>;		/* Enable */
+			read_pipe_delay = <0x0>;	/* Delay 0 */
+
+			conf_to_load = <0x230>;
+			refresh_count = <2605>;
+
+			gpios =	<&gpioi	0x014 0x3>,
+				<&gpioh 0xC05 0x0>,
+				<&gpioc 0xC02 0x0>,
+				<&gpioc 0xC03 0x0>,
+				<&gpiod 0xC00 0x0>,
+				<&gpiod 0xC01 0x0>,
+				<&gpiod 0xC08 0x0>,
+				<&gpiod 0xC09 0x0>,
+				<&gpiod 0xC10 0x0>,
+				<&gpiod 0xC14 0x0>,
+				<&gpiod 0xC15 0x0>,
+				<&gpioe 0xC00 0x0>,
+				<&gpioe 0xC01 0x0>,
+				<&gpioe 0xC07 0x0>,
+				<&gpioe 0xC08 0x0>,
+				<&gpioe 0xC09 0x0>,
+				<&gpioe 0xC10 0x0>,
+				<&gpioe 0xC11 0x0>,
+				<&gpioe 0xC12 0x0>,
+				<&gpioe 0xC13 0x0>,
+				<&gpioe 0xC14 0x0>,
+				<&gpioe 0xC15 0x0>,
+				<&gpiof 0xC00 0x0>,
+				<&gpiof 0xC01 0x0>,
+				<&gpiof 0xC02 0x0>,
+				<&gpiof 0xC03 0x0>,
+				<&gpiof 0xC04 0x0>,
+				<&gpiof 0xC05 0x0>,
+				<&gpiof 0xC11 0x0>,
+				<&gpiof 0xC12 0x0>,
+				<&gpiof 0xC13 0x0>,
+				<&gpiof 0xC14 0x0>,
+				<&gpiof 0xC15 0x0>,
+				<&gpiog 0xC00 0x0>,
+				<&gpiog 0xC01 0x0>,
+				<&gpiog 0xC04 0x0>,
+				<&gpiog 0xC05 0x0>,
+				<&gpiog 0xC08 0x0>,
+				<&gpiog 0xC15 0x0>;
+		};
 	};
 
 	apb1
