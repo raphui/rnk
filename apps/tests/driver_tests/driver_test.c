@@ -24,6 +24,13 @@
 
 #define SPI_DEVICE	"/dev/spi"
 
+#ifdef CONFIG_STM32F429
+
+#define SDRAM_ADDRESS		(unsigned int *)0xC0000000
+#define SDRAM_TEST_PATTERN	0xDEADBEEF
+
+#endif /* CONFIG_STM32F429 */
+
 void thread_a(void)
 {
 	int fd;
@@ -31,6 +38,25 @@ void thread_a(void)
 	char buff[4] = {0x1, 0x2, 0x3, 0x4};
 
 	while (1) {
+#ifdef CONFIG_STM32F429
+		printk("Starting SDRAM tests\n");
+
+		printk("Writing: 0x%x at 0x%x\n", SDRAM_TEST_PATTERN, SDRAM_ADDRESS);
+
+		*(SDRAM_ADDRESS) = SDRAM_TEST_PATTERN;
+
+		printk("Reading content at 0x%x\n", SDRAM_ADDRESS);
+
+		ret = *(SDRAM_ADDRESS);
+
+		printk("SDRAM test: ");
+
+		if (ret == SDRAM_TEST_PATTERN)
+			printk("OK\n");
+		else
+			printk("NOK\n");
+#endif /* CONFIG_STM32F429 */
+
 		printk("Starting spi tests\n");
 		printk("Validate using your logical analyser\n");
 
