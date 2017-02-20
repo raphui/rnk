@@ -24,6 +24,25 @@
 #include <init.h>
 #include <fdtparse.h>
 #include <spidev.h>
+#include <pio.h>
+
+static spidev_of_init(struct spidev_device *spi)
+{
+	int offset;
+	int ret = 0;
+	const void *fdt_blob = fdtparse_get_blob();
+
+	offset = fdt_path_offset(fdt_blob, spi->dev.of_path);
+	if (offset < 0) {
+		ret = -ENOENT;
+		goto out;
+	}
+
+	ret = pio_of_configure(offset);
+
+out:
+	return ret;
+}
 
 int spidev_init(struct device *dev)
 {
