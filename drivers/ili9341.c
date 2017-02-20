@@ -212,7 +212,6 @@ static int ili9341_init(struct device *dev)
 		return -ENOMEM;
 	}
 
-
 	memcpy(&ili9341->dev, dev, sizeof(struct device));
 
 	offset = ili9341_of_init(ili9341);
@@ -228,6 +227,8 @@ static int ili9341_init(struct device *dev)
 		goto free_ilidev;
 	}
 
+	ili9341->spi = spi;
+
 	ret = ili9341_of_configure_spi(ili9341);
 	if (ret < 0) {
 		error_printk("failed to init ili9341 spi with fdt data\n");
@@ -239,8 +240,6 @@ static int ili9341_init(struct device *dev)
 		error_printk("failed to register spi device\n");
 		goto free_spi;
 	}
-
-	ili9341->spi = spi;
 
 	lcd = lcd_get_device();
 	if (!lcd) {
