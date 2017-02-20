@@ -73,7 +73,4 @@ struct ili9341_device {
 #define ILI9341_INTERFACE			0xF6
 #define ILI9341_PRC				0xF7
 
-void ili9341_send_command(unsigned char data);
-void ili9341_send_data(unsigned char data);
-
 #endif /* ILI9341_H */
