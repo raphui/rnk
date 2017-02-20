@@ -153,9 +153,18 @@
 					<&gpioa 0x506 0x08>,     /* MISO PA6 */
 					<&gpioa 0x507 0x0A>;     /* MOSI PA7 */
 			clock = <3>;
-			dmas = <&dma2 3 2 0x10400 0x3>,
+/*			dmas = <&dma2 3 2 0x10400 0x3>,
 				<&dma2 3 3 0x10200 0x3>;
-			dma-names = "rx", "tx";
+			dma-names = "rx", "tx";*/
+			status = "okay";
+
+			spidev@0
+			{
+				compatible = "spi,spidev";
+				status = "okay";
+				speed = <8000000>;
+				gpios = <&gpioa 0x004 0x3>;
+			};
 		};
 
 		syscfg: syscfg@40013800 {
