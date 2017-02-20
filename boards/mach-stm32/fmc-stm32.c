@@ -126,6 +126,7 @@ static int stm32_fmc_sdram_configure(struct fmc_sdram *fmc_sdram)
 
 	stm32_fmc_sdram_timing_init(fmc_sdram);
 
+	timeout = 0xFFFF;
 	while ((FMC_Bank5_6->SDSR & FMC_SDSR_BUSY) && timeout--)
 		;
 
