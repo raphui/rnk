@@ -153,10 +153,10 @@ int stm32_pio_of_configure(int fdt_offset)
 		gpio = fdt32_to_cpu(cell[1]);
 		flags = fdt32_to_cpu(cell[2]);
 
+		gpio_num = gpio & 0xFF;	
+
 		if (options->mode)
 			stm32_pio_set_output(base, gpio_num, options->pull);
-
-		gpio_num = gpio & 0xFF;		
 
 		if(gpio & 0xF00) {
 			alt_func = (gpio >> 8) & 0xF;
