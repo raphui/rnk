@@ -186,4 +186,5 @@ struct pio_operations pio_ops = {
 	.request_interrupt = stm32_pio_request_interrupt,
 	.enable_interrupt = stm32_pio_enable_interrupt,
 	.disable_interrupt = stm32_pio_disable_interrupt,
+	.of_configure = stm32_pio_of_configure,
 };
