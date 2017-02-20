@@ -22,7 +22,7 @@
 #include <spi.h>
 #include <unistd.h>
 
-#define SPI_DEVICE	"/dev/spi"
+#define SPI_DEVICE	"/dev/spi6"
 
 #ifdef CONFIG_STM32F429
 
@@ -35,7 +35,10 @@ void thread_a(void)
 {
 	int fd;
 	int ret;
-	char buff[4] = {0x1, 0x2, 0x3, 0x4};
+	char buff[16] = {0x1, 0x2, 0x3, 0x4,
+			0x5, 0x6, 0x7, 0x8,
+			0x9, 0xA, 0xB, 0xC,
+			0xD, 0xE, 0xF, 0x10};
 
 	while (1) {
 #ifdef CONFIG_STM32F429
@@ -66,7 +69,7 @@ void thread_a(void)
 			break;
 		}
 
-		ret = write(fd, buff, 4);
+		ret = write(fd, buff, 16);
 		if (ret != 4) {
 			error_printk("failed to write spi buff\n");
 			break;
