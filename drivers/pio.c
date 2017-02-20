@@ -76,6 +76,11 @@ void pio_disable_interrupt(unsigned int port, unsigned int mask)
 	pio_ops.disable_interrupt(port, mask);
 }
 
+int pio_of_configure(int fdt_offset)
+{
+	return pio_ops.of_configure(fdt_offset);
+}
+
 int pio_init(struct pio *pio)
 {
 	int ret = 0;
