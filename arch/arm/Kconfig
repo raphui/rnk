@@ -50,6 +50,8 @@ config LITTLE_ENDIAN
 
 endchoice
 
+config STACK_SIZE
+	hex "Size of stack"
 
 source arch/arm/lib/Kconfig
 

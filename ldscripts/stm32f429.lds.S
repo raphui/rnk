@@ -89,5 +89,5 @@ SECTIONS
  
     . = ALIGN(4);
     _end = . ;
-    PROVIDE( _estack = 0x2001FFFF );
+    PROVIDE( _estack = _end + CONFIG_STACK_SIZE );
 }
