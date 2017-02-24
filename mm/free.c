@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include "memory.h"
 
+#ifdef CONFIG_CUSTOM_MALLOC
 static void free_mem(void *mem, struct memory_block *heap, void *base)
 {
 	struct alloc_header *header = (struct alloc_header *)((unsigned int *)mem - sizeof(struct alloc_header));
@@ -48,8 +49,13 @@ static void free_mem(void *mem, struct memory_block *heap, void *base)
 		heap[index_block + block_to_free].free_chunks += chunks;
 	}
 }
+#endif /* CONFIG_CUSTOM_MALLOC */
 
 void kfree(void *mem)
 {
+#ifdef CONFIG_CUSTOM_MALLOC
 	free_mem(mem, kernel_heap, (void *)KERNEL_HEAP_START);
+#else
+	free(mem);
+#endif
 }

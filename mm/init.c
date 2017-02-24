@@ -23,13 +23,15 @@ int heap_size = MAX_KERNEL_SIZE;
 
 int heap_init(void)
 {
-	int i;
 	int ret = 0;
+#ifdef CONFIG_CUSTOM_MALLOC
+	int i;
 
 	for (i = 0; i < KERNEL_NUM_BLOCKS; i++) {
 		kernel_heap[i].free_chunks = CHUNK_PER_BLOCK;
 		kernel_heap[i].free_mask = 0;
 	}
+#endif /* CONFIG_CUSTOM_MALLOC */
 
 	return ret;
 }

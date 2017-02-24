@@ -18,7 +18,10 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 #include "memory.h"
+
+#ifdef CONFIG_CUSTOM_MALLOC
 
 int mem_alloc = 0;
 
@@ -93,9 +96,12 @@ out:
 	return ret;
 }
 
+#endif /* CONFIG_CUSTOM_MALLOC */
+
 void *kmalloc(size_t size)
 {
 	void *mem = NULL;
+#ifdef CONFIG_CUSTOM_MALLOC
 	int chunks;
 	
 	if (size > MAX_KERNEL_SIZE)
@@ -110,6 +116,37 @@ void *kmalloc(size_t size)
 
 	if (mem)
 		mem_alloc += size;
+#else
+	mem = malloc(size);
+#endif
 
 	return mem;
 }
+
+#ifdef CONFIG_DLMALLOC
+static unsigned long malloc_brk = KERNEL_HEAP_START;
+
+static void *sbrk_no_zero(int increment)
+{
+	unsigned long old = malloc_brk;
+	unsigned long new = old + increment;
+
+	if ((new < KERNEL_HEAP_START) || (new > KERNEL_HEAP_END))
+		return NULL;
+
+	malloc_brk = new;
+
+	return (void *)old;
+}
+
+void *sbrk(int increment)
+{
+	void *old = sbrk_no_zero(increment);
+
+	/* Only clear increment, if valid address was returned */
+	if (old != NULL)
+		memset(old, 0, increment);
+
+	return old;
+}
+#endif /* CONFIG_DLMALLOC */

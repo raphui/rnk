@@ -29,4 +29,9 @@ extern int heap_init(void);
 extern void *kmalloc(size_t size);
 extern void kfree(void *mem);
 
+#ifdef CONFIG_DLMALLOC
+extern void *sbrk(int increment);
+#endif /* CONFIG_DLMALLOC */
+
+
 #endif /* MM_H */
