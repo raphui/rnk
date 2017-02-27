@@ -11,10 +11,15 @@ config KERNEL_HEAP_START
 config KERNEL_HEAP_END
 	hex "End address of kernel heap"
 
+choice
+	prompt "malloc implementation"
+
 config CUSTOM_MALLOC
 	bool "Use custom malloc implementation"
 
 config DLMALLOC
 	bool "Use dlmalloc implementation"
+
+endchoice
 
 endmenu
