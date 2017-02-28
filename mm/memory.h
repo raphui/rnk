@@ -30,6 +30,16 @@
 extern void *malloc(size_t bytes);
 extern void free(void *mem);
 
+#elif defined(CONFIG_TLSF)
+
+#include <tlsf.h>
+
+#define KERNEL_HEAP_START	CONFIG_KERNEL_HEAP_START
+#define KERNEL_HEAP_END		CONFIG_KERNEL_HEAP_END
+#define MAX_KERNEL_HEAP_SIZE	(KERNEL_HEAP_END - KERNEL_HEAP_START)
+
+extern tlsf_t tlsf_mem_pool;
+
 #else
 
 #define CHUNK_PER_BLOCK		32

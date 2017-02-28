@@ -31,7 +31,9 @@ int heap_init(void)
 		kernel_heap[i].free_chunks = CHUNK_PER_BLOCK;
 		kernel_heap[i].free_mask = 0;
 	}
-#endif /* CONFIG_CUSTOM_MALLOC */
+#elif defined(CONFIG_TLSF)
+	tlsf_mem_pool = tlsf_create_with_pool((void *)KERNEL_HEAP_START, MAX_KERNEL_HEAP_SIZE);
+#endif
 
 	return ret;
 }

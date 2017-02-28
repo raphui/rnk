@@ -21,6 +21,10 @@
 #include <string.h>
 #include "memory.h"
 
+#ifdef CONFIG_TLSF
+tlsf_t tlsf_mem_pool;
+#endif /* CONFIG_TLSF */
+
 #ifdef CONFIG_CUSTOM_MALLOC
 
 int mem_alloc = 0;
@@ -116,8 +120,10 @@ void *kmalloc(size_t size)
 
 	if (mem)
 		mem_alloc += size;
-#else
+#elif defined(CONFIG_DLMALLOC)
 	mem = malloc(size);
+#elif defined(CONFIG_TLSF)
+	mem = tlsf_malloc(tlsf_mem_pool, size);
 #endif
 
 	return mem;
