@@ -19,7 +19,7 @@
 #include "memory.h"
 #include <init.h>
 
-int heap_size = MAX_KERNEL_SIZE;
+int heap_size = MAX_KERNEL_HEAP_SIZE;
 
 int heap_init(void)
 {

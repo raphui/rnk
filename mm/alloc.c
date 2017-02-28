@@ -104,7 +104,7 @@ void *kmalloc(size_t size)
 #ifdef CONFIG_CUSTOM_MALLOC
 	int chunks;
 	
-	if (size > MAX_KERNEL_SIZE)
+	if (size > MAX_KERNEL_HEAP_SIZE)
 		return NULL;
 
 	size += sizeof(struct alloc_header);
