@@ -5,3 +5,4 @@
 
 subdirs-$(CONFIG_LIBFDT) += fdt
 subdirs-$(CONFIG_DLMALLOC) += dlmalloc
+subdirs-$(CONFIG_TLSF) += tlsf

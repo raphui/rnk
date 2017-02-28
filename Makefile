@@ -47,8 +47,12 @@ ifeq (${MAKELEVEL}, 0)
 INCLUDES	+= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
 INCLUDES	+= -I$(KERNEL_BASE)/lib
-# XXX: find a more elegant way to handle include depending of CONFIG_
 INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/fdt/include
+
+ifeq ($(CONFIG_TLSF),y)
+INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/tlsf
+endif
+
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
 CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -nostdinc -g $(INCLUDES)

@@ -20,6 +20,9 @@ config CUSTOM_MALLOC
 config DLMALLOC
 	bool "Use dlmalloc implementation"
 
+config TLSF
+	bool "Use tlsf implementation"
+
 endchoice
 
 endmenu
