@@ -24,14 +24,14 @@
 
 #include <symbols.h>
 
-static struct sym symbols[] = {
-/* Generate symbols table is insert here */
+extern unsigned int __rnk_ksym_start;
+extern unsigned int __rnk_ksym_end;
 
-};
+static struct symbol *symbols = (struct symbol *)&__rnk_ksym_start;
 
 char *symbol_get_name(unsigned int addr)
 {
-	int size = sizeof(symbols) / sizeof(struct sym);
+	int size = (__rnk_ksym_end - __rnk_ksym_start) / sizeof(struct symbol);
 	int i = 0;
 	char *ret = NULL;
 
@@ -39,9 +39,6 @@ char *symbol_get_name(unsigned int addr)
 		if (symbols[i].addr == addr) {
 			ret = symbols[i].name;
 			break;
-		} else if ((addr > symbols[i].addr) && (addr < (symbols[i].addr + symbols[i].size))) {
-			ret = symbols[i].name;
-			break;	
 		}
 	}
 
@@ -50,7 +47,7 @@ char *symbol_get_name(unsigned int addr)
 
 int symbol_get_addr(char *name)
 {
-	int size = sizeof(symbols) / sizeof(struct sym);
+	int size = (__rnk_ksym_end - __rnk_ksym_start) / sizeof(struct symbol);
 	int i = 0;
 	int ret = -ENXIO;
 

@@ -19,9 +19,8 @@
 #ifndef SYMBOLS_H
 #define SYMBOLS_H
 
-struct sym {
+struct symbol {
 	unsigned int addr;
-	unsigned int size;
 	char *name;
 };
 
