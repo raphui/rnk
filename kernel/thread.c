@@ -24,6 +24,7 @@
 #include <arch/svc.h>
 #include <arch/system.h>
 #include <spinlock.h>
+#include <export.h>
 
 static struct thread *current_thread = NULL;
 static int thread_count = 0;
@@ -129,6 +130,7 @@ void add_thread(void (*func)(void), unsigned int priority)
 
 	thread_count++;
 }
+EXPORT_SYMBOL(add_thread);
 
 void switch_thread(struct thread *thread)
 {
