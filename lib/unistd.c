@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <device.h>
+#include <export.h>
 
 #define MAX_FD	8
 
@@ -65,6 +66,7 @@ int open(const char *path, int flags)
 
 	return ret;
 }
+EXPORT_SYMBOL(open);
 
 int close(int fd)
 {
@@ -84,6 +86,7 @@ int close(int fd)
 
 	return ret;
 }
+EXPORT_SYMBOL(close);
 
 int write(int fd, const void *buf, size_t size)
 {
@@ -111,6 +114,7 @@ int write(int fd, const void *buf, size_t size)
 
 	return ret;
 }
+EXPORT_SYMBOL(write);
 
 int read(int fd, void *buf, size_t size)
 {
@@ -137,6 +141,7 @@ int read(int fd, void *buf, size_t size)
 
 	return ret;
 }
+EXPORT_SYMBOL(read);
 
 
 int lseek(int fd, int offset, int whence)
@@ -162,3 +167,4 @@ int lseek(int fd, int offset, int whence)
 
 	return ret;
 }
+EXPORT_SYMBOL(lseek);
