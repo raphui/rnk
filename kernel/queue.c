@@ -24,6 +24,7 @@
 #include <string.h>
 #include <time.h>
 #include <spinlock.h>
+#include <export.h>
 
 static void insert_waiting_receive_thread(struct queue *queue, struct thread *t)
 {
@@ -81,6 +82,7 @@ void queue_init(struct queue *queue, unsigned int size, unsigned int item_size)
 	list_initialize(&queue->waiting_receive_threads);
 	list_initialize(&queue->waiting_post_threads);
 }
+EXPORT_SYMBOL(queue_init);
 
 static void clear_queue(struct queue *queue)
 {
@@ -88,6 +90,7 @@ static void clear_queue(struct queue *queue)
 	queue->wr = queue->head;
 	queue->curr = queue->head;
 }
+EXPORT_SYMBOL(clear_queue);
 
 void svc_queue_post(struct queue *queue, void *item)
 {
@@ -135,6 +138,7 @@ void queue_post(struct queue *queue, void *item, unsigned int timeout)
 	}
 	
 }
+EXPORT_SYMBOL(queue_post);
 
 void svc_queue_receive(struct queue *queue, void *item)
 {
@@ -183,3 +187,4 @@ void queue_receive(struct queue *queue, void *item, unsigned int timeout)
 		}
 	}
 }
+EXPORT_SYMBOL(queue_receive);
