@@ -105,14 +105,6 @@ kernel.elf: conf config.h
  
 include $(wildcard *.d)
  
-symbols-make:
-	@@echo "SYM GEN"
-	@sh tools/sym.sh make
-
-symbols-clean: 
-	@@echo "SYM CLEAN"
-	@sh tools/sym.sh clean
-
 kernel.img: kernel.elf 
 	@@echo "OBJCOPY " $<
 	@$(OBJCOPY) kernel.elf -O binary kernel.bin
