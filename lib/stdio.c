@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <console.h>
+#include <export.h>
 
 #ifdef CONFIG_SEMIHOSTING
 #include <arch/semihosting.h>
@@ -101,6 +102,7 @@ void printk(char *fmt, ...)
 
 	vprintf(fmt, va);
 }
+EXPORT_SYMBOL(printk);
 
 void vprintf(char *fmt, va_list va)
 {
