@@ -22,6 +22,7 @@
 #include <spinlock.h>
 #include <stdio.h>
 #include <arch/svc.h>
+#include <export.h>
 
 static void insert_waiting_thread(struct semaphore *sem, struct thread *t)
 {
@@ -51,6 +52,7 @@ void sem_init(struct semaphore *sem, unsigned int value)
 
 	list_initialize(&sem->waiting_threads);
 }
+EXPORT_SYMBOL(sem_init);
 
 void svc_sem_wait(struct semaphore *sem)
 {
@@ -77,6 +79,7 @@ void sem_wait(struct semaphore *sem)
 {
 	arch_system_call(SVC_WAIT_SEM, sem, NULL, NULL);
 }
+EXPORT_SYMBOL(sem_wait);
 
 void svc_sem_post(struct semaphore *sem)
 {
@@ -111,3 +114,4 @@ void sem_post(struct semaphore *sem)
 {
 	arch_system_call(SVC_POST_SEM, sem, NULL, NULL);
 }
+EXPORT_SYMBOL(sem_post);
