@@ -5,6 +5,7 @@
 #include <utils.h>
 #include <thread.h>
 #include <spinlock.h>
+#include <export.h>
 
 #include <arch/svc.h>
 
@@ -80,6 +81,7 @@ void mutex_init(struct mutex *mutex) {
 
 	list_initialize(&mutex->waiting_threads);
 }
+EXPORT_SYMBOL(mutex_init);
 
 void svc_mutex_lock(struct mutex *mutex)
 {
@@ -98,6 +100,7 @@ void mutex_lock(struct mutex *mutex)
 {
 	arch_system_call(SVC_ACQUIRE_MUTEX, mutex, NULL, NULL);
 }
+EXPORT_SYMBOL(mutex_lock);
 
 void svc_mutex_unlock(struct mutex *mutex)
 {
@@ -139,3 +142,4 @@ void mutex_unlock(struct mutex *mutex)
 {
 	arch_system_call(SVC_RELEASE_MUTEX, mutex, NULL, NULL);
 }
+EXPORT_SYMBOL(mutex_unlock);
