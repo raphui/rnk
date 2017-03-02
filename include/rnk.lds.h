@@ -45,4 +45,7 @@
 	KEEP(*(.exitcall.5))			\
 	KEEP(*(.exitcall.6))
 
+#define KSYM				\
+	KEEP(*(.ksym))
+
 #endif /* RNK_LDS_H */
