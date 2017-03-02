@@ -40,6 +40,11 @@ SECTIONS
 	__rnk_exitcalls_start = .;
 	EXITCALLS
 	__rnk_exitcalls_end = .;
+
+	__rnk_ksym_start = .;
+	KSYM
+	__rnk_ksym_end = .;
+
     } > rom
  
 #ifdef CONFIG_UNWIND

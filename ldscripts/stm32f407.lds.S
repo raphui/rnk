@@ -2,7 +2,7 @@
 
 MEMORY
 {
-	sram (W!RX) : ORIGIN = 0x20000000, LENGTH = 128K
+	sram (W!RX) : ORIGIN = 0x20000000, LENGTH = 196K
 	CCMRAM (xrw) : ORIGIN = 0x10000000, LENGTH = 64K
 	flash (RX) : ORIGIN = 0x08000000, LENGTH = 1024K
 }
@@ -33,6 +33,10 @@ SECTIONS
 		__rnk_exitcalls_start = .;
 		EXITCALLS
 		__rnk_exitcalls_end = .;
+
+		__rnk_ksym_start = .;
+		KSYM
+		__rnk_ksym_end = .;
 
 		. = ALIGN(4);
 		_etext = .;
@@ -81,7 +85,7 @@ SECTIONS
 		_ebss = .;
 	} >sram
 
-	end = .;
-	PROVIDE( _estack = 0x20020000 );
+	_end = .;
+	PROVIDE( _estack = _end + CONFIG_STACK_SIZE );
 }
 
