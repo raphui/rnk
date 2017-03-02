@@ -25,6 +25,7 @@
 #include <arch/system.h>
 #include <spinlock.h>
 #include <init.h>
+#include <export.h>
 
 static struct list_node sleeping_threads;
 
@@ -91,6 +92,7 @@ void usleep(unsigned int usec)
 	arch_system_call(SVC_USLEEP, &timer, NULL, NULL);
 #endif /* CONFIG_BW_DELAY */
 }
+EXPORT_SYMBOL(usleep);
 
 void timer_soft_oneshot(int delay, void (*handler)(void *), void *arg)
 {
