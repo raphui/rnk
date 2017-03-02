@@ -16,6 +16,7 @@
  */
 
 #include <string.h>
+#include <export.h>
 
 void memcpy(void *dst, const void *src, unsigned int num)
 {
@@ -26,6 +27,7 @@ void memcpy(void *dst, const void *src, unsigned int num)
 		*d++ = *s++;
 	}
 }
+EXPORT_SYMBOL(memcpy);
 
 void *memset(void *s, int c, unsigned int count)
 {
@@ -36,6 +38,7 @@ void *memset(void *s, int c, unsigned int count)
 
 	return s;
 }
+EXPORT_SYMBOL(memset);
 
 int strcmp(const char *cs, const char *ct)
 {
@@ -48,6 +51,7 @@ int strcmp(const char *cs, const char *ct)
 
 	return res;
 }
+EXPORT_SYMBOL(strcmp);
 
 void *memchr(const void *ptr, int value, size_t num)
 {
@@ -62,6 +66,7 @@ void *memchr(const void *ptr, int value, size_t num)
 
     return NULL;
 }
+EXPORT_SYMBOL(memchr);
 
 int memcmp(const void *ptr1, const void *ptr2, size_t num)
 {
@@ -84,6 +89,7 @@ int memcmp(const void *ptr1, const void *ptr2, size_t num)
 
     return 0;
 }
+EXPORT_SYMBOL(memcmp);
 
 void memmove(void *dst, const void *src, size_t n)
 {
@@ -94,6 +100,7 @@ void memmove(void *dst, const void *src, size_t n)
     else
         while(n--) *d++ = *s++;
 }
+EXPORT_SYMBOL(memmove);
 
 size_t strlen(const char *s)
 {
@@ -103,4 +110,4 @@ size_t strlen(const char *s)
     }
     return len;
 }
-
+EXPORT_SYMBOL(strlen);
