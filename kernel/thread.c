@@ -100,6 +100,10 @@ void thread_init(void)
 void add_thread(void (*func)(void), unsigned int priority)
 {
 	struct thread *thread = (struct thread *)kmalloc(sizeof(struct thread));
+	if (!thread) {
+		error_printk("failed to allocate thread: %p\n", func);
+		return;
+	}
 
 	memset(thread, 0, sizeof(struct thread));
 
@@ -119,6 +123,12 @@ void add_thread(void (*func)(void), unsigned int priority)
 	thread->delay = 0;
 	thread->func = func;
 	thread->regs = (struct registers *)kmalloc(sizeof(struct registers));
+	if (!thread->regs) {
+		error_printk("failed to allocate threads regs for: %p\n", func);
+		kfree(thread);
+		return;
+	}
+
 	thread->regs->sp = thread->start_stack;
 	thread->regs->lr = (unsigned int)end_thread;
 	thread->regs->pc = (unsigned int)func;
