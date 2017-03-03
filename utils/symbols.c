@@ -24,20 +24,17 @@
 
 #include <symbols.h>
 
-extern unsigned int __rnk_ksym_start;
-extern unsigned int __rnk_ksym_end;
-
-static struct symbol *symbols = (struct symbol *)&__rnk_ksym_start;
+extern struct symbol __rnk_ksym_start[];
+extern struct symbol __rnk_ksym_end[];
 
 char *symbol_get_name(unsigned int addr)
 {
-	int size = (__rnk_ksym_end - __rnk_ksym_start) / sizeof(struct symbol);
-	int i = 0;
 	char *ret = NULL;
+	struct symbol *sym;
 
-	for (i = 0; i < size; i++) {
-		if (symbols[i].addr == addr) {
-			ret = symbols[i].name;
+	for (sym = __rnk_ksym_start; sym < __rnk_ksym_end; sym++) {
+		if (sym->addr == addr) {
+			ret = sym->name;
 			break;
 		}
 	}
@@ -47,13 +44,12 @@ char *symbol_get_name(unsigned int addr)
 
 int symbol_get_addr(char *name)
 {
-	int size = (__rnk_ksym_end - __rnk_ksym_start) / sizeof(struct symbol);
-	int i = 0;
 	int ret = -ENXIO;
+	struct symbol *sym;
 
-	for (i = 0; i < size; i++) {
-		if (!strcmp(name, symbols[i].name)) {
-			ret = symbols[i].addr;
+	for (sym = __rnk_ksym_start; sym < __rnk_ksym_end; sym++) {
+		if (!strcmp(name, sym->name)) {
+			ret = sym->addr;
 			break;
 		}
 	}
