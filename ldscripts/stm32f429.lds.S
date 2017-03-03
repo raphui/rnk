@@ -33,18 +33,6 @@ SECTIONS
         *(.text .text.* .gnu.linkonce.t.*)
         *(.glue_7t) *(.glue_7)
         *(.rodata .rodata* .gnu.linkonce.r.*)
-	__rnk_initcalls_start = .;
-	INITCALLS
-	__rnk_initcalls_end = .;
-
-	__rnk_exitcalls_start = .;
-	EXITCALLS
-	__rnk_exitcalls_end = .;
-
-	__rnk_ksym_start = .;
-	KSYM
-	__rnk_ksym_end = .;
-
     } > rom
  
 #ifdef CONFIG_UNWIND
@@ -60,6 +48,25 @@ SECTIONS
     } > rom
     __exidx_end = .;
 #endif
+
+   __rnk_initcalls_start = .;
+   .rnk_initcalls : {
+	INITCALLS
+   } > rom
+   __rnk_initcalls_end = .;
+
+
+   __rnk_exitcalls_start = .;
+   .rnk_exitcalls : {
+	EXITCALLS
+   } > rom
+   __rnk_exitcalls_end = .;
+
+   __rnk_ksym_start = .;
+   .rnk_ksym : {
+	KSYM
+   } > rom
+   __rnk_ksym_end = .;
  
     . = ALIGN(4);
     _etext = .;

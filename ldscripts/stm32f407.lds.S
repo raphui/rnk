@@ -26,18 +26,6 @@ SECTIONS
 		*(.gcc_except_table)
 		*(.gnu.linkonce.r.*)
 
-		__rnk_initcalls_start = .;
-		INITCALLS
-		__rnk_initcalls_end = .;
-
-		__rnk_exitcalls_start = .;
-		EXITCALLS
-		__rnk_exitcalls_end = .;
-
-		__rnk_ksym_start = .;
-		KSYM
-		__rnk_ksym_end = .;
-
 		. = ALIGN(4);
 		_etext = .;
 		_sidata = _etext;
@@ -71,6 +59,25 @@ SECTIONS
 		__exidx_end = .;
 	} >flash
 #endif
+
+	__rnk_initcalls_start = .;
+	.rnk_initcalls : {
+		INITCALLS
+	} > rom
+	__rnk_initcalls_end = .;
+
+
+	__rnk_exitcalls_start = .;
+	.rnk_exitcalls : {
+		EXITCALLS
+	} > rom
+	__rnk_exitcalls_end = .;
+
+	__rnk_ksym_start = .;
+	.rnk_ksym : {
+		KSYM
+	} > rom
+	__rnk_ksym_end = .;
 
 	PROVIDE( flash_used_size = SIZEOF(.text) + SIZEOF(.data) + SIZEOF(.ARM.extab) + SIZEOF(.ARM.exidx) );
 
