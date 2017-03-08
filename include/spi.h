@@ -21,6 +21,7 @@
 #include <device.h>
 #include <dma.h>
 #include <list.h>
+#include <mutex.h>
 
 #define SPI_TRANSFER_READ	0
 #define SPI_TRANSFER_WRITE	1
@@ -51,6 +52,7 @@ struct spi_master {
 	unsigned char only_tx;
 	unsigned char only_rx;
 	unsigned char use_dma;
+	struct mutex spi_mutex;
 	struct list_node node;
 	struct device dev;
 	struct dma_stream dma_stream[2];

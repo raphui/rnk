@@ -32,20 +32,34 @@ static struct list_node spi_master_list;
 
 static int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
 {
+	int ret;
 	struct spi_device *spi = container_of(dev, struct spi_device, dev);
 
 	verbose_printk("writing from spi !\n");
 
-	return spi->master->spi_ops->write(spi, buff, size);
+	mutex_lock(&spi->master->spi_mutex);
+
+	ret = spi->master->spi_ops->write(spi, buff, size);
+
+	mutex_unlock(&spi->master->spi_mutex);
+
+	return ret;
 }
 
 static int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
 {
+	int ret;
 	struct spi_device *spi = container_of(dev, struct spi_device, dev);
 
 	verbose_printk("reading from spi !\n");
 
-	return spi->master->spi_ops->read(spi, buff, size);
+	mutex_lock(&spi->master->spi_mutex);
+
+	ret = spi->master->spi_ops->read(spi, buff, size);
+
+	mutex_unlock(&spi->master->spi_mutex);
+
+	return ret;
 }
 
 int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size, int direction)
@@ -53,6 +67,8 @@ int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size,
 	int ret = 0;
 
 	verbose_printk("spi %s transfer\n", (direction == SPI_TRANSFER_READ) ? "read" : "write");
+
+	mutex_lock(&spi->master->spi_mutex);
 
 	if (direction == SPI_TRANSFER_READ)
 		ret = spi_read(&spi->dev, buff, size);
@@ -62,6 +78,8 @@ int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size,
 		error_printk("invalid spi transfer direction\n");
 		ret = -EINVAL;
 	}
+
+	mutex_unlock(&spi->master->spi_mutex);
 
 	return ret;
 }
@@ -241,6 +259,8 @@ int spi_register_master(struct spi_master *spi)
 	tmp[8] = 0x30 + master_count;
 
 	memcpy(spi->dev.name, tmp, sizeof(tmp));
+
+	mutex_init(&spi->spi_mutex);
 
 	list_add_tail(&spi_master_list, &spi->node);
 
