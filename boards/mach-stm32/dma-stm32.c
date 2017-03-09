@@ -28,6 +28,8 @@
 #include <string.h>
 #include <fdtparse.h>
 #include <mm.h>
+#include <irq.h>
+#include <armv7m/vector.h>
 
 #define MAX_DMA_SIZE 0xFFFF
 
@@ -172,6 +174,39 @@ static int stm32_dma_get_interrupt_flags(struct dma_stream *dma_stream)
 	return mask;
 }
 
+static int stm32_dma_get_stream_base(struct dma_stream *stream)
+{
+	unsigned int base = stm32_dma_get_base(stream);
+
+	return (base + 0x10 + 0x18 * stream->stream_num);
+}
+
+static void stm32_dma_isr(void *arg)
+{
+	struct dma_stream *stream = (struct dma_stream *)arg;
+	unsigned int base = stm32_dma_get_base(stream);
+	DMA_TypeDef *dma_base = (DMA_TypeDef *)base;
+	DMA_Stream_TypeDef *dma_stream = (DMA_Stream_TypeDef *)stream->stream_base;
+	unsigned int irq = vector_current_irq();
+	int flags;
+
+	EXTI->PR |= (0x7FFFFF);
+	nvic_clear_interrupt(irq);
+
+	if (stream->stream_num > 3)
+		flags = dma_base->HISR;
+	else
+		flags = dma_base->LISR;
+
+	debug_printk("dma->sr: 0x%x\n", flags);
+	debug_printk("dma->ndtr: 0x%x\n", dma_stream->NDTR);
+
+	if (stream->stream_num > 3)
+		dma_base->HIFCR |= flags;
+	else
+		dma_base->LIFCR |= flags;
+}
+
 int stm32_dma_transfer(struct dma_stream *dma_stream, struct dma_transfer *dma_trans)
 {
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma_stream->stream_base;
@@ -227,12 +262,12 @@ int stm32_dma_enable(struct dma_stream *dma_stream)
 
 	nvic_enable_interrupt(nvic);
 
-	DMA_STREAM->CR |= (1 <<  4) | (1 << 3) | (1 << 2) | (1 << 1);
+	DMA_STREAM->CR |= DMA_SxCR_TCIE | DMA_SxCR_TEIE | DMA_SxCR_DMEIE;
 
 	if (dma_stream->use_fifo)
-		DMA_STREAM->FCR |= (1 << 7);
+		DMA_STREAM->FCR |= DMA_SxFCR_FEIE;
 
-	DMA_STREAM->CR |= (1 << 0);
+	DMA_STREAM->CR |= DMA_SxCR_EN;
 
 	return 0;
 }
@@ -242,12 +277,10 @@ int stm32_dma_disable(struct dma_stream *dma_stream)
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma_stream->stream_base;
 	int nvic = stm32_dma_get_nvic_number(dma_stream);
 
-	DMA_STREAM->CR &= ~(1 << 0);
-
-	DMA_STREAM->CR &= ~((1 <<  4) | (1 << 3) | (1 << 2) | (1 << 1));
+	DMA_STREAM->CR &= ~(DMA_SxCR_TCIE | DMA_SxCR_TEIE | DMA_SxCR_DMEIE | DMA_SxCR_EN);
 
 	if (dma_stream->use_fifo)
-		DMA_STREAM->FCR &= ~(1 << 7);
+		DMA_STREAM->FCR &= ~(DMA_SxFCR_FEIE);
 
 	nvic_clear_interrupt(nvic);
 	nvic_disable_interrupt(nvic);
@@ -255,27 +288,29 @@ int stm32_dma_disable(struct dma_stream *dma_stream)
 	return 0;
 }
 
-int stm32_dma_stream_init(struct dma_stream *dma_stream)
+int stm32_dma_stream_init(struct dma_stream *stream)
 {
 	int ret = 0;
-	struct dma_controller *dma_ctrl = dma_stream->dma;
-	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma_stream->stream_base;
+	struct dma_controller *dma_ctrl = stream->dma;
+	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)stream->stream_base;
 
-	if (!dma_ctrl->mem2mem) {
+	if (stream->dir == DMA_M_M && !dma_ctrl->mem2mem) {
 		debug_printk("dma controller does not support mem to mem transfer\r\n");
 		return -EINVAL;
 	}
 
 
-	DMA_STREAM->CR = (dma_stream->channel << 25) | (dma_stream->mburst << 23)
-			| (dma_stream->pburst << 21) | (dma_stream->mdata_size << 13)
-			| (dma_stream->pdata_size << 11) | (dma_stream->minc << 10)
-			| (dma_stream->pinc << 9) | (dma_stream->dir << 6);
+	DMA_STREAM->CR = (stream->channel << 25) | (stream->mburst << 23)
+			| (stream->pburst << 21) | (stream->priority) | (stream->mdata_size << 13)
+			| (stream->pdata_size << 11) | (stream->minc)
+			| (stream->pinc) | (stream->dir << 6);
 
-	if (dma_stream->use_fifo) {
+	if (stream->use_fifo) {
 		DMA_STREAM->FCR &= DMA_SxFCR_DMDIS;
 		DMA_STREAM->FCR |= DMA_SxFCR_FTH;
 	}
+
+	ret = irq_request(stream->irq, stm32_dma_isr, stream);
 
 	return ret;
 }
@@ -338,6 +373,7 @@ int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device 
 
 		dma_stream[i].dma = dma_ctrl;
 		dma_stream[i].stream_num = dmas[i].stream;
+		dma_stream[i].stream_base = stm32_dma_get_stream_base(&dma_stream[i]);
 		dma_stream[i].channel = dmas[i].channel;
 		dma_stream[i].minc = (dmas[i].dma_conf & DMA_OF_MINC_MASK);
 		dma_stream[i].pinc = (dmas[i].dma_conf & DMA_OF_PINC_MASK);
@@ -374,6 +410,13 @@ int stm32_dma_of_init(struct dma_controller *dma)
 	if (!dma->base_reg) {
 		error_printk("failed to retrieve dma controller base reg from fdt\n");
 		ret = -ENOENT;
+		goto out;
+	}
+
+	ret = fdtparse_get_int(offset, "num", (int *)&dma->num);
+	if (ret < 0) {
+		error_printk("failed to retrieve dma num\n");
+		ret = -EIO;
 		goto out;
 	}
 
