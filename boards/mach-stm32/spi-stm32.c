@@ -23,7 +23,6 @@
 #include <mach/pio-stm32.h>
 #include <arch/nvic.h>
 #include <errno.h>
-#include <queue.h>
 #include <common.h>
 #include <fdtparse.h>
 #include <init.h>
@@ -62,7 +61,7 @@ static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long r
 	return best_pres;
 }
 
-static unsigned short stm32_spi_dma_write(struct spi_device *spidev, unsigned short data)
+static unsigned short stm32_spi_dma_write(struct spi_device *spidev, unsigned char *buff, unsigned int size)
 {
 	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
@@ -70,39 +69,27 @@ static unsigned short stm32_spi_dma_write(struct spi_device *spidev, unsigned sh
 	struct dma_stream *dma = &spi->dma_stream[SPI_TRANSFER_WRITE];
 	struct dma_transfer *dma_trans = &spi->dma_trans;
 
-	int nvic = spi->irq;
-	int ready = 0;
 	int ret = 0;
 
+	SPI->CR1 &= ~SPI_CR1_SPE;
+
+	stm32_dma_stream_init(dma);
+
 	stm32_dma_disable(dma);
-	dma_trans->src_addr = (unsigned int)&data;
+	dma_trans->src_addr = (unsigned int)&buff;
 	dma_trans->dest_addr = (unsigned int)&SPI->DR;
-	dma_trans->size = 1;
+	dma_trans->size = size;
 
-	nvic_enable_interrupt(nvic);
+	stm32_dma_transfer(dma, dma_trans);
 
-	SPI->CR2 &= ~SPI_CR2_TXDMAEN;
+	SPI->CR2 |= SPI_CR2_TXDMAEN;
+	SPI->CR2 |= SPI_CR2_RXDMAEN;
 
-	queue_receive(&queue, &ready, 1000);
+	SPI->CR1 |= SPI_CR1_SPE;
 
 	stm32_dma_enable(dma);
 
-	if (ready) {
-		printk("spi ready !\r\n");
-
-		stm32_dma_transfer(dma, dma_trans);
-
-		if (spi->only_tx)
-			SPI->CR2 |= SPI_CR2_TXDMAEN;
-
-		ready = 0;
-	} else {
-		error_printk("spi not ready\r\n");
-		ret = -EIO;
-	}
-
 	return ret;
-
 }
 
 int stm32_spi_write(struct spi_device *spidev, unsigned char *buff, unsigned int size)
@@ -113,29 +100,21 @@ int stm32_spi_write(struct spi_device *spidev, unsigned char *buff, unsigned int
 	int ret;
 
 	for (i = 0; i < size; i++) {
+		while (!(SPI->SR & SPI_SR_TXE))
+			;
 
-		if (spi->use_dma) {
-			ret = stm32_spi_dma_write(spidev, buff[i]);
-			if (ret < 0)
-				return ret;
-		}
-		else {
-			while (!(SPI->SR & SPI_SR_TXE))
-				;
+		while (SPI->SR & SPI_SR_BSY)
+			;
 
-			while (SPI->SR & SPI_SR_BSY)
-				;
+		SPI->DR = buff[i];
 
-			SPI->DR = buff[i];
+		while (!(SPI->SR & SPI_SR_RXNE))
+			;
 
-			while (!(SPI->SR & SPI_SR_RXNE))
-				;
+		while (SPI->SR & SPI_SR_BSY)
+			;
 
-			while (SPI->SR & SPI_SR_BSY)
-				;
-
-			buff[i] = SPI->DR;
-		}
+		buff[i] = SPI->DR;
 	}
 
 	return i;
@@ -228,11 +207,13 @@ int stm32_spi_of_init(struct spi_master *spi)
 		goto out;
 	}
 
+	spi->use_dma = 1;
+
 	/* XXX: make this based on device tree or deduced */
 	for (i = 0; i < 2; i++) {
 		spi->dma_stream[i].dir = DMA_M_P;
-		spi->dma_stream[i].mdata_size = DATA_SIZE_HALF_WORD;
-		spi->dma_stream[i].pdata_size = DATA_SIZE_HALF_WORD;
+		spi->dma_stream[i].mdata_size = DATA_SIZE_BYTE;
+		spi->dma_stream[i].pdata_size = DATA_SIZE_BYTE;
 		spi->dma_stream[i].mburst = INCR0;
 		spi->dma_stream[i].pburst = INCR0;
 		spi->dma_stream[i].use_fifo = 0;
@@ -276,6 +257,9 @@ int stm32_spi_init(struct device *device)
 
 	spi->spi_ops = &spi_ops;
 
+	if (spi->use_dma)
+		spi->spi_ops->write = stm32_spi_dma_write;
+
 	SPI->CR1 &= ~SPI_CR1_SPE;
 
 	SPI->CR1 |= (0x2 << 3);
@@ -286,11 +270,6 @@ int stm32_spi_init(struct device *device)
 	/* Handle slave selection via software */
 	SPI->CR1 |= SPI_CR1_SSM;
 	SPI->CR1 |= SPI_CR1_SSI;
-
-	SPI->CR1 |= SPI_CR1_BIDIOE;
-
-	SPI->CR2 |= SPI_CR2_TXEIE;
-	SPI->CR2 |= SPI_CR2_ERRIE;
 
 	SPI->CR1 |= SPI_CR1_SPE;
 
