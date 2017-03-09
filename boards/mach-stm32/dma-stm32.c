@@ -40,8 +40,8 @@
 
 struct __attribute__((packed)) dma_of {
 	unsigned int controller;
+	unsigned int stream;
 	unsigned int channel;
-	unsigned int line;
 	unsigned int dma_conf;
 	unsigned int dma_fifo_conf;
 };
@@ -164,7 +164,7 @@ static int stm32_dma_get_interrupt_flags(struct dma_stream *dma_stream)
 				mask |= DMA_HIFCR_CFEIF7;
 			break;
 		default:
-			error_printk("invalid channel number\r\n");
+			error_printk("invalid stream number\r\n");
 			mask = -EINVAL;
 			break;
 	}
@@ -220,7 +220,7 @@ int stm32_dma_enable(struct dma_stream *dma_stream)
 		return mask;
 	}
 
-	if (dma_stream->stream_num > 3 )
+	if (dma_stream->stream_num > 3)
 		DMA_BASE->HIFCR = mask;
 	else
 		DMA_BASE->LIFCR = mask;
@@ -337,8 +337,8 @@ int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device 
 		dma_ctrl = container_of(dev, struct dma_controller, dev);
 
 		dma_stream[i].dma = dma_ctrl;
+		dma_stream[i].stream_num = dmas[i].stream;
 		dma_stream[i].channel = dmas[i].channel;
-		dma_stream[i].stream_num = dmas[i].line;
 		dma_stream[i].minc = (dmas[i].dma_conf & DMA_OF_MINC_MASK);
 		dma_stream[i].pinc = (dmas[i].dma_conf & DMA_OF_PINC_MASK);
 		dma_stream[i].pincos = (dmas[i].dma_conf & DMA_OF_PINCOS_MASK);
