@@ -31,7 +31,7 @@ static struct list_node device_of_list;
 
 static void insert_of_device(struct device *dev)
 {
-	list_add_head(&device_of_list, &dev->next);
+	list_add_tail(&device_of_list, &dev->next);
 
 	device_of_count++;
 }
