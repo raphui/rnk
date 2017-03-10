@@ -75,8 +75,7 @@ static unsigned short stm32_spi_dma_write(struct spi_device *spidev, unsigned ch
 
 	stm32_dma_stream_init(dma);
 
-	stm32_dma_disable(dma);
-	dma_trans->src_addr = (unsigned int)&buff;
+	dma_trans->src_addr = (unsigned int)buff;
 	dma_trans->dest_addr = (unsigned int)&SPI->DR;
 	dma_trans->size = size;
 
