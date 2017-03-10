@@ -39,6 +39,7 @@ static char spi_buff[16] = {0x1, 0x2, 0x3, 0x4,
 
 void thread_a(void)
 {
+	int i;
 	int fd;
 	int ret;
 
@@ -72,10 +73,19 @@ void thread_a(void)
 		}
 
 		ret = write(fd, spi_buff, 16);
-		if (ret != 4) {
+		if (ret != 16) {
 			error_printk("failed to write spi buff\n");
 			break;
 		}
+
+		ret = read(fd, spi_buff, 16);
+		if (ret != 16) {
+			error_printk("failed to read spi buff\n");
+			break;
+		}
+
+		for (i = 0; i < 16; i++)
+			printk("spi_read[%d]: 0x%x\n", spi_buff[i]);
 	}
 }
 
