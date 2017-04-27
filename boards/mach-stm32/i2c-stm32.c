@@ -26,30 +26,23 @@
 #define I2C_MIN_SPEED	2
 #define I2C_MAX_SPEED	42
 
-static unsigned int i2c_bus_base[] = {
-	I2C1_BASE,
-	I2C2_BASE,
-	I2C3_BASE,
-};
-
 static int stm32_i2c_check_speed(unsigned int speed)
 {
 	int ret = -EINVAL;
 
-	if (speed => I2C_MIN_SPEED && speed <= I2C_MAX_SPEED)
+	if (speed >= I2C_MIN_SPEED && speed <= I2C_MAX_SPEED)
 		ret = 0;
 
 	return ret;
 }
 
-int stm32_i2c_init(struct i2c *i2c)
+int stm32_i2c_init(struct i2c_master *i2c)
 {
 	int ret = 0;
-	unsigned char bus_index = i2c->bus - 1;
-	unsigned int i2c_base = i2c_bus_base[bus_index];
-	I2C_TypeDef *I2C = (I2C_TypeDef *)i2c_base;
+	unsigned char bus_index = i2c->num - 1;
+	I2C_TypeDef *I2C = (I2C_TypeDef *)i2c->base_reg;
 
-	ret = stm32_rcc_enable_clk(i2c_base);
+	ret = stm32_rcc_enable_clk(i2c->base_reg);
 	if (ret < 0) {
 		error_printk("cannot enable I2C periph clock\n");
 		return ret;
@@ -66,12 +59,12 @@ int stm32_i2c_init(struct i2c *i2c)
 	return ret;
 
 disable_clk:
-	stm32_rcc_disable_clk(i2c_base);
+	stm32_rcc_disable_clk(i2c->base_reg);
 	return ret;
 }
 
 
-int stm32_spi_write(struct spi *spi, unsigned char *buff, unsigned int size)
+int stm32_i2c_write(struct i2c *i2c, unsigned char *buff, unsigned int size)
 {
 	int ret = 0;
 
@@ -80,7 +73,7 @@ int stm32_spi_write(struct spi *spi, unsigned char *buff, unsigned int size)
 }
 
 
-int stm32_spi_read(struct spi *spi, unsigned char *buff, unsigned int size)
+int stm32_i2c_read(struct i2c *i2c, unsigned char *buff, unsigned int size)
 {
 	int ret = 0;
 
