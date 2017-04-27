@@ -63,20 +63,20 @@ SECTIONS
 	__rnk_initcalls_start = .;
 	.rnk_initcalls : {
 		INITCALLS
-	} > rom
+	} > flash
 	__rnk_initcalls_end = .;
 
 
 	__rnk_exitcalls_start = .;
 	.rnk_exitcalls : {
 		EXITCALLS
-	} > rom
+	} > flash 
 	__rnk_exitcalls_end = .;
 
 	__rnk_ksym_start = .;
 	.rnk_ksym : {
 		KSYM
-	} > rom
+	} > flash
 	__rnk_ksym_end = .;
 
 	PROVIDE( flash_used_size = SIZEOF(.text) + SIZEOF(.data) + SIZEOF(.ARM.extab) + SIZEOF(.ARM.exidx) );
