@@ -26,7 +26,7 @@
 #include <spidev.h>
 #include <pio.h>
 
-static spidev_of_init(struct spidev_device *spi)
+static int spidev_of_init(struct spidev_device *spi)
 {
 	int offset;
 	int ret = 0;
