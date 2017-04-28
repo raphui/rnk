@@ -60,7 +60,7 @@ int open(const char *path, int flags)
 
 
 	} else {
-		error_printk("not more file descriptor left\n");
+		error_printk("no more file descriptor left\n");
 		ret = -EMFILE;
 	}
 
