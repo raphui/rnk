@@ -19,12 +19,11 @@ or
   
 then
   * make the boards config you wanted (take a look at: arch/arm/configs), for example: make stm32f429_disco_defconfig
-  * and then: make symbols-clean && make clean && make all && make symbols-make && make clean && make all (yes it is painful but it is needed for include symbol lookup table)
+  * and then: make clean && make
   * flash the kernel on the board & enjoy
 
 Current known bugs
 ------------------
 
-  * Building the kernel with symbols lookup table for using apps/ and quite painful since you need to build 2 times the kernel for : compile without the symbols / generate the symbols lookup array / compile with the symbols lookup array.
   * Scheduling algo needs to be improved on real applications.
   * Writing data in flash on stm32 boards are buggy.
