@@ -83,6 +83,8 @@ linker_files = rnk.lds
 dtb = rnk.dtb
 
 ifeq (${MAKELEVEL}, 0)
+all: conf kernel.img
+
 conf:
 	@@echo "CP mach-$(MACH)/board-$(FAMILY).h -> board.h"
 	@cp boards/mach-$(MACH)/board-$(FAMILY).h boards/board.h
@@ -93,8 +95,6 @@ conf:
 cscope:
 	@@echo "GEN " $@
 	@cscope -b -q -k -R
- 
-all: kernel.img
 
 kernel.elf: conf config.h
 	rm -f objects.lst
