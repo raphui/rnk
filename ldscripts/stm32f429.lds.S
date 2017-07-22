@@ -33,6 +33,10 @@ SECTIONS
         *(.text .text.* .gnu.linkonce.t.*)
         *(.glue_7t) *(.glue_7)
         *(.rodata .rodata* .gnu.linkonce.r.*)
+
+	. = ALIGN(4);
+	_etext = .;
+	PROVIDE(etext = .);
     } > rom
  
 #ifdef CONFIG_UNWIND
@@ -68,11 +72,8 @@ SECTIONS
    } > rom
    __rnk_ksym_end = .;
  
-    . = ALIGN(4);
-    _etext = .;
     _sidata = .;
- 
-    .data : AT (_etext)
+    .data : AT (_sidata)
     {
         _sdata = .;
         *(.data .data.*)

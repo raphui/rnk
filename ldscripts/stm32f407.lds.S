@@ -28,37 +28,12 @@ SECTIONS
 
 		. = ALIGN(4);
 		_etext = .;
-		_sidata = _etext;
 		PROVIDE(etext = .);   
 		_fini = . ;
 		*(.fini)
 
 	} >flash
 
-	.data : AT (_etext)
-	{
-		. = ALIGN(4);
-		_sdata = .;
-		*(.ramfunc .ramfunc.* .fastrun .fastrun.*)
-		*(.data .data.*)
-		*(.gnu.linkonce.d.*)
-		. = ALIGN(4);
-		_edata = .;
-	} >sram
-
-#ifdef CONFIG_UNWIND
-	.ARM.extab : AT (_edata)
-	{
-		*(.ARM.extab*)
-	} >flash
-
-	.ARM.exidx :
-	{
-		__exidx_start = .;
-		*(.ARM.exidx*)
-		__exidx_end = .;
-	} >flash
-#endif
 
 	__rnk_initcalls_start = .;
 	.rnk_initcalls : {
@@ -78,6 +53,33 @@ SECTIONS
 		KSYM
 	} > flash
 	__rnk_ksym_end = .;
+
+#ifdef CONFIG_UNWIND
+	.ARM.extab :
+	{
+		*(.ARM.extab*)
+	} >flash
+
+	.ARM.exidx :
+	{
+		__exidx_start = .;
+		*(.ARM.exidx*)
+		__exidx_end = .;
+	} >flash
+#endif
+
+	_sidata = .;
+	.data : AT (_sidata)
+	{
+		. = ALIGN(4);
+		_sdata = .;
+		*(.ramfunc .ramfunc.* .fastrun .fastrun.*)
+		*(.data .data.*)
+		*(.gnu.linkonce.d.*)
+		. = ALIGN(4);
+		_edata = .;
+	} >sram
+
 
 	PROVIDE( flash_used_size = SIZEOF(.text) + SIZEOF(.data) + SIZEOF(.ARM.extab) + SIZEOF(.ARM.exidx) );
 
