@@ -318,11 +318,4 @@
 			status = "okay";
 		};
 	};
-
-	conf
-	{
-		gpios =	<&gpioc 0x2D 0x20>,     /* IRQ PC13, input with pullup */
-				<&gpiob 0x1C 0x20>,     /* NCS PB12 */
-				<&gpioa 0x0C 0x20>;     /* DP PA12 */
-	};
 };

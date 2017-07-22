@@ -7,18 +7,4 @@
 		console = &usart3;
 	};
 
-	led
-	{
-		gpios = <&gpiob 0x014 2>,  // cs, PB0, output 0
-				<&gpiob 0x015 2>;  // reset, PA1, output 0
-	};
-
-	ahb1
-	{
-		flash: flash
-		{
-			ws = <2>;
-			mode = <0>;
-		};
-	};
 };
