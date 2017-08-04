@@ -44,8 +44,6 @@ static int __mutex_lock(struct mutex *mutex)
 	int ret = 0;
 	struct thread *current_thread = get_current_thread();
 
-	thread_lock(state);
-
 	if (mutex->lock) {
 		debug_printk("mutex already locked\r\n");
 		ret = -EDEADLOCK;
@@ -69,8 +67,6 @@ static int __mutex_lock(struct mutex *mutex)
 		mutex->waiting = 0;
 	}
 
-	thread_unlock(state);
-
 	return ret;
 }
 
@@ -87,6 +83,8 @@ void svc_mutex_lock(struct mutex *mutex)
 {
 	int ret;
 
+	thread_lock(state);
+
 	ret = __mutex_lock(mutex);
 	if (ret < 0) {
 		debug_printk("mutex_lock FAILED !\r\n");
@@ -94,6 +92,8 @@ void svc_mutex_lock(struct mutex *mutex)
 	} else {
 		debug_printk("mutex (%x) lock\r\n", mutex);
 	}
+
+	thread_unlock(state);
 }
 
 void mutex_lock(struct mutex *mutex)
