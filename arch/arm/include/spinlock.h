@@ -25,6 +25,11 @@
 #include <armv7m/system.h>
 #endif /* CONFIG_CPU_ARMV7M */
 
+#ifdef CONFIG_CPU_ARMV7A
+#include <armv7a/system.h>
+#endif /* CONFIG_CPU_ARMV7A */
+
+
 #define SPIN_LOCK_INITIAL_VALUE 0
 
 #define SPIN_LOCK_FLAG_IRQ                      0x40000000

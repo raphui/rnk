@@ -54,8 +54,16 @@ INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/tlsf
 endif
 
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
+
+ifeq ($(CONFIG_CPU_ARMV7A),y)
+ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -marm -mlittle-endian
+CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -marm -mlittle-endian -nostdlib -nostdinc -g $(INCLUDES)
+endif
+
+ifeq ($(CONFIG_CPU_ARMV7M),y)
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
 CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -nostdinc -g $(INCLUDES)
+endif
 
 ifeq ($(CONFIG_UNWIND),y)
 CFLAGS += -funwind-tables

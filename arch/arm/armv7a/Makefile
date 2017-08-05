@@ -3,7 +3,9 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
-subdirs-$(CONFIG_CPU_ARMV7A) += armv7a
-subdirs-$(CONFIG_CPU_ARMV7M) += armv7m
-subdirs-y += dts
-subdirs-y += lib
+subdirs-y += kernel
+
+obj-y := arch.o
+obj-y += aeabifuncs.o
+obj-y += div0.o
+obj-y += exceptions.o
