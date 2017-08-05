@@ -19,6 +19,10 @@
 #ifndef RNK_LDS_H
 #define RNK_LDS_H
 
+#ifdef CONFIG_TEXT_BASE
+#define TEXT_BASE	CONFIG_TEXT_BASE
+#endif /* CONFIG_TEXT_BASE */
+
 #define INITCALLS			\
 	KEEP(*(.initcall.0))			\
 	KEEP(*(.initcall.1))			\

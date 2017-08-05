@@ -3,5 +3,4 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
-subdirs-$(CONFIG_MACH_QEMU) += mach-qemu
-subdirs-$(CONFIG_MACH_STM32) += mach-stm32
+obj-$(CONFIG_QEMU_VIRT) := qemu-virt.o
