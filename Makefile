@@ -9,8 +9,17 @@ ifeq ($(CONFIG_CPU_ARMV7M),y)
 ARMV=armv7m
 endif
 
+ifeq ($(CONFIG_CPU_ARMV7A),y)
+ARMV=armv7a
+endif
+
 ifeq ($(CONFIG_MACH_STM32),y)
 MACH=stm32
+endif
+
+ifeq ($(CONFIG_MACH_QEMU),y)
+MACH=qemu
+FAMILY=qemu
 endif
 
 ifeq ($(CONFIG_STM32F401),y)
@@ -39,6 +48,10 @@ endif
 
 ifeq ($(CONFIG_CPU_ARM_CORTEX_M7),y)
 MCPU=cortex-m7
+endif
+
+ifeq ($(CONFIG_CPU_ARM_CORTEX_A5),y)
+MCPU=cortex-a5
 endif
 
 KCONFIG_AUTOHEADER=config.h
