@@ -31,7 +31,7 @@ build = echo "$1 $@"
 
 %.o: %.S
 	$(call build,CC)
-	$(CC) $(CFLAGS) -c $(firstword $^) -o $@
+	$(CC) $(ASFLAGS) -c $(firstword $^) -o $@
 
 %.lds: %.lds.S
 	$(call build,LDS)
