@@ -141,6 +141,8 @@ extern void *__bss_stop;
 
 extern void arm_sys_mode(void);
 
+extern int arch_timer_init(void);
+
 #endif
 
 #endif /* ARMV7A_SYSTEM_H */

@@ -50,7 +50,7 @@ void arch_init(void)
 void arch_init_tick(void)
 {
 #ifdef CONFIG_MACH_HAVE_GENERIC_TIMER
-
+	arch_timer_init();
 #endif
 }
 
