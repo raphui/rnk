@@ -1,5 +1,3 @@
-tar rem 127.0.0.1:2331
-file kernel.elf
 define dump_calls
 	set $start=__rnk_initcalls_start
 	while ($start < __rnk_initcalls_end)
@@ -7,3 +5,14 @@ define dump_calls
 		set $start=$start+4
 	end
 end
+
+define enable_swo
+	monitor SWO EnableTarget 0 64000 1 0
+end
+
+define enable_semihosting
+	monitor semihosting enable
+end
+
+tar rem 127.0.0.1:2331
+file kernel.elf
