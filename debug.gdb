@@ -14,5 +14,11 @@ define enable_semihosting
 	monitor semihosting enable
 end
 
+define load_kernel
+	load kernel.elf
+	moni reset 0
+	c
+end
+
 tar rem 127.0.0.1:2331
 file kernel.elf
