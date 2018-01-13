@@ -10,6 +10,7 @@ choice
 
     config QEMU_VIRT
         bool "QEMU virt"
+	select MACH_HAVE_GENERIC_TIMER
 
 endchoice
 

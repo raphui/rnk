@@ -22,6 +22,11 @@ MACH=qemu
 FAMILY=qemu
 endif
 
+ifeq ($(CONFIG_AT91SAMA5D3),y)
+MACH=at91
+FAMILY=sama5d3
+endif
+
 ifeq ($(CONFIG_STM32F401),y)
 SOC=stm32f401
 FAMILY=stm32f4xx

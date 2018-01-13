@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <fdtparse.h>
 #include <init.h>
+#include <errno.h>
 
 static int device_count = 0;
 static int device_of_count = 0;
@@ -122,6 +123,9 @@ int device_of_probe(void)
 	char *path;
 	int listlen, compatlen, statuslen;
 	struct device *dev = NULL;
+
+	if (!device_of_count)
+		return -ENXIO;
 
 	do {
 		offset = fdt_next_node(blob, offset, NULL);

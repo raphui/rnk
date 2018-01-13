@@ -3,17 +3,6 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
-menu "AT91 configuration"
-
-choice
-    prompt "SoC"
-
-    config AT91SAMA5D3
-        bool "SAMA5D3"
-
-endchoice
-
-config TEXT_BASE
-	hex "Kernel location in memory"
-
-endmenu
+obj-$(CONFIG_AT91SAMA5D3) := sama5d3.o
+obj-y += aic-at91.o
+obj-y += pmc-at91.o

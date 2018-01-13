@@ -34,15 +34,15 @@ extern exitcall_t __rnk_exitcalls_start[], __rnk_exitcalls_end[];
 
 void loading_thread(void)
 {
-	int ret;
-
-	printk("starting thread K\r\n");
-
-	ret = elf_exec((char *)0x08050000, 220417, 0x08050000);
-	if (ret < 0)
-		printk("failed to exec elf\r\n");
-	else
-		printk("efl execution done\r\n");
+//	int ret;
+//
+//	printk("starting thread K\r\n");
+//
+//	ret = elf_exec((char *)0x08050000, 220417, 0x08050000);
+//	if (ret < 0)
+//		printk("failed to exec elf\r\n");
+//	else
+//		printk("efl execution done\r\n");
 
 	while (1)
 		;

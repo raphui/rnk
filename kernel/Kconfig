@@ -29,6 +29,7 @@ config THREAD_QUANTUM
 	int "THREAD quantum"
 
 config SW_ISR_TABLE
+	depends on CPU_ARMV7M
 	bool "Enable use of software managed isr table"
 
 config HR_TIMER

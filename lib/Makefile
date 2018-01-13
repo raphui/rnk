@@ -5,4 +5,4 @@
 
 obj-y += stdio.o
 obj-y += string.o
-obj-y += unistd.o
+#obj-y += unistd.o

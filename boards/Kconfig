@@ -5,6 +5,9 @@
 
 menu "Board configuration"
 
+config	MACH_HAVE_GENERIC_TIMER
+	bool
+
 choice
     prompt "Machine"
 

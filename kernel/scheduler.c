@@ -41,7 +41,6 @@ core_initcall(schedule_init);
 void start_schedule(void)
 {
 	arch_init_tick();
-	arch_request_sched();
 }
 
 void schedule(void)
