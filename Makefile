@@ -88,9 +88,9 @@ all: conf kernel.img
 conf:
 	@@echo "CP mach-$(MACH)/board-$(FAMILY).h -> board.h"
 	@cp boards/mach-$(MACH)/board-$(FAMILY).h boards/board.h
-	@ln -s $(KERNEL_BASE)/boards/mach-$(MACH)/include $(KERNEL_BASE)/include/mach
-	@ln -s $(KERNEL_BASE)/arch/arm/include $(KERNEL_BASE)/include/arch
-	@ln -s $(KERNEL_BASE)/arch/arm/$(ARMV)/include $(KERNEL_BASE)/include/$(ARMV)
+	@ln -f -s $(KERNEL_BASE)/boards/mach-$(MACH)/include $(KERNEL_BASE)/include/mach
+	@ln -f -s $(KERNEL_BASE)/arch/arm/include $(KERNEL_BASE)/include/arch
+	@ln -f -s $(KERNEL_BASE)/arch/arm/$(ARMV)/include $(KERNEL_BASE)/include/$(ARMV)
 
 cscope:
 	@@echo "GEN " $@
