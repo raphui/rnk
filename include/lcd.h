@@ -46,7 +46,6 @@ struct lcd_bus {
 struct lcd_operations
 {
 	int (*configure)(struct lcd *lcd);
-	void (*init_gpio)(void);
 };
 
 struct lcd *lcd_get_device(void);

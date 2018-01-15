@@ -27,11 +27,6 @@ static int dev_count = 0;
 static char dev_prefix[10] = "/dev/fb";
 static struct list_node lcd_device_list;
 
-void lcd_init_gpio(void)
-{
-//	lcd_ops.init_gpio();
-}
-
 struct lcd *lcd_get_device(void)
 {
 	struct lcd *lcddev = NULL;

@@ -219,46 +219,8 @@ err:
 	return ret;
 }
 
-static void stm32_ltdc_init_gpio(void)
-{
-	stm32_pio_set_alternate(GPIOA_BASE, 3, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOA_BASE, 4, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOA_BASE, 6, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOA_BASE, 11, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOA_BASE, 12, GPIO_AF_LTDC);
-
-	stm32_pio_set_alternate(GPIOB_BASE, 0, GPIO_AF_LCD);
-	stm32_pio_set_alternate(GPIOB_BASE, 1, GPIO_AF_LCD);
-	stm32_pio_set_alternate(GPIOB_BASE, 8, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOB_BASE, 9, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOB_BASE, 10, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOB_BASE, 11, GPIO_AF_LTDC);
-
-	stm32_pio_set_alternate(GPIOC_BASE, 6, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOC_BASE, 7, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOC_BASE, 10, GPIO_AF_LTDC);
-
-	stm32_pio_set_alternate(GPIOD_BASE, 3, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOD_BASE, 6, GPIO_AF_LTDC);
-
-	stm32_pio_set_alternate(GPIOF_BASE, 10, GPIO_AF_LTDC);
-
-	stm32_pio_set_alternate(GPIOG_BASE, 6, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOG_BASE, 7, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOG_BASE, 10, GPIO_AF_LCD);
-	stm32_pio_set_alternate(GPIOG_BASE, 11, GPIO_AF_LTDC);
-	stm32_pio_set_alternate(GPIOG_BASE, 12, GPIO_AF_LCD);
-
-	stm32_pio_set_output(GPIOD_BASE, 13, 0);
-	stm32_pio_set_output(GPIOD_BASE, 12, 1);
-	stm32_pio_set_output(GPIOC_BASE, 2, 0);
-
-	stm32_pio_set_value(GPIOC_BASE, 2);
-}
-
 struct lcd_operations lcd_ops = {
 	.configure = stm32_ltdc_configure,
-	.init_gpio = stm32_ltdc_init_gpio,
 };
 
 struct device stm32_ltdc_driver = {
