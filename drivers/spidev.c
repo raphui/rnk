@@ -26,19 +26,25 @@
 #include <spidev.h>
 #include <pio.h>
 
-static int spidev_of_init(struct spidev_device *spi)
+static int spidev_of_init(struct spidev_device *spi, int offset)
 {
-	int offset;
 	int ret = 0;
-	const void *fdt_blob = fdtparse_get_blob();
-
-	offset = fdt_path_offset(fdt_blob, spi->dev.of_path);
-	if (offset < 0) {
-		ret = -ENOENT;
-		goto out;
-	}
 
 	ret = pio_of_configure(offset);
+	if (ret < 0) {
+		error_printk("failed to init gpio skipping error\n");
+		ret = 0;
+	}
+
+	ret = pio_of_configure_name(offset, "cs-gpio");
+	if (ret < 0)
+		goto out;
+
+	ret = pio_of_get(offset, "cs-gpio", &spi->spi->cs_port, &spi->spi->cs_pin);
+	if (ret < 0) {
+		error_printk("failed to init cs gpio\n");
+		goto out;
+	}
 
 out:
 	return ret;
@@ -66,10 +72,17 @@ int spidev_init(struct device *dev)
 		goto free_spidev;
 	}
 
+
 	spi = spi_new_device_with_master(offset);
 	if (!spi) {
 		error_printk("failed to retrive new spi device\n");
 		ret = -EIO;
+		goto free_spidev;
+	}
+
+	ret = spidev_of_init(spidev, offset);
+	if (ret < 0) {
+		error_printk("failed to init fdt data\n");
 		goto free_spidev;
 	}
 
