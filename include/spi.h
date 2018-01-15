@@ -28,7 +28,8 @@
 
 struct spi_device {
 	struct spi_master *master;
-	unsigned int cs;
+	unsigned int cs_port;
+	unsigned int cs_pin;
 	unsigned int speed;
 	struct device dev;
 	struct list_node node;
