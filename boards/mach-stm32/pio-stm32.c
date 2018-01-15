@@ -120,7 +120,7 @@ static void stm32_pio_disable_interrupt(unsigned int port, unsigned int mask)
 {
 }
 
-int stm32_pio_of_configure(int fdt_offset)
+int stm32_pio_of_configure_name(int fdt_offset, char *name)
 {
 	const void *fdt_blob = fdtparse_get_blob();
 	const struct fdt_property *prop;
@@ -134,7 +134,7 @@ int stm32_pio_of_configure(int fdt_offset)
 	int len, num, i;
 	int parent_phandle, parent_offset;
 
-	prop = fdt_get_property(fdt_blob, fdt_offset, "gpios", &len);
+	prop = fdt_get_property(fdt_blob, fdt_offset, name, &len);
 	if (len < 0) {
 		return len;
 	}
@@ -153,7 +153,7 @@ int stm32_pio_of_configure(int fdt_offset)
 		gpio = fdt32_to_cpu(cell[1]);
 		flags = fdt32_to_cpu(cell[2]);
 
-		gpio_num = gpio & 0xFF;	
+		gpio_num = gpio & 0xFF;
 
 		if (options->mode)
 			stm32_pio_set_output(base, gpio_num, options->pull);
@@ -176,6 +176,47 @@ int stm32_pio_of_configure(int fdt_offset)
 	return num;
 }
 
+int stm32_pio_of_configure(int fdt_offset)
+{
+	return stm32_pio_of_configure_name(fdt_offset, "gpios");
+}
+
+int stm32_pio_of_get(int fdt_offset, char *name, unsigned int *port, unsigned int *pin)
+{
+	const void *fdt_blob = fdtparse_get_blob();
+	const struct fdt_property *prop;
+	fdt32_t *cell;
+	unsigned int base;
+	int gpio;
+	int gpio_num;
+	int len, num;
+	int parent_phandle, parent_offset;
+
+	prop = fdt_get_property(fdt_blob, fdt_offset, name, &len);
+	if (len < 0) {
+		return len;
+	}
+
+	num = len / (3 * sizeof(fdt32_t));
+	if (num > 1)
+		return -ENOTSUPP;
+
+	cell = (fdt32_t *)prop->data;
+
+	parent_phandle = fdt32_to_cpu(cell[0]);
+	parent_offset = fdt_node_offset_by_phandle(fdt_blob, parent_phandle);
+
+	base = (unsigned int)fdtparse_get_addr32(parent_offset, "reg");
+	gpio = fdt32_to_cpu(cell[1]);
+
+	gpio_num = gpio & 0xFF;
+
+	*port = base;
+	*pin = gpio_num;
+
+	return 0;
+}
+
 struct pio_operations pio_ops = {
 	.set_output = stm32_pio_set_output,
 	.set_input = stm32_pio_set_input,
@@ -187,4 +228,6 @@ struct pio_operations pio_ops = {
 	.enable_interrupt = stm32_pio_enable_interrupt,
 	.disable_interrupt = stm32_pio_disable_interrupt,
 	.of_configure = stm32_pio_of_configure,
+	.of_configure_name = stm32_pio_of_configure_name,
+	.of_get = stm32_pio_of_get,
 };

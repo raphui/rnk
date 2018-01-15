@@ -81,6 +81,16 @@ int pio_of_configure(int fdt_offset)
 	return pio_ops.of_configure(fdt_offset);
 }
 
+int pio_of_configure_name(int fdt_offset, char *name)
+{
+	return pio_ops.of_configure_name(fdt_offset, name);
+}
+
+int pio_of_get(int fdt_offset, char *name, unsigned int *port, unsigned int *pin)
+{
+	return pio_ops.of_get(fdt_offset, name, port, pin);
+}
+
 int pio_init(struct pio *pio)
 {
 	int ret = 0;

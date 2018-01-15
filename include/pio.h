@@ -36,6 +36,8 @@ struct pio_operations
 	void (*enable_interrupt)(unsigned int port, unsigned int mask);
 	void (*disable_interrupt)(unsigned int port, unsigned int mask);
 	int (*of_configure)(int fdt_offset);
+	int (*of_configure_name)(int fdt_offset, char *name);
+	int (*of_get)(int fdt_offset, char *name, unsigned int *port, unsigned int *pin);
 };
 
 struct pio {
@@ -54,5 +56,7 @@ int pio_request_interrupt(unsigned int port, unsigned int mask, void (*handler)(
 void pio_enable_interrupt(unsigned int port, unsigned int mask);
 void pio_disable_interrupt(unsigned int port, unsigned int mask);
 int pio_of_configure(int fdt_offset);
+int pio_of_configure_name(int fdt_offset, char *name);
+int pio_of_get(int fdt_offset, char *name, unsigned int *port, unsigned int *pin);
 
 #endif /* PIO_H */
