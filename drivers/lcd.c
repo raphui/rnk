@@ -127,6 +127,8 @@ int lcd_init(void)
 		goto failed_out;
 	}
 
+	list_initialize(&lcd_device_list);
+
 	return ret;
 
 failed_out:
