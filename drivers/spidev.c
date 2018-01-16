@@ -72,13 +72,14 @@ int spidev_init(struct device *dev)
 		goto free_spidev;
 	}
 
-
 	spi = spi_new_device_with_master(offset);
 	if (!spi) {
 		error_printk("failed to retrive new spi device\n");
 		ret = -EIO;
 		goto free_spidev;
 	}
+
+	spidev->spi = spi;
 
 	ret = spidev_of_init(spidev, offset);
 	if (ret < 0) {
@@ -91,8 +92,6 @@ int spidev_init(struct device *dev)
 		error_printk("failed to register spi device\n");
 		goto free_spi;
 	}
-
-	spidev->spi = spi;
 
 	return 0;
 

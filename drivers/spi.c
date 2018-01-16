@@ -23,6 +23,7 @@
 #include <utils.h>
 #include <init.h>
 #include <fdtparse.h>
+#include <pio.h>
 
 static int dev_count = 0;
 static int master_count = 0;
@@ -39,7 +40,11 @@ static int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	mutex_lock(&spi->master->spi_mutex);
 
+	pio_clear_value(spi->cs_port, spi->cs_pin);
+
 	ret = spi->master->spi_ops->write(spi, buff, size);
+
+	pio_set_value(spi->cs_port, spi->cs_pin);
 
 	mutex_unlock(&spi->master->spi_mutex);
 
@@ -55,7 +60,11 @@ static int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	mutex_lock(&spi->master->spi_mutex);
 
+	pio_clear_value(spi->cs_port, spi->cs_pin);
+
 	ret = spi->master->spi_ops->read(spi, buff, size);
+
+	pio_set_value(spi->cs_port, spi->cs_pin);
 
 	mutex_unlock(&spi->master->spi_mutex);
 
@@ -70,6 +79,8 @@ int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size,
 
 	mutex_lock(&spi->master->spi_mutex);
 
+	pio_clear_value(spi->cs_port, spi->cs_pin);
+
 	if (direction == SPI_TRANSFER_READ)
 		ret = spi_read(&spi->dev, buff, size);
 	else if (direction == SPI_TRANSFER_WRITE)
@@ -78,6 +89,8 @@ int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size,
 		error_printk("invalid spi transfer direction\n");
 		ret = -EINVAL;
 	}
+
+	pio_set_value(spi->cs_port, spi->cs_pin);
 
 	mutex_unlock(&spi->master->spi_mutex);
 
