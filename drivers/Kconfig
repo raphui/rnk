@@ -8,21 +8,26 @@ menu "Drivers configuration"
 config IRQ_SUBSYS
 	bool "IRQ subsystem driver"
 
+config LCD_SUBSYS
+	bool "LCD subsystem driver"
+
 config I2C_SUBSYS
 	bool "I2C subsystem driver"
 
 config SPI_SUBSYS
 	bool "SPI subsystem driver"
 
+config AT45DB
+	depends on SPI_SUBSYS
+	bool "NOR flash driver for AT45DB"
+
 config ILI9341
+	depends on SPI_SUBSYS && LCD_SUBSYS
 	bool "TFT driver for ILI9341"
 
 config ILI9341_FRAME_BUFFER
 	depends on ILI9341
 	hex "Address of the frame buffer"
-
-config LCD_SUBSYS
-	bool "LCD subsystem driver"
 
 config TIMER_SUBSYS
 	bool "Timer subsystem driver"
