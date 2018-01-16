@@ -29,6 +29,9 @@
 #define GPIO_OSPEEDR(pin)		(3 << (pin * 2))
 #define GPIO_PUPDR_PULLUP(pin)		(1 << (pin * 2))
 
+#define GPIO_OUTPUT_TYPE_PP	0
+#define GPIO_OUTPUT_TYPE_OD	1
+
 struct gpio_options
 {
 	unsigned char val:1;			/* 0: low, 1: high */
@@ -63,6 +66,17 @@ void stm32_pio_set_output(unsigned int port, unsigned int mask, int pull_up)
 		base->PUPDR |= GPIO_PUPDR_PULLUP(mask);
 	else
 		base->PUPDR &= ~(GPIO_PUPDR_PULLUP(mask));
+}
+
+static void stm32_pio_set_output_type(unsigned int port, unsigned int mask, int type)
+{
+	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
+
+	if (type == GPIO_OUTPUT_TYPE_OD)
+		base->OTYPER |= (1 << mask);
+	else if (type == GPIO_OUTPUT_TYPE_PP)
+		base->OTYPER &= ~(1 << mask);
+
 }
 
 void stm32_pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter)
@@ -158,19 +172,17 @@ int stm32_pio_of_configure_name(int fdt_offset, char *name)
 		if (options->mode)
 			stm32_pio_set_output(base, gpio_num, options->pull);
 
-		if(gpio & 0xF00) {
+		if (gpio & 0xF00) {
 			alt_func = (gpio >> 8) & 0xF;
 			stm32_pio_set_alternate(base, gpio_num, alt_func);
 		} else {
-			if(options->val)
+			if (options->val)
 				stm32_pio_set_value(base, gpio_num);
 			else
 				stm32_pio_clear_value(base, gpio_num);
 		}
 		
-		if(options->edge)
-		{
-		}
+		stm32_pio_set_output_type(base, gpio_num, options->output);
 	}
 
 	return num;
