@@ -61,7 +61,7 @@ static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long r
 	return best_pres;
 }
 
-static unsigned short stm32_spi_dma_write(struct spi_device *spidev, unsigned char *buff, unsigned int size)
+static int stm32_spi_dma_write(struct spi_device *spidev, unsigned char *buff, unsigned int size)
 {
 	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
@@ -88,10 +88,12 @@ static unsigned short stm32_spi_dma_write(struct spi_device *spidev, unsigned ch
 
 	stm32_dma_enable(dma);
 
+	sem_wait(&spidev->sem);
+
 	return ret;
 }
 
-static unsigned short stm32_spi_dma_read(struct spi_device *spidev, unsigned char *buff, unsigned int size)
+static int stm32_spi_dma_read(struct spi_device *spidev, unsigned char *buff, unsigned int size)
 {
 	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
@@ -121,12 +123,11 @@ static unsigned short stm32_spi_dma_read(struct spi_device *spidev, unsigned cha
 	return ret;
 }
 
-int stm32_spi_write(struct spi_device *spidev, unsigned char *buff, unsigned int size)
+static int stm32_spi_write(struct spi_device *spidev, unsigned char *buff, unsigned int size)
 {
 	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 	int i;
-	int ret;
 
 	for (i = 0; i < size; i++) {
 		while (!(SPI->SR & SPI_SR_TXE))
@@ -149,7 +150,7 @@ int stm32_spi_write(struct spi_device *spidev, unsigned char *buff, unsigned int
 	return i;
 }
 
-int stm32_spi_read(struct spi_device *spidev, unsigned char *buff, unsigned int size)
+static int stm32_spi_read(struct spi_device *spidev, unsigned char *buff, unsigned int size)
 {
 	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
