@@ -152,6 +152,7 @@ int device_of_probe(void)
 						continue;
 					}
 
+					memset(dev->of_path, 0, sizeof(dev->of_path));
 					memcpy(dev->of_path, path, strlen(path));
 
 					if (available)
