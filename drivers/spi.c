@@ -118,13 +118,13 @@ struct spi_device *spi_new_device_with_master(int fdt_offset)
 {
 	int ret;
 	int parent_offset;
-	char fdt_path[64];
+	char *fdt_path = NULL;
 	struct device *dev;
 	struct spi_master *spi;
 	struct spi_device *spidev = NULL;
 	const void *fdt_blob = fdtparse_get_blob();
 
-	spidev = (struct spi_device *)kmalloc(sizeof(struct spi_device));
+	spidev = spi_new_device();
 	if (!spidev) {
 		error_printk("cannot allocate spi device\n");
 		goto err;
@@ -138,10 +138,8 @@ struct spi_device *spi_new_device_with_master(int fdt_offset)
 		goto err;
 	}
 
-	memset(fdt_path, 0, 64 * sizeof(char));
-
-	ret = fdt_get_path(fdt_blob, parent_offset, fdt_path, 64);
-	if (ret < 0) {
+	fdt_path = fdtparse_get_path(parent_offset);
+	if (!fdt_path) {
 		error_printk("failed to fdt path of spi device parent node\n");
 		goto err;
 	}
@@ -155,8 +153,6 @@ struct spi_device *spi_new_device_with_master(int fdt_offset)
 	spi = container_of(dev, struct spi_master, dev);
 
 	spidev->master = spi;
-
-	dev_count++;
 
 	return spidev;
 
