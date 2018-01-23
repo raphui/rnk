@@ -22,12 +22,14 @@
 #include <dma.h>
 #include <list.h>
 #include <mutex.h>
+#include <semaphore.h>
 
 #define SPI_TRANSFER_READ	0
 #define SPI_TRANSFER_WRITE	1
 
 struct spi_device {
 	struct spi_master *master;
+	struct semaphore sem;
 	unsigned int cs_port;
 	unsigned int cs_pin;
 	unsigned int speed;

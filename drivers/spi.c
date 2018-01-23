@@ -109,6 +109,8 @@ struct spi_device *spi_new_device(void)
 
 	memset(spidev, 0, sizeof(struct spi_device));
 
+	sem_init(&spidev->sem, 1);
+
 	dev_count++;
 
 	return spidev;
