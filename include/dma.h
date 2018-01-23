@@ -51,6 +51,7 @@ struct dma_stream {
 	unsigned int priority;
 	unsigned int irq;
 	void (*handler)(struct device *dev);
+	void *arg;
 	struct dma_controller *dma;
 };
 

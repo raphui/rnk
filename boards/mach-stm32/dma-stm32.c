@@ -205,6 +205,8 @@ static void stm32_dma_isr(void *arg)
 		dma_base->HIFCR |= flags;
 	else
 		dma_base->LIFCR |= flags;
+
+	stream->handler(stream->arg);
 }
 
 int stm32_dma_transfer(struct dma_stream *dma_stream, struct dma_transfer *dma_trans)
@@ -322,7 +324,7 @@ struct dma_operations dma_ops = {
 	.disable = stm32_dma_disable,
 };
 
-int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device *dev), struct dma_stream *dma_stream, int size)
+int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device *dev), void *arg, struct dma_stream *dma_stream, int size)
 {
 	int i;
 	int parent_phandle, parent_offset;
@@ -380,6 +382,7 @@ int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device 
 		dma_stream[i].pincos = (dmas[i].dma_conf & DMA_OF_PINCOS_MASK);
 		dma_stream[i].priority = (dmas[i].dma_conf & DMA_OF_PRIO_MASK);
 		dma_stream[i].handler = handler;
+		dma_stream[i].arg = arg;
 		dma_stream[i].irq = stm32_dma_get_nvic_number(&dma_stream[i]);
 	}
 
