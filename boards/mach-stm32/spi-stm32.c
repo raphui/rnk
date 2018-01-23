@@ -229,7 +229,7 @@ int stm32_spi_of_init(struct spi_master *spi)
 		goto out;
 	}
 
-	ret = stm32_dma_stream_of_configure(offset, NULL, spi->dma_stream, 2);
+	ret = stm32_dma_stream_of_configure(offset, stm32_spi_isr, spi, spi->dma_stream, 2);
 	if (ret < 0) {
 		error_printk("failed to retrieve spi dma conf, switching to polling\n");
 		spi->use_dma = 0;
