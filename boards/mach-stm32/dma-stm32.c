@@ -340,16 +340,16 @@ int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device 
 		goto err_malloc;
 	}
 
-	dmas = (struct dma_of *)kmalloc(2 * sizeof(struct dma_of));
+	dmas = (struct dma_of *)kmalloc(size * sizeof(struct dma_of));
 	if (!dmas) {
 		error_printk("failed to allocate temp dma_of\n");
 		ret = -ENOMEM;
 		goto err_malloc;
 	}
 
-	memset(dmas, 0, 2 * sizeof(struct dma_of));
+	memset(dmas, 0, size * sizeof(struct dma_of));
 
-	ret = fdtparse_get_u32_array(fdt_offset, "dmas", (unsigned int *)dmas, 2 * sizeof(struct dma_of));
+	ret = fdtparse_get_u32_array(fdt_offset, "dmas", (unsigned int *)dmas, size * sizeof(struct dma_of));
 	if (ret < 0)
 		goto err;
 
