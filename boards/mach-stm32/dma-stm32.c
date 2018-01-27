@@ -386,7 +386,6 @@ int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device 
 		dma_stream[i].irq = stm32_dma_get_nvic_number(&dma_stream[i]);
 	}
 
-	return ret;
 err:
 	kfree(dmas);
 err_malloc:
