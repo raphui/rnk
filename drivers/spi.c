@@ -27,7 +27,7 @@
 
 static int dev_count = 0;
 static int master_count = 0;
-static char dev_prefix[10] = "/dev/spi";
+static char *dev_prefix = "/dev/spi";
 static struct list_node spi_device_list;
 static struct list_node spi_master_list;
 
@@ -193,14 +193,20 @@ int spi_remove_device(struct spi_device *spi)
 int spi_register_device(struct spi_device *spi)
 {
 	int ret = 0;
-	char tmp[10] = {0};
+	char *tmp = NULL;
+	int size = strlen(dev_prefix) + 2;
 
-	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
+	tmp = (char *)kmalloc(size);
+
+	memset(tmp, 0, size);
+
+	memcpy(tmp, dev_prefix, strlen(dev_prefix));
 	
 	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + dev_count;
+	tmp[strlen(dev_prefix)] = 0x30 + dev_count;
+	tmp[strlen(dev_prefix) + 1] = 0;
 
-	memcpy(spi->dev.name, tmp, sizeof(tmp));
+	memcpy(spi->dev.name, tmp, strlen(tmp));
 
 	spi->dev.read = spi_read;
 	spi->dev.write = spi_write;
@@ -210,6 +216,8 @@ int spi_register_device(struct spi_device *spi)
 	ret = device_register(&spi->dev);
 	if (ret < 0)
 		error_printk("failed to register spi device\n");
+
+	kfree(tmp);
 
 	return ret;
 }
