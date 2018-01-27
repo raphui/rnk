@@ -132,8 +132,6 @@ struct spi_device *spi_new_device_with_master(int fdt_offset)
 		goto err;
 	}
 
-	memset(spidev, 0, sizeof(struct spi_device));
-
 	parent_offset = fdt_parent_offset(fdt_blob, fdt_offset);
 	if (parent_offset < 0) {
 		error_printk("failed to retrive spi master for this spi device\n");
