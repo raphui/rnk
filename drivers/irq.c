@@ -62,29 +62,9 @@ int irq_request(unsigned int irq, void (*handler)(void *), void *arg)
 int irq_init(void)
 {
 	int ret = 0;
-	struct irq *irq = NULL;
-
-	irq = (struct irq *)kmalloc(sizeof(struct irq));
-	if (!irq) {
-		error_printk("cannot allocate irq\n");
-		return -ENOMEM;
-	}
-
-	irq->num_line = CONFIG_NUM_IRQS;
-
-	ret = device_register(&irq->dev);
-	if (ret < 0) {
-		error_printk("failed to register device\n");
-		ret = -ENOMEM;
-		goto failed_out;
-	}
 
 	vector_set_isr_wrapper(&irq_action);
 
-	return ret;
-
-failed_out:
-	kfree(irq);
 	return ret;
 }
 coredevice_initcall(irq_init);
