@@ -236,28 +236,10 @@ int timer_register(struct timer *timer)
 int timer_init(void)
 {
 	int ret = 0;
-	struct timer_device *timer_dev = NULL;
-
-	timer_dev = (struct timer_device *)kmalloc(sizeof(struct timer_device));
-	if (!timer_dev) {
-		error_printk("cannot allocate timer_device\n");
-		return -ENOMEM;
-	}
-
-	ret = device_register(&timer_dev->dev);
-	if (ret < 0) {
-		error_printk("failed to register device\n");
-		ret = -ENOMEM;
-		goto failed_out;
-	}
 
 	mutex_init(&timer_mutex);
 	list_initialize(&timer_soft_list);
 
-	return ret;
-
-failed_out:
-	kfree(timer_dev);
 	return ret;
 }
 device_initcall(timer_init);
