@@ -112,27 +112,9 @@ failed_out:
 int lcd_init(void)
 {
 	int ret = 0;
-	struct lcd_bus *bus = NULL;
-
-	bus = (struct lcd_bus *)kmalloc(sizeof(struct lcd_bus));
-	if (!bus) {
-		error_printk("cannot allocate lcd bus\n");
-		return -ENOMEM;
-	}
-
-	ret = device_register(&bus->dev);
-	if (ret < 0) {
-		error_printk("failed to register bus\n");
-		ret = -ENOMEM;
-		goto failed_out;
-	}
 
 	list_initialize(&lcd_device_list);
 
-	return ret;
-
-failed_out:
-	kfree(bus);
 	return ret;
 }
 coredevice_initcall(lcd_init);
