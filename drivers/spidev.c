@@ -23,10 +23,9 @@
 #include <utils.h>
 #include <init.h>
 #include <fdtparse.h>
-#include <spidev.h>
 #include <pio.h>
 
-static int spidev_of_init(struct spidev_device *spi, int offset)
+static int spidev_of_init(struct spi_device *spi, int offset)
 {
 	int ret = 0;
 
@@ -40,7 +39,7 @@ static int spidev_of_init(struct spidev_device *spi, int offset)
 	if (ret < 0)
 		goto out;
 
-	ret = pio_of_get(offset, "cs-gpio", &spi->spi->cs_port, &spi->spi->cs_pin);
+	ret = pio_of_get(offset, "cs-gpio", &spi->cs_port, &spi->cs_pin);
 	if (ret < 0) {
 		error_printk("failed to init cs gpio\n");
 		goto out;
@@ -54,37 +53,28 @@ int spidev_init(struct device *dev)
 {
 	int offset;
 	int ret = 0;
-	struct spidev_device *spidev = NULL;
 	struct spi_device *spi = NULL;
 	const void *fdt_blob = fdtparse_get_blob();
 
-	spidev = (struct spidev_device *)kmalloc(sizeof(struct spidev_device));
-	if (!spidev) {
-		error_printk("cannot allocate spidev device\n");
-		return -ENOMEM;
-	}
-
-	memcpy(&spidev->dev, dev, sizeof(struct device));
-
-	offset = fdt_path_offset(fdt_blob, spidev->dev.of_path);
+	offset = fdt_path_offset(fdt_blob, dev->of_path);
 	if (offset < 0) {
 		ret = -ENOENT;
-		goto free_spidev;
+		goto err;
 	}
 
 	spi = spi_new_device_with_master(offset);
 	if (!spi) {
 		error_printk("failed to retrive new spi device\n");
 		ret = -EIO;
-		goto free_spidev;
+		goto err;
 	}
 
-	spidev->spi = spi;
+	memcpy(&spi->dev, dev, sizeof(struct device));
 
-	ret = spidev_of_init(spidev, offset);
+	ret = spidev_of_init(spi, offset);
 	if (ret < 0) {
 		error_printk("failed to init fdt data\n");
-		goto free_spidev;
+		goto free_spi;
 	}
 
 	ret = spi_register_device(spi);
@@ -97,8 +87,7 @@ int spidev_init(struct device *dev)
 
 free_spi:
 	kfree(spi);
-free_spidev:
-	kfree(spidev);
+err:
 	return ret;
 }
 
