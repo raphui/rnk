@@ -268,14 +268,6 @@ int spi_remove_master(struct spi_master *spi)
 int spi_register_master(struct spi_master *spi)
 {
 	int ret = 0;
-	char tmp[10] = {0};
-
-	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
-
-	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + master_count;
-
-	memcpy(spi->dev.name, tmp, sizeof(tmp));
 
 	mutex_init(&spi->spi_mutex);
 
