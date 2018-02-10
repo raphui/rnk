@@ -186,31 +186,10 @@ int usart_register_master(struct usart_master *usart)
 int usart_init(void)
 {
 	int ret = 0;
-	struct usart_bus *bus = NULL;
-
-	bus = (struct usart_bus *)kmalloc(sizeof(struct usart_bus));
-	if (!bus) {
-		error_printk("cannot allocate spi bus\n");
-		return -ENOMEM;
-	}
-
-	bus->dev.read = usart_read;
-	bus->dev.write = usart_write;
-
-	ret = device_register(&bus->dev);
-	if (ret < 0) {
-		error_printk("failed to register bus\n");
-		ret = -ENOMEM;
-		goto failed_out;
-	}
 
 	list_initialize(&usart_device_list);
 	list_initialize(&usart_master_list);
 
-	return ret;
-
-failed_out:
-	kfree(bus);
 	return ret;
 }
 postcore_initcall(usart_init);
