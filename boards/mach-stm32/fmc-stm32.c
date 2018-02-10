@@ -338,4 +338,4 @@ static int stm32_fmc_register(void)
 		error_printk("failed to register stm32_fmc device\n");
 	return ret;
 }
-coredevice_initcall(stm32_fmc_register);
+postarch_initcall(stm32_fmc_register);
