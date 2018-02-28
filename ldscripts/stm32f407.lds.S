@@ -15,9 +15,7 @@ SECTIONS
 		_text = .;
 		PROVIDE(stext = .);
 		KEEP(*(.isr_vector))
-#ifdef CONFIG_SW_ISR_TABLE
 		KEEP(*(.isr_vector_cmsis))
-#endif
 		*(.text .text.*)        
 		*(.rodata .rodata.*)        
 		*(.gnu.linkonce.t.*)

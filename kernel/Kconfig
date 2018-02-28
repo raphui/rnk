@@ -28,9 +28,6 @@ config THREAD_QUANTUM
 	depends on SCHEDULE_ROUND_ROBIN || SCHEDULE_RR_PRIO
 	int "THREAD quantum"
 
-config SW_ISR_TABLE
-	bool "Enable use of software managed isr table"
-
 config HR_TIMER
 	bool "High resolution timer using hardware IP"
 

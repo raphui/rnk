@@ -27,9 +27,7 @@ SECTIONS
     {
         _text = .;
         KEEP(*(.isr_vector .isr_vector.*))
-#ifdef CONFIG_SW_ISR_TABLE
 	KEEP(*(.isr_vector_cmsis))
-#endif
         *(.text .text.* .gnu.linkonce.t.*)
         *(.glue_7t) *(.glue_7)
         *(.rodata .rodata* .gnu.linkonce.r.*)
