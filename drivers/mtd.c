@@ -163,15 +163,12 @@ int mtd_register_controller(struct mtd *mtd)
 {
 	int i;
 	int ret = 0;
-	int total_size = 0;
 	char tmp[10] = {0};
 
 	mtd->curr_off = 0;
 
 	for (i = 0; i < mtd->num_sectors; i++)
-		total_size += mtd->sector_size * mtd->sector_table[i];
-
-	mtd->total_size = total_size;
+		mtd->total_size += mtd->sector_size * mtd->sector_table[i];
 
 	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
 
