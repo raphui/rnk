@@ -34,8 +34,9 @@ struct mtd_operations
 
 struct mtd {
 	unsigned int base_addr;
-	unsigned int sector_size[MAX_SECTORS];
+	unsigned int sector_table[MAX_SECTORS];
 	unsigned int num_sectors;
+	unsigned int sector_size;
 	unsigned int total_size;
 	int curr_off;
 	struct mtd_operations *mtd_ops;

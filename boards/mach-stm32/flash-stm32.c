@@ -167,9 +167,11 @@ struct mtd_operations mtd_ops = {
 
 static int stm32_flash_of_init(struct mtd *mtd)
 {
-	int offset;
+	int i, len, offset;
 	int ret = 0;
 	const void *fdt_blob = fdtparse_get_blob();
+	const struct fdt_property *prop;
+	fdt32_t *cell;
 
 	offset = fdt_path_offset(fdt_blob, mtd->dev.of_path);
 	if (offset < 0) {
@@ -187,6 +189,25 @@ static int stm32_flash_of_init(struct mtd *mtd)
 		ret = -ENOENT;
 		goto out;
 	}
+
+	ret = fdtparse_get_int(offset, "sector_size", &mtd->sector_size);
+	if (ret < 0) {
+		error_printk("failed to retrieve sector size\n");
+		ret = -ENOENT;
+		goto out;
+	}
+
+	prop = fdt_get_property(fdt_blob, offset, "sector_table", &len);
+	if (!prop) {
+		error_printk("cannot find sector table in fdt\n");
+		ret = -ENOENT;
+		goto out;
+	}
+
+	cell = (fdt32_t *)prop->data;
+
+	for (i = 0; i < len; i++)
+		mtd->sector_table[i] = fdt32_to_cpu(cell[i]);
 
 out:
 	return ret;
