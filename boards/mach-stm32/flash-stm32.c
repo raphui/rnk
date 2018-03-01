@@ -209,6 +209,8 @@ static int stm32_flash_of_init(struct mtd *mtd)
 	for (i = 0; i < len; i++)
 		mtd->sector_table[i] = fdt32_to_cpu(cell[i]);
 
+	mtd->num_sectors = len;
+
 out:
 	return ret;
 }
