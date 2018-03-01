@@ -66,3 +66,11 @@ disable_psp:
 	isb
 	bx lr
 
+.global switch_unprivileged
+switch_unprivileged:
+	mrs r0, control
+	orr r0, r0, #1
+	msr control, r0
+	dsb
+	isb
+	bx lr
