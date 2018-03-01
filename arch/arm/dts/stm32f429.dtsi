@@ -87,6 +87,8 @@
 			compatible = "st,stm32f4xx-flash";
 			reg = <0x40023C00 0x400>;
 			base = <0x08000000>;
+			sector_size = <0x4000>
+			sector_table = <1 1 1 1 4 8 8 8 8 8 8 8>
                         status = "okay";
 		};
 
