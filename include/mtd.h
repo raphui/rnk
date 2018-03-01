@@ -28,7 +28,7 @@ struct mtd;
 struct mtd_operations
 {
 	int (*erase)(struct mtd *mtd, unsigned int sector);
-	int (*write)(struct mtd *mtd, unsigned char *buff, unsigned int size);
+	int (*write)(struct mtd *mtd, unsigned char *dst, unsigned char *src, unsigned int size);
 	int (*read)(struct mtd *mtd, unsigned char *buff, unsigned int size);
 };
 

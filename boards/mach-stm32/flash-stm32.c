@@ -121,20 +121,17 @@ static int stm32_flash_write_byte(unsigned int address, unsigned char data)
 	return ret;
 }
 
-static int stm32_flash_write(struct mtd *mtd, unsigned char *buff, unsigned int size)
+static int stm32_flash_write(struct mtd *mtd, unsigned char *dst, unsigned char *src, unsigned int size)
 {
 	int ret = 0;
 	int i;
-	unsigned int addr = mtd->base_addr + mtd->curr_off;
 
 	stm32_flash_unlock();
 
 	for (i = 0; i < size; i++) {
-		ret = stm32_flash_write_byte(addr, buff[i]);
+		ret = stm32_flash_write_byte(dst++, src[i]);
 		if (ret < 0)
 			break;
-
-		addr += sizeof(unsigned char);
 	}
 
 	stm32_flash_lock();

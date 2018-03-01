@@ -27,6 +27,24 @@ static int dev_count = 0;
 static char dev_prefix[10] = "/dev/mtd";
 static struct list_node mtd_controller_list;
 
+static int mtd_offset_to_sect(struct device *dev, int offset)
+{
+	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	int ret = 0;
+
+
+	return ret;
+}
+
+static int mtd_sect_tail(struct device *dev, int sect)
+{
+	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	int ret = 0;
+
+
+	return ret;
+}
+
 static int mtd_check_addr(struct device *dev, unsigned int addr)
 {
 	struct mtd *mtd = container_of(dev, struct mtd, dev);
@@ -36,6 +54,16 @@ static int mtd_check_addr(struct device *dev, unsigned int addr)
 		error_printk("addr is out of flash\n");
 		ret = -EINVAL;
 	}
+
+	return ret;
+}
+
+static int mtd_check_partition(struct device *dev, unsigned int size)
+{
+	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	int ret = 0;
+
+
 
 	return ret;
 }
@@ -64,12 +92,27 @@ static int mtd_write(struct device *dev, unsigned char *buff, unsigned int size)
 {
 	struct mtd *mtd = container_of(dev, struct mtd, dev);
 	int ret = 0;
+	int sect, tail, n;
 
 	verbose_printk("writing from mtd !\n");
 
 	ret = mtd_check_addr(dev, mtd->base_addr + mtd->curr_off);
 	if (ret < 0)
 		return ret;
+
+	sect = mtd_offset_to_sect(dev, sect);
+
+	tail = mtd_sect_tail(dev, sect);
+
+	if ((mtd->curr_off + size) > tail) {
+		n = tail - mtd->curr_off;
+
+		ret = mtd->mtd_ops->write(mtd, buff, n)
+		if (ret < 0)
+			return ret;
+
+		ret = mtd->mtd_ops->
+	}
 
 	ret = mtd->mtd_ops->write(mtd, buff, size);
 	if (ret < 0)
