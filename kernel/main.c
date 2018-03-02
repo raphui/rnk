@@ -22,6 +22,7 @@
 #include <mm.h>
 #include <time.h>
 #include <elfloader.h>
+#include <arch/system.h>
 
 #ifdef CONFIG_UNWIND
 #include <backtrace.h>
@@ -53,14 +54,18 @@ int main(void)
 	int ret;
 	initcall_t *initcall;
 
+	printk("Welcome to rnk\r\n");
+
+	printk("- Initialise architecture...\r\n");
+
+	arch_init();
+
 	for (initcall = __rnk_initcalls_start; initcall < __rnk_initcalls_end; initcall++) {
 		debug_printk("initcall-> %pS\n", *initcall);
 		ret = (*initcall)();
 		if (ret < 0)
 			error_printk("initcall %pS failed: %d\n", *initcall, ret);
 	}
-
-	printk("Welcome to rnk\r\n");
 
 	printk("- Initialise scheduler...\r\n");
 
