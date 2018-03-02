@@ -202,7 +202,7 @@ static int stm32_fmc_of_init(struct fmc *fmcdev)
 		goto out;
 
 	if (fmcdev->mem_type != FMC_MEM_TYPE_SDRAM) {
-		ret = -ENOTSUPP;
+		ret = -ENOTSUP;
 		goto out;
 	}
 

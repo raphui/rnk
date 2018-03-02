@@ -211,7 +211,7 @@ int stm32_pio_of_get(int fdt_offset, char *name, unsigned int *port, unsigned in
 
 	num = len / (3 * sizeof(fdt32_t));
 	if (num > 1)
-		return -ENOTSUPP;
+		return -ENOTSUP;
 
 	cell = (fdt32_t *)prop->data;
 

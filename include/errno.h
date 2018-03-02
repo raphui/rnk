@@ -144,6 +144,7 @@
 
 #define	ENOMEDIUM	123	/* No medium found */
 #define	EMEDIUMTYPE	124	/* Wrong medium type */
+#define ENOTSUP		134	/* Operation is not supported */
 
 /* Should never be seen by user programs */
 #define ERESTARTSYS	512
@@ -151,7 +152,6 @@
 #define ERESTARTNOHAND	514	/* restart if no handler.. */
 #define ENOIOCTLCMD	515	/* No ioctl command */
 
-#define ENOTSUPP	524	/* Operation is not supported */
 
 #define _LAST_ERRNO	524
 
