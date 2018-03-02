@@ -230,6 +230,9 @@ static inline void wait_for_interrupt(void)
 #define MPU_RASR_SIZE(x)                (unsigned int) (x << 1)                                     /* Region size (2^(x+1) bytes) */
 #define MPU_RASR_SHARE_CACHE_WBACK      (unsigned int) (1 << 16) | (1 << 17) | (1 << 18)            /* Sharable, Cachable, Write-Back */
 #define MPU_RASR_SHARE_NOCACHE_WBACK    (unsigned int) (1 << 16) | (0 << 17) | (1 << 18)            /* Sharable, Not Cachable, Write-Back */
+#define MPU_RASR_NORMAL_CACHE		(unsigned int) (1 << 17)				    /* Normal memory, Cachable, Write-through*/
+#define MPU_RASR_SHARE_CACHE		(unsigned int) (1 << 17) | (1 << 18)			    /* Sharable, Cachable, Write-through*/
+#define MPU_RASR_DEVICE_SHARE		(unsigned int) (1 << 16) | (1 << 18)			    /* Device memory, Sharable, Write-through*/
 #define MPU_RASR_AP_PRIV_NO_UN_NO       (unsigned int) (0 << 24)                                    /* No access for any */
 #define MPU_RASR_AP_PRIV_RW_UN_NO       (unsigned int) (1 << 24)                                    /* No access for any */
 #define MPU_RASR_AP_PRIV_RW_UN_RO       (unsigned int) (2 << 24)                                    /* Unprivileged Read Only Permissions */
