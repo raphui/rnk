@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Raphaël Poggi <poggi.raph@gmail.com>
+ * Copyright (C) 2018  Raphaël Poggi <poggi.raph@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,30 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <thread.h>
-#include <armv7m/mpu.h>
-#include <armv7m/system.h>
+#ifndef MPU_H
+#define MPU_H
 
-void arch_init(void)
-{
-}
+int mpu_init(void);
+int mpu_map(void *base, int size, int attr);
 
-void arch_init_tick(void)
-{
-	systick_init();
-}
-
-void arch_request_sched(void)
-{
-	pendsv_request();
-}
-
-unsigned int arch_get_thread_stack(void)
-{
-	return PSP();
-}
-
-void arch_set_thread_stack(struct thread *t)
-{
-	SET_PSP((void *)t->regs->sp);
-}
+#endif /* MPU_H */
