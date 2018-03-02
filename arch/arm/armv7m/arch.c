@@ -22,6 +22,7 @@
 
 void arch_init(void)
 {
+	mpu_init();
 }
 
 void arch_init_tick(void)
