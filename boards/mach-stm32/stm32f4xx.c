@@ -56,38 +56,6 @@ int device_init(void)
 {
 	int ret = 0;
 
-//	struct mtd mtd;
-
-//	mtd.base_addr = 0x08000000;
-//	mtd.sector_size[0] = SZ_16K;
-//	mtd.sector_size[1] = SZ_16K;
-//	mtd.sector_size[2] = SZ_16K;
-//	mtd.sector_size[3] = SZ_16K;
-//	mtd.sector_size[4] = SZ_64K;
-//	mtd.sector_size[5] = SZ_128K;
-//	mtd.sector_size[6] = SZ_128K;
-//	mtd.sector_size[7] = SZ_128K;
-//	mtd.sector_size[8] = SZ_128K;
-//	mtd.sector_size[9] = SZ_128K;
-//	mtd.sector_size[10] = SZ_128K;
-//	mtd.sector_size[11] = SZ_128K;
-//	mtd.num_sectors = 12;
-//
-//	mtd_init(&mtd);
-
-//	usart_init(3, USART3_BASE, 115200);
-//	pio_set_alternate(GPIOC_BASE, 10, 0x7);
-//	pio_set_alternate(GPIOC_BASE, 11, 0x7);
-
-//	stm32_exti_init();
-//	/* Configure wakeup button interrupt */
-//	stm32_exti_init(GPIOA_BASE, 0);
-//	stm32_exti_enable_falling(GPIOA_BASE, 0);
-//
-//	/* Configure anti-tamper button interrupt */
-//	stm32_exti_init(GPIOC_BASE, 13);
-//	stm32_exti_enable_falling(GPIOC_BASE, 13);
-
 #ifdef CONFIG_SWO_DEBUG
 
 	stm32_pio_set_alternate(GPIOB_BASE, 3, 0x0);
