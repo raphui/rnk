@@ -73,6 +73,16 @@ static inline unsigned int *MSP(void) {
     return val;
 }
 
+static inline void __isb(void)
+{
+	asm("isb" ::: "memory");
+}
+
+static inline void __dsb(void)
+{
+	asm("dsb" ::: "memory");
+}
+
 static inline void __enable_it(void)
 {
 	asm("cpsie i":::);
