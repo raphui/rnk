@@ -111,6 +111,8 @@ static inline void wait_for_interrupt(void)
 
 /* Cortex M4 General Registers */
 
+#define CORTEX_M_PERIPH_BASE		(unsigned int) (0xE0000000)
+
 /* System Control Map */
 #define SCS_BASE                        (unsigned int) (0xE000E000)                                 /* System Control Space Base Address */
 #define SYSTICK_BASE                    (SCS_BASE + 0x0010)                                     /* Systick Registers Base Address */
