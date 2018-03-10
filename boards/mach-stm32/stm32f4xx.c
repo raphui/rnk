@@ -18,7 +18,9 @@
 #include <board.h>
 #include <utils.h>
 #include <init.h>
+#include <sizes.h>
 #include <armv7m/system.h>
+#include <armv7m/mpu.h>
 #include <mach/rcc-stm32.h>
 
 #ifdef CONFIG_STM32F429
@@ -55,6 +57,11 @@ void low_level_init(void)
 int device_init(void)
 {
 	int ret = 0;
+
+	mpu_map((void *)SRAM_BASE, SZ_128K, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
+	mpu_map((void *)FLASH_BASE, SZ_1M, MPU_RASR_NORMAL_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
+	mpu_map((void *)PERIPH_BASE, SZ_512M, MPU_RASR_DEVICE_SHARE | MPU_RASR_AP_PRIV_RW_UN_RW);
+	mpu_map((void *)CCMDATARAM_BASE, SZ_64K, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
 
 #ifdef CONFIG_SWO_DEBUG
 
