@@ -27,6 +27,7 @@ SECTIONS
     {
         _text = .;
         KEEP(*(.isr_vector .isr_vector.*))
+        KEEP(*(.cm_isr_vector))
 	KEEP(*(.isr_vector_cmsis))
         *(.text .text.* .gnu.linkonce.t.*)
         *(.glue_7t) *(.glue_7)

@@ -19,10 +19,28 @@
 #include <thread.h>
 #include <armv7m/mpu.h>
 #include <armv7m/system.h>
+#include <armv7m/vector.h>
+
+extern void __svc(void);
+extern void __pendsv(void);
+extern void systick_handler(void);
 
 void arch_init(void)
 {
+	struct isr_entry entry;
+
 	mpu_init();
+
+	entry.isr = __svc;
+	entry.arg = NULL;
+
+	vector_set_isr_entry(&entry, -5);
+
+	entry.isr = __pendsv;
+	vector_set_isr_entry(&entry, -2);
+
+	entry.isr = systick_handler;
+	vector_set_isr_entry(&entry, -1);
 }
 
 void arch_init_tick(void)
