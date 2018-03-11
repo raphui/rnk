@@ -118,18 +118,3 @@ Infinite_Loop:
     
 g_pfnVectors:
   .word  _estack
-  .word  Reset_Handler
-  .word  0
-  .word  hardfault_handler
-  .word  memmanage_handler
-  .word  busfault_handler
-  .word  usagefault_handler
-  .word  0
-  .word  0
-  .word  0
-  .word  0
-  .word  __svc
-  .word  0 
-  .word  0
-  .word  __pendsv
-  .word  systick_handler
