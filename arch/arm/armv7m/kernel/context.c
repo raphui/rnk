@@ -22,6 +22,7 @@
 
 void create_context(struct registers *_regs, struct thread *_thread)
 {
+	_thread->regs->lr = 0xFFFFFFFD;
 
 	asm volatile(
                  "stmdb   %[stack]!, {%[psr]}   /* xPSR */                      \n\
@@ -31,19 +32,11 @@ void create_context(struct registers *_regs, struct thread *_thread)
                   stmdb   %[stack]!, {%[zero]}  /* R3 */                        \n\
                   stmdb   %[stack]!, {%[zero]}  /* R2 */                        \n\
                   stmdb   %[stack]!, {%[zero]}  /* R1 */                        \n\
-                  stmdb   %[stack]!, {%[zero]}  /* R0 */                        \n\
-                  stmdb   %[stack]!, {%[zero]}  /* R11 */                       \n\
-                  stmdb   %[stack]!, {%[zero]}  /* R10 */                       \n\
-                  stmdb   %[stack]!, {%[zero]}  /* R9 */                        \n\
-                  stmdb   %[stack]!, {%[zero]}  /* R8 */                        \n\
-                  stmdb   %[stack]!, {%[frame]} /* R7 - Frame Pointer*/         \n\
-                  stmdb   %[stack]!, {%[zero]}  /* R6 */                        \n\
-                  stmdb   %[stack]!, {%[zero]}  /* R5 */                        \n\
-                  stmdb   %[stack]!, {%[zero]}  /* R4 */                        \n"
+                  stmdb   %[stack]!, {%[zero]}  /* R0 */                        \n"
                   /* Output */
                   :[stack] "+r" (_thread->regs->sp)
                   /* Input */
-                  :[pc] "r" (_thread->func), [lr] "r" (_thread->regs->lr), [frame] "r" (_thread->start_stack + 2000),
+                  :[pc] "r" (_thread->func), [lr] "r" (_thread->regs->lr),
                    [zero] "r" (0), [psr] "r" (0x01000000) /* Set the Thumb bit */
                   /* Clobber */
                   :);
