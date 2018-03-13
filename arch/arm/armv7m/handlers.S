@@ -16,17 +16,51 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#define EXC_RETURN_PROCESS_STACK (1 << 2)
+
+.syntax unified
+.thumb
+
+.thumb_func
+.global interrupt_handler
+interrupt_handler:
+	tst lr, #EXC_RETURN_PROCESS_STACK
+	ite eq
+	mrseq r1, msp
+	mrsne r1, psp
+
+	stmdb r1!, {r2-r11,r14}
+
+	cpsid i
+
+	push {r1}
+	bl irq_action
+	pop {r1}
+
+	ldmia	r1!, {r2-r11,r14}
+
+	mrs r2, control
+	tst r14, #EXC_RETURN_PROCESS_STACK /* nonzero if context on process stack */
+	beq 1f
+
+	orr r2, r2, #1
+	b 2f
+1:
+	bic r2, r2, #1
+2:
+	msr control, r2
+
+	cpsie i
+
+	bx lr
+
 .thumb_func
 .global __svc
 __svc:
 	mrs r0, psp
 
 	push {lr}
-	push {r0}
-	bl save_context
-	pop {r0}
 	bl svc_handler
-	bl restore_context
 	pop {pc}
 
 
@@ -34,7 +68,5 @@ __svc:
 .global __pendsv
 __pendsv:
 	push {lr}
-	bl save_context
 	bl pendsv_handler
-	bl restore_context
 	pop {pc}
