@@ -145,11 +145,16 @@ EXPORT_SYMBOL(add_thread);
 void switch_thread(struct thread *thread)
 {
 	thread->state = THREAD_RUNNING;
-	arch_set_thread_stack(thread);
-	current_thread = thread;
+
+	if (current_thread->state != THREAD_BLOCKED)
+		insert_runnable_thread(current_thread);
+
+	arch_switch_context(current_thread, thread);
 
 	if (thread->pid != 0)
 		remove_runnable_thread(thread);
+
+	current_thread = thread;
 }
 
 struct thread *get_current_thread(void)

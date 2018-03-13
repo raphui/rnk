@@ -63,11 +63,6 @@ void schedule_thread(struct thread *thread)
 		t->quantum--;
 #endif /* CONFIG_SCHEDULE_ROUND_ROBIN */
 
-	if (t && t->state != THREAD_BLOCKED) {
-		t->regs->sp = arch_get_thread_stack();
-		insert_runnable_thread(t);
-	}
-
 	if (thread)
 		switch_thread(thread);
 	else {
@@ -82,8 +77,6 @@ void schedule_thread(struct thread *thread)
 #endif
 	}
 	
-	thread_switching = 1;
-
 #if !defined(CONFIG_HR_TIMER) && !defined(CONFIG_BW_DELAY)
 	decrease_thread_delay();
 #endif
