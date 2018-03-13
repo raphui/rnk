@@ -18,9 +18,47 @@
 
 #include <stdio.h>
 #include <thread.h>
+#include <time.h>
+
+void thread_a(void)
+{
+	printk("starting thread A\n");
+
+	while (1) {
+		printk("A\n");
+	}
+}
+
+void thread_b(void)
+{
+	printk("starting thread B\n");
+
+	while (1) {
+		printk("B\n");
+	}
+}
+
+void thread_c(void)
+{
+	printk("starting thread C\n");
+
+	while (1) {
+		printk("C\n");
+	}
+}
 
 int main(void)
 {
+	printk("Starting thread tests\n");
+
+	printk("- adding thread A (%x)\n", &thread_a);
+	add_thread(&thread_a, HIGHEST_PRIORITY);
+
+	printk("- adding thread B(%x)\n", &thread_b);
+	add_thread(&thread_b, HIGHEST_PRIORITY - 1);
+
+	printk("- adding thread C(%x)\n", &thread_c);
+	add_thread(&thread_c, HIGHEST_PRIORITY - 2);
 
 	return 0;
 }
