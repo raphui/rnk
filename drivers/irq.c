@@ -63,8 +63,6 @@ int irq_init(void)
 {
 	int ret = 0;
 
-	vector_set_isr_wrapper(&irq_action);
-
 	return ret;
 }
 coredevice_initcall(irq_init);
