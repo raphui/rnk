@@ -95,19 +95,13 @@ void systick_handler(void)
 
 void pendsv_handler(void)
 {
-	__disable_it();
-
 	schedule_thread(NULL);
-
-	__enable_it();
 }
 
 void svc_handler(unsigned int call, void *arg)
 {
 	unsigned int svc_number;
 	unsigned int *psp = (unsigned int *)call;
-
-	__disable_it();
 
 	svc_number = ((char *)psp[6])[-2];
 
@@ -152,6 +146,4 @@ void svc_handler(unsigned int call, void *arg)
 		debug_printk("Invalid svc call\r\n");
 		break;
 	}
-
-	__enable_it();
 }
