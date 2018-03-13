@@ -62,3 +62,9 @@ void arch_set_thread_stack(struct thread *t)
 {
 	SET_PSP((void *)t->regs->sp);
 }
+
+void arch_switch_context(struct thread *old, struct thread *new)
+{
+	old->regs->sp = arch_get_thread_stack();
+	arch_set_thread_stack(new);
+}
