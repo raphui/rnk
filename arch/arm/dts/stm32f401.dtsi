@@ -1,0 +1,179 @@
+/ {
+    compatible = "st,stm32f4";
+
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+	clocks
+	{
+		sources
+		{
+			hsi = <16000000>;
+			hse = <16000000>;
+			lsi = <32000>;
+		};
+
+		fast
+		{
+			source = <2>;			// hse is source
+			pll = <0 16 336 4 7>;		// hsi, m, n, p, q
+			prescaler = <1 2 2>;		// ahb div1, apb1&apb2 div=2
+		};
+	};
+
+	ahb1
+	{
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		gpioa: gpio@40020000 {
+			reg = <0x40020000 0x400>;
+                        status = "okay";
+		};
+
+		gpiob: gpio@40020400 {
+			reg = <0x40020400 0x400>;
+                        status = "okay";
+		};
+
+		gpioc: gpio@40020800 {
+			reg = <0x40020800 0x400>;
+                        status = "okay";
+		};
+
+		gpiod: gpio@40020C00 {
+			reg = <0x40020C00 0x400>;
+                        status = "okay";
+		};
+
+		gpioe: gpio@40021000 {
+			reg = <0x40021000 0x400>;
+                        status = "okay";
+		};
+
+		flash {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4xx-flash";
+			reg = <0x40023C00 0x400>;
+			base = <0x08000000>;
+                        status = "okay";
+		};
+
+		rcc: rcc@40023800 {
+			#clock-cells = <2>;
+			reg = <0x40023800 0x400>;
+			compatible = "st,stm32f4xx-rcc";
+                        status = "okay";
+		};
+
+		dma1: dma@40026000 {
+			reg = <0x40026000 0x400>;
+			compatible = "st,stm32f4xx-dma";
+		};
+
+		dma2: dma@40026400 {
+			reg = <0x40026400 0x400>;
+			compatible = "st,stm32f4xx-dma";
+			st,mem2mem;
+		};
+	};
+
+	ahb2
+	{
+
+	};
+
+	apb1
+	{
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		i2c1: i2c1@40005400 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4xx-i2c";
+			reg = <0x40005400 0x24>;
+			gpios = <&gpiob 0x418 0x0E>,    /* SCL PB8 */
+					<&gpiob 0x419 0x0E>;    /* SDA PB9 */
+		};
+
+
+                timer2: timer@40000000 {
+                        compatible = "st,stm32f4xx-timer";
+                        reg = <0x40000000 0x400>;
+                        interrupts = <28>;
+                        status = "okay";
+                };
+
+                timer3: timer@40000400 {
+                        compatible = "st,stm32f4xx-timer";
+                        reg = <0x40000400 0x400>;
+                        interrupts = <29>;
+                        status = "okay";
+                };
+
+                timer4: timer@40000800 {
+                        compatible = "st,stm32f4xx-timer";
+                        reg = <0x40000800 0x400>;
+                        interrupts = <30>;
+                        status = "okay";
+                };
+
+                timer5: timer@40000c00 {
+                        compatible = "st,stm32f4xx-timer";
+                        reg = <0x40000C00 0x400>;
+                        interrupts = <50>;
+                        status = "okay";
+                };
+	};
+
+	apb2
+	{
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		usart1: usart2@40011000 {
+			compatible = "st,stm32f4xx-usart";
+			reg = <0x40011000 0x1C>;
+			gpios = <&gpioa 0x709 0>,     /* TX PA2 */
+				<&gpioa 0x70A 0>;     /* RX PA3 */
+			clock = <3>;
+			baudrate = <115200>;
+                        status = "okay";
+		};
+
+		spi1: spi1@40013000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4xx-spi";
+			reg = <0x40013000 0x20>;
+                        interrupts = <35>;
+			gpios =	<&gpioa 0x505 0x0A>,     /* SCK, PA5 */
+					<&gpioa 0x506 0x08>,     /* MISO PA6 */
+					<&gpioa 0x507 0x0A>;     /* MOSI PA7 */
+			clock = <3>;
+/*			dmas = <&dma2 3 2 0x10400 0x3>,
+				<&dma2 3 3 0x10200 0x3>;
+			dma-names = "rx", "tx";*/
+			status = "okay";
+
+			spidev@0
+			{
+				compatible = "spi,spidev";
+				status = "okay";
+				speed = <8000000>;
+				gpios = <&gpioa 0x004 0x3>;
+			};
+		};
+
+		syscfg: syscfg@40013800 {
+			reg = <0x40013800 0x20>;
+			if = <14>;
+		};
+
+		exti: exti@40013C00 {
+			reg = <0x40013C00 0x20>;
+		};
+	};
+};

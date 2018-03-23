@@ -1,0 +1,10 @@
+/dts-v1/;
+/include/ "stm32f401.dtsi"
+
+/ {
+	aliases
+	{
+		console = &usart1;
+	};
+
+};
