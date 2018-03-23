@@ -16,10 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <thread.h>
 #include <armv7m/mpu.h>
 #include <armv7m/system.h>
 #include <armv7m/vector.h>
+#include <stddef.h>
 
 extern void __svc(void);
 extern void __pendsv(void);
