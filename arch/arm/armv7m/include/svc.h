@@ -78,9 +78,4 @@ enum service_calls {
     ret;    \
 })
 
-void __activate_context(struct registers *_reg);
-void __switch_context(struct registers *_curr_reg, struct registers *_reg);
-void save_context(void);
-void restore_context(void);
-
 #endif /* SVC_H */
