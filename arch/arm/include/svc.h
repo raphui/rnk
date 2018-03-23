@@ -21,8 +21,6 @@
 
 #include <armv7m/system.h>
 
-#include <thread.h>
-
 enum service_calls {
 	SVC_THREAD_SWITCH,
 	SVC_ACQUIRE_MUTEX,
@@ -95,12 +93,6 @@ enum service_calls {
                   :"r0", "r1");               \
     ret;    \
 })
-
-void svc_create_context(struct registers *_reg, unsigned int sp, unsigned int func, unsigned int end);
-void svc_activate_context(struct registers *_reg);
-void svc_switch_context(struct registers *_curr_reg, struct registers *_reg);
-void svc_save_user_context(void);
-void svc_get_user_context(void);
 
 void arch_system_call(unsigned int call, void *arg1, void *arg2, void *arg3);
 

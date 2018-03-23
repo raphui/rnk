@@ -24,11 +24,6 @@
 extern int thread_switching;
 extern unsigned int system_tick;
 
-void create_context(struct registers *_regs, struct thread *_thread);
-void activate_context(struct thread *_thread);
-void switch_context(struct registers *_current_regs, struct registers *_thread_regs);
-void save_user_context(void);
-void get_user_context(void);
 void start_schedule(void);
 int schedule_init(void);
 void schedule(void);
