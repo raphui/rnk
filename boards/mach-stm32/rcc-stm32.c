@@ -361,7 +361,7 @@ int stm32_rcc_enable_sys_clk(void)
 		break;
 	case RCC_CFGR_PLL:
 		if (pll_source == 0) {
-			ret = fdtparse_get_int(offset, "hse", &source_freq);
+			ret = fdtparse_get_int(offset, "hsi", &source_freq);
 			if (ret < 0) {
 				error_printk("failed to retrieve hsi freq\n");
 				ret = -EIO;
@@ -372,7 +372,7 @@ int stm32_rcc_enable_sys_clk(void)
 		} else {
 			ret = fdtparse_get_int(offset, "hse", &source_freq);
 			if (ret < 0) {
-				error_printk("failed to retrieve hsi freq\n");
+				error_printk("failed to retrieve hse freq\n");
 				ret = -EIO;
 				goto out;
 			}
