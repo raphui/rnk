@@ -136,11 +136,11 @@ endif
 config.h: .config
 	@bash tools/generate_config.sh
 
-menuconfig: tools/kconfig-frontends/frontends/mconf/mconf
-	tools/kconfig-frontends/frontends/mconf/mconf Kconfig
+menuconfig: $(KCONFIG)/kconfig-mconf
+	$(KCONFIG)/kconfig-mconf Kconfig
 
-nconfig: tools/kconfig-frontends/frontends/nconf/nconf
-	tools/kconfig-frontends/frontends/nconf/nconf Kconfig
+nconfig: $(KCONFIG)/kconfig-nconf
+	$(KCONFIG)/kconfig-nconf Kconfig
 
 config: tools/kconfig-frontends/frontends/conf/conf
 	tools/kconfig-frontends/frontends/conf/conf Kconfig
