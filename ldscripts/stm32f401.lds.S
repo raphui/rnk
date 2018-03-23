@@ -1,70 +1,105 @@
+#include <rnk.lds.h>
+
 MEMORY
 {
-	sram (W!RX) : ORIGIN = 0x20000000, LENGTH = 96K
-     flash (RX) : ORIGIN = 0x08000000, LENGTH = 512K
+    rom (rx)  : ORIGIN = 0x08000000, LENGTH = 0x00100000
+    ram (rwx) : ORIGIN = 0x20000000, LENGTH = 0x0000FFFF
+    ccm (rwx) : ORIGIN = 0x10000000, LENGTH = 0x00010000
 }
+ 
+_eram = 0x20000000 + 0x0000FFFF;
 
+/* Section Definitions */
 SECTIONS
-{  
+{
+    /* collect all uninitialized .ccm sections */
+	/* A directed static allocation would look like this :
+		volatile uint8_t buff0[16384] __attribute__((section(".ccm")));   */
+	.ccm (NOLOAD) :
+    {
+        . = ALIGN(4);
+        *(.ccm)
+        *(.ccm.*)
+        . = ALIGN(4);
+    } > ccm
+ 
     .text :
     {
-        . = ALIGN(4);
         _text = .;
-        PROVIDE(stext = .);
-        KEEP(*(.isr_vector))
-        *(.text .text.*)        
-        *(.rodata .rodata.*)        
-        *(.gnu.linkonce.t.*)
-        *(.glue_7)
-        *(.glue_7t)
-        *(.gcc_except_table)
-        *(.gnu.linkonce.r.*)
-        . = ALIGN(4);
-        _etext = .;
-		_sidata = _etext;
-        PROVIDE(etext = .);   
-     		_fini = . ;
-				*(.fini)
+        KEEP(*(.isr_vector .isr_vector.*))
+        KEEP(*(.cm_isr_vector))
+	KEEP(*(.isr_vector_cmsis))
+        *(.text .text.* .gnu.linkonce.t.*)
+        *(.glue_7t) *(.glue_7)
+        *(.rodata .rodata* .gnu.linkonce.r.*)
 
-    } >flash
-
-    .data : AT (_etext)
-    {
-        . = ALIGN(4);
-        _sdata = .;
-        *(.ramfunc .ramfunc.* .fastrun .fastrun.*)
-        *(.data .data.*)
-        *(.gnu.linkonce.d.*)
-        . = ALIGN(4);
-        _edata = .;
-    } >flash
-
+	. = ALIGN(4);
+	_etext = .;
+	PROVIDE(etext = .);
+    } > rom
+ 
+#ifdef CONFIG_UNWIND
     .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } > flash
+    } > rom
  
     __exidx_start = .;
     .ARM.exidx :
     {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > flash
+    } > rom
     __exidx_end = .;
+#endif
 
-    PROVIDE( flash_used_size = SIZEOF(.text) + SIZEOF(.data) + SIZEOF(.ARM.extab) + SIZEOF(.ARM.exidx) );
-		
-    .bss (NOLOAD) : {
-		. = ALIGN(4);
-        /* This is used by the startup in order to initialize the .bss secion */
-        _sbss = .;
+   __rnk_initcalls_start = .;
+   .rnk_initcalls : {
+	INITCALLS
+   } > rom
+   __rnk_initcalls_end = .;
+
+
+   __rnk_exitcalls_start = .;
+   .rnk_exitcalls : {
+	EXITCALLS
+   } > rom
+   __rnk_exitcalls_end = .;
+
+   __rnk_ksym_start = .;
+   .rnk_ksym : {
+	KSYM
+   } > rom
+   __rnk_ksym_end = .;
+ 
+    _sidata = .;
+    .data : AT (_sidata)
+    {
+        _sdata = .;
+        *(.data .data.*)
+        . = ALIGN(4);
+        _edata = . ;
+    } > ram
+ 
+    /* .bss section which is used for uninitialized data */
+    .bss (NOLOAD) :
+    {
+        _sbss = . ;
+	__bss_start__ = . ;
         *(.bss .bss.*)
-        *(.gnu.linkonce.b.*)
         *(COMMON)
-        . = ALIGN(4);        
-        _ebss = .;
-    } >sram
-    
-    end = .;
-    PROVIDE( _estack = 0x20017000 );
+        . = ALIGN(4);
+        _ebss = . ;
+	__bss_end__ = . ;
+    } > ram
+ 
+    /* stack section */
+    .co_stack (NOLOAD):
+    {
+        . = ALIGN(8);
+        *(.co_stack .co_stack.*)
+    } > ram
+ 
+    . = ALIGN(4);
+    _end = . ;
+    PROVIDE( _estack = _end + CONFIG_STACK_SIZE );
 }
-
