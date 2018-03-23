@@ -61,10 +61,7 @@ static void insert_thread(struct thread *t)
 {
 	struct thread *thread = NULL;
 
-#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-	insert_in_run_queue_tail(t);
-	verbose_printk("inserting thread %d\r\n", t->pid);
-#elif defined(CONFIG_SCHEDULE_PRIORITY)
+#if defined(CONFIG_SCHEDULE_PRIORITY)
 	if (list_is_empty(&run_queue[0])) {
 		list_add_head(&run_queue[0], &t->node);
 	} else {
@@ -77,7 +74,7 @@ static void insert_thread(struct thread *t)
 			}
 		}
 	}
-#elif defined(CONFIG_SCHEDULE_RR_PRIO)
+#elif defined(CONFIG_SCHEDULE_RR_PRIO) || defined(CONFIG_SCHEDULE_ROUND_ROBIN)
 	if (t->quantum > 0)
 		insert_in_run_queue_head(t);
 	else {
@@ -122,19 +119,17 @@ void add_thread(void (*func)(void), unsigned int priority)
 	thread->start_stack = THREAD_STACK_START + (thread_count * THREAD_STACK_OFFSET);
 	thread->delay = 0;
 	thread->func = func;
-	thread->regs = (struct registers *)kmalloc(sizeof(struct registers));
-	if (!thread->regs) {
-		error_printk("failed to allocate threads regs for: %p\n", func);
+	thread->arch = (struct arch_thread *)kmalloc(sizeof(struct arch_thread));
+	if (!thread->arch) {
+		error_printk("failed to allocate arch thread for: %p\n", func);
 		kfree(thread);
 		return;
 	}
 
-	thread->regs->sp = thread->start_stack;
-	thread->regs->lr = (unsigned int)end_thread;
-	thread->regs->pc = (unsigned int)func;
+	memset(thread->arch, 0, sizeof(struct arch_thread));
 
 	/* Creating thread context */
-	create_context(thread->regs, thread);
+	arch_create_context(thread->arch, (unsigned int)thread->func, (unsigned int *)thread->start_stack, 0, 0);
 
 	insert_thread(thread);
 
@@ -146,10 +141,7 @@ void switch_thread(struct thread *thread)
 {
 	thread->state = THREAD_RUNNING;
 
-	if (current_thread->state != THREAD_BLOCKED)
-		insert_runnable_thread(current_thread);
-
-	arch_switch_context(current_thread, thread);
+	arch_switch_context(current_thread->arch, thread->arch);
 
 	if (thread->pid != 0)
 		remove_runnable_thread(thread);
@@ -220,8 +212,6 @@ void insert_runnable_thread(struct thread *thread)
 
 void remove_runnable_thread(struct thread *thread)
 {
-	thread->regs->sp = arch_get_thread_stack();
-
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 	current_thread->quantum = CONFIG_THREAD_QUANTUM;
 #endif

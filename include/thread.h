@@ -21,6 +21,7 @@
 
 #include <list.h>
 #include <stddef.h>
+#include <arch/thread.h>
 
 #define THREAD_RUNNING		0
 #define THREAD_RUNNABLE		1
@@ -49,27 +50,6 @@
 
 extern unsigned long thread_lock;
 
-struct registers
-{
-	unsigned int r0;
-	unsigned int r1;
-	unsigned int r2;
-	unsigned int r3;
-	unsigned int r4;
-	unsigned int r5;
-	unsigned int r6;
-	unsigned int r7;
-	unsigned int r8;
-	unsigned int r9;
-	unsigned int r10;
-	unsigned int r11;
-	unsigned int r12;
-	unsigned int sp;
-	unsigned int lr;
-	unsigned int pc;
-
-};
-
 struct thread
 {
 	unsigned int state;
@@ -79,7 +59,7 @@ struct thread
 	unsigned int start_stack;
 	unsigned int delay;
 	void (*func)(void);
-	struct registers *regs;
+	struct arch_thread *arch;
 	struct list_node node;
 	struct list_node event_node;
 };

@@ -5,5 +5,5 @@
 
 obj-y := svc_asm.o
 obj-y += svc.o
-obj-y += context.o
 obj-y += interrupt.o
+obj-y += thread.o
