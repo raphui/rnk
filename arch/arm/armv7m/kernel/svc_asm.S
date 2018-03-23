@@ -22,22 +22,6 @@
 .cpu cortex-m4
 .arch armv7e-m
 
-.global save_context
-save_context:
-	mrs r0, psp
-	stmfd r0!, {r4-r11}
-	msr psp, r0
-	bx lr
-
-
-.global restore_context
-restore_context:
-	mrs r0, psp
-	ldmfd r0!, {r4-r11}
-	msr psp, r0
-	bx lr
-
-
 .global switch_to_privilege_mode
 switch_to_privilege_mode:
 	mrs r0, control

@@ -63,6 +63,9 @@ void schedule_thread(struct thread *thread)
 		t->quantum--;
 #endif /* CONFIG_SCHEDULE_ROUND_ROBIN */
 
+	if (t->state != THREAD_BLOCKED)
+		insert_runnable_thread(t);
+
 	if (thread)
 		switch_thread(thread);
 	else {

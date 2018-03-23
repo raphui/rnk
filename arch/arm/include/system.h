@@ -22,7 +22,6 @@
 extern void arch_init(void);
 extern void arch_init_tick(void);
 extern void arch_request_sched(void);
-void arch_switch_context(struct thread *old, struct thread *new);
 extern unsigned int arch_get_thread_stack(void);
 extern void arch_set_thread_stack(struct thread *t);
 

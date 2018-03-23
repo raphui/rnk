@@ -24,6 +24,9 @@ struct arch_sw_context_frame *current_ctx_frame;
 
 void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int *stack, unsigned int param1, unsigned int param2)
 {
+
+	stack = (unsigned int *)((unsigned int)stack & 0xFFFFFFF8);
+
 	/* HW frame */
 	arch->hw_frame.r0 = param1;
 	arch->hw_frame.r1 = param2;
@@ -70,15 +73,15 @@ void arch_set_thread_stack(struct arch_thread *arch)
 
 void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 {
-	unsigned int old_sp = arch_get_thread_stack();
+	unsigned int *old_sp = arch_get_thread_stack();
 
 	if (old) {
 
-		old->ctx_frame.sp = old_sp;
+		*--old_sp = old_sp;
 
-		memcpy(&old->ctx_frame.r4, (void *)old_sp, sizeof(struct arch_sw_context_frame) - sizeof(unsigned int));
+		memcpy(&old->ctx_frame, (void *)old_sp, sizeof(struct arch_sw_context_frame));
 
-		old_sp += sizeof(struct arch_sw_context_frame) - sizeof(unsigned int);
+		old_sp += sizeof(struct arch_sw_context_frame);
 
 		memcpy(&old->hw_frame, (void *)old_sp, sizeof(struct arch_short_context_frame));
 	}
