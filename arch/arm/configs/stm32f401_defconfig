@@ -12,38 +12,86 @@ CONFIG_CPU_ARM_THUMB=y
 CONFIG_CPU_ARMV7M=y
 # CONFIG_CPU_ARM_CORTEX_M3 is not set
 CONFIG_CPU_ARM_CORTEX_M4=y
+# CONFIG_CPU_ARM_CORTEX_M7 is not set
 # CONFIG_BIG_ENDIAN is not set
 CONFIG_LITTLE_ENDIAN=y
+CONFIG_STACK_SIZE=0x800
+
+#
+# ARM library configuration
+#
+# CONFIG_SEMIHOSTING is not set
 
 #
 # Board configuration
 #
-# CONFIG_MACH_AT91 is not set
 CONFIG_MACH_STM32=y
+CONFIG_STM32F4XX=y
 
 #
 # STM32 configuration
 #
 CONFIG_STM32F401=y
-# CONFIG_STM32F429 is not set
 # CONFIG_STM32F407 is not set
+# CONFIG_STM32F429 is not set
+# CONFIG_STM32F746 is not set
+CONFIG_NUM_IRQS=62
 
 #
 # Kernel configuration
 #
-CONFIG_TASK_STACK_START=0x20009000
+CONFIG_THREAD_STACK_START=0x20005000
+CONFIG_THREAD_STACK_SIZE=0x1000
+# CONFIG_SCHEDULE_RR_PRIO is not set
+CONFIG_SCHEDULE_ROUND_ROBIN=y
+# CONFIG_SCHEDULE_PRIORITY is not set
+CONFIG_THREAD_QUANTUM=150
+# CONFIG_HR_TIMER is not set
+# CONFIG_BW_DELAY is not set
+
+#
+# Library configuration
+#
 
 #
 # Drivers configuration
 #
+CONFIG_IRQ_SUBSYS=y
+# CONFIG_LCD_SUBSYS is not set
+# CONFIG_I2C_SUBSYS is not set
+CONFIG_SPI_SUBSYS=y
+# CONFIG_AT45DB is not set
+CONFIG_TIMER_SUBSYS=y
 
 #
 # Memory management configuration
 #
-CONFIG_KERNEL_HEAP_START=0x20000000
-CONFIG_KERNEL_HEAP_END=0x20007FFF
+CONFIG_KERNEL_HEAP_START=0x20002000
+CONFIG_KERNEL_HEAP_END=0x20004000
+CONFIG_CUSTOM_MALLOC=y
+# CONFIG_DLMALLOC is not set
+# CONFIG_TLSF is not set
+
+#
+# Third party configuration
+#
+
+#
+# Third party library configuration
+#
+CONFIG_LIBFDT=y
 
 #
 # Utility configuration
 #
 CONFIG_UNWIND=y
+CONFIG_USART_DEBUG=y
+# CONFIG_SWO_DEBUG is not set
+# CONFIG_SEMIHOSTING_DEBUG is not set
+
+#
+# Debug level
+#
+# CONFIG_DEBUG is not set
+CONFIG_ERROR=y
+# CONFIG_VERBOSE is not set
