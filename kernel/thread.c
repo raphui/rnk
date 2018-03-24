@@ -61,7 +61,10 @@ static void insert_thread(struct thread *t)
 {
 	struct thread *thread = NULL;
 
-#if defined(CONFIG_SCHEDULE_PRIORITY)
+#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
+	insert_in_run_queue_tail(t);
+	verbose_printk("inserting thread %d\r\n", t->pid);
+#elif defined(CONFIG_SCHEDULE_PRIORITY)
 	if (list_is_empty(&run_queue[0])) {
 		list_add_head(&run_queue[0], &t->node);
 	} else {
@@ -74,7 +77,7 @@ static void insert_thread(struct thread *t)
 			}
 		}
 	}
-#elif defined(CONFIG_SCHEDULE_RR_PRIO) || defined(CONFIG_SCHEDULE_ROUND_ROBIN)
+#elif defined(CONFIG_SCHEDULE_PRIORITY)
 	if (t->quantum > 0)
 		insert_in_run_queue_head(t);
 	else {
@@ -143,8 +146,7 @@ void switch_thread(struct thread *thread)
 
 	arch_switch_context(current_thread->arch, thread->arch);
 
-	if (thread->pid != 0)
-		remove_runnable_thread(thread);
+	remove_runnable_thread(thread);
 
 	current_thread = thread;
 }
@@ -156,6 +158,7 @@ struct thread *get_current_thread(void)
 
 struct thread *find_next_thread(void)
 {
+	int found = 0;
 	struct thread *thread = NULL;
 
 #ifdef CONFIG_SCHEDULE_RR_PRIO
@@ -186,15 +189,18 @@ struct thread *find_next_thread(void)
 		if (thread->priority < current_thread->priority)
 			thread = current_thread;
 #elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
-	list_for_every_entry(&run_queue[0], thread, struct thread, node)
-		if ((thread->quantum > 0) && (thread->pid != 0))
+	list_for_every_entry(&run_queue[0], thread, struct thread, node) {
+		if ((thread->quantum > 0) && (thread->pid != 0)) {
+			found = 1;
 			break;
+		}
+	}
 
 	if (current_thread)
 		current_thread->quantum = CONFIG_THREAD_QUANTUM;
 
 	/* Only idle thread is eligible */
-	if (!thread) {
+	if (!found) {
 		thread = list_peek_head_type(&run_queue[0], struct thread, node);
 	}
 #endif
