@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <armv7m/mpu.h>
 #include <armv7m/system.h>
 #include <stdio.h>
 #include <sizes.h>
@@ -24,6 +25,11 @@
 
 #define MPU_MAX_REGION	8
 #define MPU_RBAR_BASE_MASK	0xFFFFFFC0
+
+#define MPU_RASR_SIZE_MASK	0x3E
+
+extern unsigned int _sstack[];
+extern unsigned int _estack[];
 
 static unsigned int mpu_read_reg(unsigned int reg)
 {
@@ -34,18 +40,57 @@ static void mpu_write_reg(unsigned reg, unsigned val)
 	writel(reg, val);
 }
 
+static int mpu_map(void *base, int size, int prio, int attr)
+{
+	int tmp, mpu_en;
+	int ret = 0;
+
+	__disable_it();
+
+	if (size < 32)
+		return -ENOTSUP;
+
+	tmp = mpu_read_reg(MPU_CTRL);
+
+	mpu_en = tmp & MPU_CTRL_ENABLE;
+	tmp &= ~MPU_CTRL_ENABLE;
+
+	mpu_write_reg(MPU_CTRL, tmp);
+
+	mpu_write_reg(MPU_RNR, prio);
+	mpu_write_reg(MPU_RBAR, ((unsigned int)base) & ~0x1F);
+
+	size = 32 - __builtin_clz(size) - 2;
+	mpu_write_reg(MPU_RASR, MPU_RASR_SIZE(size) | attr | MPU_RASR_ENABLE);
+
+	if (mpu_en)
+		tmp |= MPU_CTRL_ENABLE;
+
+	mpu_write_reg(MPU_CTRL, tmp);
+
+	__enable_it();
+	__isb();
+	__dsb();
+
+	return ret;
+}
+
 int mpu_init(void)
 {
 	int ret = 0;
 	int supp;
+	unsigned int sstack = (unsigned int)&sstack;
+	unsigned int estack = (unsigned int)&estack;
 
 	supp = mpu_read_reg(MPU_TYPER);
 
 	if (!(supp & 0xFF00))
 		return -ENOTSUP;
 
-	mpu_map(CORTEX_M_PERIPH_BASE, SZ_512M, MPU_RASR_DEVICE_SHARE | MPU_RASR_AP_PRIV_RW_UN_NO);
-	mpu_map(NULL, 32, MPU_RASR_AP_PRIV_NO_UN_NO | MPU_RASR_XN);
+	mpu_map_from_low((void *)CORTEX_M_PERIPH_BASE, SZ_512M, MPU_RASR_DEVICE_SHARE | MPU_RASR_AP_PRIV_RW_UN_NO);
+	mpu_map_from_low(NULL, 32, MPU_RASR_AP_PRIV_NO_UN_NO | MPU_RASR_XN);
+	mpu_map_from_high((void *)sstack, estack - sstack, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_NO);
+
 
 	mpu_write_reg(MPU_CTRL, MPU_CTRL_ENABLE | MPU_CTRL_PRIVDEFENA);
 
@@ -55,16 +100,11 @@ int mpu_init(void)
 	return ret;
 }
 
-int mpu_map(void *base, int size, int attr)
+int mpu_map_from_low(void *base, int size, int attr)
 {
-	int i, tmp, mpu_en;
-	int prio = -1;
+	int i, tmp;
 	int ret = 0;
-
-	__disable_it();
-
-	if (size < 32)
-		return -ENOTSUP;
+	int prio = -1;
 
 	for (i = 0; i < MPU_MAX_REGION; i++) {
 		mpu_write_reg(MPU_RNR, i);
@@ -77,28 +117,94 @@ int mpu_map(void *base, int size, int attr)
 	}
 
 	if (prio >= 0) {
-		tmp = mpu_read_reg(MPU_CTRL);
-
-		mpu_en = tmp & MPU_CTRL_ENABLE;
-		tmp &= ~MPU_CTRL_ENABLE;
-
-		mpu_write_reg(MPU_CTRL, tmp);
-
-		mpu_write_reg(MPU_RNR, prio);
-		mpu_write_reg(MPU_RBAR, ((unsigned int)base) & ~0x1F);
-
-		size = 32 - __builtin_clz(size) - 2;
-		mpu_write_reg(MPU_RASR, MPU_RASR_SIZE(size) | attr | MPU_RASR_ENABLE);
-
-		if (mpu_en)
-			tmp |= MPU_CTRL_ENABLE;
-	
-		mpu_write_reg(MPU_CTRL, tmp);
-
-	} else {
-		ret = -ENOMEM;
+		ret = mpu_map(base, size, prio, attr);
+		if (!ret)
+			ret = prio;
 	}
-	
+	else
+		ret = -ENOMEM;
+
+	return ret;
+}
+
+int mpu_map_from_high(void *base, int size, int attr)
+{
+	int i, tmp;
+	int ret = 0;
+	int prio = -1;
+
+	for (i = MPU_MAX_REGION - 1; i >= 0 ; i--) {
+		mpu_write_reg(MPU_RNR, i);
+		tmp = mpu_read_reg(MPU_RBAR) & MPU_RBAR_BASE_MASK;
+
+		if (!tmp) {
+			prio = i;
+			break;
+		}
+	}
+
+	if (prio >= 0) {
+		ret = mpu_map(base, size, prio, attr);
+		if (!ret)
+			ret = prio;
+	}
+	else
+		ret = -ENOMEM;
+
+	return ret;
+}
+
+int mpu_unmap(void *base, int size)
+{
+	int i, tmp;
+	int ret = 0;
+	int prio = -1;
+
+	__disable_it();
+
+	size = 32 - __builtin_clz(size) - 2;
+
+	for (i = 0; i < MPU_MAX_REGION; i++) {
+		mpu_write_reg(MPU_RNR, i);
+		tmp = mpu_read_reg(MPU_RBAR) & MPU_RBAR_BASE_MASK;
+
+		if (tmp == (int)base) {
+			tmp = mpu_read_reg(MPU_RASR);
+
+			if ((tmp & MPU_RASR_SIZE_MASK) == size)
+				prio = i;
+				break;
+		}
+	}
+
+	if (prio >= 0) {
+		mpu_write_reg(MPU_RBAR, 0x0);
+		mpu_write_reg(MPU_RASR, 0x0);
+	}
+	else
+		ret = -ENOENT;
+
+	__enable_it();
+	__isb();
+	__dsb();
+
+	return ret;
+}
+
+int mpu_unmap_prio(int prio)
+{
+	int ret = 0;
+
+	__disable_it();
+
+	if (prio >= 0) {
+		mpu_write_reg(MPU_RNR, prio);
+		mpu_write_reg(MPU_RBAR, 0x0);
+		mpu_write_reg(MPU_RASR, 0x0);
+	}
+	else
+		ret = -ENOENT;
+
 	__enable_it();
 	__isb();
 	__dsb();
