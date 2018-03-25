@@ -101,5 +101,7 @@ SECTIONS
  
     . = ALIGN(4);
     _end = . ;
-    PROVIDE( _estack = _end + CONFIG_STACK_SIZE );
+
+    PROVIDE(_sstack = _eram - CONFIG_STACK_SIZE);
+    PROVIDE( _estack = _eram );
 }

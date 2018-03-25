@@ -32,6 +32,7 @@
 #include <queue.h>
 #include <symbols.h>
 #include <backtrace.h>
+#include <elfloader.h>
 
 static void dump_stack(unsigned int *stack)
 {
@@ -141,6 +142,10 @@ void svc_handler(unsigned int call, void *arg)
 	case SVC_TIMER_ONESHOT:
 		debug_printk("SVC call ask for oneshot timer\r\n");
 		svc_timer_soft_oneshot(*(int *)psp[1], (void (*)(void *))psp[2], (void *)psp[3]);
+		break;
+	case SVC_ELF_LOAD:
+		debug_printk("SVC call ask for elf load\r\n");
+		svc_elf_exec(*(int *)psp[1], (void (*)(void *))psp[2], (void *)psp[3]);
 		break;
 	default:
 		debug_printk("Invalid svc call\r\n");

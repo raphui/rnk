@@ -31,6 +31,7 @@ enum service_calls {
 	SVC_QUEUE_POST,
 	SVC_QUEUE_RECEIVE,
 	SVC_TIMER_ONESHOT,
+	SVC_ELF_LOAD,
 };
 
 /*

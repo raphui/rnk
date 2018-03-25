@@ -22,27 +22,42 @@
 
 void thread_a(void)
 {
+	int i = 0;
+
 	printk("starting thread A\n");
 
 	while (1) {
+		if (i++ % 10)
+			usleep(1000000);
+
 		printk("A\n");
 	}
 }
 
 void thread_b(void)
 {
+	int i = 0;
+
 	printk("starting thread B\n");
 
 	while (1) {
+		if (i++ % 10)
+			usleep(1000000);
+
 		printk("B\n");
 	}
 }
 
 void thread_c(void)
 {
+	int i = 0;
+
 	printk("starting thread C\n");
 
 	while (1) {
+		if (i++ % 10)
+			usleep(1000000);
+
 		printk("C\n");
 	}
 }

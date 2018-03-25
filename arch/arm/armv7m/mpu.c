@@ -89,6 +89,7 @@ int mpu_init(void)
 
 	mpu_map_from_low((void *)CORTEX_M_PERIPH_BASE, SZ_512M, MPU_RASR_DEVICE_SHARE | MPU_RASR_AP_PRIV_RW_UN_NO);
 	mpu_map_from_low(NULL, 32, MPU_RASR_AP_PRIV_NO_UN_NO | MPU_RASR_XN);
+	mpu_map_from_low((void *)CONFIG_KERNEL_HEAP_START, CONFIG_KERNEL_HEAP_END - CONFIG_KERNEL_HEAP_START, MPU_RASR_AP_PRIV_RW_UN_RW | MPU_RASR_XN);
 	mpu_map_from_high((void *)sstack, estack - sstack, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_NO);
 
 
