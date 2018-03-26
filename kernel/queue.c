@@ -96,8 +96,6 @@ void svc_queue_post(struct queue *queue, void *item)
 {
 	struct thread *t = NULL;
 
-	thread_lock(state);
-
 	if (queue->item_queued < queue->size) {
 		if ((queue->wr + queue->item_size) <= queue->tail) {
 			memcpy(queue->wr, item, queue->item_size);
@@ -114,9 +112,6 @@ void svc_queue_post(struct queue *queue, void *item)
 			}
 		}
 	}
-
-	
-	thread_unlock(state);
 }
 
 void queue_post(struct queue *queue, void *item, unsigned int timeout)
@@ -145,8 +140,6 @@ void svc_queue_receive(struct queue *queue, void *item)
 	struct thread *t = NULL;
 
 
-	thread_lock(state);
-
 	if (queue->item_queued) {
 		if ((queue->curr + queue->item_size) <= queue->wr) {
 			memcpy(item, queue->curr, queue->item_size);
@@ -166,9 +159,6 @@ void svc_queue_receive(struct queue *queue, void *item)
 		if (queue->curr == queue->wr)
 			clear_queue(queue);
 	}
-
-
-	thread_unlock(state);
 }
 
 void queue_receive(struct queue *queue, void *item, unsigned int timeout)

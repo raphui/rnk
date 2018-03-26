@@ -50,8 +50,6 @@ void svc_usleep(struct timer *timer)
 {
 	struct thread *thread = NULL;
 
-	thread_lock(state);
-
 	thread = get_current_thread();
 	thread->delay = timer->counter;
 
@@ -68,8 +66,6 @@ void svc_usleep(struct timer *timer)
 #endif /* CONFIG_HR_TIMER */
 
 	syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
-
-	thread_unlock(state);
 }
 
 void usleep(unsigned int usec)
@@ -103,13 +99,9 @@ void svc_timer_soft_oneshot(int delay, void (*handler)(void *), void *arg)
 {
 	int ret;
 
-	thread_lock(state);
-
 	ret = timer_oneshot_soft(delay, handler, arg);
 	if (ret < 0)
 		error_printk("failed to create software timer oneshot\n");
-
-	thread_unlock(state);
 }
 
 void decrease_thread_delay(void)
@@ -117,8 +109,6 @@ void decrease_thread_delay(void)
 	struct thread *thread;
 	struct thread *tmp;
 	struct thread *curr = get_current_thread();
-
-	thread_lock(state);
 
 	list_for_every_entry_safe(&sleeping_threads, thread, tmp, struct thread, node) {
 		if (thread->state == THREAD_RUNNABLE) {
@@ -150,8 +140,6 @@ void decrease_thread_delay(void)
 			verbose_printk("%d: %d usec remaining\r\n", thread->pid, thread->delay);
 		}
 	}
-
-	thread_unlock(state);
 }
 
 void decrease_timer_delay(void)

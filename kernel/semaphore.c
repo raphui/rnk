@@ -58,8 +58,6 @@ void svc_sem_wait(struct semaphore *sem)
 {
 	struct thread *current_thread;
 
-	thread_lock(state);
-
 	if (--sem->count < 0) {
 		debug_printk("unable to got sem (%p)(%d)\r\n", sem, sem->count);
 
@@ -71,8 +69,6 @@ void svc_sem_wait(struct semaphore *sem)
 
 		syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
 	}
-
-	thread_unlock(state);
 }
 
 void sem_wait(struct semaphore *sem)
@@ -84,8 +80,6 @@ EXPORT_SYMBOL(sem_wait);
 void svc_sem_post(struct semaphore *sem)
 {
 	struct thread *thread;
-
-	thread_lock(state);
 
 	sem->count++;
 
@@ -106,8 +100,6 @@ void svc_sem_post(struct semaphore *sem)
 			syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
 		}
 	}
-
-	thread_unlock(state);
 }
 
 void sem_post(struct semaphore *sem)

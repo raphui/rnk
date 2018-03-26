@@ -82,8 +82,6 @@ void svc_mutex_lock(struct mutex *mutex)
 {
 	int ret;
 
-	thread_lock(state);
-
 	ret = __mutex_lock(mutex);
 	if (ret < 0) {
 		debug_printk("mutex_lock FAILED !\r\n");
@@ -91,8 +89,6 @@ void svc_mutex_lock(struct mutex *mutex)
 	} else {
 		debug_printk("mutex (%x) lock\r\n", mutex);
 	}
-
-	thread_unlock(state);
 }
 
 void mutex_lock(struct mutex *mutex)
@@ -105,8 +101,6 @@ void svc_mutex_unlock(struct mutex *mutex)
 {
 	struct thread *current_thread = get_current_thread();
 	struct thread *thread;
-
-	thread_lock(state);
 
 	if (!mutex->lock)
 		debug_printk("mutex already unlock\r\n");
@@ -133,8 +127,6 @@ void svc_mutex_unlock(struct mutex *mutex)
 	} else {
 		debug_printk("mutex cannot be unlock, thread is not the owner\r\n");
 	}
-
-	thread_unlock(state);
 }
 
 void mutex_unlock(struct mutex *mutex)
