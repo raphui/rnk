@@ -172,9 +172,10 @@ int mpu_unmap(void *base, int size)
 		if (tmp == (int)base) {
 			tmp = mpu_read_reg(MPU_RASR);
 
-			if ((tmp & MPU_RASR_SIZE_MASK) == size)
+			if ((tmp & MPU_RASR_SIZE_MASK) == size) {
 				prio = i;
 				break;
+			}
 		}
 	}
 
