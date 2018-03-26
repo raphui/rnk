@@ -65,23 +65,19 @@ void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned i
 	arch->mpu.top_sp = (unsigned int)stack;
 }
 
-unsigned int arch_get_thread_stack(void)
+static unsigned int arch_get_thread_stack(void)
 {
 	return PSP();
 }
 
-void arch_set_thread_stack(struct arch_thread *arch)
-{
-	//SET_PSP((void *)t->regs->sp);
-}
-
 void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 {
-	unsigned int *old_sp = arch_get_thread_stack();
+	unsigned int *old_sp = (unsigned int *)arch_get_thread_stack();
 
 	if (old) {
 
-		*--old_sp = (unsigned int)old_sp;
+		old_sp--;
+	        *old_sp = (unsigned int)old_sp;
 
 		memcpy(&old->ctx_frame, (void *)old_sp, sizeof(struct arch_sw_context_frame));
 
