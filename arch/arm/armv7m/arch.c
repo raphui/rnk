@@ -31,15 +31,15 @@ void arch_init(void)
 
 	mpu_init();
 
-	entry.isr = __svc;
+	entry.isr = (void *)__svc;
 	entry.arg = NULL;
 
 	vector_set_isr_entry(&entry, -5);
 
-	entry.isr = __pendsv;
+	entry.isr = (void *)__pendsv;
 	vector_set_isr_entry(&entry, -2);
 
-	entry.isr = systick_handler;
+	entry.isr = (void *)systick_handler;
 	vector_set_isr_entry(&entry, -1);
 }
 
