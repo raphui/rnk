@@ -19,6 +19,8 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+#include <thread.h>
+
 extern void arch_init(void);
 extern void arch_init_tick(void);
 extern void arch_request_sched(void);

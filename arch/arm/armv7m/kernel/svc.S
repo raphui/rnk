@@ -16,12 +16,63 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef SVC_H
-#define SVC_H
+#define INSTR_CODE_SVC		(0xDF00)
+#define INSTR_CODE_BX_LR	(0x4770)
 
-extern void svc_noarg(int number);
-extern void svc_arg1(int number, void *arg);
-extern void svc_arg2(int number, void *arg, void *arg2);
-extern void svc_arg3(int number, void *arg, void *arg2, void *arg3);
+.syntax unified
+.thumb
 
-#endif /* SVC_H */
+.thumb_func
+.global svc_noarg
+svc_noarg:
+	push {lr}
+
+	bl svc_call
+
+	pop {pc}
+
+.thumb_func
+.global svc_arg1
+svc_arg1:
+	push {lr}
+
+	bl svc_call
+
+	pop {pc}
+
+.thumb_func
+.global svc_arg2
+svc_arg2:
+	push {lr}
+
+	bl svc_call
+
+	pop {pc}
+
+.thumb_func
+.global svc_arg3
+svc_arg3:
+	push {lr}
+
+	bl svc_call
+
+	pop {pc}
+
+.thumb_func
+.global svc_call
+svc_call:
+	push {lr}
+
+	subs sp, sp, #4
+
+	mov r4, #INSTR_CODE_SVC
+	orr r4, r4, r0
+	strh r4, [sp]
+
+	mov r4, #INSTR_CODE_BX_LR
+	strh r4, [sp, #2]
+
+	mov r4, sp
+	orr r4, r4, #1
+	blx r4
+	pop {r4, pc}

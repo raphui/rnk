@@ -21,15 +21,11 @@
 #include <utils.h>
 #include <interrupt.h>
 #include <scheduler.h>
+#include <syscall.h>
 #include <armv7m/system.h>
-#include <arch/nvic.h>
 #include <arch/system.h>
-#include <arch/svc.h>
-#include <time.h>
-#include <pio.h>
-#include <irq.h>
+#include <arch/syscall.h>
 #include <common.h>
-#include <queue.h>
 #include <symbols.h>
 #include <backtrace.h>
 
@@ -98,52 +94,24 @@ void pendsv_handler(void)
 	schedule_thread(NULL);
 }
 
-void svc_handler(unsigned int call, void *arg)
+void svc_handler(unsigned int call)
 {
+	void *arg1;
+	void *arg2;
+	void *arg3;
 	unsigned int svc_number;
 	unsigned int *psp = (unsigned int *)call;
+	void (*handler)(void *, void *, void *);
 
 	svc_number = ((char *)psp[6])[-2];
 
-	debug_printk("svc_handler: got call %d with arg (%x)\r\n", svc_number, arg);
+	debug_printk("svc_handler: got call %d\r\n", svc_number);
 
-	switch (svc_number) {
-		schedule_thread((struct thread *)arg);
-		break;
-	case SVC_ACQUIRE_MUTEX:
-		debug_printk("SVC call ask for acquiring mutex\r\n");
-		svc_mutex_lock((struct mutex *)arg);
-		break;
-	case SVC_RELEASE_MUTEX:
-		debug_printk("SVC call ask for releasing mutex\r\n");
-		svc_mutex_unlock((struct mutex *)arg);
-		break;
-	case SVC_WAIT_SEM:
-		debug_printk("SVC call ask for wait semaphore\r\n");
-		svc_sem_wait((struct semaphore *)arg);
-		break;
-	case SVC_POST_SEM:
-		debug_printk("SVC call ask for post semaphore\r\n");
-		svc_sem_post((struct semaphore *)arg);
-		break;
-	case SVC_USLEEP:
-		debug_printk("SVC call ask for usleep\r\n");
-		svc_usleep((struct timer *)arg);
-		break;
-	case SVC_QUEUE_POST:
-		debug_printk("SVC call ask for post in queue\r\n");
-		svc_queue_post((struct queue *)psp[1], (void *)psp[2]);
-		break;
-	case SVC_QUEUE_RECEIVE:
-		debug_printk("SVC call ask for receive from queue\r\n");
-		svc_queue_receive((struct queue *)psp[1], (void *)psp[2]);
-		break;
-	case SVC_TIMER_ONESHOT:
-		debug_printk("SVC call ask for oneshot timer\r\n");
-		svc_timer_soft_oneshot(*(int *)psp[1], (void (*)(void *))psp[2], (void *)psp[3]);
-		break;
-	default:
-		debug_printk("Invalid svc call\r\n");
-		break;
-	}
+	arg1 = (void *)psp[1];
+	arg2 = (void *)psp[2];
+	arg3 = (void *)psp[3];
+
+	handler = (void (*))syscall_table[svc_number].handler;
+
+	(*handler)(arg1, arg2, arg3);
 }

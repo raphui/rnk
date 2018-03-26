@@ -16,12 +16,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef SVC_H
-#define SVC_H
+#include <stdio.h>
+#include <stdarg.h>
+#include <syscall.h>
 
-extern void svc_noarg(int number);
-extern void svc_arg1(int number, void *arg);
-extern void svc_arg2(int number, void *arg, void *arg2);
-extern void svc_arg3(int number, void *arg, void *arg2, void *arg3);
+#include <armv7m/svc.h>
+#include <arch/system.h>
 
-#endif /* SVC_H */
+#define MAX_SYSCALL_ARGUMENT	4
+
+int arch_system_call(unsigned int call, va_list va)
+{
+	int i;
+	int ret = 0;
+	void *args[MAX_SYSCALL_ARGUMENT];
+
+	for (i = 0; i < MAX_SYSCALL_ARGUMENT; i++)
+		args[i] = va_arg(va, void *);
+
+	if (call == SYSCALL_THREAD_SWITCH)
+		arch_request_sched();
+	else if (call < SYSCALL_END)
+		svc_arg3(call, args[0], args[1], args[2]);
+
+	return ret;
+}

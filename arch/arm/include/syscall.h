@@ -16,12 +16,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef SVC_H
-#define SVC_H
+#ifndef ARCH_SYSCALL_H
+#define ARCH_SYSCALL_H
 
-extern void svc_noarg(int number);
-extern void svc_arg1(int number, void *arg);
-extern void svc_arg2(int number, void *arg, void *arg2);
-extern void svc_arg3(int number, void *arg, void *arg2, void *arg3);
+#include <stdarg.h>
 
-#endif /* SVC_H */
+extern int arch_system_call(unsigned int call, va_list va);
+
+#endif /* ARCH_SYSCALL_H */
