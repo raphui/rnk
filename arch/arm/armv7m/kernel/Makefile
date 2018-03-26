@@ -3,7 +3,6 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
-obj-y := svc_asm.o
 obj-y := svc.o
 obj-y += syscall.o
 obj-y += interrupt.o
