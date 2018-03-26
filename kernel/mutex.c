@@ -6,8 +6,7 @@
 #include <thread.h>
 #include <spinlock.h>
 #include <export.h>
-
-#include <arch/svc.h>
+#include <syscall.h>
 
 static void insert_waiting_thread(struct mutex *m, struct thread *t)
 {
@@ -98,7 +97,7 @@ void svc_mutex_lock(struct mutex *mutex)
 
 void mutex_lock(struct mutex *mutex)
 {
-	arch_system_call(SVC_ACQUIRE_MUTEX, mutex, NULL, NULL);
+	syscall(SYSCALL_ACQUIRE_MUTEX, mutex, NULL, NULL);
 }
 EXPORT_SYMBOL(mutex_lock);
 
@@ -125,7 +124,7 @@ void svc_mutex_unlock(struct mutex *mutex)
 
 				remove_waiting_thread(mutex, thread);
 				insert_runnable_thread(thread);
-				arch_system_call(SVC_THREAD_SWITCH, NULL, NULL, NULL);
+				syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
 			}
 		}
 
@@ -140,6 +139,6 @@ void svc_mutex_unlock(struct mutex *mutex)
 
 void mutex_unlock(struct mutex *mutex)
 {
-	arch_system_call(SVC_RELEASE_MUTEX, mutex, NULL, NULL);
+	syscall(SYSCALL_RELEASE_MUTEX, mutex, NULL, NULL);
 }
 EXPORT_SYMBOL(mutex_unlock);

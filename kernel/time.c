@@ -19,7 +19,7 @@
 #include <thread.h>
 #include <time.h>
 #include <timer.h>
-#include <arch/svc.h>
+#include <syscall.h>
 #include <stdio.h>
 #include <scheduler.h>
 #include <arch/system.h>
@@ -67,7 +67,7 @@ void svc_usleep(struct timer *timer)
 //	timer_enable(timer);
 #endif /* CONFIG_HR_TIMER */
 
-	arch_system_call(SVC_THREAD_SWITCH, NULL, NULL, NULL);
+	syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
 
 	thread_unlock(state);
 }
@@ -89,14 +89,14 @@ void usleep(unsigned int usec)
 	} while (end > system_tick);
 #else
 	timer.counter = usec / 1000;
-	arch_system_call(SVC_USLEEP, &timer, NULL, NULL);
+	syscall(SYSCALL_USLEEP, &timer, NULL, NULL);
 #endif /* CONFIG_BW_DELAY */
 }
 EXPORT_SYMBOL(usleep);
 
 void timer_soft_oneshot(int delay, void (*handler)(void *), void *arg)
 {
-	arch_system_call(SVC_TIMER_ONESHOT, &delay, handler, arg);
+	syscall(SYSCALL_TIMER_ONESHOT, &delay, handler, arg);
 }
 
 void svc_timer_soft_oneshot(int delay, void (*handler)(void *), void *arg)
@@ -127,7 +127,7 @@ void decrease_thread_delay(void)
 			insert_runnable_thread(thread);
 #ifdef CONFIG_SCHEDULE_PRIORITY
 			if (curr->priority < thread->priority)
-				arch_system_call(SVC_THREAD_SWITCH, NULL, NULL, NULL);
+				syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 
 		} else if (!thread->delay) {
@@ -142,7 +142,7 @@ void decrease_thread_delay(void)
 
 #ifdef CONFIG_SCHEDULE_PRIORITY
 			if (curr->priority < thread->priority)
-				arch_system_call(SVC_THREAD_SWITCH, NULL, NULL, NULL);
+				syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 		} else {
 

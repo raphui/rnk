@@ -21,7 +21,6 @@
 #include <string.h>
 #include <mm.h>
 #include <utils.h>
-#include <arch/svc.h>
 #include <arch/system.h>
 #include <spinlock.h>
 #include <export.h>

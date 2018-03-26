@@ -19,7 +19,7 @@
 #include <thread.h>
 #include <scheduler.h>
 #include <mm.h>
-#include <arch/svc.h>
+#include <syscall.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -110,7 +110,7 @@ void svc_queue_post(struct queue *queue, void *item)
 
 				t->state = THREAD_RUNNABLE;
 				remove_waiting_receive_thread(queue, t);
-				arch_system_call(SVC_THREAD_SWITCH, NULL, NULL, NULL);
+				syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
 			}
 		}
 	}
@@ -126,7 +126,7 @@ void queue_post(struct queue *queue, void *item, unsigned int timeout)
 		if (back_from_sleep) {
 			break;
 		} else if (queue->item_queued < queue->item_size) {
-			arch_system_call(SVC_QUEUE_POST, queue, item, NULL);
+			syscall(SYSCALL_QUEUE_POST, queue, item, NULL);
 			break;
 		} else if (timeout) {
 			insert_waiting_post_thread(queue, get_current_thread());
@@ -158,7 +158,7 @@ void svc_queue_receive(struct queue *queue, void *item)
 
 				t->state = THREAD_RUNNABLE;
 				remove_waiting_post_thread(queue, t);
-				arch_system_call(SVC_THREAD_SWITCH, NULL, NULL, NULL);
+				syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
 			}
 
 		}
@@ -176,7 +176,7 @@ void queue_receive(struct queue *queue, void *item, unsigned int timeout)
 	int back_from_sleep = 0;
 	for (;;) {
 		if (queue->item_queued) {
-			arch_system_call(SVC_QUEUE_RECEIVE, queue, item, NULL);
+			syscall(SYSCALL_QUEUE_RECEIVE, queue, item, NULL);
 			break;
 		} else if (timeout) {
 			insert_waiting_receive_thread(queue, get_current_thread());
