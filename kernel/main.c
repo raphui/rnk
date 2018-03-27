@@ -39,7 +39,7 @@ void loading_thread(void)
 
 	printk("starting thread K\r\n");
 
-	ret = elf_exec((char *)0x08050000, 220417, 0x08050000);
+	ret = elf_exec((char *)0x08020000, 220417, 0x08020000);
 	if (ret < 0)
 		printk("failed to exec elf\r\n");
 	else
