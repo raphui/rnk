@@ -65,4 +65,12 @@ unsigned int readl(unsigned int reg);
 }                                                       \
 )
 
+#define DUMP_BINARY_FIELD(str, data, ptr, data_size, elem_size) ({ \
+	int i;\
+	printk("%s: ", str);\
+	for (i = 0, ptr = (typeof(ptr))data; i < data_size; i += elem_size, ptr++)\
+		printk("%x ", *p);\
+	printk("\n");\
+})
+
 #endif /* UTILS_H */
