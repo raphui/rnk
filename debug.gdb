@@ -26,7 +26,7 @@ define load_apps
 	end
 
 	if $argc == 1
-		restore $arg0 binary 0x08050000
+		restore $arg0 binary 0x08020000
 	end
 end
 
