@@ -22,6 +22,7 @@
 #include <elf.h>
 #include <mm.h>
 #include <symbols.h>
+#include <syscall.h>
 
 /*
  * S (when used on its own) is the address of the symbol.
@@ -331,7 +332,7 @@ static void elf_jump(unsigned int entry)
 	fct();
 }
 
-int elf_exec(char *elf_data, int elf_size, int reloc_addr)
+int svc_elf_exec(char *elf_data, int elf_size, int reloc_addr)
 {
 	int ret = 0;
 	unsigned int entry_point;
@@ -350,4 +351,10 @@ int elf_exec(char *elf_data, int elf_size, int reloc_addr)
 	elf_jump(entry_point);
 
 	return ret;
+
+}
+
+int elf_exec(char *elf_data, int elf_size, int reloc_addr)
+{
+	return syscall(SYSCALL_ELF_LOAD, elf_data, elf_size, reloc_addr);
 }

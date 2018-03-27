@@ -24,6 +24,7 @@
 #include <queue.h>
 #include <semaphore.h>
 #include <time.h>
+#include <elfloader.h>
 
 #include <arch/syscall.h>
 
@@ -36,7 +37,8 @@ struct syscall syscall_table[] = {
 	{SYSCALL_USLEEP, (unsigned int *)svc_usleep},
 	{SYSCALL_QUEUE_POST, (unsigned int *)&svc_queue_post},
 	{SYSCALL_QUEUE_RECEIVE, (unsigned int *)&svc_queue_receive},
-	{SYSCALL_TIMER_ONESHOT, (unsigned int *)&svc_timer_soft_oneshot}
+	{SYSCALL_TIMER_ONESHOT, (unsigned int *)&svc_timer_soft_oneshot},
+	{SYSCALL_ELF_LOAD, (unsigned int *)&svc_elf_exec}
 };
 
 int syscall(int number, ...)
