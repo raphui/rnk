@@ -90,5 +90,6 @@ void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 
 	current_ctx_frame = &new->ctx_frame;
 
-	new->mpu.prio = mpu_map_from_high((void *)new->mpu.top_sp, CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW | MPU_RASR_XN);
+	//new->mpu.prio = mpu_map_from_high((void *)new->mpu.top_sp, CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW | MPU_RASR_XN);
+	new->mpu.prio = mpu_map_from_high((void *)new->mpu.top_sp, CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
 }
