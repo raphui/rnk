@@ -43,9 +43,16 @@ struct arch_short_context_frame {
 	unsigned int xpsr;
 };
 
+struct arch_mpu_priv {
+	int prio;
+	unsigned int start_pc;
+	unsigned int top_sp;
+};
+
 struct arch_thread {
 	struct arch_sw_context_frame ctx_frame;
 	struct arch_short_context_frame hw_frame;
+	struct arch_mpu_priv mpu;
 };
 
 void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int *stack, unsigned int param1, unsigned int param2);

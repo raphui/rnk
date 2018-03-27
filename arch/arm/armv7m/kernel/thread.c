@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <armv7m/mpu.h>
 #include <armv7m/thread.h>
 #include <armv7m/system.h>
 #include <string.h>
@@ -59,6 +60,9 @@ void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned i
 	arch->ctx_frame.sp = (unsigned int)stack;
 
 	*stack = arch->ctx_frame.sp;
+
+	arch->mpu.start_pc = func | 1;
+	arch->mpu.top_sp = (unsigned int)stack;
 }
 
 unsigned int arch_get_thread_stack(void)
@@ -77,14 +81,18 @@ void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 
 	if (old) {
 
-		*--old_sp = old_sp;
+		*--old_sp = (unsigned int)old_sp;
 
 		memcpy(&old->ctx_frame, (void *)old_sp, sizeof(struct arch_sw_context_frame));
 
 		old_sp += sizeof(struct arch_sw_context_frame);
 
 		memcpy(&old->hw_frame, (void *)old_sp, sizeof(struct arch_short_context_frame));
+
+		mpu_unmap_prio(old->mpu.prio);
 	}
 
 	current_ctx_frame = &new->ctx_frame;
+
+	new->mpu.prio = mpu_map_from_high((void *)new->mpu.top_sp, CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW | MPU_RASR_XN);
 }
