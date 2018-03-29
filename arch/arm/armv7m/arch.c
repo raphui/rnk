@@ -47,8 +47,3 @@ void arch_init_tick(void)
 {
 	systick_init();
 }
-
-void arch_request_sched(void)
-{
-	pendsv_request();
-}
