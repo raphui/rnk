@@ -23,6 +23,7 @@
 #include <time.h>
 #include <elfloader.h>
 #include <arch/system.h>
+#include <arch/spinlock.h>
 
 #ifdef CONFIG_UNWIND
 #include <backtrace.h>
@@ -52,7 +53,10 @@ void loading_thread(void)
 int main(void)
 {
 	int ret;
+	unsigned long irqstate;
 	initcall_t *initcall;
+
+	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 
 	printk("Welcome to rnk\r\n");
 
@@ -79,6 +83,8 @@ int main(void)
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();
+
+	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 
 	while(1)
 		;
