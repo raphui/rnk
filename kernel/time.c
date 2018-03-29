@@ -29,8 +29,6 @@
 
 static struct list_node sleeping_threads;
 
-struct timer timer;
-
 static void remove_sleeping_thread(struct thread *thread)
 {
 	list_delete(&thread->node);
@@ -70,6 +68,8 @@ void svc_usleep(struct timer *timer)
 
 void usleep(unsigned int usec)
 {
+	struct timer timer;
+
 #ifdef CONFIG_HR_TIMER
 	timer.num = 2;
 	timer.one_pulse = 1;
