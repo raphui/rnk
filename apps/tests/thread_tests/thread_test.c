@@ -26,6 +26,7 @@ void thread_a(void)
 
 	while (1) {
 		printk("A\n");
+		usleep(30000);
 	}
 }
 
@@ -35,6 +36,7 @@ void thread_b(void)
 
 	while (1) {
 		printk("B\n");
+		usleep(10000);
 	}
 }
 
