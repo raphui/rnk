@@ -25,8 +25,9 @@ struct arch_sw_context_frame *current_ctx_frame;
 
 void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int *stack, unsigned int param1, unsigned int param2)
 {
-
 	stack = (unsigned int *)((unsigned int)stack & 0xFFFFFFF8);
+
+	arch->mpu.top_sp = (unsigned int)stack;
 
 	/* HW frame */
 	arch->hw_frame.r0 = param1;
@@ -62,7 +63,6 @@ void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned i
 	*stack = arch->ctx_frame.sp;
 
 	arch->mpu.start_pc = func | 1;
-	arch->mpu.top_sp = (unsigned int)stack;
 }
 
 static unsigned int arch_get_thread_stack(void)
@@ -91,7 +91,7 @@ void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 	current_ctx_frame = &new->ctx_frame;
 
 	//new->mpu.prio = mpu_map_from_high((void *)new->mpu.top_sp, CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW | MPU_RASR_XN);
-	new->mpu.prio = mpu_map_from_high((void *)new->mpu.top_sp, CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
+	new->mpu.prio = mpu_map_from_high((void *)(new->mpu.top_sp - CONFIG_THREAD_STACK_SIZE), CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
 }
 
 void arch_request_sched(void)
