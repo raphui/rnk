@@ -45,10 +45,10 @@ static int mpu_map(void *base, int size, int prio, int attr)
 	int tmp, mpu_en;
 	int ret = 0;
 
-	__disable_it();
-
 	if (size < 32)
 		return -ENOTSUP;
+
+	__disable_it();
 
 	tmp = mpu_read_reg(MPU_CTRL);
 
