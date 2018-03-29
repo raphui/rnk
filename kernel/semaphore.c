@@ -67,7 +67,7 @@ void svc_sem_wait(struct semaphore *sem)
 		insert_waiting_thread(sem, current_thread);
 		sem->waiting++;
 
-		syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
+		arch_request_sched();
 	}
 }
 
@@ -97,7 +97,7 @@ void svc_sem_post(struct semaphore *sem)
 
 			remove_waiting_thread(sem, thread);
 			insert_runnable_thread(thread);
-			syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
+			arch_request_sched();
 		}
 	}
 }

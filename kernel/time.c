@@ -63,7 +63,7 @@ void svc_usleep(struct timer *timer)
 //	timer_enable(timer);
 #endif /* CONFIG_HR_TIMER */
 
-	syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
+	arch_request_sched();
 }
 
 void usleep(unsigned int usec)
@@ -117,7 +117,7 @@ void decrease_thread_delay(void)
 			insert_runnable_thread(thread);
 #ifdef CONFIG_SCHEDULE_PRIORITY
 			if (curr->priority < thread->priority)
-				syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
+				arch_request_sched();
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 
 		} else if (!thread->delay) {
@@ -132,7 +132,7 @@ void decrease_thread_delay(void)
 
 #ifdef CONFIG_SCHEDULE_PRIORITY
 			if (curr->priority < thread->priority)
-				syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
+				arch_request_sched();
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 		} else {
 

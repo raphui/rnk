@@ -118,7 +118,7 @@ void svc_mutex_unlock(struct mutex *mutex)
 
 				remove_waiting_thread(mutex, thread);
 				insert_runnable_thread(thread);
-				syscall(SYSCALL_THREAD_SWITCH, NULL, NULL, NULL);
+				arch_request_sched();
 			}
 		}
 
