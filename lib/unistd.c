@@ -23,6 +23,7 @@
 #include <string.h>
 #include <device.h>
 #include <export.h>
+#include <syscall.h>
 
 #define MAX_FD	8
 
@@ -38,7 +39,7 @@ static struct device_io devs[MAX_FD];
 
 static int fd_num = 0;
 
-int open(const char *path, int flags)
+int svc_open(const char *path, int flags)
 {
 	int ret = fd_num;
 	struct device *dev;
@@ -66,9 +67,14 @@ int open(const char *path, int flags)
 
 	return ret;
 }
+
+int open(const char *path, int flags)
+{
+	return syscall(SYSCALL_FD_OPEN, path, flags);
+}
 EXPORT_SYMBOL(open);
 
-int close(int fd)
+int svc_close(int fd)
 {
 	int ret = 0;
 
@@ -86,9 +92,14 @@ int close(int fd)
 
 	return ret;
 }
+
+int close(int fd)
+{
+	return syscall(SYSCALL_FD_CLOSE, fd);
+}
 EXPORT_SYMBOL(close);
 
-int write(int fd, const void *buf, size_t size)
+int svc_write(int fd, const void *buf, size_t size)
 {
 	int ret = 0;
 
@@ -114,9 +125,14 @@ int write(int fd, const void *buf, size_t size)
 
 	return ret;
 }
+
+int write(int fd, const void *buf, size_t size)
+{
+	return syscall(SYSCALL_FD_WRITE, fd, buf, size);
+}
 EXPORT_SYMBOL(write);
 
-int read(int fd, void *buf, size_t size)
+int svc_read(int fd, void *buf, size_t size)
 {
 	int ret = 0;
 
@@ -141,10 +157,15 @@ int read(int fd, void *buf, size_t size)
 
 	return ret;
 }
+
+int read(int fd, void *buf, size_t size)
+{
+	return syscall(SYSCALL_FD_READ, fd, buf, size);
+}
 EXPORT_SYMBOL(read);
 
 
-int lseek(int fd, int offset, int whence)
+int svc_lseek(int fd, int offset, int whence)
 {
 	int ret = 0;
 
@@ -166,5 +187,10 @@ int lseek(int fd, int offset, int whence)
 	}
 
 	return ret;
+}
+
+int lseek(int fd, int offset, int whence)
+{
+	return syscall(SYSCALL_FD_LSEEK, fd, offset, whence);
 }
 EXPORT_SYMBOL(lseek);
