@@ -31,6 +31,7 @@
 
 struct syscall syscall_table[] = {
 	{SYSCALL_THREAD_SWITCH, (unsigned int *)&schedule_thread},
+	{SYSCALL_THREAD_CREATE, (unsigned int *)&add_thread},
 	{SYSCALL_THREAD_STOP, (unsigned int *)&schedule_thread_stop},
 	{SYSCALL_MUTEX_CREATE, (unsigned int *)&kmutex_init},
 	{SYSCALL_MUTEX_ACQUIRE, (unsigned int *)&kmutex_lock},
