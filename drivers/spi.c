@@ -38,7 +38,7 @@ static int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("writing from spi !\n");
 
-	mutex_lock(&spi->master->spi_mutex);
+	kmutex_lock(&spi->master->spi_mutex);
 
 	pio_clear_value(spi->cs_port, spi->cs_pin);
 
@@ -46,7 +46,7 @@ static int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	pio_set_value(spi->cs_port, spi->cs_pin);
 
-	mutex_unlock(&spi->master->spi_mutex);
+	kmutex_unlock(&spi->master->spi_mutex);
 
 	return ret;
 }
@@ -58,7 +58,7 @@ static int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("reading from spi !\n");
 
-	mutex_lock(&spi->master->spi_mutex);
+	kmutex_lock(&spi->master->spi_mutex);
 
 	pio_clear_value(spi->cs_port, spi->cs_pin);
 
@@ -66,7 +66,7 @@ static int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	pio_set_value(spi->cs_port, spi->cs_pin);
 
-	mutex_unlock(&spi->master->spi_mutex);
+	kmutex_unlock(&spi->master->spi_mutex);
 
 	return ret;
 }
@@ -77,7 +77,7 @@ int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size,
 
 	verbose_printk("spi %s transfer\n", (direction == SPI_TRANSFER_READ) ? "read" : "write");
 
-	mutex_lock(&spi->master->spi_mutex);
+	kmutex_lock(&spi->master->spi_mutex);
 
 	pio_clear_value(spi->cs_port, spi->cs_pin);
 
@@ -92,7 +92,7 @@ int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size,
 
 	pio_set_value(spi->cs_port, spi->cs_pin);
 
-	mutex_unlock(&spi->master->spi_mutex);
+	kmutex_unlock(&spi->master->spi_mutex);
 
 	return ret;
 }
@@ -269,7 +269,7 @@ int spi_register_master(struct spi_master *spi)
 {
 	int ret = 0;
 
-	mutex_init(&spi->spi_mutex);
+	kmutex_init(&spi->spi_mutex);
 
 	list_add_tail(&spi_master_list, &spi->node);
 

@@ -75,7 +75,7 @@ static int timer_release(struct timer *timer)
 {
 	int ret = 0;
 
-	mutex_lock(&timer_mutex);
+	kmutex_lock(&timer_mutex);
 
 	ret = timer->tim_ops->release_irq(timer);
 	if (ret < 0)
@@ -84,7 +84,7 @@ static int timer_release(struct timer *timer)
 	
 	timer->is_used = 0;
 
-	mutex_unlock(&timer_mutex);
+	kmutex_unlock(&timer_mutex);
 
 	return ret;
 }
@@ -119,7 +119,7 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 	int ret = 0;
 	struct timer *timer = NULL;
 
-	mutex_lock(&timer_mutex);
+	kmutex_lock(&timer_mutex);
 
 	timer = timer_request();
 	if (!timer) {
@@ -140,7 +140,7 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 	timer_set_counter(timer, timer->counter);
 	timer_enable(timer);
 
-	mutex_unlock(&timer_mutex);
+	kmutex_unlock(&timer_mutex);
 
 	return ret;
 }
@@ -237,7 +237,7 @@ int timer_init(void)
 {
 	int ret = 0;
 
-	mutex_init(&timer_mutex);
+	kmutex_init(&timer_mutex);
 	list_initialize(&timer_soft_list);
 
 	return ret;

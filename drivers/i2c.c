@@ -37,11 +37,11 @@ static int i2c_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("writing from i2c !\n");
 
-	mutex_lock(&i2c->master->i2c_mutex);
+	kmutex_lock(&i2c->master->i2c_mutex);
 
 	ret = i2c->master->i2c_ops->write(i2c, buff, size);
 
-	mutex_unlock(&i2c->master->i2c_mutex);
+	kmutex_unlock(&i2c->master->i2c_mutex);
 
 	return ret;
 }
@@ -53,11 +53,11 @@ static int i2c_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("reading from i2c !\n");
 
-	mutex_lock(&i2c->master->i2c_mutex);
+	kmutex_lock(&i2c->master->i2c_mutex);
 
 	ret = i2c->master->i2c_ops->read(i2c, buff, size);
 
-	mutex_unlock(&i2c->master->i2c_mutex);
+	kmutex_unlock(&i2c->master->i2c_mutex);
 
 	return ret;
 }
@@ -68,7 +68,7 @@ int i2c_transfer(struct i2c_device *i2c, unsigned char *buff, unsigned int size,
 
 	verbose_printk("i2c %s transfer\n", (direction == I2C_TRANSFER_READ) ? "read" : "write");
 
-	mutex_lock(&i2c->master->i2c_mutex);
+	kmutex_lock(&i2c->master->i2c_mutex);
 
 	if (direction == I2C_TRANSFER_READ)
 		ret = i2c_read(&i2c->dev, buff, size);
@@ -79,7 +79,7 @@ int i2c_transfer(struct i2c_device *i2c, unsigned char *buff, unsigned int size,
 		ret = -EINVAL;
 	}
 
-	mutex_unlock(&i2c->master->i2c_mutex);
+	kmutex_unlock(&i2c->master->i2c_mutex);
 
 	return ret;
 }
@@ -260,7 +260,7 @@ int i2c_register_master(struct i2c_master *i2c)
 
 	memcpy(i2c->dev.name, tmp, sizeof(tmp));
 
-	mutex_init(&i2c->i2c_mutex);
+	kmutex_init(&i2c->i2c_mutex);
 
 	list_add_tail(&i2c_master_list, &i2c->node);
 

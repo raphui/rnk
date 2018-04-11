@@ -69,16 +69,17 @@ static int __mutex_lock(struct mutex *mutex)
 	return ret;
 }
 
-void mutex_init(struct mutex *mutex) {
+void kmutex_init(struct mutex *mutex)
+{
+
 	mutex->lock = 0;
 	mutex->owner = NULL;
 	mutex->waiting = 0;
 
 	list_initialize(&mutex->waiting_threads);
 }
-EXPORT_SYMBOL(mutex_init);
 
-void svc_mutex_lock(struct mutex *mutex)
+void kmutex_lock(struct mutex *mutex)
 {
 	int ret;
 
@@ -91,13 +92,7 @@ void svc_mutex_lock(struct mutex *mutex)
 	}
 }
 
-void mutex_lock(struct mutex *mutex)
-{
-	syscall(SYSCALL_ACQUIRE_MUTEX, mutex, NULL, NULL);
-}
-EXPORT_SYMBOL(mutex_lock);
-
-void svc_mutex_unlock(struct mutex *mutex)
+void kmutex_unlock(struct mutex *mutex)
 {
 	struct thread *current_thread = get_current_thread();
 	struct thread *thread;
@@ -128,9 +123,3 @@ void svc_mutex_unlock(struct mutex *mutex)
 		debug_printk("mutex cannot be unlock, thread is not the owner\r\n");
 	}
 }
-
-void mutex_unlock(struct mutex *mutex)
-{
-	syscall(SYSCALL_RELEASE_MUTEX, mutex, NULL, NULL);
-}
-EXPORT_SYMBOL(mutex_unlock);

@@ -29,10 +29,8 @@ struct mutex {
 	struct list_node waiting_threads;
 };
 
-void svc_mutex_lock(struct mutex *mutex);
-void svc_mutex_unlock(struct mutex *mutex);
-void mutex_lock(struct mutex *mutex);
-void mutex_unlock(struct mutex *mutex);
-void mutex_init(struct mutex *mutex);
+void kmutex_init(struct mutex *mutex);
+void kmutex_lock(struct mutex *mutex);
+void kmutex_unlock(struct mutex *mutex);
 
 #endif /* MUTEX_H */

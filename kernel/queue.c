@@ -125,7 +125,7 @@ void queue_post(struct queue *queue, void *item, unsigned int timeout)
 			break;
 		} else if (timeout) {
 			insert_waiting_post_thread(queue, get_current_thread());
-			usleep(timeout);
+			ktime_usleep(timeout);
 			back_from_sleep = 1;
 		} else if (!timeout) {
 			break;
@@ -170,7 +170,7 @@ void queue_receive(struct queue *queue, void *item, unsigned int timeout)
 			break;
 		} else if (timeout) {
 			insert_waiting_receive_thread(queue, get_current_thread());
-			usleep(timeout);
+			ktime_usleep(timeout);
 			back_from_sleep = 1;
 		} else if (back_from_sleep || !timeout) {
 			break;
