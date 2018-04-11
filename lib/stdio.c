@@ -19,7 +19,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <errno.h>
-#include <console.h>
 #include <export.h>
 
 #ifdef CONFIG_SEMIHOSTING
@@ -28,7 +27,15 @@
 
 static void putchar(unsigned char c)
 {
-	console_write(&c, sizeof(unsigned char));
+	int fd;
+
+	fd = open("/dev/tty0", O_RDWR);
+	if (fd < 0)
+		return;
+
+	write(fd, &c, sizeof(unsigned char));
+
+	close(fd);
 }
 
 static void puts_x(char *str, int width, const char pad)
@@ -94,15 +101,14 @@ static void put_dec(const unsigned int val, const int width, const char pad)
 	} while (divisor /= 10);
 }
 
-
-void printk(char *fmt, ...)
+void printf(char *fmt, ...)
 {
 	va_list va;
 	va_start(va, fmt);
 
 	vprintf(fmt, va);
 }
-EXPORT_SYMBOL(printk);
+EXPORT_SYMBOL(printf);
 
 void vprintf(char *fmt, va_list va)
 {
