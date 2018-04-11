@@ -332,7 +332,7 @@ static void elf_jump(unsigned int entry)
 	fct();
 }
 
-int svc_elf_exec(char *elf_data, int elf_size, int reloc_addr)
+int elf_exec(char *elf_data, int elf_size, int reloc_addr)
 {
 	int ret = 0;
 	unsigned int entry_point;
@@ -348,13 +348,7 @@ int svc_elf_exec(char *elf_data, int elf_size, int reloc_addr)
 	debug_printk("ph_off: 0x%x\r\n", ehdr->e_phoff);
 	debug_printk("elf entry point at: 0x%x\r\n", entry_point);
 
-	elf_jump(entry_point);
+	ret = entry_point;
 
 	return ret;
-
-}
-
-int elf_exec(char *elf_data, int elf_size, int reloc_addr)
-{
-	return syscall(SYSCALL_ELF_LOAD, elf_data, elf_size, reloc_addr);
 }
