@@ -84,7 +84,7 @@ int svc_close(int fd)
 		devs[fd].write = NULL;
 		devs[fd].perm = 0;
 
-		fd--;
+		fd_num--;
 	} else {
 		error_printk("invalid fd\n");
 		ret = -EBADF;
