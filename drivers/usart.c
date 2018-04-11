@@ -188,11 +188,3 @@ int usart_init(void)
 	return ret;
 }
 postcore_initcall(usart_init);
-
-#ifdef CONFIG_USART_DEBUG
-
-struct io_operations io_op = {
-	.write = usart_write,
-};
-
-#endif /* CONFIG_USART_DEBUG */
