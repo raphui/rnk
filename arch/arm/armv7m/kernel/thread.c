@@ -81,7 +81,7 @@ void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 
 		memcpy(&old->ctx_frame, (void *)old_sp, sizeof(struct arch_sw_context_frame));
 
-		old_sp += sizeof(struct arch_sw_context_frame);
+		old_sp += sizeof(struct arch_sw_context_frame) / sizeof(unsigned int);
 
 		memcpy(&old->hw_frame, (void *)old_sp, sizeof(struct arch_short_context_frame));
 
