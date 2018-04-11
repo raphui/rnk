@@ -55,7 +55,7 @@ struct arch_thread {
 	struct arch_mpu_priv mpu;
 };
 
-void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int *stack, unsigned int param1, unsigned int param2);
+void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, unsigned int param2);
 void arch_switch_context(struct arch_thread *old, struct arch_thread *new);;
 
 #endif /* ARMV7M_THREAD_H */

@@ -23,7 +23,7 @@
 
 struct arch_sw_context_frame *current_ctx_frame;
 
-void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int *stack, unsigned int param1, unsigned int param2)
+void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, unsigned int param2)
 {
 	stack = (unsigned int *)((unsigned int)stack & 0xFFFFFFF8);
 
@@ -35,7 +35,7 @@ void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned i
 	arch->hw_frame.r2 = 2;
 	arch->hw_frame.r3 = 3;
 	arch->hw_frame.r12 = 12;
-	arch->hw_frame.lr = 0xFFFFFFFF;
+	arch->hw_frame.lr = return_func | 1;
 	arch->hw_frame.pc = func | 1; 
 	arch->hw_frame.xpsr = 0x01000000;
 

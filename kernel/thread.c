@@ -137,7 +137,7 @@ void add_thread(void (*func)(void), unsigned int priority)
 	memset(thread->arch, 0, sizeof(struct arch_thread));
 
 	/* Creating thread context */
-	arch_create_context(thread->arch, (unsigned int)thread->func, (unsigned int *)thread->start_stack, 0, 0);
+	arch_create_context(thread->arch, (unsigned int)thread->func, (unsigned int)&end_thread, (unsigned int *)thread->start_stack, 0, 0);
 
 	insert_thread(thread);
 
