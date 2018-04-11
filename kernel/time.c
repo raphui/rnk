@@ -44,30 +44,9 @@ int time_init(void)
 }
 core_initcall(time_init);
 
-void svc_usleep(struct timer *timer)
+void ktime_usleep(unsigned int usec)
 {
 	struct thread *thread = NULL;
-
-	thread = get_current_thread();
-	thread->delay = timer->counter;
-
-	thread->state = THREAD_BLOCKED;
-	remove_runnable_thread(thread);
-
-	list_add_tail(&sleeping_threads, &thread->node);
-
-#ifdef CONFIG_HR_TIMER
-//	timer_init(timer);
-//	timer_set_rate(timer, 1000000);
-//	timer_set_counter(timer, timer->counter);
-//	timer_enable(timer);
-#endif /* CONFIG_HR_TIMER */
-
-	arch_request_sched();
-}
-
-void usleep(unsigned int usec)
-{
 	struct timer timer;
 
 #ifdef CONFIG_HR_TIMER
@@ -85,17 +64,20 @@ void usleep(unsigned int usec)
 	} while (end > system_tick);
 #else
 	timer.counter = usec / 1000;
-	syscall(SYSCALL_USLEEP, &timer, NULL, NULL);
+
+	thread = get_current_thread();
+	thread->delay = timer.counter;
+
+	thread->state = THREAD_BLOCKED;
+	remove_runnable_thread(thread);
+
+	list_add_tail(&sleeping_threads, &thread->node);
+
+	arch_request_sched();
 #endif /* CONFIG_BW_DELAY */
 }
-EXPORT_SYMBOL(usleep);
 
-void timer_soft_oneshot(int delay, void (*handler)(void *), void *arg)
-{
-	syscall(SYSCALL_TIMER_ONESHOT, &delay, handler, arg);
-}
-
-void svc_timer_soft_oneshot(int delay, void (*handler)(void *), void *arg)
+void ktime_oneshot(int delay, void (*handler)(void *), void *arg)
 {
 	int ret;
 

@@ -24,10 +24,8 @@
 #include <timer.h>
 
 int time_init(void);
-void svc_usleep(struct timer *timer);
-void usleep(unsigned int usec);
-void timer_soft_oneshot(int delay, void (*handler)(void *), void *arg);
-void svc_timer_soft_oneshot(int delay, void (*handler)(void *), void *arg);
+void ktime_usleep(unsigned int usec);
+void ktime_oneshot(int delay, void (*handler)(void *), void *arg);
 void decrease_thread_delay(void);
 void decrease_timer_delay(void);
 
