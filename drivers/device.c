@@ -66,24 +66,36 @@ int device_unregister(struct device *dev)
 
 struct device *device_from_name(const char *name)
 {
+	int found = 0;
 	struct device *dev = NULL;
 
 	list_for_every_entry(&device_list, dev, struct device, next) {
-		if (!strcmp(name, dev->name))
+		if (!strcmp(name, dev->name)) {
+			found = 1;
 			break;
+		}
 	}
+
+	if (!found)
+		dev = NULL;
 
 	return dev;
 }
 
 struct device *device_from_of_path(const char *path)
 {
+	int found = 0;
 	struct device *dev = NULL;
 
 	list_for_every_entry(&device_list, dev, struct device, next) {
-		if (!strcmp(path, dev->of_path))
+		if (!strcmp(path, dev->of_path)) {
+			found = 1;
 			break;
+		}
 	}
+
+	if (!found)
+		dev = NULL;
 
 	return dev;
 }
