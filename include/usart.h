@@ -33,8 +33,8 @@ struct usart_device {
 
 struct usart_operations
 {
-	int (*read)(struct usart_master *usart, unsigned char *buff, unsigned int len);
-	int (*write)(struct usart_master *usart, unsigned char *buff, unsigned int len);
+	int (*read)(struct usart_device *usart, unsigned char *buff, unsigned int len);
+	int (*write)(struct usart_device *usart, unsigned char *buff, unsigned int len);
 	void (*print)(struct usart_master *usart, unsigned char byte);
 	int (*printl)(struct usart_master *usart, const char *string);
 };

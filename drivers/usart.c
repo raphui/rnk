@@ -34,20 +34,20 @@ static struct list_node usart_master_list;
 
 static int usart_read(struct device *dev, unsigned char *buff, unsigned int size)
 {
-	struct usart_master *usart = container_of(dev, struct usart_master, dev);
+	struct usart_device *usart = container_of(dev, struct usart_device, dev);
 
 	verbose_printk("reading from usart !\n");
 
-	return usart->usart_ops->read(usart, buff, size);
+	return usart->master->usart_ops->read(usart, buff, size);
 }
 
 static int usart_write(struct device *dev, unsigned char *buff, unsigned int size)
 {
-	struct usart_master *usart = container_of(dev, struct usart_master, dev);
+	struct usart_device *usart = container_of(dev, struct usart_device, dev);
 
 	verbose_printk("writing from usart !\n");
 
-	return usart->usart_ops->write(usart, buff, size);
+	return usart->master->usart_ops->write(usart, buff, size);
 }
 
 struct usart_device *usart_new_device(void)
@@ -106,6 +106,9 @@ int usart_register_device(struct usart_device *usart)
 	tmp[8] = 0x30 + dev_count;
 
 	memcpy(usart->dev.name, tmp, sizeof(tmp));
+
+	usart->dev.read = usart_read;
+	usart->dev.write = usart_write;
 
 	list_add_tail(&usart_device_list, &usart->node);
 

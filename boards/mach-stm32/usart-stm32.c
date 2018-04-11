@@ -58,8 +58,9 @@ static int stm32_usart_printl(struct usart_master *usart, const char *string)
 	return size;
 }
 
-static int stm32_usart_write(struct usart_master *usart, unsigned char *buff, unsigned int len)
+static int stm32_usart_write(struct usart_device *usartdev, unsigned char *buff, unsigned int len)
 {
+	struct usart_master *usart = usartdev->master;
 	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 	int i = 0;
 	int ret = 0;
@@ -81,8 +82,9 @@ static int stm32_usart_write(struct usart_master *usart, unsigned char *buff, un
 	return ret;
 }
 
-static int stm32_usart_read(struct usart_master *usart, unsigned char *buff, unsigned int len)
+static int stm32_usart_read(struct usart_device *usartdev, unsigned char *buff, unsigned int len)
 {
+	struct usart_master *usart = usartdev->master;
 	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 	int i = 0;
 	int ret = 0;
