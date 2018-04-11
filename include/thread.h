@@ -71,5 +71,6 @@ struct thread *get_current_thread(void);
 struct thread *find_next_thread(void);
 void insert_runnable_thread(struct thread *thread);
 void remove_runnable_thread(struct thread *thread);
+int is_thread_runnable(struct thread *thread);
 
 #endif /* THREAD_H */

@@ -55,6 +55,7 @@ void schedule(void)
 void schedule_thread(struct thread *thread)
 {
 	struct thread *t;
+	int runnable = 0;
 
 	t = get_current_thread();
 #if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_RR_PRIO)
@@ -65,11 +66,13 @@ void schedule_thread(struct thread *thread)
 	if (thread)
 		switch_thread(thread);
 	else {
+		runnable = is_thread_runnable(t);
+
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-		if (!t || !t->quantum || (t->state == THREAD_BLOCKED)) {
+		if (!t || !t->quantum || !runnable) {
 
 			if (t)
-				if (t->state != THREAD_BLOCKED)
+				if (runnable)
 					insert_runnable_thread(t);
 
 			t = find_next_thread();
@@ -77,7 +80,7 @@ void schedule_thread(struct thread *thread)
 		}
 #elif defined(CONFIG_SCHEDULE_PRIORITY) || defined (CONFIG_SCHEDULE_RR_PRIO)
 		if (t)
-			if (t->state != THREAD_BLOCKED)
+			if (runnable)
 				insert_runnable_thread(t);
 
 		t = find_next_thread();

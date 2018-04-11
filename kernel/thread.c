@@ -184,7 +184,7 @@ struct thread *find_next_thread(void)
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
 	thread = list_peek_head_type(&run_queue[0], struct thread, node);
 
-	if (current_thread && current_thread->state != THREAD_BLOCKED)
+	if (current_thread && is_thread_runnable(current_thread))
 		if (thread->priority < current_thread->priority)
 			thread = current_thread;
 #elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
@@ -195,7 +195,7 @@ struct thread *find_next_thread(void)
 		}
 	}
 
-	if (current_thread)
+	if (current_thread && is_thread_runnable(current_thread))
 		current_thread->quantum = CONFIG_THREAD_QUANTUM;
 
 	/* Only idle thread is eligible */
@@ -222,4 +222,9 @@ void remove_runnable_thread(struct thread *thread)
 #endif
 
 	list_delete(&thread->node);
+}
+
+int is_thread_runnable(struct thread *thread)
+{
+	return ((thread->state != THREAD_BLOCKED) && (thread->state != THREAD_STOPPED)) ? 1 : 0;
 }
