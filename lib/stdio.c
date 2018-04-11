@@ -25,17 +25,11 @@
 #include <arch/semihosting.h>
 #endif /* CONFIG_SEMIHOSTING */
 
+static int fd;
+
 static void putchar(unsigned char c)
 {
-	int fd;
-
-	fd = open("/dev/tty0", O_RDWR);
-	if (fd < 0)
-		return;
-
 	write(fd, &c, sizeof(unsigned char));
-
-	close(fd);
 }
 
 static void puts_x(char *str, int width, const char pad)
@@ -104,9 +98,16 @@ static void put_dec(const unsigned int val, const int width, const char pad)
 void printf(char *fmt, ...)
 {
 	va_list va;
+
+	fd = open("/dev/tty1", O_RDWR);
+	if (fd < 0)
+		return;
+
 	va_start(va, fmt);
 
 	vprintf(fmt, va);
+
+	close(fd);
 }
 EXPORT_SYMBOL(printf);
 
