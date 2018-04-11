@@ -24,6 +24,7 @@
 #include <arch/system.h>
 #include <spinlock.h>
 #include <export.h>
+#include <syscall.h>
 
 static struct thread *current_thread = NULL;
 static int thread_count = 0;
@@ -84,6 +85,11 @@ static void insert_thread(struct thread *t)
 		insert_in_run_queue_tail(t);
 	}
 #endif
+}
+
+static void end_thread(void)
+{
+	syscall(SYSCALL_THREAD_STOP, NULL);
 }
 
 void thread_init(void)
