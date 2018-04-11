@@ -43,7 +43,6 @@ struct syscall syscall_table[] = {
 	{SYSCALL_TIME_ONESHOT, (unsigned int *)&ktime_oneshot},
 	{SYSCALL_QUEUE_POST, (unsigned int *)&svc_queue_post},
 	{SYSCALL_QUEUE_RECEIVE, (unsigned int *)&svc_queue_receive},
-	{SYSCALL_ELF_LOAD, (unsigned int *)&svc_elf_exec},
 	{SYSCALL_FD_OPEN, (unsigned int *)&svc_open},
 	{SYSCALL_FD_CLOSE, (unsigned int *)&svc_close},
 	{SYSCALL_FD_WRITE, (unsigned int *)&svc_write},
