@@ -75,8 +75,11 @@ SECTIONS
     .data : AT (_sidata)
     {
         _sdata = .;
-        *(.data .data.*)
+        *(EXCLUDE_FILE(lib/*) .data EXCLUDE_FILE(lib/*) .data.*)
+	_slibdata = .;
+	*(.lib/* .data .lib/* .data.*)
         . = ALIGN(4);
+	_elibdata = .;
         _edata = . ;
     } > ram
  
@@ -85,9 +88,12 @@ SECTIONS
     {
         _sbss = . ;
 	__bss_start__ = . ;
-        *(.bss .bss.*)
+        *(EXCLUDE_FILE(lib/*) .bss EXCLUDE_FILE(lib/*) .bss.*)
         *(COMMON)
+	_slibbss = .;
+	*(.lib/* .bss .lib/* .bss.*)
         . = ALIGN(4);
+	_elibbss = .;
         _ebss = . ;
 	__bss_end__ = . ;
     } > ram
