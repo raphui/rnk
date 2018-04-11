@@ -26,7 +26,7 @@
 #include <fdtparse.h>
 #include <timer.h>
 #include <init.h>
-#include <stdio.h>
+#include <printk.h>
 #include <mach/rcc-stm32.h>
 
 struct action {

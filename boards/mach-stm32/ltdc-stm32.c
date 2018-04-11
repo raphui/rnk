@@ -19,7 +19,7 @@
 #include <board.h>
 #include <lcd.h>
 #include <utils.h>
-#include <stdio.h>
+#include <printk.h>
 #include <mach/pio-stm32.h>
 #include <mach/rcc-stm32.h>
 #include <errno.h>

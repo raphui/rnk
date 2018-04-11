@@ -17,7 +17,7 @@
 
 #include <board.h>
 #include <utils.h>
-#include <stdio.h>
+#include <printk.h>
 #include <i2c.h>
 #include <mach/rcc-stm32.h>
 #include <arch/nvic.h>

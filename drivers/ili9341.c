@@ -23,7 +23,7 @@
 #include <mm.h>
 #include <errno.h>
 #include <fdtparse.h>
-#include <stdio.h>
+#include <printk.h>
 #include <string.h>
 
 static void ili9341_send_command(struct ili9341_device *dev, unsigned char data)

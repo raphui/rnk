@@ -17,7 +17,7 @@
 
 #include <board.h>
 #include <utils.h>
-#include <stdio.h>
+#include <printk.h>
 #include <mach/dma-stm32.h>
 #include <mach/rcc-stm32.h>
 #include <mach/pio-stm32.h>

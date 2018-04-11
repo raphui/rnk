@@ -19,7 +19,7 @@
 #include <dma.h>
 #include <errno.h>
 #include <string.h>
-#include <stdio.h>
+#include <printk.h>
 #include <init.h>
 #include <mm.h>
 

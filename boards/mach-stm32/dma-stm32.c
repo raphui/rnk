@@ -20,7 +20,7 @@
 #include <mach/rcc-stm32.h>
 #include <dma.h>
 #include <utils.h>
-#include <stdio.h>
+#include <printk.h>
 #include <arch/nvic.h>
 #include <errno.h>
 #include <device.h>

@@ -19,7 +19,7 @@
 #include <device.h>
 #include <list.h>
 #include <string.h>
-#include <stdio.h>
+#include <printk.h>
 #include <fdtparse.h>
 #include <init.h>
 

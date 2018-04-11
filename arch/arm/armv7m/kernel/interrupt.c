@@ -17,7 +17,7 @@
  */
 
 #include <board.h>
-#include <stdio.h>
+#include <printk.h>
 #include <utils.h>
 #include <interrupt.h>
 #include <scheduler.h>

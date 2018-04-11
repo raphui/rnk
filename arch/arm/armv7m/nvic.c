@@ -18,7 +18,7 @@
 
 #include <arch/nvic.h>
 #include <armv7m/system.h>
-#include <stdio.h>
+#include <printk.h>
 #include <utils.h>
 
 void nvic_enable_interrupt(unsigned int num)

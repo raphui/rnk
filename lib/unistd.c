@@ -19,7 +19,7 @@
 #include <board.h>
 #include <unistd.h>
 #include <errno.h>
-#include <stdio.h>
+#include <printk.h>
 #include <string.h>
 #include <device.h>
 #include <export.h>

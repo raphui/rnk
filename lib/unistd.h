@@ -20,7 +20,7 @@
 #define UNISTD_H
 
 #include <stddef.h>
-#include <stdio.h>
+#include <printk.h>
 
 #define O_RDONLY        0
 #define O_WRONLY        1

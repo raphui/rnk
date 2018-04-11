@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <printk.h>
 #include <kmutex.h>
 #include <errno.h>
 #include <scheduler.h>

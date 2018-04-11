@@ -17,7 +17,7 @@
  */
 
 #include <scheduler.h>
-#include <stdio.h>
+#include <printk.h>
 #include <string.h>
 #include <mm.h>
 #include <utils.h>

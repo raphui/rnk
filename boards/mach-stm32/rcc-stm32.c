@@ -19,7 +19,7 @@
 #include <mach/rcc-stm32.h>
 #include <errno.h>
 #include <fdtparse.h>
-#include <stdio.h>
+#include <printk.h>
 #include <init.h>
 
 /* system clock source */

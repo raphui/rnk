@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <init.h>
 #include <fdtparse.h>
-#include <stdio.h>
+#include <printk.h>
 
 static struct console *cons;
 

@@ -20,7 +20,7 @@
 #include <thread.h>
 #include <scheduler.h>
 #include <spinlock.h>
-#include <stdio.h>
+#include <printk.h>
 #include <syscall.h>
 #include <export.h>
 

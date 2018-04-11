@@ -19,7 +19,7 @@
 #include <board.h>
 #include <pio.h>
 #include <mm.h>
-#include <stdio.h>
+#include <printk.h>
 #include <string.h>
 #include <errno.h>
 

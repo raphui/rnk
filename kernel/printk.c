@@ -94,7 +94,7 @@ void printk(char *fmt, ...)
 	va_list va;
 	va_start(va, fmt);
 
-	vprintf(fmt, va);
+	vprintk(fmt, va);
 }
 
 void vprintk(char *fmt, va_list va)

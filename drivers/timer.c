@@ -22,7 +22,7 @@
 #include <kmutex.h>
 #include <device.h>
 #include <init.h>
-#include <stdio.h>
+#include <printk.h>
 
 static struct mutex timer_mutex;
 static struct list_node timer_list;

@@ -18,7 +18,7 @@
 
 #include <scheduler.h>
 #include <thread.h>
-#include <stdio.h>
+#include <printk.h>
 #include <pit.h>
 #include <arch/system.h>
 #include <ktime.h>

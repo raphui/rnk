@@ -17,7 +17,7 @@
 
 #include <board.h>
 #include <errno.h>
-#include <stdio.h>
+#include <printk.h>
 #include <mm.h>
 #include <string.h>
 #include <init.h>

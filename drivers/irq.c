@@ -16,7 +16,7 @@
  */
 
 #include <board.h>
-#include <stdio.h>
+#include <printk.h>
 #include <errno.h>
 #include <string.h>
 #include <mm.h>

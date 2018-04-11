@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <string.h>
 #include <init.h>
-#include <stdio.h>
+#include <printk.h>
 
 static int dev_count = 0;
 static char dev_prefix[10] = "/dev/mtd";

@@ -14,7 +14,7 @@
  * for them.
  */
 
-#include <stdio.h>
+#include <printk.h>
 #include <stddef.h>
 #include <string.h>
 

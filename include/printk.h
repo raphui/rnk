@@ -20,6 +20,11 @@
 #define PRINTK_H
 
 #include <stdarg.h>
+#include <stddef.h>
+
+#define SEEK_SET	0
+#define SEEK_CUR	1
+#define SEEK_END	2
 
 #ifdef CONFIG_DEBUG
 #define DEBUG	1

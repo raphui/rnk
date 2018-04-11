@@ -17,7 +17,7 @@
  */
 
 #include <stddef.h>
-#include <stdio.h>
+#include <printk.h>
 #include <string.h>
 #include "memory.h"
 

@@ -18,7 +18,7 @@
 
 #include <armv7m/mpu.h>
 #include <armv7m/system.h>
-#include <stdio.h>
+#include <printk.h>
 #include <sizes.h>
 #include <errno.h>
 #include <utils.h>

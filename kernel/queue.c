@@ -20,7 +20,7 @@
 #include <scheduler.h>
 #include <mm.h>
 #include <syscall.h>
-#include <stdio.h>
+#include <printk.h>
 #include <string.h>
 #include <ktime.h>
 #include <spinlock.h>

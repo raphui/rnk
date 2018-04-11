@@ -20,7 +20,7 @@
 #define USART_H
 
 #include <device.h>
-#include <stdio.h>
+#include <printk.h>
 
 struct usart_master;
 

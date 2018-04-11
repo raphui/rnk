@@ -19,12 +19,12 @@
 #include <board.h>
 #include <fmc.h>
 #include <utils.h>
-#include <stdio.h>
+#include <printk.h>
 #include <init.h>
 #include <mm.h>
 #include <errno.h>
 #include <fdtparse.h>
-#include <stdio.h>
+#include <printk.h>
 #include <string.h>
 #include <mach/pio-stm32.h>
 

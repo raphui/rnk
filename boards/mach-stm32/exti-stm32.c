@@ -18,7 +18,7 @@
 
 #include <board.h>
 #include <utils.h>
-#include <stdio.h>
+#include <printk.h>
 #include <arch/nvic.h>
 #include <armv7m/vector.h>
 #include <errno.h>

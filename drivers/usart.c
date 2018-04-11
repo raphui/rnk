@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <stdio.h>
+#include <printk.h>
 #include <utils.h>
 #include <usart.h>
 #include <mm.h>
