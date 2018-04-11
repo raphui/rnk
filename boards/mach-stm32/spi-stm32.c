@@ -23,7 +23,6 @@
 #include <mach/pio-stm32.h>
 #include <arch/nvic.h>
 #include <errno.h>
-#include <common.h>
 #include <fdtparse.h>
 #include <init.h>
 #include <device.h>
