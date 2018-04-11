@@ -182,7 +182,7 @@ static void stm32_spi_isr(void *arg)
 {
 	struct spi_device *spi = (struct spi_device *)arg;
 
-	svc_sem_post(&spi->sem);
+	ksem_post(&spi->sem);
 }
 
 struct spi_operations spi_ops = {

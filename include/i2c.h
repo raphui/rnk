@@ -21,7 +21,7 @@
 #include <device.h>
 #include <dma.h>
 #include <list.h>
-#include <mutex.h>
+#include <kmutex.h>
 
 #define I2C_TRANSFER_READ	0
 #define I2C_TRANSFER_WRITE	1

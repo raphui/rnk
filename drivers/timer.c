@@ -19,7 +19,7 @@
 #include <errno.h>
 #include <mm.h>
 #include <string.h>
-#include <mutex.h>
+#include <kmutex.h>
 #include <device.h>
 #include <init.h>
 #include <stdio.h>

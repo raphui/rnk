@@ -20,9 +20,9 @@
 #include <errno.h>
 #include <syscall.h>
 #include <scheduler.h>
-#include <mutex.h>
+#include <kmutex.h>
 #include <queue.h>
-#include <semaphore.h>
+#include <ksem.h>
 #include <ktime.h>
 #include <unistd.h>
 #include <elfloader.h>

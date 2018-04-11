@@ -4,9 +4,9 @@
 # Provided under the three clause BSD license found in the LICENSE file.
 
 obj-y := main.o
-obj-y += mutex.o
+obj-y += kmutex.o
 obj-y += scheduler.o
-obj-y += semaphore.o
+obj-y += ksem.o
 obj-y += syscall.o
 obj-y += queue.o
 obj-y += thread.o

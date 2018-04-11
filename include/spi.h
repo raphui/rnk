@@ -21,8 +21,8 @@
 #include <device.h>
 #include <dma.h>
 #include <list.h>
-#include <mutex.h>
-#include <semaphore.h>
+#include <kmutex.h>
+#include <ksem.h>
 
 #define SPI_TRANSFER_READ	0
 #define SPI_TRANSFER_WRITE	1
