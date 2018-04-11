@@ -17,9 +17,8 @@
  */
 
 #include <stdio.h>
-#include <thread.h>
+#include <pthread.h>
 #include <board.h>
-#include <spi.h>
 #include <unistd.h>
 
 #define SPI_DEVICE	"/dev/spi1"
@@ -37,7 +36,7 @@ static char spi_buff[16] = {0x1, 0x2, 0x3, 0x4,
 			0xD, 0xE, 0xF, 0x10};
 
 
-void thread_a(void)
+void thread_a(void *arg)
 {
 	int i;
 	int fd;
@@ -45,55 +44,55 @@ void thread_a(void)
 
 	while (1) {
 #ifdef CONFIG_STM32F429
-		printk("Starting SDRAM tests\n");
+		printf("Starting SDRAM tests\n");
 
-		printk("Writing: 0x%x at 0x%x\n", SDRAM_TEST_PATTERN, SDRAM_ADDRESS);
+		printf("Writing: 0x%x at 0x%x\n", SDRAM_TEST_PATTERN, SDRAM_ADDRESS);
 
 		*(SDRAM_ADDRESS) = SDRAM_TEST_PATTERN;
 
-		printk("Reading content at 0x%x\n", SDRAM_ADDRESS);
+		printf("Reading content at 0x%x\n", SDRAM_ADDRESS);
 
 		ret = *(SDRAM_ADDRESS);
 
-		printk("SDRAM test: ");
+		printf("SDRAM test: ");
 
 		if (ret == SDRAM_TEST_PATTERN)
-			printk("OK\n");
+			printf("OK\n");
 		else
-			printk("NOK\n");
+			printf("NOK\n");
 #endif /* CONFIG_STM32F429 */
 
-		printk("Starting spi tests\n");
-		printk("Validate using your logical analyser\n");
+		printf("Starting spi tests\n");
+		printf("Validate using your logical analyser\n");
 
 		fd = open(SPI_DEVICE, O_RDWR);
 		if (fd < 0) {
-			error_printk("failed to open: %s\n", SPI_DEVICE);
+			printf("failed to open: %s\n", SPI_DEVICE);
 			break;
 		}
 
 		ret = write(fd, spi_buff, 16);
 		if (ret != 16) {
-			error_printk("failed to write spi buff\n");
+			printf("failed to write spi buff\n");
 			break;
 		}
 
 		ret = read(fd, spi_buff, 16);
 		if (ret != 16) {
-			error_printk("failed to read spi buff\n");
+			printf("failed to read spi buff\n");
 			break;
 		}
 
 		for (i = 0; i < 16; i++)
-			printk("spi_read[%d]: 0x%x\n", spi_buff[i]);
+			printf("spi_read[%d]: 0x%x\n", spi_buff[i]);
 	}
 }
 
 int main(void)
 {
-	printk("Starting driver tests\n");
+	printf("Starting driver tests\n");
 
-	add_thread(&thread_a, DEFAULT_PRIORITY);
+	pthread_create(&thread_a, NULL, 2);
 
 	return 0;
 

@@ -17,44 +17,43 @@
  */
 
 #include <stdio.h>
-#include <thread.h>
-#include <mutex.h>
+#include <pthread.h>
 
-static struct mutex mutex;
+static pthread_mutex_t mutex;
 
-void thread_a(void)
+void thread_a(void *arg)
 {
-	printk("starting thread A\n");
+	printf("starting thread A\n");
 
 	while (1) {
-		printk("[A] locking mutex\n");
-		mutex_lock(&mutex);
-		printk("[A] unlocking mutex\n");
-		mutex_unlock(&mutex);
+		printf("[A] locking mutex\n");
+		pthread_mutex_lock(&mutex);
+		printf("[A] unlocking mutex\n");
+		pthread_mutex_unlock(&mutex);
 	}
 }
 
-void thread_b(void)
+void thread_b(void *arg)
 {
-	printk("starting thread B\n");
+	printf("starting thread B\n");
 
 	while (1) {
-		printk("[B] locking mutex\n");
-		mutex_lock(&mutex);
-		printk("[B] unlocking mutex\n");
-		mutex_unlock(&mutex);
+		printf("[B] locking mutex\n");
+		pthread_mutex_lock(&mutex);
+		printf("[B] unlocking mutex\n");
+		pthread_mutex_unlock(&mutex);
 	}
 }
 
 int main(void)
 {
-	printk("Starting mutex tests\n");
+	printf("Starting mutex tests\n");
 
-	mutex_init(&mutex);
+	pthread_mutex_init(&mutex);
 
-	printk("- adding thread A (%x)\n", &thread_a);
-	add_thread(&thread_a, 10);
+	printf("- adding thread A (%x)\n", &thread_a);
+	pthread_create(&thread_a, NULL, 10);
 
-	printk("- adding thread B(%x)\n", &thread_b);
-	add_thread(&thread_b, 1);
+	printf("- adding thread B(%x)\n", &thread_b);
+	pthread_create(&thread_b, NULL, 2);
 }

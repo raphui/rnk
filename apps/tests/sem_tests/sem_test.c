@@ -17,59 +17,59 @@
  */
 
 #include <stdio.h>
-#include <thread.h>
+#include <pthread.h>
 #include <semaphore.h>
 
-static struct semaphore sem;
+static sem_t sem;
 
-void thread_a(void)
+void thread_a(void *arg)
 {
-	printk("starting thread A\n");
+	printf("starting thread A\n");
 
 	while (1) {
-		printk("[A] waiting sem\n");
+		printf("[A] waiting sem\n");
 		sem_wait(&sem);
-		printk("[A] posting sem\n");
+		printf("[A] posting sem\n");
 		sem_post(&sem);
 	}
 }
 
-void thread_b(void)
+void thread_b(void *arg)
 {
-	printk("starting thread B\n");
+	printf("starting thread B\n");
 
 	while (1) {
-		printk("[B] waiting sem\n");
+		printf("[B] waiting sem\n");
 		sem_wait(&sem);
-		printk("[B] posting sem\n");
+		printf("[B] posting sem\n");
 		sem_post(&sem);
 	}
 }
 
-void thread_c(void)
+void thread_c(void *arg)
 {
-	printk("starting thread C\n");
+	printf("starting thread C\n");
 
 	while (1) {
-		printk("[C] waiting sem\n");
+		printf("[C] waiting sem\n");
 		sem_wait(&sem);
-		printk("[C] posting sem\n");
+		printf("[C] posting sem\n");
 		sem_post(&sem);
 	}
 }
 
 int main(void)
 {
-	printk("Starting mutex tests\n");
+	printf("Starting mutex tests\n");
 
 	sem_init(&sem, 2);
 
-	printk("- adding thread A (%x)\n", &thread_a);
-	add_thread(&thread_a, HIGHEST_PRIORITY);
+	printf("- adding thread A (%x)\n", &thread_a);
+	pthread_create(&thread_a, NULL, 4);
 
-	printk("- adding thread B(%x)\n", &thread_b);
-	add_thread(&thread_b, HIGHEST_PRIORITY - 1);
+	printf("- adding thread B(%x)\n", &thread_b);
+	pthread_create(&thread_b, NULL, 3);
 
-	printk("- adding thread C(%x)\n", &thread_c);
-	add_thread(&thread_c, HIGHEST_PRIORITY - 2);
+	printf("- adding thread C(%x)\n", &thread_c);
+	pthread_create(&thread_c, NULL, 2);
 }
