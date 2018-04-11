@@ -20,12 +20,15 @@
 #include <stdio.h>
 #include <errno.h>
 #include <export.h>
+#include <unistd.h>
+#include <pthread.h>
 
 #ifdef CONFIG_SEMIHOSTING
 #include <arch/semihosting.h>
 #endif /* CONFIG_SEMIHOSTING */
 
 static int fd;
+static pthread_mutex_t *mutex = NULL;
 
 static void putchar(unsigned char c)
 {
@@ -99,6 +102,13 @@ void printf(char *fmt, ...)
 {
 	va_list va;
 
+	if (!mutex) {
+		mutex = kmalloc(sizeof(pthread_mutex_t));
+		pthread_mutex_init(mutex);
+	}
+
+	pthread_mutex_lock(mutex);
+
 	fd = open("/dev/tty1", O_RDWR);
 	if (fd < 0)
 		return;
@@ -108,6 +118,8 @@ void printf(char *fmt, ...)
 	vprintf(fmt, va);
 
 	close(fd);
+
+	pthread_mutex_unlock(mutex);
 }
 EXPORT_SYMBOL(printf);
 
