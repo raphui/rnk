@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef SEMAPHORE_H
-#define SEMAPHORE_H
+#ifndef KSEM_H
+#define KSEM_H
 
 #include <list.h>
 
@@ -32,4 +32,4 @@ void ksem_init(struct semaphore *sem, unsigned int value);
 void ksem_wait(struct semaphore *sem);
 void ksem_post(struct semaphore *sem);
 
-#endif /* SEMAPHORE_H */
+#endif /* KSEM_H */

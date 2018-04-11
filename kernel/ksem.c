@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <semaphore.h>
+#include <ksem.h>
 #include <thread.h>
 #include <scheduler.h>
 #include <spinlock.h>
