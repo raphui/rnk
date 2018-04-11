@@ -99,10 +99,10 @@ void thread_init(void)
 	for (i = 0; i < NB_RUN_QUEUE; i++)
 		list_initialize(&run_queue[i]);
 
-	add_thread(&idle_thread, IDLE_PRIORITY);
+	add_thread(&idle_thread, NULL, IDLE_PRIORITY);
 }
 
-void add_thread(void (*func)(void), unsigned int priority)
+void add_thread(void (*func)(void), void *arg, unsigned int priority)
 {
 	struct thread *thread = (struct thread *)kmalloc(sizeof(struct thread));
 	if (!thread) {
@@ -137,7 +137,7 @@ void add_thread(void (*func)(void), unsigned int priority)
 	memset(thread->arch, 0, sizeof(struct arch_thread));
 
 	/* Creating thread context */
-	arch_create_context(thread->arch, (unsigned int)thread->func, (unsigned int)&end_thread, (unsigned int *)thread->start_stack, 0, 0);
+	arch_create_context(thread->arch, (unsigned int)thread->func, (unsigned int)&end_thread, (unsigned int *)thread->start_stack, (unsigned int )arg, (unsigned int)NULL);
 
 	insert_thread(thread);
 

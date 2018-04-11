@@ -79,7 +79,7 @@ int main(void)
 
 	printk("- Add thread to scheduler\r\n");
 
-	add_thread(&loading_thread, LOW_PRIORITY);
+	add_thread(&loading_thread, NULL, LOW_PRIORITY);
 
 	printk("- Start scheduling...\r\n");
 	start_schedule();

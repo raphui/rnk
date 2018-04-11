@@ -65,7 +65,7 @@ struct thread
 };
 
 void thread_init(void);
-void add_thread(void (*func)(void), unsigned int priority);
+void add_thread(void (*func)(void), void *arg, unsigned int priority);
 void switch_thread(struct thread *thread);
 struct thread *get_current_thread(void);
 struct thread *find_next_thread(void);
