@@ -6,3 +6,6 @@
 obj-y += stdio.o
 obj-y += string.o
 obj-y += unistd.o
+obj-y += pthread.o
+obj-y += semaphore.o
+obj-y += time.o
