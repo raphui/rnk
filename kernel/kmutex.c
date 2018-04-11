@@ -38,14 +38,22 @@ static void remove_waiting_thread(struct mutex *mutex, struct thread *t)
 	list_delete(&t->event_node);
 }
 
-static int __mutex_lock(struct mutex *mutex)
+void kmutex_init(struct mutex *mutex)
 {
-	int ret = 0;
+
+	mutex->lock = 0;
+	mutex->owner = NULL;
+	mutex->waiting = 0;
+
+	list_initialize(&mutex->waiting_threads);
+}
+
+void kmutex_lock(struct mutex *mutex)
+{
 	struct thread *current_thread = get_current_thread();
 
 	if (mutex->lock) {
 		debug_printk("mutex already locked\r\n");
-		ret = -EDEADLOCK;
 
 		if (mutex->owner) {
 			debug_printk("mutex has owner: %d\r\n", mutex->owner->pid);
@@ -64,31 +72,6 @@ static int __mutex_lock(struct mutex *mutex)
 		mutex->lock = 1;
 		mutex->owner = current_thread;
 		mutex->waiting = 0;
-	}
-
-	return ret;
-}
-
-void kmutex_init(struct mutex *mutex)
-{
-
-	mutex->lock = 0;
-	mutex->owner = NULL;
-	mutex->waiting = 0;
-
-	list_initialize(&mutex->waiting_threads);
-}
-
-void kmutex_lock(struct mutex *mutex)
-{
-	int ret;
-
-	ret = __mutex_lock(mutex);
-	if (ret < 0) {
-		debug_printk("mutex_lock FAILED !\r\n");
-
-	} else {
-		debug_printk("mutex (%x) lock\r\n", mutex);
 	}
 }
 
