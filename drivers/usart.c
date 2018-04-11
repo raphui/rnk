@@ -32,7 +32,7 @@ static struct list_node usart_device_list;
 static struct list_node usart_master_list;
 
 
-static int usart_read(struct device *dev, unsigned char *buff, unsigned int size)
+int usart_read(struct device *dev, unsigned char *buff, unsigned int size)
 {
 	struct usart_device *usart = container_of(dev, struct usart_device, dev);
 
@@ -41,7 +41,7 @@ static int usart_read(struct device *dev, unsigned char *buff, unsigned int size
 	return usart->master->usart_ops->read(usart, buff, size);
 }
 
-static int usart_write(struct device *dev, unsigned char *buff, unsigned int size)
+int usart_write(struct device *dev, unsigned char *buff, unsigned int size)
 {
 	struct usart_device *usart = container_of(dev, struct usart_device, dev);
 

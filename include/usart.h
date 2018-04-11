@@ -53,6 +53,8 @@ struct usart_bus {
 	struct device dev;
 };
 
+int usart_write(struct device *dev, unsigned char *buff, unsigned int size);
+int usart_read(struct device *dev, unsigned char *buff, unsigned int size);
 struct usart_device *usart_new_device(void);
 int usart_remove_device(struct usart_device *usart);
 int usart_register_device(struct usart_device *usart);
