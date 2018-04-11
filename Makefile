@@ -73,7 +73,7 @@ AS := $(CROSS_COMPILE)as
 AR := $(CROSS_COMPILE)ar
 LD := $(CROSS_COMPILE)ld
 OBJCOPY := $(CROSS_COMPILE)objcopy
-LDS := $(CROSS_COMPILE)gcc -E -P
+LDS := $(CROSS_COMPILE)gcc -E -P -C
 DTC := dtc
 
 endif
