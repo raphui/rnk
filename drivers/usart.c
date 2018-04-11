@@ -165,14 +165,6 @@ int usart_remove_master(struct usart_master *usart)
 int usart_register_master(struct usart_master *usart)
 {
 	int ret = 0;
-	char tmp[10] = {0};
-
-	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
-
-	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + master_count;
-
-	memcpy(usart->dev.name, tmp, sizeof(tmp));
 
 	list_add_tail(&usart_master_list, &usart->node);
 
