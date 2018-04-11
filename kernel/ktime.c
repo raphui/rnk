@@ -17,7 +17,7 @@
  */
 
 #include <thread.h>
-#include <time.h>
+#include <ktime.h>
 #include <timer.h>
 #include <syscall.h>
 #include <stdio.h>

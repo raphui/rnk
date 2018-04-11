@@ -23,7 +23,7 @@
 #include <mutex.h>
 #include <queue.h>
 #include <semaphore.h>
-#include <time.h>
+#include <ktime.h>
 #include <unistd.h>
 #include <elfloader.h>
 

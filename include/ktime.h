@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef TIME_H
-#define TIME_H
+#ifndef KTIME_H
+#define KTIME_H
 
 #include <list.h>
 #include <thread.h>
@@ -29,4 +29,4 @@ void ktime_oneshot(int delay, void (*handler)(void *), void *arg);
 void decrease_thread_delay(void);
 void decrease_timer_delay(void);
 
-#endif /* TIME_H */
+#endif /* KTIME_H */

@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <pit.h>
 #include <arch/system.h>
-#include <time.h>
+#include <ktime.h>
 #include <init.h>
 
 int thread_switching = 0;

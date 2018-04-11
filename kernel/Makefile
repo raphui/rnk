@@ -10,4 +10,4 @@ obj-y += semaphore.o
 obj-y += syscall.o
 obj-y += queue.o
 obj-y += thread.o
-obj-y += time.o
+obj-y += ktime.o

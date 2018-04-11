@@ -20,7 +20,7 @@
 #include <scheduler.h>
 #include <thread.h>
 #include <mm.h>
-#include <time.h>
+#include <ktime.h>
 #include <elfloader.h>
 #include <arch/system.h>
 #include <arch/spinlock.h>

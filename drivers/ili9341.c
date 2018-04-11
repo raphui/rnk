@@ -18,7 +18,7 @@
 #include <board.h>
 #include <ili9341.h>
 #include <pio.h>
-#include <time.h>
+#include <ktime.h>
 #include <init.h>
 #include <mm.h>
 #include <errno.h>
