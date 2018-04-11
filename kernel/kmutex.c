@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <mutex.h>
+#include <kmutex.h>
 #include <errno.h>
 #include <scheduler.h>
 #include <utils.h>

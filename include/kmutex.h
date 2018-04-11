@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef MUTEX_H
-#define MUTEX_H
+#ifndef KMUTEX_H
+#define KMUTEX_H
 
 #include <thread.h>
 #include <list.h>
@@ -33,4 +33,4 @@ void kmutex_init(struct mutex *mutex);
 void kmutex_lock(struct mutex *mutex);
 void kmutex_unlock(struct mutex *mutex);
 
-#endif /* MUTEX_H */
+#endif /* KMUTEX_H */
