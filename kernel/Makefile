@@ -11,3 +11,4 @@ obj-y += syscall.o
 obj-y += queue.o
 obj-y += thread.o
 obj-y += ktime.o
+obj-y += printk.o
