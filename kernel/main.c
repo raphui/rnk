@@ -34,22 +34,6 @@
 extern initcall_t __rnk_initcalls_start[], __rnk_initcalls_end[];
 extern exitcall_t __rnk_exitcalls_start[], __rnk_exitcalls_end[];
 
-void loading_thread(void)
-{
-	int ret;
-
-	printk("starting thread K\r\n");
-
-	ret = elf_exec((char *)0x08020000, 220417, 0x08020000);
-	if (ret < 0)
-		printk("failed to exec elf\r\n");
-	else
-		printk("efl execution done\r\n");
-
-	while (1)
-		;
-}
-
 int main(void)
 {
 	int ret;
@@ -58,9 +42,9 @@ int main(void)
 
 	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 
-	printk("Welcome to rnk\r\n");
+	printk("Welcome to rnk\n");
 
-	printk("- Initialise architecture...\r\n");
+	printk("- Initialise architecture...\n");
 
 	arch_init();
 
@@ -71,21 +55,32 @@ int main(void)
 			error_printk("initcall %pS failed: %d\n", *initcall, ret);
 	}
 
-	printk("- Initialise scheduler...\r\n");
+	printk("- Initialise scheduler...\n");
 
 #ifdef CONFIG_UNWIND
 	unwind_init();
 #endif /* CONFIG_UNWIND */
 
-	printk("- Add thread to scheduler\r\n");
+	printk("- Loading app\n");
 
-	add_thread(&loading_thread, NULL, LOW_PRIORITY);
+	ret = elf_exec((char *)0x08020000, 220417, 0x08020000);
+	if (ret <= 0) {
+		printk("failed to exec elf\n");
+		goto fail;
+	}
+	else
+		printk("efl execution done\n");
 
-	printk("- Start scheduling...\r\n");
+	printk("- Add app thread to scheduler\n");
+
+	add_thread((void *)ret, NULL, HIGHEST_PRIORITY);
+
+	printk("- Start scheduling...\n");
 	start_schedule();
 
 	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 
+fail:
 	while(1)
 		;
 
