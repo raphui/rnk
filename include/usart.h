@@ -21,6 +21,7 @@
 
 #include <device.h>
 #include <printk.h>
+#include <kmutex.h>
 
 struct usart_master;
 
@@ -44,6 +45,7 @@ struct usart_master {
 	unsigned int base_reg;
 	unsigned int source_clk;
 	unsigned int baud_rate;
+	struct mutex usart_mutex;
 	struct list_node node;
 	struct device dev;
 	struct usart_operations *usart_ops;

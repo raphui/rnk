@@ -24,6 +24,7 @@
 #include <string.h>
 #include <init.h>
 #include <console.h>
+#include <kmutex.h>
 
 static int dev_count = 0;
 static int master_count = 0;
@@ -34,20 +35,34 @@ static struct list_node usart_master_list;
 
 int usart_read(struct device *dev, unsigned char *buff, unsigned int size)
 {
+	int ret;
 	struct usart_device *usart = container_of(dev, struct usart_device, dev);
 
 	verbose_printk("reading from usart !\n");
 
-	return usart->master->usart_ops->read(usart, buff, size);
+	kmutex_lock(&usart->master->usart_mutex);
+
+	ret = usart->master->usart_ops->read(usart, buff, size);
+
+	kmutex_unlock(&usart->master->usart_mutex);
+
+	return ret;
 }
 
 int usart_write(struct device *dev, unsigned char *buff, unsigned int size)
 {
+	int ret;
 	struct usart_device *usart = container_of(dev, struct usart_device, dev);
 
 	verbose_printk("writing from usart !\n");
 
-	return usart->master->usart_ops->write(usart, buff, size);
+	kmutex_lock(&usart->master->usart_mutex);
+
+	ret = usart->master->usart_ops->write(usart, buff, size);
+
+	kmutex_unlock(&usart->master->usart_mutex);
+
+	return ret;
 }
 
 struct usart_device *usart_new_device(void)
@@ -168,6 +183,8 @@ int usart_remove_master(struct usart_master *usart)
 int usart_register_master(struct usart_master *usart)
 {
 	int ret = 0;
+
+	kmutex_init(&usart->usart_mutex);
 
 	list_add_tail(&usart_master_list, &usart->node);
 
