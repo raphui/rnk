@@ -28,7 +28,7 @@ void start_schedule(void);
 int schedule_init(void);
 void schedule(void);
 void schedule_thread(struct thread *thread);
+void schedule_thread_stop(struct thread *thread);
 void schedule_isr(void);
-void end_thread(void);
 
 #endif /* SCHEDULER_H */

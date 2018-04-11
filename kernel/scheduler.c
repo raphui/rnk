@@ -95,12 +95,18 @@ void schedule_thread(struct thread *thread)
 	decrease_timer_delay();
 }
 
-/* Since threads cannot end, if we jump into this functions it's mean that the context switch is buggy */
-void end_thread(void)
+void schedule_thread_stop(struct thread *thread)
 {
-	struct thread *thread = get_current_thread();
+	struct thread *t;
 
-	thread->state = THREAD_STOPPED;
+	if (thread)
+		t = thread;
+	else
+		t = get_current_thread();
 
-	remove_runnable_thread(thread);
+	t->state = THREAD_STOPPED;
+
+	remove_runnable_thread(t);
+
+	schedule_thread(NULL);
 }
