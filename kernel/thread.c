@@ -23,7 +23,6 @@
 #include <utils.h>
 #include <arch/system.h>
 #include <spinlock.h>
-#include <export.h>
 #include <syscall.h>
 
 static struct thread *current_thread = NULL;
@@ -143,7 +142,6 @@ void add_thread(void (*func)(void), void *arg, unsigned int priority)
 
 	thread_count++;
 }
-EXPORT_SYMBOL(add_thread);
 
 void switch_thread(struct thread *thread)
 {
