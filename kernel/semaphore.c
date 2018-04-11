@@ -44,7 +44,7 @@ static void remove_waiting_thread(struct semaphore *sem, struct thread *t)
 	list_delete(&t->event_node);
 }
 
-void sem_init(struct semaphore *sem, unsigned int value)
+void ksem_init(struct semaphore *sem, unsigned int value)
 {
 	sem->value = value;
 	sem->count = 0;
@@ -52,9 +52,8 @@ void sem_init(struct semaphore *sem, unsigned int value)
 
 	list_initialize(&sem->waiting_threads);
 }
-EXPORT_SYMBOL(sem_init);
 
-void svc_sem_wait(struct semaphore *sem)
+void ksem_wait(struct semaphore *sem)
 {
 	struct thread *current_thread;
 
@@ -71,13 +70,7 @@ void svc_sem_wait(struct semaphore *sem)
 	}
 }
 
-void sem_wait(struct semaphore *sem)
-{
-	syscall(SYSCALL_WAIT_SEM, sem, NULL, NULL);
-}
-EXPORT_SYMBOL(sem_wait);
-
-void svc_sem_post(struct semaphore *sem)
+void ksem_post(struct semaphore *sem)
 {
 	struct thread *thread;
 
@@ -101,9 +94,3 @@ void svc_sem_post(struct semaphore *sem)
 		}
 	}
 }
-
-void sem_post(struct semaphore *sem)
-{
-	syscall(SYSCALL_POST_SEM, sem, NULL, NULL);
-}
-EXPORT_SYMBOL(sem_post);

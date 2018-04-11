@@ -28,10 +28,8 @@ struct semaphore {
 	struct list_node waiting_threads;
 };
 
-void sem_init(struct semaphore *sem, unsigned int value);
-void svc_sem_wait(struct semaphore *sem);
-void svc_sem_post(struct semaphore *sem);
-void sem_wait(struct semaphore *sem);
-void sem_post(struct semaphore *sem);
+void ksem_init(struct semaphore *sem, unsigned int value);
+void ksem_wait(struct semaphore *sem);
+void ksem_post(struct semaphore *sem);
 
 #endif /* SEMAPHORE_H */
