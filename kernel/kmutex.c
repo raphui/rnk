@@ -63,6 +63,7 @@ void kmutex_lock(struct mutex *mutex)
 
 			insert_waiting_thread(mutex, current_thread);
 			mutex->waiting++;
+			arch_request_sched();
 
 		} else {
 			debug_printk("No owner for mutex (%x)\r\n", mutex);
