@@ -34,6 +34,11 @@ int console_write(unsigned char *buff, unsigned int len)
 		return -ENOTTY;
 
 	ret = cons->io_ops->write(cons->pdata, buff, len);
+#else
+	if (!cons)
+		return -ENOTTY;
+
+	ret = usart_write(&cons->usart->dev, buff, len);
 #endif
 
 	return ret;
