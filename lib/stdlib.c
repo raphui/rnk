@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014  Raphaël Poggi <poggi.raph@gmail.com>
+ * Copyright (C) 2018  Raphaël Poggi <poggi.raph@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,14 +16,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef STDLIB_H
-#define STDLIB_H
+#include <stdlib.h>
+#include <syscall.h>
 
-#include <stddef.h>
+void *malloc(size_t size)
+{
+	unsigned int mem;
 
-#define assert(x) if (!(x)) { for (;;){} }
+	syscall(SYSCALL_ALLOC, size, &mem);
 
-void *malloc(size_t size);
-void free(void *mem);
+	return (void *)mem;
+}
 
-#endif /* STDLIB_H */
+
+void free(void *mem)
+{
+	syscall(SYSCALL_FREE, mem);
+}

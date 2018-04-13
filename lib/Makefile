@@ -4,6 +4,7 @@
 # Provided under the three clause BSD license found in the LICENSE file.
 
 obj-y += stdio.o
+obj-y += stdlib.o
 obj-y += string.o
 obj-y += unistd.o
 obj-y += pthread.o
