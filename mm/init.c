@@ -32,7 +32,8 @@ int heap_init(void)
 		kernel_heap[i].free_mask = 0;
 	}
 #elif defined(CONFIG_TLSF)
-	tlsf_mem_pool = tlsf_create_with_pool((void *)KERNEL_HEAP_START, MAX_KERNEL_HEAP_SIZE);
+	tlsf_mem_kernel_pool = tlsf_create_with_pool((void *)KERNEL_HEAP_START, MAX_KERNEL_HEAP_SIZE);
+	tlsf_mem_user_pool = tlsf_create_with_pool((void *)USER_HEAP_START, MAX_USER_HEAP_SIZE);
 #endif
 
 	return ret;

@@ -11,6 +11,12 @@ config KERNEL_HEAP_START
 config KERNEL_HEAP_END
 	hex "End address of kernel heap"
 
+config USER_HEAP_START
+	hex "Start address of user heap"
+
+config USER_HEAP_END
+	hex "End address of user heap"
+
 choice
 	prompt "malloc implementation"
 

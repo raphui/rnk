@@ -22,7 +22,8 @@
 #include "memory.h"
 
 #ifdef CONFIG_TLSF
-tlsf_t tlsf_mem_pool;
+tlsf_t tlsf_mem_kernel_pool;
+tlsf_t tlsf_mem_user_pool;
 #endif /* CONFIG_TLSF */
 
 #ifdef CONFIG_CUSTOM_MALLOC
@@ -102,7 +103,11 @@ out:
 
 #endif /* CONFIG_CUSTOM_MALLOC */
 
-void alloc(size_t size, unsigned int *m)
+#ifdef CONFIG_TLSF
+static void alloc(size_t size, unsigned int *m, tlsf_t pool)
+#else
+static void alloc(size_t size, unsigned int *m)
+#endif
 {
 	void *mem = NULL;
 #ifdef CONFIG_CUSTOM_MALLOC
@@ -121,16 +126,32 @@ void alloc(size_t size, unsigned int *m)
 	if (mem)
 		mem_alloc += size;
 #elif defined(CONFIG_TLSF)
-	mem = tlsf_malloc(tlsf_mem_pool, size);
+	mem = tlsf_malloc(pool, size);
 #endif
 	*m = mem;
+}
+
+void umalloc(size_t size, void *m)
+{
+	unsigned int mem;
+#ifdef CONFIG_TLSF
+	alloc(size, &mem, tlsf_mem_user_pool);
+#else
+	alloc(size, &mem);
+#endif
+
+	*(unsigned int *)m = mem;
 }
 
 void *kmalloc(size_t size)
 {
 	unsigned int mem;
 
+#ifdef CONFIG_TLSF
+	alloc(size, &mem, tlsf_mem_kernel_pool);
+#else
 	alloc(size, &mem);
+#endif
 
 	return (void *)mem;
 }

@@ -19,15 +19,20 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-#ifdef CONFIG_TLSF
-
-#include <tlsf.h>
-
 #define KERNEL_HEAP_START	CONFIG_KERNEL_HEAP_START
 #define KERNEL_HEAP_END		CONFIG_KERNEL_HEAP_END
 #define MAX_KERNEL_HEAP_SIZE	(KERNEL_HEAP_END - KERNEL_HEAP_START)
 
-extern tlsf_t tlsf_mem_pool;
+#define USER_HEAP_START		CONFIG_USER_HEAP_START
+#define USER_HEAP_END		CONFIG_USER_HEAP_END
+#define MAX_USER_HEAP_SIZE	(USER_HEAP_END - USER_HEAP_START)
+
+#ifdef CONFIG_TLSF
+
+#include <tlsf.h>
+
+extern tlsf_t tlsf_mem_kernel_pool;
+extern tlsf_t tlsf_mem_user_pool;
 
 #else
 
@@ -36,10 +41,7 @@ extern tlsf_t tlsf_mem_pool;
 #define MAGIC			0xABCD
 #define BLOCK_SIZE		(CHUNK_PER_BLOCK * CHUNK_SIZE)
 
-#define KERNEL_HEAP_START	CONFIG_KERNEL_HEAP_START
-#define KERNEL_HEAP_END		CONFIG_KERNEL_HEAP_END
 #define KERNEL_NUM_BLOCKS	((KERNEL_HEAP_END - KERNEL_HEAP_START) / BLOCK_SIZE)
-#define MAX_KERNEL_HEAP_SIZE	(KERNEL_HEAP_END - KERNEL_HEAP_START)
 
 #define MASK(n) ((unsigned int)((1UL << (n)) - 1))
 

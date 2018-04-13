@@ -27,8 +27,9 @@ extern int mem_alloc;
 
 extern int heap_init(void);
 extern void *kmalloc(size_t size);
-extern void alloc(size_t size, unsigned int *m);
 extern void kfree(void *mem);
+extern void umalloc(size_t size, void *m);
+extern void ufree(void *mem);
 
 #ifdef CONFIG_DLMALLOC
 extern void *sbrk(int increment);

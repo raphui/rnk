@@ -51,11 +51,20 @@ static void free_mem(void *mem, struct memory_block *heap, void *base)
 }
 #endif /* CONFIG_CUSTOM_MALLOC */
 
+void ufree(void *mem)
+{
+#ifdef CONFIG_CUSTOM_MALLOC
+	free_mem(mem, kernel_heap, (void *)KERNEL_HEAP_START);
+#elif defined(CONFIG_TLSF)
+	tlsf_free(tlsf_mem_user_pool, mem);
+#endif
+}
+
 void kfree(void *mem)
 {
 #ifdef CONFIG_CUSTOM_MALLOC
 	free_mem(mem, kernel_heap, (void *)KERNEL_HEAP_START);
 #elif defined(CONFIG_TLSF)
-	tlsf_free(tlsf_mem_pool, mem);
+	tlsf_free(tlsf_mem_kernel_pool, mem);
 #endif
 }
