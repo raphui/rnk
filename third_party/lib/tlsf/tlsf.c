@@ -490,10 +490,15 @@ static void* align_ptr(const void* ptr, size_t align)
 static size_t adjust_request_size(size_t size, size_t align)
 {
 	size_t adjust = 0;
-	if (size && size < block_size_max)
+	if (size)
 	{
 		const size_t aligned = align_up(size, align);
-		adjust = tlsf_max(aligned, block_size_min);
+
+		/* aligned sized must not exceed block_size_max or we'll go out of bounds on sl_bitmap */
+		if (aligned < block_size_max) 
+		{
+			adjust = tlsf_max(aligned, block_size_min);
+		}
 	}
 	return adjust;
 }
@@ -751,7 +756,17 @@ static block_header_t* block_locate_free(control_t* control, size_t size)
 	if (size)
 	{
 		mapping_search(size, &fl, &sl);
-		block = search_suitable_block(control, &fl, &sl);
+		
+		/*
+		** mapping_search can futz with the size, so for excessively large sizes it can sometimes wind up 
+		** with indices that are off the end of the block array.
+		** So, we protect against that here, since this is the only callsite of mapping_search.
+		** Note that we don't need to check sl, since it comes from a modulo operation that guarantees it's always in range.
+		*/
+		if (fl < FL_INDEX_COUNT)
+		{
+			block = search_suitable_block(control, &fl, &sl);
+		}
 	}
 
 	if (block)
