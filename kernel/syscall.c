@@ -26,6 +26,7 @@
 #include <ktime.h>
 #include <unistd.h>
 #include <elfloader.h>
+#include <mm.h>
 
 #include <arch/syscall.h>
 
@@ -48,6 +49,8 @@ struct syscall syscall_table[] = {
 	{SYSCALL_FD_WRITE, (unsigned int *)&svc_write},
 	{SYSCALL_FD_READ, (unsigned int *)&svc_read},
 	{SYSCALL_FD_LSEEK, (unsigned int *)&svc_lseek},
+	{SYSCALL_ALLOC, (unsigned int *)alloc},
+	{SYSCALL_FREE, (unsigned int *)kfree},
 };
 
 int syscall(int number, ...)
