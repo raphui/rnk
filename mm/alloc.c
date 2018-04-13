@@ -29,7 +29,7 @@ tlsf_t tlsf_mem_pool;
 
 int mem_alloc = 0;
 
-static void *alloc(struct memory_block *heap, unsigned int heap_size, unsigned int chunks, void *base)
+static void *ralloc(struct memory_block *heap, unsigned int heap_size, unsigned int chunks, void *base)
 {
 	void *ret = NULL;
 	int i = 0;
@@ -102,57 +102,35 @@ out:
 
 #endif /* CONFIG_CUSTOM_MALLOC */
 
-void *kmalloc(size_t size)
+void alloc(size_t size, unsigned int *m)
 {
 	void *mem = NULL;
 #ifdef CONFIG_CUSTOM_MALLOC
 	int chunks;
-	
+
 	if (size > MAX_KERNEL_HEAP_SIZE)
 		return NULL;
 
 	size += sizeof(struct alloc_header);
-	
+
 	chunks = size + CHUNK_SIZE - 1;
 	chunks = chunks / CHUNK_SIZE;
 
-	mem = alloc(kernel_heap, KERNEL_NUM_BLOCKS, chunks, (void *)KERNEL_HEAP_START);
+	mem = ralloc(kernel_heap, KERNEL_NUM_BLOCKS, chunks, (void *)KERNEL_HEAP_START);
 
 	if (mem)
 		mem_alloc += size;
-#elif defined(CONFIG_DLMALLOC)
-	mem = malloc(size);
 #elif defined(CONFIG_TLSF)
 	mem = tlsf_malloc(tlsf_mem_pool, size);
 #endif
-
-	return mem;
+	*m = mem;
 }
 
-#ifdef CONFIG_DLMALLOC
-static unsigned long malloc_brk = KERNEL_HEAP_START;
-
-static void *sbrk_no_zero(int increment)
+void *kmalloc(size_t size)
 {
-	unsigned long old = malloc_brk;
-	unsigned long new = old + increment;
+	unsigned int mem;
 
-	if ((new < KERNEL_HEAP_START) || (new > KERNEL_HEAP_END))
-		return NULL;
+	alloc(size, &mem);
 
-	malloc_brk = new;
-
-	return (void *)old;
+	return (void *)mem;
 }
-
-void *sbrk(int increment)
-{
-	void *old = sbrk_no_zero(increment);
-
-	/* Only clear increment, if valid address was returned */
-	if (old != NULL)
-		memset(old, 0, increment);
-
-	return old;
-}
-#endif /* CONFIG_DLMALLOC */

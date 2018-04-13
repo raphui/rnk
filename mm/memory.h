@@ -19,18 +19,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-#ifdef CONFIG_DLMALLOC
-
-#include <stddef.h>
-
-#define KERNEL_HEAP_START	CONFIG_KERNEL_HEAP_START
-#define KERNEL_HEAP_END		CONFIG_KERNEL_HEAP_END
-#define MAX_KERNEL_HEAP_SIZE	(KERNEL_HEAP_END - KERNEL_HEAP_START)
-
-extern void *malloc(size_t bytes);
-extern void free(void *mem);
-
-#elif defined(CONFIG_TLSF)
+#ifdef CONFIG_TLSF
 
 #include <tlsf.h>
 

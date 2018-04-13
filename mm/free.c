@@ -55,8 +55,6 @@ void kfree(void *mem)
 {
 #ifdef CONFIG_CUSTOM_MALLOC
 	free_mem(mem, kernel_heap, (void *)KERNEL_HEAP_START);
-#elif defined(CONFIG_DLMALLOC)
-	free(mem);
 #elif defined(CONFIG_TLSF)
 	tlsf_free(tlsf_mem_pool, mem);
 #endif

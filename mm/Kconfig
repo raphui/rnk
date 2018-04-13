@@ -17,9 +17,6 @@ choice
 config CUSTOM_MALLOC
 	bool "Use custom malloc implementation"
 
-config DLMALLOC
-	bool "Use dlmalloc implementation"
-
 config TLSF
 	bool "Use tlsf implementation"
 
