@@ -18,6 +18,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <export.h>
 #include <unistd.h>
@@ -103,7 +104,7 @@ void printf(char *fmt, ...)
 	va_list va;
 
 	if (!mutex) {
-		mutex = kmalloc(sizeof(pthread_mutex_t));
+		mutex = malloc(sizeof(pthread_mutex_t));
 		pthread_mutex_init(mutex);
 	}
 
