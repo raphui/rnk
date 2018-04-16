@@ -30,5 +30,6 @@ void schedule(void);
 void schedule_thread(struct thread *thread);
 void schedule_thread_stop(struct thread *thread);
 void schedule_isr(void);
+void schedule_yield(void);
 
 #endif /* SCHEDULER_H */

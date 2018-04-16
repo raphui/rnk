@@ -110,3 +110,8 @@ void schedule_thread_stop(struct thread *thread)
 
 	schedule_thread(NULL);
 }
+
+void schedule_yield(void)
+{
+	arch_request_sched();
+}
