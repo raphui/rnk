@@ -24,7 +24,7 @@
 #include <queue.h>
 #include <ksem.h>
 #include <ktime.h>
-#include <unistd.h>
+#include <io_ops.h>
 #include <elfloader.h>
 #include <mm.h>
 

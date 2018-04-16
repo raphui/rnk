@@ -78,7 +78,7 @@ DTC := dtc
 
 endif
 
-subdirs-y := arch boards boot drivers kernel ldscripts lib loader mm third_party utils
+subdirs-y := arch boards boot drivers fs kernel ldscripts lib loader mm third_party utils
 
 linker_files = rnk.lds
 dtb = rnk.dtb
