@@ -25,7 +25,7 @@
 #include <export.h>
 #include <syscall.h>
 
-#define MAX_SYSCALL_ARGUMENT	4
+#define MAX_SYSCALL_ARGUMENT	3
 #define MAX_FD	8
 
 extern void svc_noarg(int number);
