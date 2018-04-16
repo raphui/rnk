@@ -2,27 +2,15 @@
 
 MEMORY
 {
-    rom (rx)  : ORIGIN = 0x08000000, LENGTH = 0x00100000
-    ram (rwx) : ORIGIN = 0x20000000, LENGTH = 0x0002FFFF
-    ccm (rwx) : ORIGIN = 0x10000000, LENGTH = 0x00010000
+    rom (rx)  : ORIGIN = CONFIG_TEXT_BASE, LENGTH = CONFIG_TEXT_SIZE
+    ram (rwx) : ORIGIN = CONFIG_RAM_BASE, LENGTH = CONFIG_RAM_SIZE
 }
  
-_eram = 0x20000000 + 0x0002FFFF;
+_eram = CONFIG_RAM_BASE + CONFIG_RAM_SIZE;
 
 /* Section Definitions */
 SECTIONS
 {
-    /* collect all uninitialized .ccm sections */
-	/* A directed static allocation would look like this :
-		volatile uint8_t buff0[16384] __attribute__((section(".ccm")));   */
-	.ccm (NOLOAD) :
-    {
-        . = ALIGN(4);
-        *(.ccm)
-        *(.ccm.*)
-        . = ALIGN(4);
-    } > ccm
- 
     .text :
     {
         _text = .;
@@ -75,8 +63,11 @@ SECTIONS
     .data : AT (_sidata)
     {
         _sdata = .;
-        *(.data .data.*)
+        *(EXCLUDE_FILE(lib/*) .data EXCLUDE_FILE(lib/*) .data.*)
+	_slibdata = .;
+	*(.lib/* .data .lib/* .data.*)
         . = ALIGN(4);
+	_elibdata = .;
         _edata = . ;
     } > ram
  
@@ -85,9 +76,12 @@ SECTIONS
     {
         _sbss = . ;
 	__bss_start__ = . ;
-        *(.bss .bss.*)
+        *(EXCLUDE_FILE(lib/*) .bss EXCLUDE_FILE(lib/*) .bss.*)
         *(COMMON)
+	_slibbss = .;
+	*(.lib/* .bss .lib/* .bss.*)
         . = ALIGN(4);
+	_elibbss = .;
         _ebss = . ;
 	__bss_end__ = . ;
     } > ram
@@ -101,5 +95,7 @@ SECTIONS
  
     . = ALIGN(4);
     _end = . ;
-    PROVIDE( _estack = _end + CONFIG_STACK_SIZE );
+
+    PROVIDE(_sstack = _eram - CONFIG_STACK_SIZE);
+    PROVIDE( _estack = _eram );
 }
