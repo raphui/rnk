@@ -28,6 +28,12 @@
 #include <arch/semihosting.h>
 #endif /* CONFIG_SEMIHOSTING */
 
+/* XXX: armv7m mpu need a least 32 bytes to map a section,
+ * this ensure that .bss will be map for user access
+ **/
+static char dummy[32];
+
+
 static int fd;
 static pthread_mutex_t *mutex = NULL;
 
