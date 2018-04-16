@@ -31,6 +31,9 @@
 extern unsigned int _sstack[];
 extern unsigned int _estack[];
 
+extern unsigned int _slibtext[];
+extern unsigned int _elibtext[];
+
 extern unsigned int _slibbss[];
 extern unsigned int _elibbss[];
 
@@ -91,9 +94,9 @@ int mpu_init(void)
 	if (!(supp & 0xFF00))
 		return -ENOTSUP;
 
-	mpu_map_from_low((void *)CORTEX_M_PERIPH_BASE, SZ_512M, MPU_RASR_DEVICE_SHARE | MPU_RASR_AP_PRIV_RW_UN_NO);
 	mpu_map_from_low(NULL, 32, MPU_RASR_AP_PRIV_NO_UN_NO | MPU_RASR_XN);
 	mpu_map_from_low((void *)CONFIG_USER_HEAP_START, CONFIG_USER_HEAP_END - CONFIG_USER_HEAP_START, MPU_RASR_AP_PRIV_RW_UN_RW);
+	mpu_map_from_high((void *)_slibtext, (unsigned int)_elibtext - (unsigned int)_slibtext, MPU_RASR_NORMAL_CACHE | MPU_RASR_AP_PRIV_RW_UN_RO);
 	mpu_map_from_high((void *)_slibbss, (unsigned int)_elibbss - (unsigned int)_slibbss, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
 	mpu_map_from_high((void *)_slibdata, (unsigned int)_elibdata - (unsigned int)_slibdata, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
 

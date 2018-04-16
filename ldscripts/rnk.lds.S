@@ -17,14 +17,21 @@ SECTIONS
         KEEP(*(.isr_vector .isr_vector.*))
         KEEP(*(.cm_isr_vector))
 	KEEP(*(.isr_vector_cmsis))
-        *(.text .text.* .gnu.linkonce.t.*)
+        *(EXCLUDE_FILE(lib/*) .text EXCLUDE_FILE(lib/*) .text.* .gnu.linkonce.t.*)
         *(.glue_7t) *(.glue_7)
-        *(.rodata .rodata* .gnu.linkonce.r.*)
+        *(EXCLUDE_FILE(lib/*) .rodata EXCLUDE_FILE(lib/*) .rodata* .gnu.linkonce.r.*)
+
+	_slibtext = .;
+	*(.lib/* .text .lib/* .text.*)
+	*(.lib/* .rodata .lib/* .rodata*)
+        . = ALIGN(4);
+	_elibtext = .;
 
 	. = ALIGN(4);
 	_etext = .;
 	PROVIDE(etext = .);
     } > rom
+/* */
  
 #ifdef CONFIG_UNWIND
     .ARM.extab :
