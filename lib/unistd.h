@@ -38,4 +38,6 @@ int svc_write(int fd, const void *buf, size_t size);
 int svc_read(int fd, void *buf, size_t size);
 int svc_lseek(int fd, int offset, int whence);
 
+int syscall(int number, ...);
+
 #endif /* UNISTD_H */

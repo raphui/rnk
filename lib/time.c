@@ -18,6 +18,7 @@
 
 #include <time.h>
 #include <syscall.h>
+#include <unistd.h>
 #include <export.h>
 
 void time_usleep(unsigned int usec)

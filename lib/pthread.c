@@ -18,6 +18,7 @@
 
 #include <pthread.h>
 #include <syscall.h>
+#include <unistd.h>
 #include <export.h>
 
 int pthread_create(void (*start_routine)(void *), void *arg, unsigned int priority)

@@ -25,7 +25,13 @@
 #include <export.h>
 #include <syscall.h>
 
+#define MAX_SYSCALL_ARGUMENT	4
 #define MAX_FD	8
+
+extern void svc_noarg(int number);
+extern void svc_arg1(int number, void *arg);
+extern void svc_arg2(int number, void *arg, void *arg2);
+extern void svc_arg3(int number, void *arg, void *arg2, void *arg3);
 
 struct device_io {
 	struct device *dev;
@@ -38,6 +44,21 @@ struct device_io {
 static struct device_io devs[MAX_FD];
 
 static int fd_num = 0;
+
+static int arch_system_call(unsigned int call, va_list va)
+{
+	int i;
+	int ret = 0;
+	void *args[MAX_SYSCALL_ARGUMENT];
+
+	for (i = 0; i < MAX_SYSCALL_ARGUMENT; i++)
+		args[i] = va_arg(va, void *);
+
+	if (call < SYSCALL_END)
+		svc_arg3(call, args[0], args[1], args[2]);
+
+	return ret;
+}
 
 int svc_open(const char *path, int flags)
 {
@@ -194,3 +215,18 @@ int lseek(int fd, int offset, int whence)
 	return syscall(SYSCALL_FD_LSEEK, fd, offset, whence);
 }
 EXPORT_SYMBOL(lseek);
+
+int syscall(int number, ...)
+{
+	va_list va;
+	int ret = 0;
+
+	va_start(va, number);
+
+	if (number >= SYSCALL_END)
+		return -EINVAL;
+
+	ret = arch_system_call(number, va);
+
+	return ret;
+}

@@ -50,6 +50,4 @@ struct syscall {
 
 extern struct syscall syscall_table[];
 
-int syscall(int number, ...);
-
 #endif /* SYSCALL_H */

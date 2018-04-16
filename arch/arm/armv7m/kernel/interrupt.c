@@ -24,7 +24,6 @@
 #include <syscall.h>
 #include <armv7m/system.h>
 #include <arch/system.h>
-#include <arch/syscall.h>
 #include <symbols.h>
 #include <backtrace.h>
 

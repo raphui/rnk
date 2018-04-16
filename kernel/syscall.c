@@ -28,10 +28,8 @@
 #include <elfloader.h>
 #include <mm.h>
 
-#include <arch/syscall.h>
-
 struct syscall syscall_table[] = {
-	{SYSCALL_THREAD_SWITCH, (unsigned int *)&schedule_thread},
+	{SYSCALL_THREAD_SWITCH, (unsigned int *)&schedule_yield},
 	{SYSCALL_THREAD_CREATE, (unsigned int *)&add_thread},
 	{SYSCALL_THREAD_STOP, (unsigned int *)&schedule_thread_stop},
 	{SYSCALL_MUTEX_CREATE, (unsigned int *)&kmutex_init},
@@ -52,18 +50,3 @@ struct syscall syscall_table[] = {
 	{SYSCALL_ALLOC, (unsigned int *)umalloc},
 	{SYSCALL_FREE, (unsigned int *)ufree},
 };
-
-int syscall(int number, ...)
-{
-	va_list va;
-	int ret = 0;
-
-	va_start(va, number);
-
-	if (number >= SYSCALL_END)
-		return -EINVAL;
-
-	ret = arch_system_call(number, va);
-
-	return ret;
-}

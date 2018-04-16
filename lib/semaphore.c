@@ -18,6 +18,7 @@
 
 #include <semaphore.h>
 #include <syscall.h>
+#include <unistd.h>
 #include <export.h>
 
 void sem_init(sem_t *sem, unsigned int value)
