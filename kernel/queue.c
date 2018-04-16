@@ -108,7 +108,7 @@ void svc_queue_post(struct queue *queue, void *item)
 
 				t->state = THREAD_RUNNABLE;
 				remove_waiting_receive_thread(queue, t);
-				arch_request_sched();
+				schedule_yield();
 			}
 		}
 	}
@@ -151,7 +151,7 @@ void svc_queue_receive(struct queue *queue, void *item)
 
 				t->state = THREAD_RUNNABLE;
 				remove_waiting_post_thread(queue, t);
-				arch_request_sched();
+				schedule_yield();
 			}
 
 		}

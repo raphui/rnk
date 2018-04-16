@@ -22,7 +22,6 @@
 #include <syscall.h>
 #include <printk.h>
 #include <scheduler.h>
-#include <arch/system.h>
 #include <spinlock.h>
 #include <init.h>
 #include <export.h>
@@ -73,7 +72,7 @@ void ktime_usleep(unsigned int usec)
 
 	list_add_tail(&sleeping_threads, &thread->node);
 
-	arch_request_sched();
+	schedule_yield();
 #endif /* CONFIG_BW_DELAY */
 }
 
@@ -99,7 +98,7 @@ void decrease_thread_delay(void)
 			insert_runnable_thread(thread);
 #ifdef CONFIG_SCHEDULE_PRIORITY
 			if (curr->priority < thread->priority)
-				arch_request_sched();
+				schedule_yield();
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 
 		} else if (!thread->delay) {
@@ -114,7 +113,7 @@ void decrease_thread_delay(void)
 
 #ifdef CONFIG_SCHEDULE_PRIORITY
 			if (curr->priority < thread->priority)
-				arch_request_sched();
+				schedule_yield();
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 		} else {
 

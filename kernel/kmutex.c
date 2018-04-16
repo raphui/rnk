@@ -63,7 +63,7 @@ void kmutex_lock(struct mutex *mutex)
 
 			insert_waiting_thread(mutex, current_thread);
 			mutex->waiting++;
-			arch_request_sched();
+			schedule_yield();
 
 		} else {
 			debug_printk("No owner for mutex (%x)\r\n", mutex);
@@ -97,7 +97,7 @@ void kmutex_unlock(struct mutex *mutex)
 
 				remove_waiting_thread(mutex, thread);
 				insert_runnable_thread(thread);
-				arch_request_sched();
+				schedule_yield();
 			}
 		}
 

@@ -66,7 +66,7 @@ void ksem_wait(struct semaphore *sem)
 		insert_waiting_thread(sem, current_thread);
 		sem->waiting++;
 
-		arch_request_sched();
+		schedule_yield();
 	}
 }
 
@@ -90,7 +90,7 @@ void ksem_post(struct semaphore *sem)
 
 			remove_waiting_thread(sem, thread);
 			insert_runnable_thread(thread);
-			arch_request_sched();
+			schedule_yield();
 		}
 	}
 }
