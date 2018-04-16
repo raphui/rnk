@@ -128,7 +128,7 @@ static void alloc(size_t size, unsigned int *m)
 #elif defined(CONFIG_TLSF)
 	mem = tlsf_malloc(pool, size);
 #endif
-	*m = mem;
+	*m = (unsigned int)mem;
 }
 
 void umalloc(size_t size, void *m)
