@@ -22,6 +22,9 @@
 
 void writel(unsigned int reg, unsigned int val);
 unsigned int readl(unsigned int reg);
+unsigned int next_power_of_2(unsigned int n);
+
+#define ALIGN(x, a)	(((x) + (a) - 1) & ~((a) - 1))
 
 #define min(x, y) ({                            \
 	typeof(x) _min1 = (x);                  \

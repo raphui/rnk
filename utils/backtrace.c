@@ -19,10 +19,9 @@
 #include <printk.h>
 #include <errno.h>
 #include <stddef.h>
+#include <utils.h>
 
 #include <symbols.h>
-
-#define ALIGN(x, a)	(((x) + (a) - 1) & ~((a) - 1))
 
 /* Dummy functions to avoid linker complaints */
 void __aeabi_unwind_cpp_pr0(void)
