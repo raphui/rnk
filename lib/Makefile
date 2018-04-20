@@ -9,5 +9,6 @@ obj-y += string.o
 obj-y += unistd.o
 obj-y += pthread.o
 obj-y += semaphore.o
+obj-y += mqueue.o
 obj-$(CONFIG_CPU_ARM) += syscall_arm.o
 obj-y += time.o
