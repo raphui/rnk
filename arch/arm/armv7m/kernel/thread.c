@@ -25,7 +25,7 @@ struct arch_sw_context_frame *current_ctx_frame;
 
 void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, unsigned int param2)
 {
-	stack = (unsigned int *)((unsigned int)stack & 0xFFFFFFF8);
+	stack = (unsigned int *)ALIGN((unsigned int)stack, 8);
 
 	arch->mpu.top_sp = (unsigned int)stack;
 
