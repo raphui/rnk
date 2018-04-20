@@ -58,12 +58,7 @@ int device_init(void)
 {
 	int ret = 0;
 
-	mpu_map_from_low((void *)FLASH_BASE, SZ_1M, MPU_RASR_NORMAL_CACHE | MPU_RASR_AP_PRIV_RW_UN_RO);
-	mpu_map_from_low((void *)PERIPH_BASE, SZ_512M, MPU_RASR_DEVICE_SHARE | MPU_RASR_AP_PRIV_RW_UN_RW);
-	//mpu_map_from_low((void *)CCMDATARAM_BASE, SZ_64K, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
-
 #ifdef CONFIG_SWO_DEBUG
-
 	stm32_pio_set_alternate(GPIOB_BASE, 3, 0x0);
 	swo_init(stm32_rcc_get_freq_clk(SYSCLK));
 	DBGMCU->CR |= DBGMCU_CR_TRACE_IOEN; // Enable IO trace pins
