@@ -6,6 +6,21 @@ define dump_calls
 	end
 end
 
+define dump_mpu
+	set $i = 0
+	set $nregion = 8
+
+	while($i < $nregion)
+		set *0xE000ED98 = $i
+		print "---------- "
+		x/x 0xE000ED9C
+		x/x 0xE000EDA0
+		print "-----------"
+		set $i = $i + 1
+
+	end
+end
+
 define enable_swo
 	monitor SWO EnableTarget 0 64000 1 0
 end
