@@ -21,7 +21,7 @@
 #include <syscall.h>
 #include <scheduler.h>
 #include <kmutex.h>
-#include <queue.h>
+#include <kqueue.h>
 #include <ksem.h>
 #include <ktime.h>
 #include <io_ops.h>
@@ -40,8 +40,8 @@ struct syscall syscall_table[] = {
 	{SYSCALL_SEM_POST, (unsigned int *)&ksem_post},
 	{SYSCALL_TIME_USLEEP, (unsigned int *)&ktime_usleep},
 	{SYSCALL_TIME_ONESHOT, (unsigned int *)&ktime_oneshot},
-	{SYSCALL_QUEUE_POST, (unsigned int *)&svc_queue_post},
-	{SYSCALL_QUEUE_RECEIVE, (unsigned int *)&svc_queue_receive},
+	{SYSCALL_QUEUE_POST, (unsigned int *)&kqueue_post},
+	{SYSCALL_QUEUE_RECEIVE, (unsigned int *)&kqueue_receive},
 	{SYSCALL_FD_OPEN, (unsigned int *)&svc_open},
 	{SYSCALL_FD_CLOSE, (unsigned int *)&svc_close},
 	{SYSCALL_FD_WRITE, (unsigned int *)&svc_write},

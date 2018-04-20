@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Frrestore * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <queue.h>
+#include <kqueue.h>
 #include <thread.h>
 #include <scheduler.h>
 #include <mm.h>
@@ -66,7 +66,7 @@ static void remove_waiting_post_thread(struct queue *queue, struct thread *t)
 	list_delete(&t->event_node);
 }
 
-void queue_init(struct queue *queue, unsigned int size, unsigned int item_size)
+void kqueue_init(struct queue *queue, unsigned int size, unsigned int item_size)
 {
 	queue->item_queued = 0;
 	queue->size = size;
@@ -82,17 +82,15 @@ void queue_init(struct queue *queue, unsigned int size, unsigned int item_size)
 	list_initialize(&queue->waiting_receive_threads);
 	list_initialize(&queue->waiting_post_threads);
 }
-EXPORT_SYMBOL(queue_init);
 
-static void clear_queue(struct queue *queue)
+void kqueue_clear(struct queue *queue)
 {
 	queue->item_queued = 0;
 	queue->wr = queue->head;
 	queue->curr = queue->head;
 }
-EXPORT_SYMBOL(clear_queue);
 
-void svc_queue_post(struct queue *queue, void *item)
+static void _kqueue_post(struct queue *queue, void *item)
 {
 	struct thread *t = NULL;
 
@@ -114,14 +112,14 @@ void svc_queue_post(struct queue *queue, void *item)
 	}
 }
 
-void queue_post(struct queue *queue, void *item, unsigned int timeout)
+void kqueue_post(struct queue *queue, void *item, unsigned int timeout)
 {
 	int back_from_sleep = 0;
 	for (;;) {
 		if (back_from_sleep) {
 			break;
 		} else if (queue->item_queued < queue->item_size) {
-			syscall(SYSCALL_QUEUE_POST, queue, item, NULL);
+			_kqueue_post(queue, item);
 			break;
 		} else if (timeout) {
 			insert_waiting_post_thread(queue, get_current_thread());
@@ -131,11 +129,10 @@ void queue_post(struct queue *queue, void *item, unsigned int timeout)
 			break;
 		}
 	}
-	
-}
-EXPORT_SYMBOL(queue_post);
 
-void svc_queue_receive(struct queue *queue, void *item)
+}
+
+static void _kqueue_receive(struct queue *queue, void *item)
 {
 	struct thread *t = NULL;
 
@@ -157,16 +154,16 @@ void svc_queue_receive(struct queue *queue, void *item)
 		}
 
 		if (queue->curr == queue->wr)
-			clear_queue(queue);
+			kqueue_clear(queue);
 	}
 }
 
-void queue_receive(struct queue *queue, void *item, unsigned int timeout)
+void kqueue_receive(struct queue *queue, void *item, unsigned int timeout)
 {
 	int back_from_sleep = 0;
 	for (;;) {
 		if (queue->item_queued) {
-			syscall(SYSCALL_QUEUE_RECEIVE, queue, item, NULL);
+			_kqueue_receive(queue, item);
 			break;
 		} else if (timeout) {
 			insert_waiting_receive_thread(queue, get_current_thread());
@@ -177,4 +174,3 @@ void queue_receive(struct queue *queue, void *item, unsigned int timeout)
 		}
 	}
 }
-EXPORT_SYMBOL(queue_receive);
