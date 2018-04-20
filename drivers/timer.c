@@ -238,6 +238,7 @@ int timer_init(void)
 	int ret = 0;
 
 	kmutex_init(&timer_mutex);
+	list_initialize(&timer_list);
 	list_initialize(&timer_soft_list);
 
 	return ret;
