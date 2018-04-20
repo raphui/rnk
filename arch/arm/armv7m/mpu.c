@@ -67,10 +67,14 @@ static int mpu_map(void *base, int size, int prio, int attr)
 	mpu_write_reg(MPU_CTRL, tmp);
 
 	mpu_write_reg(MPU_RNR, prio);
-	mpu_write_reg(MPU_RBAR, ((unsigned int)base) & ~0x1F);
 
-	size = 32 - __builtin_clz(size) - 2;
+	size = 32 - __builtin_clz(size) - 1;
+	size = next_power_of_2(size);
+
+	base = (void *)ALIGN((unsigned int)base, size);
+
 	mpu_write_reg(MPU_RASR, MPU_RASR_SIZE(size) | attr | MPU_RASR_ENABLE);
+	mpu_write_reg(MPU_RBAR, (unsigned int)base);
 
 	if (mpu_en)
 		tmp |= MPU_CTRL_ENABLE;
@@ -94,11 +98,10 @@ int mpu_init(void)
 	if (!(supp & 0xFF00))
 		return -ENOTSUP;
 
-	mpu_map_from_low(NULL, 32, MPU_RASR_AP_PRIV_NO_UN_NO | MPU_RASR_XN);
-	mpu_map_from_low((void *)CONFIG_USER_HEAP_START, CONFIG_USER_HEAP_END - CONFIG_USER_HEAP_START, MPU_RASR_AP_PRIV_RW_UN_RW);
-	mpu_map_from_high((void *)_slibtext, (unsigned int)_elibtext - (unsigned int)_slibtext, MPU_RASR_NORMAL_CACHE | MPU_RASR_AP_PRIV_RW_UN_RO);
-	mpu_map_from_high((void *)_slibbss, (unsigned int)_elibbss - (unsigned int)_slibbss, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
-	mpu_map_from_high((void *)_slibdata, (unsigned int)_elibdata - (unsigned int)_slibdata, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
+	mpu_map_from_low((void *)CONFIG_USER_HEAP_START, CONFIG_USER_HEAP_END - CONFIG_USER_HEAP_START, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
+	mpu_map_from_low((void *)_slibtext, (unsigned int)_elibtext - (unsigned int)_slibtext, MPU_RASR_NORMAL_CACHE | MPU_RASR_AP_PRIV_RW_UN_RO);
+	mpu_map_from_low((void *)_slibbss, (unsigned int)_elibbss - (unsigned int)_slibbss, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
+	mpu_map_from_low((void *)_slibdata, (unsigned int)_elibdata - (unsigned int)_slibdata, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
 
 
 	mpu_write_reg(MPU_CTRL, MPU_CTRL_ENABLE | MPU_CTRL_PRIVDEFENA);
@@ -117,7 +120,7 @@ int mpu_map_from_low(void *base, int size, int attr)
 
 	for (i = 0; i < MPU_MAX_REGION; i++) {
 		mpu_write_reg(MPU_RNR, i);
-		tmp = mpu_read_reg(MPU_RBAR) & MPU_RBAR_BASE_MASK;
+		tmp = mpu_read_reg(MPU_RASR) & MPU_RASR_ENABLE;
 
 		if (!tmp) {
 			prio = i;
@@ -144,7 +147,7 @@ int mpu_map_from_high(void *base, int size, int attr)
 
 	for (i = MPU_MAX_REGION - 1; i >= 0 ; i--) {
 		mpu_write_reg(MPU_RNR, i);
-		tmp = mpu_read_reg(MPU_RBAR) & MPU_RBAR_BASE_MASK;
+		tmp = mpu_read_reg(MPU_RASR) & MPU_RASR_ENABLE;
 
 		if (!tmp) {
 			prio = i;
@@ -171,11 +174,11 @@ int mpu_unmap(void *base, int size)
 
 	__disable_it();
 
-	size = 32 - __builtin_clz(size) - 2;
+	size = 32 - __builtin_clz(size) - 1;
 
 	for (i = 0; i < MPU_MAX_REGION; i++) {
 		mpu_write_reg(MPU_RNR, i);
-		tmp = mpu_read_reg(MPU_RBAR) & MPU_RBAR_BASE_MASK;
+		tmp = mpu_read_reg(MPU_RASR) & MPU_RASR_ENABLE;
 
 		if (tmp == (int)base) {
 			tmp = mpu_read_reg(MPU_RASR);
