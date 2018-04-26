@@ -25,6 +25,7 @@
 #include <ktime.h>
 #include <spinlock.h>
 #include <export.h>
+#include <errno.h>
 
 static void insert_waiting_receive_thread(struct queue *queue, struct thread *t)
 {
@@ -66,13 +67,25 @@ static void remove_waiting_post_thread(struct queue *queue, struct thread *t)
 	list_delete(&t->event_node);
 }
 
-void kqueue_init(struct queue *queue, unsigned int size, unsigned int item_size)
+int kqueue_init(struct queue *queue, unsigned int size, unsigned int item_size)
 {
+	int ret = 0;
+
+	if (!queue) {
+		ret = -EINVAL;
+		goto err;
+	}
+
 	queue->item_queued = 0;
 	queue->size = size;
 	queue->item_size = item_size;
 
 	queue->head = (unsigned int *)kmalloc(size * item_size);
+	if (!queue->head) {
+		ret = -ENOMEM;
+		goto err;
+	}
+
 	queue->curr = queue->head;
 	queue->wr = queue->head;
 	queue->tail = queue->head + (size * item_size);
@@ -81,13 +94,26 @@ void kqueue_init(struct queue *queue, unsigned int size, unsigned int item_size)
 	queue->waiting_post = 0;
 	list_initialize(&queue->waiting_receive_threads);
 	list_initialize(&queue->waiting_post_threads);
+
+err:
+	return ret;
 }
 
-void kqueue_clear(struct queue *queue)
+int kqueue_clear(struct queue *queue)
 {
+	int ret = 0;
+
+	if (!queue) {
+		ret = -EINVAL;
+		goto err;
+	}
+
 	queue->item_queued = 0;
 	queue->wr = queue->head;
 	queue->curr = queue->head;
+
+err:
+	return ret;
 }
 
 static void _kqueue_post(struct queue *queue, void *item)
@@ -112,9 +138,16 @@ static void _kqueue_post(struct queue *queue, void *item)
 	}
 }
 
-void kqueue_post(struct queue *queue, void *item, unsigned int timeout)
+int kqueue_post(struct queue *queue, void *item, unsigned int timeout)
 {
+	int ret = 0;
 	int back_from_sleep = 0;
+
+	if (!queue) {
+		ret = -EINVAL;
+		goto err;
+	}
+
 	for (;;) {
 		if (back_from_sleep) {
 			break;
@@ -130,6 +163,8 @@ void kqueue_post(struct queue *queue, void *item, unsigned int timeout)
 		}
 	}
 
+err:
+	return ret;
 }
 
 static void _kqueue_receive(struct queue *queue, void *item)
@@ -158,9 +193,16 @@ static void _kqueue_receive(struct queue *queue, void *item)
 	}
 }
 
-void kqueue_receive(struct queue *queue, void *item, unsigned int timeout)
+int kqueue_receive(struct queue *queue, void *item, unsigned int timeout)
 {
+	int ret = 0;
 	int back_from_sleep = 0;
+
+	if (!queue) {
+		ret = -EINVAL;
+		goto err;
+	}
+
 	for (;;) {
 		if (queue->item_queued) {
 			_kqueue_receive(queue, item);
@@ -173,4 +215,6 @@ void kqueue_receive(struct queue *queue, void *item, unsigned int timeout)
 			break;
 		}
 	}
+err:
+	return ret;
 }

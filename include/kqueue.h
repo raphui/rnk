@@ -34,9 +34,9 @@ struct queue {
 	struct list_node waiting_post_threads;
 };
 
-void kqueue_init(struct queue *queue, unsigned int size, unsigned int item_size);
-void kqueue_clear(struct queue *queue);
-void kqueue_post(struct queue *queue, void *item, unsigned int timeout);
-void kqueue_receive(struct queue *queue, void *item, unsigned int timeout);
+int kqueue_init(struct queue *queue, unsigned int size, unsigned int item_size);
+int kqueue_clear(struct queue *queue);
+int kqueue_post(struct queue *queue, void *item, unsigned int timeout);
+int kqueue_receive(struct queue *queue, void *item, unsigned int timeout);
 
 #endif /* QUEUE_H */
