@@ -111,3 +111,10 @@ size_t strlen(const char *s)
     return len;
 }
 EXPORT_SYMBOL(strlen);
+
+char *strcpy(char *dst, const char *src)
+{
+	while (*src++)
+		*dst++ = *src;
+}
+EXPORT_SYMBOL(strcpy);
