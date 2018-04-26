@@ -21,6 +21,7 @@
 
 #include <kqueue.h>
 #include <stddef.h>
+#include <list.h>
 
 struct mq_attr
 {
@@ -31,8 +32,10 @@ struct mq_attr
 };
 
 struct mq_priv {
+	char *name;
 	struct mq_attr attr;
 	struct queue q;
+	struct list_node node;
 };
 
 typedef struct mq_priv* mqd_t;

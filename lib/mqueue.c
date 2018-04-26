@@ -20,10 +20,113 @@
 #include <errno.h>
 #include <export.h>
 #include <syscall.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <unistd.h>
+#include <pthread.h>
+
+static int mq_count = 0;
+
+static struct list_node mq_list;
+
+static pthread_mutex_t mutex;
+
+static struct mq_attr default_attr = {
+	.mq_maxmsg = 5,
+	.mq_msgsize = 1,
+	.mq_flags = O_RDWR,
+	.mq_curmsgs = 0,
+};
 
 mqd_t mq_open(const char *name, int flags, ...)
 {
-	return ERR_PTR(-ENOTSUP);
+	int ret;
+	va_list va;
+	int found = 0;
+	mqd_t mq = NULL;
+	struct mq_attr *attr = NULL;
+
+	va_start(va, flags);
+
+	if (!mq_count) {
+		list_initialize(&mq_list);
+		pthread_mutex_init(&mutex);
+	}
+
+	pthread_mutex_lock(&mutex);
+
+	list_for_every_entry(&mq_list, mq, struct mq_priv, node) {
+		if (!strcmp(mq->name, name)) {
+			found = 1;
+			break;
+		}
+	}
+
+	pthread_mutex_unlock(&mutex);
+
+	/* we don't support mode_t arg */
+	va_arg(va, int);
+
+	attr = va_arg(va, struct mq_attr*);
+
+	switch (flags) {
+	case O_CREAT:
+		if (found)
+			goto out;
+		break;
+	case O_EXCL:
+		goto err_inval;
+	case O_CREAT | O_EXCL:
+		if (found)
+			goto err_inval;
+		break;
+	default:
+		goto err_inval;
+	}
+
+
+	if (!attr)
+		attr = &default_attr;
+
+	mq = malloc(sizeof(*mq));
+	if (!mq)
+		goto err_nomem;
+
+	memcpy(&mq->attr, attr, sizeof(*attr));
+
+	mq->name = malloc(strlen(name) + 1);
+
+	if(!mq->name) {
+		free(mq);
+		goto err;
+	}
+
+	strcpy(mq->name, name);
+	mq->name[strlen(name)] = '\0';
+
+	ret = syscall(SYSCALL_QUEUE_CREATE, &mq->q);
+
+	if (ret < 0) {
+		free(mq);
+		goto err;
+	}
+
+	mq_count++;
+
+	pthread_mutex_lock(&mutex);
+
+	list_add_tail(&mq_list, &mq->node);
+
+	pthread_mutex_unlock(&mutex);
+out:
+	return mq;
+err_inval:
+	return ERR_PTR(-EINVAL);
+err_nomem:
+	return ERR_PTR(-ENOMEM);
+err:
+	return ERR_PTR(-EIO);
 }
 EXPORT_SYMBOL(mq_open);
 
