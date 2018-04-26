@@ -3,6 +3,5 @@
 #
 # Provided under the three clause BSD license found in the LICENSE file.
 
-obj-y += syscall.o
 obj-y += interrupt.o
 obj-y += thread.o
