@@ -23,6 +23,7 @@
 #include <scheduler.h>
 #include <syscall.h>
 #include <armv7m/system.h>
+#include <armv7m/thread.h>
 #include <arch/system.h>
 #include <symbols.h>
 #include <backtrace.h>
@@ -97,9 +98,10 @@ void svc_handler(unsigned int call)
 	void *arg1;
 	void *arg2;
 	void *arg3;
+	void *ret;
 	unsigned int svc_number;
 	unsigned int *psp = (unsigned int *)call;
-	void (*handler)(void *, void *, void *);
+	void * (*handler)(void *, void *, void *);
 
 	svc_number = ((char *)psp[6])[-2];
 
@@ -111,5 +113,7 @@ void svc_handler(unsigned int call)
 
 	handler = (void (*))syscall_table[svc_number].handler;
 
-	(*handler)(arg1, arg2, arg3);
+	ret = (*handler)(arg1, arg2, arg3);
+
+	arch_thread_set_return(ret);
 }
