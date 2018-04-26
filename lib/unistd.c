@@ -31,7 +31,7 @@
 extern void svc_noarg(int number);
 extern void svc_arg1(int number, void *arg);
 extern void svc_arg2(int number, void *arg, void *arg2);
-extern void svc_arg3(int number, void *arg, void *arg2, void *arg3);
+extern void *svc_arg3(int number, void *arg, void *arg2, void *arg3);
 
 static int arch_system_call(unsigned int call, va_list va)
 {
@@ -43,7 +43,7 @@ static int arch_system_call(unsigned int call, va_list va)
 		args[i] = va_arg(va, void *);
 
 	if (call < SYSCALL_END)
-		svc_arg3(call, args[0], args[1], args[2]);
+		ret = (int)svc_arg3(call, args[0], args[1], args[2]);
 
 	return ret;
 }
