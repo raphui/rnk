@@ -18,6 +18,7 @@
 
 #include <ksem.h>
 #include <thread.h>
+#include <errno.h>
 #include <scheduler.h>
 #include <spinlock.h>
 #include <printk.h>
@@ -44,18 +45,34 @@ static void remove_waiting_thread(struct semaphore *sem, struct thread *t)
 	list_delete(&t->event_node);
 }
 
-void ksem_init(struct semaphore *sem, unsigned int value)
+int ksem_init(struct semaphore *sem, unsigned int value)
 {
+	int ret = 0;
+
+	if (!sem) {
+		ret = -EINVAL;
+		goto err;
+	}
+
 	sem->value = value;
 	sem->count = 0;
 	sem->waiting = 0;
 
 	list_initialize(&sem->waiting_threads);
+
+err:
+	return ret;
 }
 
-void ksem_wait(struct semaphore *sem)
+int ksem_wait(struct semaphore *sem)
 {
+	int ret = 0;
 	struct thread *current_thread;
+
+	if (!sem) {
+		ret = -EINVAL;
+		goto err;
+	}
 
 	if (--sem->count < 0) {
 		debug_printk("unable to got sem (%p)(%d)\r\n", sem, sem->count);
@@ -68,11 +85,20 @@ void ksem_wait(struct semaphore *sem)
 
 		schedule_yield();
 	}
+
+err:
+	return ret;
 }
 
-void ksem_post(struct semaphore *sem)
+int ksem_post(struct semaphore *sem)
 {
+	int ret = 0;
 	struct thread *thread;
+
+	if (!sem) {
+		ret = -EINVAL;
+		goto err;
+	}
 
 	sem->count++;
 
@@ -93,4 +119,7 @@ void ksem_post(struct semaphore *sem)
 			schedule_yield();
 		}
 	}
+
+err:
+	return ret;
 }
