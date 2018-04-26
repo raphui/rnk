@@ -23,6 +23,8 @@
 
 struct arch_sw_context_frame *current_ctx_frame;
 
+static struct arch_thread *current_thread_frame;
+
 void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, unsigned int param2)
 {
 	stack = (unsigned int *)ALIGN((unsigned int)stack, 8);
@@ -92,9 +94,21 @@ void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 
 	//new->mpu.prio = mpu_map_from_high((void *)new->mpu.top_sp, CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW | MPU_RASR_XN);
 	new->mpu.prio = mpu_map_from_high((void *)(new->mpu.top_sp - CONFIG_THREAD_STACK_SIZE), CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
+
+	current_thread_frame = new;
 }
 
 void arch_request_sched(void)
 {
 	pendsv_request();
+}
+
+void arch_thread_set_return(void *ret)
+{
+	struct arch_short_context_frame *frame;
+
+	/* minus 4 because SP is not push on PSP at the stage */
+	frame = (struct arch_short_context_frame *)(arch_get_thread_stack() + sizeof(struct arch_sw_context_frame) - 4);
+
+	frame->r0 = (unsigned int)ret;
 }
