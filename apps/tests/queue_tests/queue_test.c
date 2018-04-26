@@ -17,54 +17,56 @@
  */
 
 #include <stdio.h>
-#include <thread.h>
-#include <queue.h>
+#include <pthread.h>
+#include <mqueue.h>
 
-static struct queue queue;
+static mqd_t mqueue;
 
-void thread_a(void)
+void thread_a(void *arg)
 {
 	int a;
 
-	printk("starting thread A\n");
+	printf("starting thread A\n");
 
 	while (1) {
-		printk("[A] receiving from queue: ");
-		queue_receive(&queue, &a, 10000);
-		printk("%d\n", a);
+		printf("[A] receiving from queue: ");
+		//queue_receive(&queue, &a, 10000);
+		printf("%d\n", a);
 	}
 }
 
-void thread_b(void)
+void thread_b(void *arg)
 {
 	int b = 1;
 
-	printk("starting thread B\n");
+	printf("starting thread B\n");
 
 	while (1) {
-		printk("[B] posting from queue: ");
-		queue_post(&queue, &b, 1000);
-		printk("%d\n", b);
+		printf("[B] posting from queue: ");
+		//queue_post(&queue, &b, 1000);
+		printf("%d\n", b);
 		b++;
 	}
 }
 
 int main(void)
 {
+	int ret;
 	int size = 4;
 	int item_size = sizeof(int);
 
-	printk("Starting queue tests\n");
+	printf("Starting queue tests\n");
 
-	printk("- init queue with size of %d and item_size of %d\n", size, item_size);
+	printf("- init queue with size of %d and item_size of %d\n", size, item_size);
 
-	queue_init(&queue, size, item_size);
+	ret = mq_open("test", 0, 0, 0);
+	printf("mqueue: %d\n", ret);
 
-	printk("- adding thread A (%x)\n", &thread_a);
-	add_thread(&thread_a, HIGHEST_PRIORITY);
+	printf("- adding thread A (%x)\n", &thread_a);
+	pthread_create(&thread_a, NULL, 4);
 
-	printk("- adding thread B(%x)\n", &thread_b);
-	add_thread(&thread_b, HIGHEST_PRIORITY - 1);
+	printf("- adding thread B(%x)\n", &thread_b);
+	pthread_create(&thread_b, NULL, 3);
 
 	return 0;
 }
