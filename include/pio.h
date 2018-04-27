@@ -24,6 +24,9 @@
 #define IRQF_RISING	1
 #define IRQF_FALLING	2
 
+#define GPIO_MODE_OUTPUT	0
+#define GPIO_MODE_INPUT		1
+
 struct pio_operations
 {
 	void (*set_output)(unsigned int port, unsigned int mask, int pull_up);
@@ -66,5 +69,7 @@ void pio_disable_interrupt(unsigned int port, unsigned int mask);
 int pio_of_configure(int fdt_offset);
 int pio_of_configure_name(int fdt_offset, char *name);
 int pio_of_get(int fdt_offset, char *name, unsigned int *port, unsigned int *pin);
+int pio_export(unsigned int pin, struct pio_desc *desc);
+int pio_set_state(struct pio_desc *desc);
 
 #endif /* PIO_H */

@@ -91,6 +91,29 @@ int pio_of_get(int fdt_offset, char *name, unsigned int *port, unsigned int *pin
 	return pio_ops.of_get(fdt_offset, name, port, pin);
 }
 
+int pio_set_state(struct pio_desc *desc)
+{
+	int ret = 0;
+
+	if (!desc)
+		return -EINVAL;
+
+	if (desc->mode == GPIO_MODE_OUTPUT) {
+		pio_set_output(desc->port, desc->pin, 0);
+
+		if (desc->state)
+			pio_set_value(desc->port, desc->pin);
+		else
+			pio_clear_value(desc->port, desc->pin);
+	}
+	else if (desc->mode == GPIO_MODE_INPUT)
+		pio_set_input(desc->port, desc->pin, 0, 0);
+	else
+		ret = -EINVAL;
+
+	return ret;
+}
+
 int pio_export(unsigned int pin, struct pio_desc *desc)
 {
 	int ret;
