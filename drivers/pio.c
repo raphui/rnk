@@ -91,9 +91,22 @@ int pio_of_get(int fdt_offset, char *name, unsigned int *port, unsigned int *pin
 	return pio_ops.of_get(fdt_offset, name, port, pin);
 }
 
-int pio_export(unsigned int pin)
+int pio_export(unsigned int pin, struct pio_desc *desc)
 {
-	return pio_ops.export_pio(pin, NULL, NULL);
+	int ret;
+	unsigned int gpio, port;
+
+	if (!desc)
+		return -EINVAL;
+
+	ret = pio_ops.export_pio(pin, &port, &gpio);
+	if (ret < 0)
+		return ret;
+
+	desc->pin = gpio;
+	desc->port = port;
+
+	return 0;
 }
 
 int pio_init(struct pio *pio)
