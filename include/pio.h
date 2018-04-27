@@ -46,6 +46,13 @@ struct pio {
 	struct device dev;
 };
 
+struct pio_desc {
+	unsigned int pin;
+	unsigned int port;
+	unsigned int mode;
+	unsigned int state;
+};
+
 int pio_init(struct pio *pio);
 void pio_set_output(unsigned int port, unsigned int mask, int pull_up);
 void pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter);
