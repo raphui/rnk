@@ -27,6 +27,7 @@
 #include <io_ops.h>
 #include <elfloader.h>
 #include <mm.h>
+#include <pio.h>
 
 struct syscall syscall_table[] = {
 	{SYSCALL_THREAD_SWITCH, (unsigned int *)&schedule_yield},
@@ -51,4 +52,6 @@ struct syscall syscall_table[] = {
 	{SYSCALL_FD_LSEEK, (unsigned int *)&svc_lseek},
 	{SYSCALL_ALLOC, (unsigned int *)umalloc},
 	{SYSCALL_FREE, (unsigned int *)ufree},
+	{SYSCALL_PIO_EXPORT, (unsigned int *)pio_export},
+	{SYSCALL_PIO_SET_STATE, (unsigned int *)pio_set_state},
 };
