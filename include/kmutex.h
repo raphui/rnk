@@ -26,6 +26,7 @@ struct mutex {
 	unsigned char lock;
 	struct thread *owner;
 	unsigned int waiting;
+	unsigned old_prio;
 	struct list_node waiting_threads;
 };
 

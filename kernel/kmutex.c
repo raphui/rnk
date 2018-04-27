@@ -13,19 +13,17 @@ static void insert_waiting_thread(struct mutex *m, struct thread *t)
 	struct thread *thread;
 
 	if (m->waiting) {
+#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 		list_for_every_entry(&m->waiting_threads, thread, struct thread, event_node) {
 
-#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 			if (!list_next(&m->waiting_threads, &thread->event_node)) {
 				list_add_after(&thread->event_node, &t->event_node);
 				break;
 			}
-#elif defined(CONFIG_SCHEDULE_PRIORITY)
-			if (t->priority > thread->priority)
-				list_add_before(&thread->event_node, &t->event_node);
-#endif
 		}
-
+#elif defined(CONFIG_SCHEDULE_PRIORITY)
+		list_add_tail(&m->waiting_threads, &t->event_node);
+#endif
 	} else {
 		list_add_head(&m->waiting_threads, &t->event_node);
 	}
@@ -50,6 +48,7 @@ int kmutex_init(struct mutex *mutex)
 	mutex->lock = 0;
 	mutex->owner = NULL;
 	mutex->waiting = 0;
+	mutex->old_prio = 0;
 
 	list_initialize(&mutex->waiting_threads);
 
@@ -78,6 +77,13 @@ int kmutex_lock(struct mutex *mutex)
 
 			insert_waiting_thread(mutex, current_thread);
 			mutex->waiting++;
+
+			if (mutex->owner->priority < current_thread->priority) {
+				if (!mutex->old_prio)
+					mutex->old_prio = mutex->owner->priority;
+
+				mutex->owner->priority = current_thread->priority;
+			}
 			schedule_yield();
 
 		} else {
@@ -108,6 +114,11 @@ int kmutex_unlock(struct mutex *mutex)
 		debug_printk("mutex already unlock\r\n");
 
 	if (mutex->owner == current_thread) {
+		if (mutex->old_prio) {
+			mutex->owner->priority = mutex->old_prio;
+			mutex->old_prio = 0;
+		}
+
 		mutex->lock = 0;
 		mutex->owner = NULL;
 
@@ -120,14 +131,18 @@ int kmutex_unlock(struct mutex *mutex)
 
 				remove_waiting_thread(mutex, thread);
 				insert_runnable_thread(thread);
-				schedule_yield();
+
+				mutex->lock = 1;
+				mutex->owner = thread;
+
+				schedule_thread(thread);
 			}
 		}
 
 		debug_printk("mutex (%x) unlock\r\n", mutex);
 
 	} else {
-		debug_printk("mutex cannot be unlock, thread is not the owner\r\n");
+		printk("mutex cannot be unlock, thread is not the owner\r\n");
 	}
 err:
 	return ret;
