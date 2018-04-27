@@ -63,31 +63,35 @@ void schedule_thread(struct thread *thread)
 		t->quantum--;
 #endif /* CONFIG_SCHEDULE_ROUND_ROBIN */
 
-	if (thread)
-		switch_thread(thread);
-	else {
-		runnable = is_thread_runnable(t);
+	runnable = is_thread_runnable(t);
 
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
-		if (!t || !t->quantum || !runnable) {
+	if (!t || !t->quantum || !runnable) {
 
-			if (t)
-				if (runnable)
-					insert_runnable_thread(t);
-
-			t = find_next_thread();
-			switch_thread(t);
-		}
-#elif defined(CONFIG_SCHEDULE_PRIORITY) || defined (CONFIG_SCHEDULE_RR_PRIO)
 		if (t)
 			if (runnable)
 				insert_runnable_thread(t);
 
-		t = find_next_thread();
+		if (!thread)
+			t = find_next_thread();
+		else
+			t = thread;
+
 		switch_thread(t);
-#endif
 	}
-	
+#elif defined(CONFIG_SCHEDULE_PRIORITY) || defined (CONFIG_SCHEDULE_RR_PRIO)
+	if (t)
+		if (runnable)
+			insert_runnable_thread(t);
+
+	if (!thread)
+		t = find_next_thread();
+	else
+		t = thread;
+
+	switch_thread(t);
+#endif
+
 #if !defined(CONFIG_HR_TIMER) && !defined(CONFIG_BW_DELAY)
 	decrease_thread_delay();
 #endif
