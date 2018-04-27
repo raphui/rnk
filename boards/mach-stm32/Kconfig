@@ -35,4 +35,10 @@ endchoice
 config NUM_IRQS
 	int "Number of IRQS"
 
+config GPIO_PER_PORT
+	int "Number of gpio per port"
+
+config GPIO_PORT_NUM
+	int "Number of gpio port"
+
 endmenu
