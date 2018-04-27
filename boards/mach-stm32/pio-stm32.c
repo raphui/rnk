@@ -32,6 +32,9 @@
 #define GPIO_OUTPUT_TYPE_PP	0
 #define GPIO_OUTPUT_TYPE_OD	1
 
+#define PIN_PER_PORT	CONFIG_GPIO_PER_PORT
+#define PORT_NUM	CONFIG_GPIO_PORT_NUM
+
 struct gpio_options
 {
 	unsigned char val:1;			/* 0: low, 1: high */
@@ -231,7 +234,25 @@ int stm32_pio_of_get(int fdt_offset, char *name, unsigned int *port, unsigned in
 
 int stm32_pio_export(unsigned int pin_num, unsigned int *port, unsigned int *pin)
 {
-	return -ENOTSUP;
+	int v;
+	int ret = 0;
+
+	*port = pin_num / PIN_PER_PORT;
+
+	if (*port > PORT_NUM)
+		return -EINVAL;
+
+	*port = GPIOA_BASE + (*port * 0x400);
+
+	*pin = PIN_PER_PORT - (pin_num % PIN_PER_PORT);
+
+	v = pin_num % PIN_PER_PORT;
+	if (v)
+		*pin = v - 1;
+	else
+		*pin = PIN_PER_PORT;
+
+	return 0;
 }
 
 struct pio_operations pio_ops = {
