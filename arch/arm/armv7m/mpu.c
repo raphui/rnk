@@ -22,6 +22,7 @@
 #include <sizes.h>
 #include <errno.h>
 #include <utils.h>
+#include <spinlock.h>
 
 #define MPU_MAX_REGION	8
 #define MPU_RBAR_BASE_MASK	0xFFFFFFC0
@@ -53,11 +54,12 @@ static int mpu_map(void *base, int size, int prio, int attr)
 {
 	int tmp, mpu_en;
 	int ret = 0;
+	unsigned long irqstate;
 
 	if (size < 32)
 		return -ENOTSUP;
 
-	__disable_it();
+	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 
 	tmp = mpu_read_reg(MPU_CTRL);
 
@@ -81,7 +83,7 @@ static int mpu_map(void *base, int size, int prio, int attr)
 
 	mpu_write_reg(MPU_CTRL, tmp);
 
-	__enable_it();
+	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 	__isb();
 	__dsb();
 
@@ -171,8 +173,9 @@ int mpu_unmap(void *base, int size)
 	int i, tmp;
 	int ret = 0;
 	int prio = -1;
+	unsigned long irqstate;
 
-	__disable_it();
+	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 
 	size = 32 - __builtin_clz(size) - 1;
 
@@ -197,7 +200,7 @@ int mpu_unmap(void *base, int size)
 	else
 		ret = -ENOENT;
 
-	__enable_it();
+	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 	__isb();
 	__dsb();
 
@@ -207,8 +210,9 @@ int mpu_unmap(void *base, int size)
 int mpu_unmap_prio(int prio)
 {
 	int ret = 0;
+	unsigned long irqstate;
 
-	__disable_it();
+	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 
 	if (prio >= 0) {
 		mpu_write_reg(MPU_RNR, prio);
@@ -218,7 +222,7 @@ int mpu_unmap_prio(int prio)
 	else
 		ret = -ENOENT;
 
-	__enable_it();
+	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 	__isb();
 	__dsb();
 
