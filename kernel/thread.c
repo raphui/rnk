@@ -76,7 +76,7 @@ static void insert_thread(struct thread *t)
 			}
 		}
 	}
-#elif defined(CONFIG_SCHEDULE_PRIORITY)
+#elif defined(CONFIG_SCHEDULE_RR_PRIO)
 	if (t->quantum > 0)
 		insert_in_run_queue_head(t);
 	else {
