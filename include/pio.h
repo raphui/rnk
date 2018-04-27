@@ -38,6 +38,7 @@ struct pio_operations
 	int (*of_configure)(int fdt_offset);
 	int (*of_configure_name)(int fdt_offset, char *name);
 	int (*of_get)(int fdt_offset, char *name, unsigned int *port, unsigned int *pin);
+	int (*export_pio)(unsigned int pin_num, unsigned int *port, unsigned int *pin);
 };
 
 struct pio {

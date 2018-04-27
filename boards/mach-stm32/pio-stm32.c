@@ -229,6 +229,11 @@ int stm32_pio_of_get(int fdt_offset, char *name, unsigned int *port, unsigned in
 	return 0;
 }
 
+int stm32_pio_export(unsigned int pin_num, unsigned int *port, unsigned int *pin)
+{
+	return -ENOTSUP;
+}
+
 struct pio_operations pio_ops = {
 	.set_output = stm32_pio_set_output,
 	.set_input = stm32_pio_set_input,
@@ -242,4 +247,5 @@ struct pio_operations pio_ops = {
 	.of_configure = stm32_pio_of_configure,
 	.of_configure_name = stm32_pio_of_configure_name,
 	.of_get = stm32_pio_of_get,
+	.export_pio = stm32_pio_export,
 };
