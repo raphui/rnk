@@ -65,7 +65,7 @@ void ktime_usleep(unsigned int usec)
 	timer.counter = usec / 1000;
 
 	thread = get_current_thread();
-	thread->delay = timer.counter;
+	thread->delay = timer.counter + system_tick;
 
 	thread->state = THREAD_BLOCKED;
 	remove_runnable_thread(thread);
@@ -92,16 +92,7 @@ void decrease_thread_delay(void)
 	struct thread *curr = get_current_thread();
 
 	list_for_every_entry_safe(&sleeping_threads, thread, tmp, struct thread, node) {
-		if (thread->state == THREAD_RUNNABLE) {
-			thread->delay = 0;
-			remove_sleeping_thread(thread);
-			insert_runnable_thread(thread);
-#ifdef CONFIG_SCHEDULE_PRIORITY
-			if (curr->priority < thread->priority)
-				schedule_yield();
-#endif /* CONFIG_SCHEDULE_PRIORITY */
-
-		} else if (!thread->delay) {
+		if (thread->delay <= system_tick) {
 			thread->state = THREAD_RUNNABLE;
 			remove_sleeping_thread(thread);
 			insert_runnable_thread(thread);
@@ -115,10 +106,6 @@ void decrease_thread_delay(void)
 			if (curr->priority < thread->priority)
 				schedule_yield();
 #endif /* CONFIG_SCHEDULE_PRIORITY */
-		} else {
-
-			thread->delay--;
-			verbose_printk("%d: %d usec remaining\r\n", thread->pid, thread->delay);
 		}
 	}
 }
