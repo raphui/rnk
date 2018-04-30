@@ -130,8 +130,8 @@ static void _kqueue_post(struct queue *queue, void *item)
 			if (!list_is_empty(&queue->waiting_receive_threads)) {
 				t = list_peek_head_type(&queue->waiting_receive_threads, struct thread, event_node);
 
-				t->state = THREAD_RUNNABLE;
 				remove_waiting_receive_thread(queue, t);
+				insert_runnable_thread(t);
 				schedule_yield();
 			}
 		}
@@ -181,8 +181,8 @@ static void _kqueue_receive(struct queue *queue, void *item)
 			if (!list_is_empty(&queue->waiting_post_threads)) {
 				t = list_peek_head_type(&queue->waiting_post_threads, struct thread, event_node);
 
-				t->state = THREAD_RUNNABLE;
 				remove_waiting_post_thread(queue, t);
+				insert_runnable_thread(t);
 				schedule_yield();
 			}
 

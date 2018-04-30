@@ -93,7 +93,6 @@ void decrease_thread_delay(void)
 
 	list_for_every_entry_safe(&sleeping_threads, thread, tmp, struct thread, node) {
 		if (thread->delay <= system_tick) {
-			thread->state = THREAD_RUNNABLE;
 			remove_sleeping_thread(thread);
 			insert_runnable_thread(thread);
 

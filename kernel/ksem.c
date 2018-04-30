@@ -110,7 +110,6 @@ int ksem_post(struct semaphore *sem)
 			sem->waiting--;
 
 			thread = list_peek_head_type(&sem->waiting_threads, struct thread, event_node);
-			thread->state = THREAD_RUNNABLE;
 
 			debug_printk("waking up thread: %d\n", thread->pid);
 

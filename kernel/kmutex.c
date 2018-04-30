@@ -127,7 +127,6 @@ int kmutex_unlock(struct mutex *mutex)
 
 			if (!list_is_empty(&mutex->waiting_threads)) {
 				thread = list_peek_head_type(&mutex->waiting_threads, struct thread, event_node);
-				thread->state = THREAD_RUNNABLE;
 
 				remove_waiting_thread(mutex, thread);
 				insert_runnable_thread(thread);
