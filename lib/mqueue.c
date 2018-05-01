@@ -39,6 +39,22 @@ static struct mq_attr default_attr = {
 	.mq_curmsgs = 0,
 };
 
+static mqd_t mq_search(const char *name)
+{
+	mqd_t mq = NULL;
+
+	pthread_mutex_lock(&mutex);
+
+	list_for_every_entry(&mq_list, mq, struct mq_priv, node) {
+		if (!strcmp(mq->name, name))
+			break;
+	}
+
+	pthread_mutex_unlock(&mutex);
+
+	return mq;
+}
+
 mqd_t mq_open(const char *name, int flags, ...)
 {
 	int ret;
@@ -54,16 +70,9 @@ mqd_t mq_open(const char *name, int flags, ...)
 		pthread_mutex_init(&mutex);
 	}
 
-	pthread_mutex_lock(&mutex);
-
-	list_for_every_entry(&mq_list, mq, struct mq_priv, node) {
-		if (!strcmp(mq->name, name)) {
-			found = 1;
-			break;
-		}
-	}
-
-	pthread_mutex_unlock(&mutex);
+	mq = mq_search(name);
+	if (mq)
+		found = 1;
 
 	/* we don't support mode_t arg */
 	va_arg(va, int);
