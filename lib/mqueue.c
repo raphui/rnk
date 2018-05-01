@@ -226,12 +226,50 @@ EXPORT_SYMBOL(mq_setattr);
 
 int mq_receive(mqd_t fd, char *msg, size_t msg_len, unsigned int msg_prio)
 {
-	return -ENOTSUP;
+	int ret = 0;
+
+	ret = mq_is_valid(fd);
+	if (ret < 0)
+		goto err;
+
+	if (!(fd->attr.mq_flags & (O_RDWR | O_RDONLY))) {
+		ret = -EBADF;
+		goto err;
+	}
+
+	if (msg_len < fd->attr.mq_msgsize) {
+		ret = -EMSGSIZE;
+		goto err;
+	}
+
+	ret = syscall(SYSCALL_QUEUE_RECEIVE, &fd->q, msg, 0);
+
+err:
+	return ret;
 }
 EXPORT_SYMBOL(mq_receive);
 
 int mq_send(mqd_t fd, const char *msg, size_t msg_len, unsigned int msg_prio)
 {
-	return -ENOTSUP;
+	int ret = 0;
+
+	ret = mq_is_valid(fd);
+	if (ret < 0)
+		goto err;
+
+	if (!(fd->attr.mq_flags & (O_RDWR | O_WRONLY))) {
+		ret = -EBADF;
+		goto err;
+	}
+
+	if (msg_len > fd->attr.mq_msgsize) {
+		ret = -EMSGSIZE;
+		goto err;
+	}
+
+	ret = syscall(SYSCALL_QUEUE_POST, &fd->q, msg, 0);
+
+err:
+	return ret;
 }
 EXPORT_SYMBOL(mq_send);
