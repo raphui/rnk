@@ -55,6 +55,29 @@ static mqd_t mq_search(const char *name)
 	return mq;
 }
 
+static int mq_is_valid(mqd_t fd)
+{
+	int found = -EBADF;
+	mqd_t mq = NULL;
+
+	if (!fd)
+		goto err;
+
+	pthread_mutex_lock(&mutex);
+
+	list_for_every_entry(&mq_list, mq, struct mq_priv, node) {
+		if (!strcmp(mq->name, fd->name)) {
+			found = 1;
+			break;
+		}
+	}
+
+	pthread_mutex_unlock(&mutex);
+
+err:
+	return found;
+}
+
 mqd_t mq_open(const char *name, int flags, ...)
 {
 	int ret;
@@ -141,19 +164,63 @@ EXPORT_SYMBOL(mq_open);
 
 int mq_close(mqd_t fd)
 {
-	return -ENOTSUP;
+	int ret = 0;
+
+	ret = mq_is_valid(fd);
+	if (ret < 0)
+		goto err;
+
+	ret = syscall(SYSCALL_QUEUE_DESTROY, &fd->q);
+
+	list_delete(&fd->node);
+
+	mq_count--;
+
+err:
+	return ret;
 }
 EXPORT_SYMBOL(mq_close);
 
 int mq_getattr(mqd_t fd, struct mq_attr *attr)
 {
-	return -ENOTSUP;
+	int ret = 0;
+
+	if (!attr) {
+		ret = -EINVAL;
+		goto err;
+	}
+
+	ret = mq_is_valid(fd);
+	if (ret < 0)
+		goto err;
+
+	memcpy(attr, &fd->attr, sizeof(struct mq_attr));
+
+err:
+	return ret;
 }
 EXPORT_SYMBOL(mq_getattr);
 
 int mq_setattr(mqd_t fd, const struct mq_attr *attr, struct mq_attr *oldattr)
 {
-	return -ENOTSUP;
+	int ret = 0;
+
+	if (!attr) {
+		ret = -EINVAL;
+		goto err;
+	}
+
+	ret = mq_is_valid(fd);
+	if (ret < 0)
+		goto err;
+
+	if (oldattr)
+		memcpy(oldattr, &fd->attr, sizeof(struct mq_attr));
+
+	memcpy(&fd->attr, attr, sizeof(struct mq_attr));
+
+err:
+	return ret;
 }
 EXPORT_SYMBOL(mq_setattr);
 
