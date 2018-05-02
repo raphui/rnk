@@ -119,8 +119,29 @@ void nvic_clear_interrupt(unsigned int num)
 
 void nvic_set_priority_interrupt(unsigned int num, unsigned char priority)
 {
-	if (num < 0)
-		writel(SCB_SHPR(num), priority);
+	unsigned int reg;
+	unsigned int shift = 0;
+
+	if (num < 0) {
+		switch (num) {
+		case svcall_irq:
+			reg = SCB_SHPR(2);
+			shift = 24;
+			break;
+		case pendsv_irq:
+			reg = SCB_SHPR(3);
+			shift = 16;
+			break;
+		case systick_irq:
+			reg = SCB_SHPR(3);
+			shift = 24;
+			break;
+		default:
+			return;
+		}
+
+		writel(reg, priority << shift);
+	}
 	else
 		writel(NVIC_IPR(num), priority);
 }
