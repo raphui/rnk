@@ -50,6 +50,12 @@ static void mpu_write_reg(unsigned reg, unsigned val)
 	writel(reg, val);
 }
 
+static inline mpu_get_size_field(int size)
+{
+	size = 1 << (32 - __builtin_clz(size - 1));
+	return (32 - __builtin_clz(size) - 2) << 1;
+}
+
 static int mpu_map(void *base, int size, int prio, int attr)
 {
 	int tmp, mpu_en;
@@ -70,8 +76,7 @@ static int mpu_map(void *base, int size, int prio, int attr)
 
 	mpu_write_reg(MPU_RNR, prio);
 
-	size = 32 - __builtin_clz(size) - 1;
-	size = next_power_of_2(size);
+	size = mpu_get_size_field(size);
 
 	base = (void *)ALIGN((unsigned int)base, size);
 
@@ -177,7 +182,7 @@ int mpu_unmap(void *base, int size)
 
 	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 
-	size = 32 - __builtin_clz(size) - 1;
+	size = mpu_get_size_field(size);
 
 	for (i = 0; i < MPU_MAX_REGION; i++) {
 		mpu_write_reg(MPU_RNR, i);
