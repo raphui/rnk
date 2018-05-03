@@ -52,6 +52,8 @@ int device_register(struct device *dev)
 
 	insert_device(dev);
 
+	dev->id = device_count;
+
 	return ret;
 }
 

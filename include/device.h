@@ -23,6 +23,7 @@
 #include <stddef.h>
 
 struct device {
+	unsigned int id;
 	char name[32];
 	const char *of_compat;
 	char of_path[256];
