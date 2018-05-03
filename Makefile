@@ -123,6 +123,10 @@ clean:
  
 dist-clean: clean
 	$(RM) `find . -name *.d`
+
+tests:
+	tools/make_apps.sh
+
 endif
 
 .config:
