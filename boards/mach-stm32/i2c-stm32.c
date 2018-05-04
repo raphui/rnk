@@ -20,7 +20,7 @@
 #include <printk.h>
 #include <i2c.h>
 #include <mach/rcc-stm32.h>
-#include <arch/nvic.h>
+#include <armv7m/nvic.h>
 #include <errno.h>
 
 #define I2C_MIN_SPEED	2

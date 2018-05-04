@@ -19,7 +19,7 @@
 #include <errno.h>
 #include <timer.h>
 #include <stddef.h>
-#include <arch/nvic.h>
+#include <armv7m/nvic.h>
 #include <armv7m/vector.h>
 #include <irq.h>
 #include <mm.h>

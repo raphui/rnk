@@ -17,7 +17,7 @@
  */
 
 #include <armv7m/system.h>
-#include <arch/nvic.h>
+#include <armv7m/nvic.h>
 #include <utils.h>
 
 #ifdef CONFIG_STM32F429

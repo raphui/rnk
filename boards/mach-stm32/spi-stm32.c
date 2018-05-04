@@ -21,7 +21,7 @@
 #include <mach/dma-stm32.h>
 #include <mach/rcc-stm32.h>
 #include <mach/pio-stm32.h>
-#include <arch/nvic.h>
+#include <armv7m/nvic.h>
 #include <errno.h>
 #include <fdtparse.h>
 #include <init.h>

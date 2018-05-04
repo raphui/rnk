@@ -21,7 +21,7 @@
 #include <dma.h>
 #include <utils.h>
 #include <printk.h>
-#include <arch/nvic.h>
+#include <armv7m/nvic.h>
 #include <errno.h>
 #include <device.h>
 #include <init.h>
