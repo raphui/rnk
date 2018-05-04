@@ -46,6 +46,9 @@ static struct mq_priv *mq_get(int handle)
 
 	pthread_mutex_lock(&mutex);
 
+	if (handle < 0)
+		return NULL;
+
 	list_for_every_entry(&mq_list, mq, struct mq_priv, node) {
 		if (i++ == handle)
 			break;
