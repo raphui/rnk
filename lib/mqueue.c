@@ -121,11 +121,11 @@ mqd_t mq_open(const char *name, int flags, ...)
 	if (!attr)
 		attr = &default_attr;
 
-	mq = malloc(sizeof(*mq));
+	mq = malloc(sizeof(struct mq_priv));
 	if (!mq)
 		goto err_nomem;
 
-	memcpy(&mq->attr, attr, sizeof(*attr));
+	memcpy(&mq->attr, attr, sizeof(struct mq_attr));
 
 	mq->name = malloc(strlen(name) + 1);
 
