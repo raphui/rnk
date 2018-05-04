@@ -32,13 +32,14 @@ struct mq_attr
 };
 
 struct mq_priv {
+	int handle;
 	char *name;
 	struct mq_attr attr;
 	struct queue q;
 	struct list_node node;
 };
 
-typedef struct mq_priv* mqd_t;
+typedef int mqd_t;
 
 mqd_t mq_open(const char *name, int flags, ...);
 int mq_close(mqd_t fd);

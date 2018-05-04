@@ -39,14 +39,15 @@ static struct mq_attr default_attr = {
 	.mq_curmsgs = 0,
 };
 
-static mqd_t mq_search(const char *name)
+static struct mq_priv *mq_get(int handle)
 {
-	mqd_t mq = NULL;
+	int i = 0;
+	struct mq_priv *mq = NULL;
 
 	pthread_mutex_lock(&mutex);
 
 	list_for_every_entry(&mq_list, mq, struct mq_priv, node) {
-		if (!strcmp(mq->name, name))
+		if (i++ == handle)
 			break;
 	}
 
@@ -55,18 +56,15 @@ static mqd_t mq_search(const char *name)
 	return mq;
 }
 
-static int mq_is_valid(mqd_t fd)
+static struct mq_priv *mq_search(const char *name)
 {
-	int found = -EBADF;
-	mqd_t mq = NULL;
-
-	if (!fd)
-		goto err;
+	int found = 0;
+	struct mq_priv *mq = NULL;
 
 	pthread_mutex_lock(&mutex);
 
 	list_for_every_entry(&mq_list, mq, struct mq_priv, node) {
-		if (!strcmp(mq->name, fd->name)) {
+		if (!strcmp(mq->name, name)) {
 			found = 1;
 			break;
 		}
@@ -74,8 +72,10 @@ static int mq_is_valid(mqd_t fd)
 
 	pthread_mutex_unlock(&mutex);
 
-err:
-	return found;
+	if (!found)
+		mq = NULL;
+
+	return mq;
 }
 
 mqd_t mq_open(const char *name, int flags, ...)
@@ -83,7 +83,7 @@ mqd_t mq_open(const char *name, int flags, ...)
 	int ret;
 	va_list va;
 	int found = 0;
-	mqd_t mq = NULL;
+	struct mq_priv *mq = NULL;
 	struct mq_attr *attr = NULL;
 
 	va_start(va, flags);
@@ -114,7 +114,7 @@ mqd_t mq_open(const char *name, int flags, ...)
 			goto err_inval;
 		break;
 	default:
-		goto err_inval;
+		break;
 	}
 
 
@@ -152,27 +152,28 @@ mqd_t mq_open(const char *name, int flags, ...)
 
 	pthread_mutex_unlock(&mutex);
 out:
-	return mq;
+	return mq_count;
 err_inval:
-	return ERR_PTR(-EINVAL);
+	return -EINVAL;
 err_nomem:
-	return ERR_PTR(-ENOMEM);
+	return -ENOMEM;
 err:
-	return ERR_PTR(-EIO);
+	return -EIO;
 }
 EXPORT_SYMBOL(mq_open);
 
 int mq_close(mqd_t fd)
 {
 	int ret = 0;
+	struct mq_priv *mq = NULL;
 
-	ret = mq_is_valid(fd);
-	if (ret < 0)
+	mq = mq_get(fd);
+	if (!mq)
 		goto err;
 
-	ret = syscall(SYSCALL_QUEUE_DESTROY, &fd->q);
+	ret = syscall(SYSCALL_QUEUE_DESTROY, &mq->q);
 
-	list_delete(&fd->node);
+	list_delete(&mq->node);
 
 	mq_count--;
 
@@ -184,17 +185,18 @@ EXPORT_SYMBOL(mq_close);
 int mq_getattr(mqd_t fd, struct mq_attr *attr)
 {
 	int ret = 0;
+	struct mq_priv *mq = NULL;
 
 	if (!attr) {
 		ret = -EINVAL;
 		goto err;
 	}
 
-	ret = mq_is_valid(fd);
-	if (ret < 0)
+	mq = mq_get(fd);
+	if (!mq)
 		goto err;
 
-	memcpy(attr, &fd->attr, sizeof(struct mq_attr));
+	memcpy(attr, &mq->attr, sizeof(struct mq_attr));
 
 err:
 	return ret;
@@ -204,20 +206,21 @@ EXPORT_SYMBOL(mq_getattr);
 int mq_setattr(mqd_t fd, const struct mq_attr *attr, struct mq_attr *oldattr)
 {
 	int ret = 0;
+	struct mq_priv *mq = NULL;
 
 	if (!attr) {
 		ret = -EINVAL;
 		goto err;
 	}
 
-	ret = mq_is_valid(fd);
-	if (ret < 0)
+	mq = mq_get(fd);
+	if (!mq)
 		goto err;
 
 	if (oldattr)
-		memcpy(oldattr, &fd->attr, sizeof(struct mq_attr));
+		memcpy(oldattr, &mq->attr, sizeof(struct mq_attr));
 
-	memcpy(&fd->attr, attr, sizeof(struct mq_attr));
+	memcpy(&mq->attr, attr, sizeof(struct mq_attr));
 
 err:
 	return ret;
@@ -227,22 +230,23 @@ EXPORT_SYMBOL(mq_setattr);
 int mq_receive(mqd_t fd, char *msg, size_t msg_len, unsigned int msg_prio)
 {
 	int ret = 0;
+	struct mq_priv *mq = NULL;
 
-	ret = mq_is_valid(fd);
-	if (ret < 0)
+	mq = mq_get(fd);
+	if (!mq)
 		goto err;
 
-	if (!(fd->attr.mq_flags & (O_RDWR | O_RDONLY))) {
+	if (!(mq->attr.mq_flags & (O_RDWR | O_RDONLY))) {
 		ret = -EBADF;
 		goto err;
 	}
 
-	if (msg_len < fd->attr.mq_msgsize) {
+	if (msg_len < mq->attr.mq_msgsize) {
 		ret = -EMSGSIZE;
 		goto err;
 	}
 
-	ret = syscall(SYSCALL_QUEUE_RECEIVE, &fd->q, msg, 0);
+	ret = syscall(SYSCALL_QUEUE_RECEIVE, &mq->q, msg, 0);
 
 err:
 	return ret;
@@ -252,22 +256,23 @@ EXPORT_SYMBOL(mq_receive);
 int mq_send(mqd_t fd, const char *msg, size_t msg_len, unsigned int msg_prio)
 {
 	int ret = 0;
+	struct mq_priv *mq = NULL;
 
-	ret = mq_is_valid(fd);
-	if (ret < 0)
+	mq = mq_get(fd);
+	if (!mq)
 		goto err;
 
-	if (!(fd->attr.mq_flags & (O_RDWR | O_WRONLY))) {
+	if (!(mq->attr.mq_flags & (O_RDWR | O_WRONLY))) {
 		ret = -EBADF;
 		goto err;
 	}
 
-	if (msg_len > fd->attr.mq_msgsize) {
+	if (msg_len > mq->attr.mq_msgsize) {
 		ret = -EMSGSIZE;
 		goto err;
 	}
 
-	ret = syscall(SYSCALL_QUEUE_POST, &fd->q, msg, 0);
+	ret = syscall(SYSCALL_QUEUE_POST, &mq->q, msg, 0);
 
 err:
 	return ret;
