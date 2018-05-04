@@ -185,8 +185,8 @@ static int elf_section_alloc(elf32_shdr *shdr)
 				}
 				memset(mem, 0, section->sh_size);
 
-				printk("Allocate %d bytes for section %s\n", section->sh_size, str);
-				printk("Copying 0x%x bytes from 0x%x to 0x%x\n", section->sh_size, buff + section->sh_offset, mem);
+				debug_printk("Allocate %d bytes for section %s\n", section->sh_size, str);
+				debug_printk("Copying 0x%x bytes from 0x%x to 0x%x\n", section->sh_size, buff + section->sh_offset, mem);
 
 				memcpy(mem, buff + section->sh_offset, section->sh_size);
 
