@@ -16,6 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <asm.h>
+
 #define INSTR_CODE_SVC		(0xDF00)
 #define INSTR_CODE_BX_LR	(0x4770)
 
@@ -23,8 +25,7 @@
 .thumb
 
 .thumb_func
-.global svc_noarg
-svc_noarg:
+ENTRY(svc_noarg)
 	push {lr}
 
 	bl svc_call
@@ -32,8 +33,7 @@ svc_noarg:
 	pop {pc}
 
 .thumb_func
-.global svc_arg1
-svc_arg1:
+ENTRY(svc_arg1)
 	push {lr}
 
 	bl svc_call
@@ -41,8 +41,7 @@ svc_arg1:
 	pop {pc}
 
 .thumb_func
-.global svc_arg2
-svc_arg2:
+ENTRY(svc_arg2)
 	push {lr}
 
 	bl svc_call
@@ -50,8 +49,7 @@ svc_arg2:
 	pop {pc}
 
 .thumb_func
-.global svc_arg3
-svc_arg3:
+ENTRY(svc_arg3)
 	push {lr}
 
 	bl svc_call
@@ -59,8 +57,7 @@ svc_arg3:
 	pop {pc}
 
 .thumb_func
-.global svc_call
-svc_call:
+ENTRY(svc_call)
 	push {lr}
 
 	subs sp, sp, #4

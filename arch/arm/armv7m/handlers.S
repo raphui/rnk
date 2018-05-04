@@ -16,6 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <asm.h>
+
 #define EXC_RETURN_PROCESS_STACK (1 << 2)
 
 #define SW_CTX_FRAME_SIZE	(4 * 10)
@@ -26,8 +28,7 @@
 .thumb
 
 .thumb_func
-.global interrupt_handler
-interrupt_handler:
+ENTRY(interrupt_handler)
 	cpsid i
 
 	tst lr, #EXC_RETURN_PROCESS_STACK
@@ -79,8 +80,7 @@ interrupt_handler:
 	bx lr
 
 .thumb_func
-.global __svc
-__svc:
+ENTRY(__svc)
 	mrs r0, psp
 	add r0, r0, #SW_CTX_FRAME_SIZE
 	sub r0, r0, #4
@@ -91,8 +91,7 @@ __svc:
 
 
 .thumb_func
-.global __pendsv
-__pendsv:
+ENTRY(__pendsv)
 	push {lr}
 	bl pendsv_handler
 	pop {pc}
