@@ -87,7 +87,7 @@ static int stm32_spi_dma_write(struct spi_device *spidev, unsigned char *buff, u
 
 	stm32_dma_enable(dma);
 
-	sem_wait(&spidev->sem);
+	ksem_wait(&spidev->sem);
 
 	return ret;
 }
