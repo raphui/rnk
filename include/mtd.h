@@ -24,6 +24,7 @@
 #define MAX_SECTORS	32
 
 struct mtd;
+struct mtd_page;
 
 struct mtd_operations
 {
@@ -46,6 +47,12 @@ struct mtd {
 	struct mtd_operations *mtd_ops;
 	struct device dev;
 	struct list_node node;
+};
+
+struct mtd_page {
+	unsigned int start;
+	unsigned int end;
+	unsigned int index;
 };
 
 struct mtd *mtd_new_controller(void);

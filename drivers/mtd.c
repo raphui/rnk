@@ -27,6 +27,78 @@ static int dev_count = 0;
 static char dev_prefix[10] = "/dev/mtd";
 static struct list_node mtd_controller_list;
 
+static inline int mtd_offset_in_page(unsigned int addr, struct mtd_page *page)
+{
+	return ((addr >= page->start) && (addr <= page->end)) ? 1 : 0;
+}
+
+static int mtd_get_page(struct device *dev, unsigned int addr, struct mtd_page *page)
+{
+	int i, n;
+	int page_count = 0;
+	int ret = -EINVAL;
+	unsigned int end = 0;
+	unsigned int start = 0;
+	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	struct mtd_layout *layout = mtd->mtd_map;
+
+	for (i = 0; i < mtd->layout_size; i++)
+	{
+		end += layout[i].pages_count * layout[i].pages_size;
+
+		if (addr < end) {
+			n = (addr - start) / layout[i].pages_size;
+
+			page->start = start + n * layout[i].pages_size;
+			page->index = n + page_count;
+			page->end = page->start + layout[i].pages_size;
+
+			ret = 0;
+			break;
+		}
+
+		start += layout[i].pages_count * layout[i].pages_size;
+		page_count += layout[i].pages_count;
+	}
+
+	return ret;
+}
+
+static int mtd_get_next_page(struct device *dev, struct mtd_page *page)
+{
+	int i, n;
+	int page_count = 0;
+	int ret = -EINVAL;
+	unsigned int end = 0;
+	unsigned int start = 0;
+	unsigned int size = 0;
+	int next = 0;
+	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	struct mtd_layout *layout = mtd->mtd_map;
+
+	page->index++;
+
+	for (i = 0; i < mtd->layout_size; i++)
+	{
+		end += layout[i].pages_count;
+
+		if (page->index < end) {
+			n = page->index - page_count;
+
+			page->start = start + n * layout[i].pages_size;
+			page->end = page->start + layout[i].pages_size;
+
+			ret = 0;
+			break;
+		}
+
+		start += layout[i].pages_count * layout[i].pages_size;
+		page_count += layout[i].pages_count;
+	}
+
+	return ret;
+}
+
 static int mtd_check_addr(struct device *dev, unsigned int addr)
 {
 	struct mtd *mtd = container_of(dev, struct mtd, dev);
