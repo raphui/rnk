@@ -24,6 +24,7 @@
 #include <device.h>
 #include <fdtparse.h>
 #include <mtd.h>
+#include <sizes.h>
 
 #define FLASH_PSIZE_BYTE	0x200
 #define CR_PSIZE_MASK		0xFFFFFCFF
@@ -192,6 +193,12 @@ out:
 	return ret;
 }
 
+struct mtd_layout stm32_flash_layout[] = {
+	{.pages_count = 4, .pages_size = SZ_16K},
+	{.pages_count = 1, .pages_size = SZ_64K},
+	{.pages_count = 1, .pages_size = SZ_128K},
+};
+
 static int stm32_flash_init(struct device *dev)
 {
 	int ret = 0;
@@ -212,6 +219,9 @@ static int stm32_flash_init(struct device *dev)
 		error_printk("failed to init mtd controller with fdt data\n");
 		goto err;
 	}
+
+	mtd->mtd_map = stm32_flash_layout;
+	mtd->layout_size = sizeof(stm32_flash_layout) / sizeof(struct mtd_layout);
 
 	ret = mtd_register_controller(mtd);
 	if (ret < 0) {

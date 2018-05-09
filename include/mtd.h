@@ -32,12 +32,17 @@ struct mtd_operations
 	int (*read)(struct mtd *mtd, unsigned char *buff, unsigned int size);
 };
 
+struct mtd_layout {
+	unsigned int pages_count;
+	unsigned int pages_size;
+};
+
 struct mtd {
 	unsigned int base_addr;
-	unsigned int sector_size[MAX_SECTORS];
-	unsigned int num_sectors;
 	unsigned int total_size;
+	int layout_size;
 	int curr_off;
+	struct mtd_layout *mtd_map;
 	struct mtd_operations *mtd_ops;
 	struct device dev;
 	struct list_node node;

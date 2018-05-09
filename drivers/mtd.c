@@ -168,8 +168,8 @@ int mtd_register_controller(struct mtd *mtd)
 
 	mtd->curr_off = 0;
 
-	for (i = 0; i < mtd->num_sectors; i++) {
-		total_size += mtd->sector_size[i];
+	for (i = 0; i < mtd->layout_size; i++) {
+		total_size += mtd->mtd_map[i].pages_count * mtd->mtd_map[i].pages_size;
 	}
 
 	mtd->total_size = total_size;
