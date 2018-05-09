@@ -29,7 +29,7 @@ struct mtd_page;
 struct mtd_operations
 {
 	int (*erase)(struct mtd *mtd, unsigned int sector);
-	int (*write)(struct mtd *mtd, unsigned char *buff, unsigned int size);
+	int (*write)(struct mtd *mtd, unsigned char *buff, unsigned int size, struct mtd_page *page);
 	int (*read)(struct mtd *mtd, unsigned char *buff, unsigned int size);
 };
 
