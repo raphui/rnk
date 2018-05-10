@@ -26,7 +26,7 @@
 #include <mtd.h>
 #include <sizes.h>
 
-#define FLASH_PSIZE_BYTE	0x200
+#define FLASH_PSIZE_BYTE	(0 << 8)
 #define CR_PSIZE_MASK		0xFFFFFCFF
 #define SR_ERR_MASK		0xF3
 
@@ -109,7 +109,7 @@ static int stm32_flash_write_byte(unsigned int address, unsigned char data)
 	FLASH->CR |= FLASH_PSIZE_BYTE;
 	FLASH->CR |= FLASH_CR_PG;
 
-	*(unsigned int *)address = data;
+	*(unsigned char *)address = data;
 
 	ret = stm32_flash_wait_operation();
 	if (ret < 0) {
