@@ -36,6 +36,6 @@ void nvic_enable_interrupt(unsigned int num);
 void nvic_disable_interrupt(unsigned int num);
 void nvic_set_interrupt(unsigned int num);
 void nvic_clear_interrupt(unsigned int num);
-void nvic_set_priority_interrupt(unsigned int num, unsigned char priority);
+void nvic_set_priority_interrupt(int num, unsigned char priority);
 
 #endif /* NVIC_H */
