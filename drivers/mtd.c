@@ -194,7 +194,7 @@ static int mtd_lseek(struct device *dev, int offset, int whence)
 		if (ret < 0)
 			return ret;
 
-		mtd->curr_off = mtd->base_addr + offset;
+		mtd->curr_off = offset;
 		break;
 	case SEEK_CUR:
 		ret = mtd_check_addr(dev, mtd->curr_off + offset);
@@ -285,7 +285,8 @@ int mtd_register_controller(struct mtd *mtd)
 	memcpy(mtd->dev.name, tmp, 10);
 
 	mtd->dev.read = mtd_read;
-	mtd->dev.write = mtd_write;
+	mtd->dev.write = mtd_page_write;
+	mtd->dev.lseek = mtd_lseek;
 
 	list_add_tail(&mtd_controller_list, &mtd->node);
 
