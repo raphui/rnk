@@ -243,4 +243,4 @@ int timer_init(void)
 
 	return ret;
 }
-device_initcall(timer_init);
+postcore_initcall(timer_init);
