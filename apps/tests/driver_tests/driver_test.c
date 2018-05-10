@@ -22,6 +22,9 @@
 #include <unistd.h>
 
 #define SPI_DEVICE	"/dev/spi1"
+#define MTD_DEVICE	"/dev/mtd1"
+
+#define MTD_TEST_DATA_SIZE	0x200
 
 #ifdef CONFIG_STM32F429
 
@@ -90,8 +93,48 @@ void thread_a(void *arg)
 
 int main(void)
 {
+	int size;
+	int ret;
+	int fd;
+	unsigned char *p1, *p2;
+	int mtd_ok = 1;
+
 	printf("Starting driver tests\n");
 
+	fd = open(MTD_DEVICE, O_RDWR);
+	if (fd < 0) {
+		printf("failed to open: %s\n", MTD_DEVICE);
+		goto skip_mtd;
+	}
+
+	ret = lseek(fd, 0x20000, SEEK_SET);
+	if (ret < 0) {
+		printf("failed to lseek\n");
+		goto skip_mtd;
+	}
+
+	ret = write(fd, (unsigned char *)0x08000000, MTD_TEST_DATA_SIZE);
+	if (ret < 0) {
+		printf("failed to write\n");
+	}
+
+	size = MTD_TEST_DATA_SIZE;
+
+	p1 = (unsigned char *)0x08000000;
+	p2 = (unsigned char *)0x08020000;
+
+	while (size--) {
+		if (*p1++ != *p2++) {
+			printf("failed to check flash write data\n");
+			mtd_ok = 0;
+			break;
+		}
+	}
+
+	if (mtd_ok)
+		printf("mtd tests: OK\n");
+
+skip_mtd:
 	pthread_create(&thread_a, NULL, 2);
 
 	return 0;
