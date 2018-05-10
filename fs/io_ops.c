@@ -47,6 +47,7 @@ int svc_open(const char *path, int flags)
 			devs[fd_num].dev = dev;
 			devs[fd_num].read = dev->read;
 			devs[fd_num].write = dev->write;
+			devs[fd_num].lseek = dev->lseek;
 			devs[fd_num].perm = flags;
 
 			fd_num++;
@@ -73,6 +74,7 @@ int svc_close(int fd)
 		devs[fd].dev = NULL;
 		devs[fd].read = NULL;
 		devs[fd].write = NULL;
+		devs[fd].lseek = NULL;
 		devs[fd].perm = 0;
 
 		fd_num--;
@@ -146,7 +148,7 @@ int svc_lseek(int fd, int offset, int whence)
 		return -EBADF;
 	}
 
-	if ((whence != SEEK_SET) || (whence != SEEK_CUR) || (whence != SEEK_END)) {
+	if ((whence != SEEK_SET) && (whence != SEEK_CUR) && (whence != SEEK_END)) {
 		error_printk("invalid whence\n");
 		return -EINVAL;
 	}
