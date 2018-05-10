@@ -48,6 +48,23 @@ static void stm32_flash_unlock(void)
 	}
 }
 
+static int stm32_flash_erase_needed(unsigned char *addr, unsigned char *buff, unsigned int size)
+{
+	int ret = 0;
+
+	while (size--) {
+		if (((*addr ^ *buff) & *buff) != 0) {
+			ret = 1;
+			break;
+		}
+
+		addr++;
+		buff++;
+	}
+
+	return ret;
+}
+
 static int stm32_flash_wait_operation(void)
 {
 	int ret = 0;
@@ -122,11 +139,18 @@ static int stm32_flash_write_byte(unsigned int address, unsigned char data)
 	return ret;
 }
 
-static int stm32_flash_write(struct mtd *mtd, unsigned char *buff, unsigned int size)
+static int stm32_flash_write(struct mtd *mtd, unsigned char *buff, unsigned int size, struct mtd_page *page)
 {
 	int ret = 0;
 	int i;
 	unsigned int addr = mtd->base_addr + mtd->curr_off;
+
+	ret = stm32_flash_erase_needed((unsigned char *)addr, buff, size);
+	if (ret) {
+		ret = stm32_flash_erase(mtd, page->index);
+		if (ret < 0)
+			goto err;
+	}
 
 	stm32_flash_unlock();
 
@@ -140,6 +164,7 @@ static int stm32_flash_write(struct mtd *mtd, unsigned char *buff, unsigned int 
 
 	stm32_flash_lock();
 
+err:
 	return ret;
 }
 
