@@ -188,7 +188,7 @@ int spi_remove_device(struct spi_device *spi)
 	return ret;
 }
 
-int spi_register_device(struct spi_device *spi)
+int spi_register_device(struct spi_device *spi, struct device_operations *dev_ops)
 {
 	int ret = 0;
 	char *tmp = NULL;
@@ -206,8 +206,13 @@ int spi_register_device(struct spi_device *spi)
 
 	memcpy(spi->dev.name, tmp, strlen(tmp));
 
-	spi->dev.read = spi_read;
-	spi->dev.write = spi_write;
+	if (dev_ops) {
+		spi->dev.read = dev_ops->read;
+		spi->dev.write = dev_ops->write;
+	} else {
+		spi->dev.read = spi_read;
+		spi->dev.write = spi_write;
+	}
 
 	list_add_tail(&spi_device_list, &spi->node);
 
