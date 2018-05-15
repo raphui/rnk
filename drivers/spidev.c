@@ -77,7 +77,7 @@ int spidev_init(struct device *dev)
 		goto free_spi;
 	}
 
-	ret = spi_register_device(spi);
+	ret = spi_register_device(spi, NULL);
 	if (ret < 0) {
 		error_printk("failed to register spi device\n");
 		goto free_spi;
