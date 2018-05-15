@@ -35,7 +35,7 @@ struct pio_operations
 	void (*set_value)(unsigned int port, unsigned int mask);
 	void (*clear_value)(unsigned int port, unsigned int mask);
 	void (*toggle_value)(unsigned int port, unsigned int mask);
-	int (*request_interrupt)(unsigned int port, unsigned int mask, void (*handler)(void), int flags, void *arg);
+	int (*request_interrupt)(unsigned int port, unsigned int mask, void (*handler)(void *), int flags, void *arg);
 	void (*enable_interrupt)(unsigned int port, unsigned int mask);
 	void (*disable_interrupt)(unsigned int port, unsigned int mask);
 	int (*of_configure)(int fdt_offset);
@@ -63,7 +63,7 @@ void pio_set_alternate(unsigned int port, unsigned int mask, unsigned int num);
 void pio_set_value(unsigned int port, unsigned int mask);
 void pio_clear_value(unsigned int port, unsigned int mask);
 void pio_toggle_value(unsigned int port, unsigned int mask);
-int pio_request_interrupt(unsigned int port, unsigned int mask, void (*handler)(void), int flags, void *arg);
+int pio_request_interrupt(unsigned int port, unsigned int mask, void (*handler)(void *), int flags, void *arg);
 void pio_enable_interrupt(unsigned int port, unsigned int mask);
 void pio_disable_interrupt(unsigned int port, unsigned int mask);
 int pio_of_configure(int fdt_offset);

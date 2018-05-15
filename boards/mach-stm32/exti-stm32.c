@@ -28,7 +28,8 @@
 #include <init.h>
 
 struct action {
-	void (*irq_action)(void);
+	void (*irq_action)(void *);
+	void *arg;
 	int irq;
 	struct list_node node;
 };
@@ -122,7 +123,7 @@ static int stm32_exti_action(unsigned int line)
 {
 	int ret = 0;
 	struct action *action = NULL;
-	void (*hook)(void) = NULL;
+	void (*hook)(void *) = NULL;
 
 	list_for_every_entry(&action_list, action, struct action, node)
 		if (action->irq == line)
@@ -135,7 +136,7 @@ static int stm32_exti_action(unsigned int line)
 
 	hook = action->irq_action;
 
-	hook();
+	hook(action->arg);
 
 	return ret;
 }
@@ -254,7 +255,7 @@ int stm32_exti_disable_rising(unsigned int gpio_base, unsigned int gpio_num)
 	return ret;
 }
 
-int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (*handler)(void), int flags, void *arg)
+int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (*handler)(void *), int flags, void *arg)
 {
 	int ret = 0;
 	struct action *action = NULL;
@@ -283,6 +284,7 @@ int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (
 	}
 
 	action->irq_action = handler;
+	action->arg = arg;
 	action->irq = gpio_num;
 
 	if (list_is_empty(&action_list))
