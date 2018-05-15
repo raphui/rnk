@@ -35,6 +35,11 @@ struct device {
 	int (*lseek)(struct device *device, int offset, int whence);
 };
 
+struct device_operations {
+	int (*read)(struct device *device, unsigned char *buff, unsigned int size);
+	int (*write)(struct device *device, unsigned char *buff, unsigned int size);
+};
+
 int device_register(struct device *dev);
 int device_unregister(struct device *dev);
 int device_of_register(struct device *dev);
