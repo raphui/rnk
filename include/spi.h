@@ -35,6 +35,7 @@ struct spi_device {
 	unsigned int speed;
 	struct device dev;
 	struct list_node node;
+	void *priv;
 };
 
 struct spi_operations
