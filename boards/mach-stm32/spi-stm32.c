@@ -235,6 +235,20 @@ int stm32_spi_of_init(struct spi_master *spi)
 		goto out;
 	}
 
+	ret = fdtparse_get_int(offset, "mode", (int *)&spi->mode);
+	if (ret < 0) {
+		error_printk("failed to retrieve spi mode\n");
+		ret = -EIO;
+		goto out;
+	}
+
+	ret = fdtparse_get_int(offset, "speed", (int *)&spi->speed);
+	if (ret < 0) {
+		error_printk("failed to retrieve spi speed\n");
+		ret = -EIO;
+		goto out;
+	}
+
 	ret = stm32_dma_stream_of_configure(offset, stm32_spi_isr, spi, spi->dma_stream, 2);
 	if (ret < 0) {
 		error_printk("failed to retrieve spi dma conf, switching to polling\n");
@@ -310,6 +324,8 @@ int stm32_spi_init(struct device *device)
 	SPI->CR1 |= SPI_CR1_SSI;
 
 	SPI->CR1 |= SPI_CR1_SPE;
+
+	SPI->CR1 |= spi->mode;
 
 	ret = spi_register_master(spi);
 	if (ret < 0) {
