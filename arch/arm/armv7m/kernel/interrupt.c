@@ -93,27 +93,18 @@ void pendsv_handler(void)
 	schedule_thread(NULL);
 }
 
-void svc_handler(unsigned int call)
+int svc_handler(unsigned int svc_number, void *arg1, void *arg2, void *arg3)
 {
-	void *arg1;
-	void *arg2;
-	void *arg3;
 	void *ret;
-	unsigned int svc_number;
-	unsigned int *psp = (unsigned int *)call;
 	void * (*handler)(void *, void *, void *);
 
-	svc_number = ((char *)psp[6])[-2];
-
 	debug_printk("svc_handler: got call %d\r\n", svc_number);
-
-	arg1 = (void *)psp[1];
-	arg2 = (void *)psp[2];
-	arg3 = (void *)psp[3];
 
 	handler = (void (*))syscall_table[svc_number].handler;
 
 	ret = (*handler)(arg1, arg2, arg3);
 
-	arch_thread_set_return(ret);
+	arch_thread_switch_unpriv();
+
+	return ret;
 }

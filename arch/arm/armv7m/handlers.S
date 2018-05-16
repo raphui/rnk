@@ -23,6 +23,9 @@
 #define SW_CTX_FRAME_SIZE	(4 * 10)
 #define HW_CTX_FRAME_SIZE	(4 * 8)
 
+#define ARCH_TREAD_UNPRIVILEGED	0
+#define ARCH_TREAD_PRIVILEGED	1
+
 
 .syntax unified
 .thumb
@@ -66,7 +69,14 @@ ENTRY(interrupt_handler)
 	tst r14, #EXC_RETURN_PROCESS_STACK /* nonzero if context on process stack */
 	beq 3f
 
-	orr r2, r2, #1
+	ldr r3, =current_thread_mode
+	ldr r3, [r3]
+	ldr r3, [r3]
+	teq r3, #ARCH_TREAD_UNPRIVILEGED
+	ite eq
+	orreq r2, r2, #1
+	bicne r2, r2, #1
+
 	msr psp, r1
 	b 4f
 3:
@@ -81,12 +91,22 @@ ENTRY(interrupt_handler)
 
 .thumb_func
 ENTRY(__svc)
+	push {lr}
+
 	mrs r0, psp
 	add r0, r0, #SW_CTX_FRAME_SIZE
 	sub r0, r0, #4
 
-	push {lr}
-	bl svc_handler
+	/* Retrive svc number */
+	ldr r4, [r0, #24] /* 6 * 4 => psp[6] */
+	ldrb r4, [r4, #-2]
+	str r4, [r0]
+
+	ldr r1, =svc_handler
+	str r1, [r0, #24]
+
+	bl arch_thread_switch_priv
+
 	pop {pc}
 
 

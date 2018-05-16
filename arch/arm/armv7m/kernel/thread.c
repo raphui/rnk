@@ -21,9 +21,12 @@
 #include <armv7m/system.h>
 #include <string.h>
 
+
 struct arch_sw_context_frame *current_ctx_frame;
 
 static struct arch_thread *current_thread_frame;
+
+int *current_thread_mode;
 
 void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, unsigned int param2)
 {
@@ -96,6 +99,7 @@ void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 	new->mpu.prio = mpu_map_from_high((void *)(new->mpu.top_sp - CONFIG_THREAD_STACK_SIZE), CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
 
 	current_thread_frame = new;
+	current_thread_mode = &new->privileged;
 }
 
 void arch_request_sched(void)
@@ -111,4 +115,26 @@ void arch_thread_set_return(void *ret)
 	frame = (struct arch_short_context_frame *)(arch_get_thread_stack() + sizeof(struct arch_sw_context_frame) - 4);
 
 	frame->r0 = (unsigned int)ret;
+}
+
+void arch_thread_switch_unpriv(void)
+{
+	asm volatile (
+		"mrs r1, control\n"
+		"orr r1, r1, #1\n"
+		"msr control, r1\n"
+		:::);
+
+	*current_thread_mode = ARCH_TREAD_UNPRIVILEGED;
+}
+
+void arch_thread_switch_priv(void)
+{
+	asm volatile (
+		"mrs r1, control\n"
+		"bic r1, r1, #1\n"
+		"msr control, r1\n"
+		:::);
+
+	*current_thread_mode = ARCH_TREAD_PRIVILEGED;
 }
