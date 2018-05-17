@@ -266,14 +266,26 @@ int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (
 		goto fail;
 	}
 
-	if (flags & IRQF_RISING)
-		stm32_exti_enable_rising(gpio_base, gpio_num);
-	else if (flags & IRQF_FALLING)
-		stm32_exti_enable_falling(gpio_base, gpio_num);
-	else {
+	if (!(flags & (IRQF_RISING | IRQF_FALLING))) {
 		error_printk("wrong flags for gpio_base: %x gpio_num: %d\n", gpio_base, gpio_num);
 		ret = -EINVAL;
 		goto fail;
+	}
+
+	if (flags & IRQF_RISING) {
+		ret = stm32_exti_enable_rising(gpio_base, gpio_num);
+		if (ret < 0) {
+			error_printk("failed to configure irq flags\n");
+			goto fail;
+		}
+	}
+
+	if (flags & IRQF_FALLING) {
+		ret = stm32_exti_enable_falling(gpio_base, gpio_num);
+		if (ret < 0) {
+			error_printk("failed to configure irq flags\n");
+			goto fail;
+		}
 	}
 
 	action = (struct action *)kmalloc(sizeof(struct action));
