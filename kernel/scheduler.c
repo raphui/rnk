@@ -68,8 +68,7 @@ void schedule_thread(struct thread *thread)
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 	if (!t || !t->quantum || !runnable) {
 
-		if (t)
-			if (runnable)
+		if (t && runnable)
 				insert_runnable_thread(t);
 
 		if (!thread)
@@ -80,8 +79,7 @@ void schedule_thread(struct thread *thread)
 		switch_thread(t);
 	}
 #elif defined(CONFIG_SCHEDULE_PRIORITY) || defined (CONFIG_SCHEDULE_RR_PRIO)
-	if (t)
-		if (runnable)
+	if (t && runnable)
 			insert_runnable_thread(t);
 
 	if (!thread)
