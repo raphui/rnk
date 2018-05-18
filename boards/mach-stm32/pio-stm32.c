@@ -87,6 +87,12 @@ void stm32_pio_set_input(unsigned int port, unsigned int mask, int pull_up, int 
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 	stm32_pio_set_clock(port);
 	base->MODER &= ~(GPIO_MODER(mask));
+
+	if (pull_up)
+		base->PUPDR |= GPIO_PUPDR_PULLUP(mask);
+	else
+		base->PUPDR &= ~(GPIO_PUPDR_PULLUP(mask));
+
 }
 
 void stm32_pio_set_analog(unsigned int port, unsigned int mask)
@@ -182,23 +188,25 @@ int stm32_pio_of_configure_name(int fdt_offset, char *name)
 		if (options->analog)
 			stm32_pio_set_analog(base, gpio_num);
 		else {
-			if (options->mode)
-				stm32_pio_set_output(base, gpio_num, options->pull);
-			else
-				stm32_pio_set_input(base, gpio_num, 0, 0);
 
 			if (gpio & 0xF00) {
 				alt_func = (gpio >> 8) & 0xF;
 				stm32_pio_set_alternate(base, gpio_num, alt_func);
 			} else {
-				if (options->val)
-					stm32_pio_set_value(base, gpio_num);
+				if (options->mode) {
+					stm32_pio_set_output(base, gpio_num, options->pull);
+
+					stm32_pio_set_output_type(base, gpio_num, options->output);
+
+					if (options->val)
+						stm32_pio_set_value(base, gpio_num);
+					else
+						stm32_pio_clear_value(base, gpio_num);
+				}
 				else
-					stm32_pio_clear_value(base, gpio_num);
+					stm32_pio_set_input(base, gpio_num, options->pull, 0);
 			}
 		}
-		
-		stm32_pio_set_output_type(base, gpio_num, options->output);
 	}
 
 	return num;
