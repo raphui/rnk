@@ -156,6 +156,10 @@
 /*			dmas = <&dma2 3 2 0x10400 0x3>,
 				<&dma2 3 3 0x10200 0x3>;
 			dma-names = "rx", "tx";*/
+
+			mode = <3>;
+			speed = <1000000>;
+
 			status = "okay";
 
 			spidev@0
