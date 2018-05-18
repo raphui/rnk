@@ -58,6 +58,7 @@ static void insert_in_run_queue_tail(struct thread *t)
 
 static void insert_thread(struct thread *t)
 {
+	int inserted = 0;
 	struct thread *thread = NULL;
 
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
@@ -72,9 +73,15 @@ static void insert_thread(struct thread *t)
 			if (t->priority > thread->priority) {
 				verbose_printk("inserting thread %d\r\n", t->pid);
 				list_add_before(&thread->node, &t->node);
+				inserted = 1;
 				break;
 			}
+			else if (thread->node.next == &run_queue[0])
+				break;
 		}
+
+		if (!inserted)
+			list_add_after(&thread->node, &t->node);
 	}
 #elif defined(CONFIG_SCHEDULE_RR_PRIO)
 	if (t->quantum > 0)
