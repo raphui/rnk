@@ -97,16 +97,27 @@ ENTRY(__svc)
 	add r0, r0, #SW_CTX_FRAME_SIZE
 	sub r0, r0, #4
 
-	/* Retrive svc number */
-	ldr r4, [r0, #24] /* 6 * 4 => psp[6] */
-	ldrb r4, [r4, #-2]
-	str r4, [r0]
+	push {r0}
+	ldr r0, [r0]
+	bl arch_syscall_is_elevation
+	mov r1, r0
+	pop {r0}
 
+	cmp r1, #1
+	it eq
+	beq 2f
+
+	ldr r1, [r0, #4]
+	ldr r2, [r0, #8]
+	ldr r3, [r0, #12]
+	ldr r0, [r0]
+	bl svc_handler
+	b 3f
+
+2:
 	ldr r1, =svc_handler
 	str r1, [r0, #24]
-
-	bl arch_thread_switch_priv
-
+3:
 	pop {pc}
 
 

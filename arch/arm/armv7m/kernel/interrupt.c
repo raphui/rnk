@@ -97,14 +97,19 @@ int svc_handler(unsigned int svc_number, void *arg1, void *arg2, void *arg3)
 {
 	void *ret;
 	void * (*handler)(void *, void *, void *);
+	unsigned char type;
 
 	debug_printk("svc_handler: got call %d\r\n", svc_number);
 
 	handler = (void (*))syscall_table[svc_number].handler;
+	type = syscall_table[svc_number].type;
 
 	ret = (*handler)(arg1, arg2, arg3);
 
-	arch_thread_switch_unpriv();
+	arch_thread_set_return(ret);
+
+	if (type == SYSCALL_PRIVILEGE_ELEVATION)
+		arch_thread_switch_unpriv();
 
 	return ret;
 }
