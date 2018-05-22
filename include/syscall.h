@@ -19,6 +19,9 @@
 #ifndef SYSCALL_H
 #define SYSCALL_H
 
+#define SYSCALL_PRIVILEGE_OPERATION	0
+#define SYSCALL_PRIVILEGE_ELEVATION	1
+
 enum service_calls {
 	SYSCALL_THREAD_SWITCH,
 	SYSCALL_THREAD_CREATE,
@@ -50,6 +53,7 @@ enum service_calls {
 struct syscall {
 	int number;
 	unsigned int *handler;
+	unsigned char type;
 };
 
 extern struct syscall syscall_table[];
