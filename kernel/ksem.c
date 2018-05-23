@@ -30,14 +30,16 @@ static void insert_waiting_thread(struct semaphore *sem, struct thread *t)
 	struct thread *thread;
 
 #if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_RR_PRIO)
-		list_add_tail(&sem->waiting_threads, &t->event_node);
+	list_add_tail(&sem->waiting_threads, &t->event_node);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
+	if (list_is_empty(&sem->waiting_threads))
+		list_add_head(&sem->waiting_threads, &t->event_node);
+	else {
 		list_for_every_entry(&sem->waiting_threads, thread, struct thread, event_node)
 			if (t->priority > thread->priority)
 				list_add_before(&thread->event_node, &t->event_node);
-
+	}
 #endif
-
 }
 
 static void remove_waiting_thread(struct semaphore *sem, struct thread *t)
