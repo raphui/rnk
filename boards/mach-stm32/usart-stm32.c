@@ -67,7 +67,7 @@ static int stm32_usart_write(struct usart_device *usartdev, unsigned char *buff,
 	int timeout = 1000;
 
 	for (i = 0; i < len;  i++) {
-		while(!(USART->SR & USART_SR_TXE) && timeout--)
+		while(!(USART->SR & USART_SR_TXE) && --timeout)
 			;
 
 		if (!timeout) {
@@ -91,7 +91,7 @@ static int stm32_usart_read(struct usart_device *usartdev, unsigned char *buff, 
 	int timeout = 1000;
 
 	for (i = 0; i < len;  i++) {
-		while(!(USART->SR & USART_SR_RXNE) && timeout--)
+		while(!(USART->SR & USART_SR_RXNE) && --timeout)
 			;
 
 		if (!timeout) {
