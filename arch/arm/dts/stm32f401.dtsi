@@ -140,6 +140,7 @@
 				<&gpioa 0x70A 0>;     /* RX PA3 */
 			clock = <3>;
 			baudrate = <115200>;
+			mode = <3>;
                         status = "okay";
 		};
 
