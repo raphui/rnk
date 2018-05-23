@@ -158,6 +158,13 @@ static int stm32_usart_of_init(struct usart_master *usart)
 		goto out;
 	}
 
+	ret = fdtparse_get_int(offset, "mode", (int *)&usart->mode);
+	if (ret < 0) {
+		error_printk("failed to retrieve usart mode\n");
+		ret = -EIO;
+		goto out;
+	}
+
 out:
 	return ret;
 }
@@ -197,8 +204,7 @@ static int stm32_usart_init(struct device *dev)
 
 	USART->BRR = stm32_baud_rate(usart->source_clk, usart->baud_rate);
 
-	USART->CR1 |= USART_CR1_RE;
-	USART->CR1 |= USART_CR1_TE;
+	USART->CR1 |= usart->mode << 2;
 	USART->CR1 |= USART_CR1_UE;
 
 	ret = usart_register_master(usart);

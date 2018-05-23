@@ -45,6 +45,7 @@ struct usart_master {
 	unsigned int base_reg;
 	unsigned int source_clk;
 	unsigned int baud_rate;
+	unsigned int mode;
 	struct mutex usart_mutex;
 	struct list_node node;
 	struct device dev;
