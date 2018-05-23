@@ -194,14 +194,14 @@ int stm32_pio_of_configure_name(int fdt_offset, char *name)
 				stm32_pio_set_alternate(base, gpio_num, alt_func);
 			} else {
 				if (options->mode) {
-					stm32_pio_set_output(base, gpio_num, options->pull);
-
-					stm32_pio_set_output_type(base, gpio_num, options->output);
-
 					if (options->val)
 						stm32_pio_set_value(base, gpio_num);
 					else
 						stm32_pio_clear_value(base, gpio_num);
+
+					stm32_pio_set_output_type(base, gpio_num, options->output);
+
+					stm32_pio_set_output(base, gpio_num, options->pull);
 				}
 				else
 					stm32_pio_set_input(base, gpio_num, options->pull, 0);
