@@ -32,14 +32,16 @@ static void insert_waiting_receive_thread(struct queue *queue, struct thread *t)
 	struct thread *thread;
 
 #if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_RR_PRIO)
-		list_add_tail(&queue->waiting_receive_threads, &t->event_node);
+	list_add_tail(&queue->waiting_receive_threads, &t->event_node);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
+	if (list_is_empty(&queue->waiting_receive_threads))
+		list_add_head(&queue->waiting_receive_threads, &t->event_node);
+	else {
 		list_for_every_entry(&queue->waiting_receive_threads, thread, struct thread, event_node)
 			if (t->priority > thread->priority)
 				list_add_before(&thread->event_node, &t->event_node);
-
+	}
 #endif
-
 }
 
 static void remove_waiting_receive_thread(struct queue *queue, struct thread *t)
@@ -52,14 +54,16 @@ static void insert_waiting_post_thread(struct queue *queue, struct thread *t)
 	struct thread *thread;
 
 #if defined(CONFIG_SCHEDULE_ROUND_ROBIN) || defined(CONFIG_SCHEDULE_RR_PRIO)
-		list_add_tail(&queue->waiting_post_threads, &t->event_node);
+	list_add_tail(&queue->waiting_post_threads, &t->event_node);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
+	if (list_is_empty(&queue->waiting_post_threads))
+		list_add_head(&queue->waiting_post_threads, &t->event_node);
+	else {
 		list_for_every_entry(&queue->waiting_post_threads, thread, struct thread, event_node)
 			if (t->priority > thread->priority)
 				list_add_before(&thread->event_node, &t->event_node);
-
+	}
 #endif
-
 }
 
 static void remove_waiting_post_thread(struct queue *queue, struct thread *t)
