@@ -119,6 +119,8 @@ static int stm32_spi_dma_read(struct spi_device *spidev, unsigned char *buff, un
 
 	stm32_dma_enable(dma);
 
+	ksem_wait(&spidev->sem);
+
 	return ret;
 }
 
