@@ -57,7 +57,7 @@ static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long r
 			break;
 	}
 
-	return best_pres;
+	return i;
 }
 
 static int stm32_spi_dma_write(struct spi_device *spidev, unsigned char *buff, unsigned int size)
@@ -314,7 +314,7 @@ int stm32_spi_init(struct device *device)
 
 	SPI->CR1 &= ~SPI_CR1_SPE;
 
-	SPI->CR1 |= (0x2 << 3);
+	SPI->CR1 |= (spi->rate << 3);
 
 	/* Set master mode */
 	SPI->CR1 |= SPI_CR1_MSTR;
