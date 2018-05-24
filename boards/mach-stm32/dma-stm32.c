@@ -40,7 +40,7 @@
 
 #define DMA_OF_FIFO_THRESH_MASK 0x3
 
-struct __attribute__((packed)) dma_of {
+struct dma_of {
 	unsigned int controller;
 	unsigned int stream;
 	unsigned int channel;
@@ -349,7 +349,7 @@ int stm32_dma_stream_of_configure(int fdt_offset, void (*handler)(struct device 
 
 	memset(dmas, 0, size * sizeof(struct dma_of));
 
-	ret = fdtparse_get_u32_array(fdt_offset, "dmas", (unsigned int *)dmas, size * sizeof(struct dma_of));
+	ret = fdtparse_get_u32_array(fdt_offset, "dmas", (unsigned int *)dmas, size * sizeof(struct dma_of) / sizeof(unsigned int));
 	if (ret < 0)
 		goto err;
 
