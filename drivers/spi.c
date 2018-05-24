@@ -40,11 +40,7 @@ static int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	kmutex_lock(&spi->master->spi_mutex);
 
-	pio_clear_value(spi->cs_port, spi->cs_pin);
-
 	ret = spi->master->spi_ops->write(spi, buff, size);
-
-	pio_set_value(spi->cs_port, spi->cs_pin);
 
 	kmutex_unlock(&spi->master->spi_mutex);
 
@@ -60,11 +56,7 @@ static int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	kmutex_lock(&spi->master->spi_mutex);
 
-	pio_clear_value(spi->cs_port, spi->cs_pin);
-
 	ret = spi->master->spi_ops->read(spi, buff, size);
-
-	pio_set_value(spi->cs_port, spi->cs_pin);
 
 	kmutex_unlock(&spi->master->spi_mutex);
 
@@ -79,18 +71,14 @@ int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size,
 
 	kmutex_lock(&spi->master->spi_mutex);
 
-	pio_clear_value(spi->cs_port, spi->cs_pin);
-
 	if (direction == SPI_TRANSFER_READ)
-		ret = spi_read(&spi->dev, buff, size);
+		ret = spi->master->spi_ops->read(spi, buff, size);
 	else if (direction == SPI_TRANSFER_WRITE)
-		ret = spi_write(&spi->dev, buff, size);
+		ret = spi->master->spi_ops->write(spi, buff, size);
 	else {
 		error_printk("invalid spi transfer direction\n");
 		ret = -EINVAL;
 	}
-
-	pio_set_value(spi->cs_port, spi->cs_pin);
 
 	kmutex_unlock(&spi->master->spi_mutex);
 
