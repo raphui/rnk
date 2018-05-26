@@ -157,7 +157,7 @@
 					<&gpioa 0x507 0x0A>;     /* MOSI PA7 */
 			clock = <3>;
 			dmas = <&dma2 0 3 0x10400 0x3>,
-				<&dma2 3 3 0x10200 0x3>;
+				<&dma2 3 3 0x10400 0x3>;
 			dma-names = "rx", "tx";
 
 			mode = <3>;
