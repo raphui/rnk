@@ -260,8 +260,10 @@ int stm32_spi_of_init(struct spi_master *spi)
 	spi->use_dma = 1;
 
 	/* XXX: make this based on device tree or deduced */
+	spi->dma_stream[SPI_TRANSFER_READ].dir = DMA_P_M;
+	spi->dma_stream[SPI_TRANSFER_WRITE].dir = DMA_M_P;
+
 	for (i = 0; i < 2; i++) {
-		spi->dma_stream[i].dir = DMA_M_P;
 		spi->dma_stream[i].mdata_size = DATA_SIZE_BYTE;
 		spi->dma_stream[i].pdata_size = DATA_SIZE_BYTE;
 		spi->dma_stream[i].mburst = INCR0;
