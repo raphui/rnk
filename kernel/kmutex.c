@@ -62,6 +62,9 @@ int kmutex_lock(struct mutex *mutex)
 {
 	int ret = 0;
 	struct thread *current_thread = get_current_thread();
+	unsigned long irqstate;
+
+	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 
 	if (!mutex) {
 		ret = -EINVAL;
@@ -97,6 +100,8 @@ int kmutex_lock(struct mutex *mutex)
 		mutex->owner = current_thread;
 		mutex->waiting = 0;
 	}
+
+	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 err:
 	return ret;
 }
@@ -106,6 +111,9 @@ int kmutex_unlock(struct mutex *mutex)
 	int ret = 0;
 	struct thread *current_thread = get_current_thread();
 	struct thread *thread;
+	unsigned long irqstate;
+
+	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 
 	if (!mutex) {
 		ret = -EINVAL;
@@ -145,6 +153,8 @@ int kmutex_unlock(struct mutex *mutex)
 	} else {
 		printk("mutex cannot be unlock, thread is not the owner\r\n");
 	}
+
+	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 err:
 	return ret;
 }
