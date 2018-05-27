@@ -97,8 +97,6 @@ struct spi_device *spi_new_device(void)
 
 	memset(spidev, 0, sizeof(struct spi_device));
 
-	ksem_init(&spidev->sem, 1);
-
 	dev_count++;
 
 	return spidev;
@@ -262,6 +260,9 @@ int spi_register_master(struct spi_master *spi)
 	int ret = 0;
 
 	kmutex_init(&spi->spi_mutex);
+
+	ksem_init(&spi->sem, 1);
+
 
 	list_add_tail(&spi_master_list, &spi->node);
 

@@ -29,7 +29,6 @@
 
 struct spi_device {
 	struct spi_master *master;
-	struct semaphore sem;
 	unsigned int cs_port;
 	unsigned int cs_pin;
 	unsigned int speed;
@@ -58,6 +57,7 @@ struct spi_master {
 	unsigned char only_rx;
 	unsigned char use_dma;
 	struct mutex spi_mutex;
+	struct semaphore sem;
 	struct list_node node;
 	struct device dev;
 	struct dma_stream dma_stream[2];
