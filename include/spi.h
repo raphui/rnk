@@ -41,6 +41,7 @@ struct spi_operations
 {
 	int (*write)(struct spi_device *spi, unsigned char *buff, unsigned int size);
 	int (*read)(struct spi_device *spi, unsigned char *buff, unsigned int size);
+	int (*exchange)(struct spi_device *spi, unsigned char *in, unsigned char *out, unsigned int size);
 };
 
 struct spi_master {

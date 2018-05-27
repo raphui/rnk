@@ -104,8 +104,8 @@ static int stm32_spi_dma_read(struct spi_device *spidev, unsigned char *buff, un
 
 	stm32_dma_stream_init(dma);
 
-	dma_trans->src_addr = (unsigned int)buff;
-	dma_trans->dest_addr = (unsigned int)&SPI->DR;
+	dma_trans->src_addr = (unsigned int)&SPI->DR;
+	dma_trans->dest_addr = (unsigned int)buff;
 	dma_trans->size = size;
 
 	stm32_dma_transfer(dma, dma_trans);
@@ -116,6 +116,47 @@ static int stm32_spi_dma_read(struct spi_device *spidev, unsigned char *buff, un
 	SPI->CR1 |= SPI_CR1_SPE;
 
 	stm32_dma_enable(dma);
+
+	ksem_wait(&spidev->master->sem);
+
+	return ret;
+}
+
+static int stm32_spi_dma_exchange(struct spi_device *spidev, unsigned char *in, unsigned char *out, unsigned int size)
+{
+	struct spi_master *spi = spidev->master;
+	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
+
+	struct dma_stream *dma_r = &spi->dma_stream[SPI_TRANSFER_READ];
+	struct dma_stream *dma_w = &spi->dma_stream[SPI_TRANSFER_WRITE];
+	struct dma_transfer *dma_trans_r = &spi->dma_trans_r;
+	struct dma_transfer *dma_trans_w = &spi->dma_trans_w;
+
+	int ret = size;
+
+	SPI->CR1 &= ~SPI_CR1_SPE;
+
+	stm32_dma_stream_init(dma_r);
+	stm32_dma_stream_init(dma_w);
+
+	dma_trans_w->src_addr = (unsigned int)out;
+	dma_trans_w->dest_addr = (unsigned int)&SPI->DR;
+	dma_trans_w->size = size;
+
+	dma_trans_r->src_addr = (unsigned int)&SPI->DR;
+	dma_trans_r->dest_addr = (unsigned int)in;
+	dma_trans_r->size = size;
+
+	stm32_dma_transfer(dma_w, dma_trans_w);
+	stm32_dma_transfer(dma_r, dma_trans_r);
+
+	SPI->CR2 |= SPI_CR2_TXDMAEN;
+	SPI->CR2 |= SPI_CR2_RXDMAEN;
+
+	SPI->CR1 |= SPI_CR1_SPE;
+
+	stm32_dma_enable(dma_w);
+	stm32_dma_enable(dma_r);
 
 	ksem_wait(&spidev->master->sem);
 
@@ -177,6 +218,33 @@ static int stm32_spi_read(struct spi_device *spidev, unsigned char *buff, unsign
 	return i;
 }
 
+static int stm32_spi_exchange(struct spi_device *spidev, unsigned char *in, unsigned char *out, unsigned int size)
+{
+	struct spi_master *spi = spidev->master;
+	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
+	int i;
+
+	for (i = 0; i < size; i++) {
+		while (!(SPI->SR & SPI_SR_TXE))
+			;
+
+		while (SPI->SR & SPI_SR_BSY)
+			;
+
+		SPI->DR = out[i];
+
+		while (!(SPI->SR & SPI_SR_RXNE))
+			;
+
+		while (SPI->SR & SPI_SR_BSY)
+			;
+
+		in[i] = SPI->DR;
+	}
+
+	return i;
+}
+
 static void stm32_spi_isr(void *arg)
 {
 	struct spi_master *spi = (struct spi_master *)arg;
@@ -187,6 +255,7 @@ static void stm32_spi_isr(void *arg)
 struct spi_operations spi_ops = {
 	.write = stm32_spi_write,
 	.read = stm32_spi_read,
+	.exchange = stm32_spi_exchange,
 };
 
 int stm32_spi_of_init(struct spi_master *spi)
@@ -312,6 +381,7 @@ int stm32_spi_init(struct device *device)
 	if (spi->use_dma) {
 		spi->spi_ops->write = stm32_spi_dma_write;
 		spi->spi_ops->read = stm32_spi_dma_read;
+		spi->spi_ops->exchange = stm32_spi_dma_exchange;
 	}
 
 	SPI->CR1 &= ~SPI_CR1_SPE;
