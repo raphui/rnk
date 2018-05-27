@@ -64,7 +64,7 @@ static int stm32_spi_dma_write(struct spi_device *spidev, unsigned char *buff, u
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
 	struct dma_stream *dma = &spi->dma_stream[SPI_TRANSFER_WRITE];
-	struct dma_transfer *dma_trans = &spi->dma_trans;
+	struct dma_transfer *dma_trans = &spi->dma_trans_w;
 
 	int ret = size;
 
@@ -96,7 +96,7 @@ static int stm32_spi_dma_read(struct spi_device *spidev, unsigned char *buff, un
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 
 	struct dma_stream *dma = &spi->dma_stream[SPI_TRANSFER_READ];
-	struct dma_transfer *dma_trans = &spi->dma_trans;
+	struct dma_transfer *dma_trans = &spi->dma_trans_r;
 
 	int ret = size;
 
