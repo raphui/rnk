@@ -71,24 +71,6 @@ static struct timer *timer_request(void)
 	return timer;
 }
 
-static int timer_release(struct timer *timer)
-{
-	int ret = 0;
-
-	kmutex_lock(&timer_mutex);
-
-	ret = timer->tim_ops->release_irq(timer);
-	if (ret < 0)
-		error_printk("failed to release timer via hardware IP\n");
-
-	
-	timer->is_used = 0;
-
-	kmutex_unlock(&timer_mutex);
-
-	return ret;
-}
-
 static int timer_release_from_isr(struct timer *timer)
 {
 	int ret = 0;

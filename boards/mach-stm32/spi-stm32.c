@@ -32,7 +32,6 @@ static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long r
 {
 	unsigned int i;
 	unsigned short pres[] = {2, 4, 8, 16, 32, 64, 128, 256};
-	unsigned short best_pres;
 	unsigned int diff;
 	unsigned int best_diff;
 	unsigned long curr_rate;
@@ -49,7 +48,6 @@ static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long r
 			diff = curr_rate - rate;
 
 		if (diff < best_diff) {
-			best_pres = pres[i];
 			best_diff = diff;
 		}
 

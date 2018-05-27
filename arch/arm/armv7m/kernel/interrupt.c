@@ -111,5 +111,5 @@ int svc_handler(unsigned int svc_number, void *arg1, void *arg2, void *arg3)
 	if (type == SYSCALL_PRIVILEGE_ELEVATION)
 		arch_thread_switch_unpriv();
 
-	return ret;
+	return (int)ret;
 }

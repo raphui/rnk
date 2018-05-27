@@ -71,8 +71,6 @@ static int mtd_get_next_page(struct device *dev, struct mtd_page *page)
 	int ret = -EINVAL;
 	unsigned int end = 0;
 	unsigned int start = 0;
-	unsigned int size = 0;
-	int next = 0;
 	struct mtd *mtd = container_of(dev, struct mtd, dev);
 	struct mtd_layout *layout = mtd->mtd_map;
 

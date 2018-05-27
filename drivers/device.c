@@ -127,7 +127,6 @@ int device_of_probe(void)
 {
 	int ret = 0;
 	int offset = 0;
-	int subnode_offset = 0;
 	int available = 0;
 	const void *blob = fdtparse_get_blob();
 	const struct fdt_property *prop;

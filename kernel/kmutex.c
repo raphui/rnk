@@ -10,7 +10,9 @@
 
 static void insert_waiting_thread(struct mutex *m, struct thread *t)
 {
+#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 	struct thread *thread;
+#endif
 
 	if (m->waiting) {
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN

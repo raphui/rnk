@@ -50,7 +50,7 @@ static void mpu_write_reg(unsigned reg, unsigned val)
 	writel(reg, val);
 }
 
-static inline mpu_get_size_field(int size)
+static inline int mpu_get_size_field(int size)
 {
 	size = 1 << (32 - __builtin_clz(size - 1));
 	return (32 - __builtin_clz(size) - 2) << 1;

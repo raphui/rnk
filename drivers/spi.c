@@ -106,7 +106,6 @@ struct spi_device *spi_new_device(void)
 
 struct spi_device *spi_new_device_with_master(int fdt_offset)
 {
-	int ret;
 	int parent_offset;
 	char *fdt_path = NULL;
 	struct device *dev;

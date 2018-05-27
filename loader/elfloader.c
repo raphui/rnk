@@ -326,12 +326,6 @@ out:
 	return ret;
 }
 
-static void elf_jump(unsigned int entry)
-{
-	unsigned int (*fct)(void) = (void *)entry;
-	fct();
-}
-
 int elf_exec(char *elf_data, int elf_size, int reloc_addr)
 {
 	int ret = 0;

@@ -256,7 +256,6 @@ int stm32_pio_of_get(int fdt_offset, char *name, unsigned int *port, unsigned in
 int stm32_pio_export(unsigned int pin_num, unsigned int *port, unsigned int *pin)
 {
 	int v;
-	int ret = 0;
 
 	*port = pin_num / PIN_PER_PORT;
 

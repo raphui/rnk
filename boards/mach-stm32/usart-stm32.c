@@ -64,7 +64,6 @@ static int stm32_usart_write(struct usart_device *usartdev, unsigned char *buff,
 	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 	int i = 0;
 	int ret = 0;
-	int timeout = 1000;
 
 	for (i = 0; i < len;  i++) {
 		while(!(USART->SR & USART_SR_TXE))
@@ -83,7 +82,6 @@ static int stm32_usart_read(struct usart_device *usartdev, unsigned char *buff, 
 	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 	int i = 0;
 	int ret = 0;
-	int timeout = 1000;
 
 	for (i = 0; i < len;  i++) {
 		while(!(USART->SR & USART_SR_RXNE))

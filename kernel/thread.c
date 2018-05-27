@@ -168,7 +168,10 @@ struct thread *get_current_thread(void)
 
 struct thread *find_next_thread(void)
 {
+#ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 	int found = 0;
+#endif
+
 	struct thread *thread = NULL;
 
 #ifdef CONFIG_SCHEDULE_RR_PRIO
