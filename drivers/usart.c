@@ -40,11 +40,7 @@ int usart_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("reading from usart !\n");
 
-	kmutex_lock(&usart->master->usart_mutex);
-
 	ret = usart->master->usart_ops->read(usart, buff, size);
-
-	kmutex_unlock(&usart->master->usart_mutex);
 
 	return ret;
 }
@@ -56,11 +52,7 @@ int usart_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("writing from usart !\n");
 
-	kmutex_lock(&usart->master->usart_mutex);
-
 	ret = usart->master->usart_ops->write(usart, buff, size);
-
-	kmutex_unlock(&usart->master->usart_mutex);
 
 	return ret;
 }
