@@ -38,11 +38,11 @@ static int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("writing from spi !\n");
 
-	kmutex_lock(&spi->master->spi_mutex);
+	//kmutex_lock(&spi->master->spi_mutex);
 
 	ret = spi->master->spi_ops->write(spi, buff, size);
 
-	kmutex_unlock(&spi->master->spi_mutex);
+	//kmutex_unlock(&spi->master->spi_mutex);
 
 	return ret;
 }
@@ -54,33 +54,16 @@ static int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("reading from spi !\n");
 
-	kmutex_lock(&spi->master->spi_mutex);
-
 	ret = spi->master->spi_ops->read(spi, buff, size);
-
-	kmutex_unlock(&spi->master->spi_mutex);
 
 	return ret;
 }
 
-int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size, int direction)
+int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size)
 {
 	int ret = 0;
 
-	verbose_printk("spi %s transfer\n", (direction == SPI_TRANSFER_READ) ? "read" : "write");
-
-	kmutex_lock(&spi->master->spi_mutex);
-
-	if (direction == SPI_TRANSFER_READ)
-		ret = spi->master->spi_ops->read(spi, buff, size);
-	else if (direction == SPI_TRANSFER_WRITE)
-		ret = spi->master->spi_ops->write(spi, buff, size);
-	else {
-		error_printk("invalid spi transfer direction\n");
-		ret = -EINVAL;
-	}
-
-	kmutex_unlock(&spi->master->spi_mutex);
+	ret = spi->master->spi_ops->exchange(spi, buff, buff, size);
 
 	return ret;
 }

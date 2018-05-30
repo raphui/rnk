@@ -30,7 +30,7 @@ static void ili9341_send_command(struct ili9341_device *dev, unsigned char data)
 {
 	pio_clear_value(GPIOD_BASE, 13);
 	pio_clear_value(GPIOC_BASE, 2);
-	spi_transfer(dev->spi, &data, sizeof(unsigned char), SPI_TRANSFER_WRITE);
+	spi_transfer(dev->spi, &data, sizeof(unsigned char));
 	pio_set_value(GPIOC_BASE, 2);
 }
 
@@ -38,7 +38,7 @@ static void ili9341_send_data(struct ili9341_device *dev, unsigned char data)
 {
 	pio_set_value(GPIOD_BASE, 13);
 	pio_clear_value(GPIOC_BASE, 2);
-	spi_transfer(dev->spi, &data, sizeof(unsigned char), SPI_TRANSFER_WRITE);
+	spi_transfer(dev->spi, &data, sizeof(unsigned char));
 	pio_set_value(GPIOC_BASE, 2);
 }
 
