@@ -143,13 +143,11 @@ static int stm32_exti_action(unsigned int line)
 
 static void stm32_exti_isr(void *arg)
 {
-	unsigned int irq = vector_current_irq();
 	int line = EXTI->PR & 0x7FFFFF;
 
 	line >>= 1;
 
 	EXTI->PR |= (0x7FFFFF);
-	nvic_clear_interrupt(irq);
 
 	stm32_exti_action(line);
 }

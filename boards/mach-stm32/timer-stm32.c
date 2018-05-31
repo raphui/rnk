@@ -74,11 +74,8 @@ static int stm32_timer_action(struct timer *timer)
 static void stm32_timer_isr(void *arg)
 {
 	struct timer *timer = (struct timer *)arg;
-	unsigned int irq = vector_current_irq();
 
 	stm32_timer_clear_it_flags(timer, TIM_SR_UIF);
-
-	nvic_clear_interrupt(irq);
 
 	stm32_timer_action(timer);
 }

@@ -191,7 +191,6 @@ static void stm32_dma_isr(void *arg)
 	int flags;
 
 	EXTI->PR |= (0x7FFFFF);
-	nvic_clear_interrupt(irq);
 
 	if (stream->stream_num > 3)
 		flags = dma_base->HISR;
