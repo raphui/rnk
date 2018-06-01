@@ -198,9 +198,9 @@ static void stm32_dma_isr(void *arg)
 	debug_printk("dma->ndtr: 0x%x\n", dma_stream->NDTR);
 
 	if (stream->stream_num > 3)
-		dma_base->HIFCR |= flags;
+		dma_base->HIFCR = flags;
 	else
-		dma_base->LIFCR |= flags;
+		dma_base->LIFCR = flags;
 
 	stream->handler(stream->arg);
 }
@@ -276,7 +276,7 @@ int stm32_dma_disable(struct dma_stream *dma_stream)
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma_stream->stream_base;
 	int nvic = stm32_dma_get_nvic_number(dma_stream);
 
-	DMA_STREAM->CR &= ~DMA_SxCR_TCIE | DMA_SxCR_EN;
+	DMA_STREAM->CR &= ~(DMA_SxCR_TCIE | DMA_SxCR_EN);
 
 	if (dma_stream->use_fifo)
 		DMA_STREAM->FCR &= ~(DMA_SxFCR_FEIE);
