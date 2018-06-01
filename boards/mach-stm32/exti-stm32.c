@@ -171,6 +171,12 @@ int stm32_exti_configure_line(unsigned int gpio_base, unsigned int gpio_num)
 
 	if (gpio_num <= 15) {
 		SYSCFG->EXTICR[gpio_num >> 2] = (mask << ((gpio_num % 4) *  4));
+
+		/* clean any previous interrupt flags */
+		EXTI->RTSR &= ~(1 << gpio_num);
+		EXTI->FTSR &= ~(1 << gpio_num);
+		EXTI->IMR &= ~(1 << gpio_num);
+
 	} else {
 		error_printk("pin %d is not configurable\r\n", gpio_num);
 		return -EINVAL;
@@ -256,6 +262,7 @@ int stm32_exti_disable_rising(unsigned int gpio_base, unsigned int gpio_num)
 int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (*handler)(void *), int flags, void *arg)
 {
 	int ret = 0;
+	int found = 0;
 	struct action *action = NULL;
 
 	ret = stm32_exti_configure_line(gpio_base, gpio_num);
@@ -286,21 +293,31 @@ int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (
 		}
 	}
 
-	action = (struct action *)kmalloc(sizeof(struct action));
-	if (!action) {
-		error_printk("cannot allocate exti irq action\n");
-		ret = -ENOMEM;
-		goto fail;
+	/* Do we have already an action ? */
+	list_for_every_entry(&action_list, action, struct action, node) {
+		if (action->irq == gpio_num) {
+			found = 1;
+			break;
+		}
+	}
+
+	if (!found) {
+		action = (struct action *)kmalloc(sizeof(struct action));
+		if (!action) {
+			error_printk("cannot allocate exti irq action\n");
+			ret = -ENOMEM;
+			goto fail;
+		}
+
+		if (list_is_empty(&action_list))
+			list_add_head(&action_list, &action->node);
+		else
+			list_add_tail(&action_list, &action->node);
 	}
 
 	action->irq_action = handler;
 	action->arg = arg;
 	action->irq = gpio_num;
-
-	if (list_is_empty(&action_list))
-		list_add_head(&action_list, &action->node);
-	else
-		list_add_tail(&action_list, &action->node);
 
 fail:
 	return ret;
