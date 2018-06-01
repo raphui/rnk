@@ -187,10 +187,7 @@ static void stm32_dma_isr(void *arg)
 	unsigned int base = stm32_dma_get_base(stream);
 	DMA_TypeDef *dma_base = (DMA_TypeDef *)base;
 	DMA_Stream_TypeDef *dma_stream = (DMA_Stream_TypeDef *)stream->stream_base;
-	unsigned int irq = vector_current_irq();
 	int flags;
-
-	EXTI->PR |= (0x7FFFFF);
 
 	if (stream->stream_num > 3)
 		flags = dma_base->HISR;
@@ -263,7 +260,8 @@ int stm32_dma_enable(struct dma_stream *dma_stream)
 
 	nvic_enable_interrupt(nvic);
 
-	DMA_STREAM->CR |= DMA_SxCR_TCIE | DMA_SxCR_TEIE | DMA_SxCR_DMEIE;
+	if (dma_stream->enable_interrupt)
+		DMA_STREAM->CR |= DMA_SxCR_TCIE;
 
 	if (dma_stream->use_fifo)
 		DMA_STREAM->FCR |= DMA_SxFCR_FEIE;
@@ -278,7 +276,7 @@ int stm32_dma_disable(struct dma_stream *dma_stream)
 	DMA_Stream_TypeDef *DMA_STREAM = (DMA_Stream_TypeDef *)dma_stream->stream_base;
 	int nvic = stm32_dma_get_nvic_number(dma_stream);
 
-	DMA_STREAM->CR &= ~(DMA_SxCR_TCIE | DMA_SxCR_TEIE | DMA_SxCR_DMEIE | DMA_SxCR_EN);
+	DMA_STREAM->CR &= ~DMA_SxCR_TCIE | DMA_SxCR_EN;
 
 	if (dma_stream->use_fifo)
 		DMA_STREAM->FCR &= ~(DMA_SxFCR_FEIE);

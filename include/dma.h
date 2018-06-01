@@ -50,6 +50,7 @@ struct dma_stream {
 	unsigned char use_fifo;
 	unsigned int priority;
 	unsigned int irq;
+	unsigned char enable_interrupt;
 	void (*handler)(struct device *dev);
 	void *arg;
 	struct dma_controller *dma;

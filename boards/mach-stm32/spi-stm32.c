@@ -83,6 +83,8 @@ static int stm32_spi_dma_write(struct spi_device *spidev, unsigned char *buff, u
 
 	SPI->CR1 |= SPI_CR1_SPE;
 
+	dma->enable_interrupt = 1;
+
 	stm32_dma_enable(dma);
 
 	ksem_wait(&spidev->master->sem);
@@ -114,6 +116,8 @@ static int stm32_spi_dma_read(struct spi_device *spidev, unsigned char *buff, un
 	SPI->CR2 |= SPI_CR2_RXDMAEN;
 
 	SPI->CR1 |= SPI_CR1_SPE;
+
+	dma->enable_interrupt = 1;
 
 	stm32_dma_enable(dma);
 
@@ -154,6 +158,8 @@ static int stm32_spi_dma_exchange(struct spi_device *spidev, unsigned char *in, 
 	SPI->CR2 |= SPI_CR2_RXDMAEN;
 
 	SPI->CR1 |= SPI_CR1_SPE;
+
+	dma_r->enable_interrupt = 1;
 
 	stm32_dma_enable(dma_w);
 	stm32_dma_enable(dma_r);
