@@ -59,17 +59,5 @@ ENTRY(svc_arg3)
 .thumb_func
 ENTRY(svc_call)
 	push {lr}
-
-	subs sp, sp, #4
-
-	mov r4, #INSTR_CODE_SVC
-	orr r4, r4, r0
-	strh r4, [sp]
-
-	mov r4, #INSTR_CODE_BX_LR
-	strh r4, [sp, #2]
-
-	mov r4, sp
-	orr r4, r4, #1
-	blx r4
-	pop {r4, pc}
+	svc #0
+	pop {pc}
