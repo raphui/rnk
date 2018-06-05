@@ -7,4 +7,8 @@ menu "Third party configuration"
 
 source "third_party/lib/Kconfig"
 
+config USB_STACK
+	depends on STM32F4XX && USB_SUBSYS
+	bool "Enable use of usb stack"
+
 endmenu

@@ -53,6 +53,10 @@ ifeq ($(CONFIG_TLSF),y)
 INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/tlsf
 endif
 
+ifeq ($(CONFIG_USB_STACK),y)
+INCLUDES	+= -I$(KERNEL_BASE)/third_party/usb
+endif
+
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
 CFLAGS  :=  -Wall -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -nostdinc -g $(INCLUDES)

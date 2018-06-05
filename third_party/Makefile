@@ -4,3 +4,4 @@
 # Provided under the three clause BSD license found in the LICENSE file.
 
 subdirs-y += lib
+subdirs-$(CONFIG_USB_STACK) += usb

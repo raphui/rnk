@@ -31,6 +31,11 @@
 
 /*#define VECT_TAB_SRAM */
 #define VECT_TAB_OFFSET 0x00
+
+#ifdef CONFIG_USB_STACK
+#define __IO volatile
+#define USE_USB_OTG_FS
+#endif /* CONFIG_USB_STACK */
  
 struct pio_operations pio_ops;
 
