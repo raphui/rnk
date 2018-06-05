@@ -107,9 +107,8 @@ int mpu_init(void)
 
 	mpu_map_from_low((void *)CONFIG_USER_HEAP_START, CONFIG_USER_HEAP_END - CONFIG_USER_HEAP_START, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
 	mpu_map_from_low((void *)_slibtext, (unsigned int)_elibtext - (unsigned int)_slibtext, MPU_RASR_NORMAL_CACHE | MPU_RASR_AP_PRIV_RW_UN_RO);
-	mpu_map_from_low((void *)_slibbss, (unsigned int)_elibbss - (unsigned int)_slibbss, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
-	mpu_map_from_low((void *)_slibdata, (unsigned int)_elibdata - (unsigned int)_slibdata, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
-
+	mpu_map_from_low((void *)_slibbss, (unsigned int)_elibbss - (unsigned int)_slibbss, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW | MPU_RASR_XN);
+	mpu_map_from_low((void *)_slibdata, (unsigned int)_elibdata - (unsigned int)_slibdata, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW | MPU_RASR_XN);
 
 	mpu_write_reg(MPU_CTRL, MPU_CTRL_ENABLE | MPU_CTRL_PRIVDEFENA);
 
