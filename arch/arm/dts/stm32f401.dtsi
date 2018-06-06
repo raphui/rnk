@@ -83,7 +83,17 @@
 
 	ahb2
 	{
+		#address-cells = <1>;
+		#size-cells = <1>;
 
+		otgfs: otgfs@50000000 {
+			reg = <0x50000000 0x4000>;
+			compatible = "st,stm32f4xx-usb";
+			interrupts = <67>;
+
+			gpios = <&gpioa 0xA0B 0x18>,
+				<&gpioa 0xA0C 0x18>;
+		};
 	};
 
 	apb1
