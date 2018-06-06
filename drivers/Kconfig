@@ -32,4 +32,7 @@ config ILI9341_FRAME_BUFFER
 config TIMER_SUBSYS
 	bool "Timer subsystem driver"
 
+config USB_SUBSYS
+	bool "USB subsystem driver"
+
 endmenu
