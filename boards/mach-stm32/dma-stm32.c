@@ -40,6 +40,8 @@
 
 #define DMA_OF_FIFO_THRESH_MASK 0x3
 
+#define DMA_ISR_TCIF	0x8200820
+
 struct dma_of {
 	unsigned int controller;
 	unsigned int stream;
@@ -202,7 +204,8 @@ static void stm32_dma_isr(void *arg)
 	else
 		dma_base->LIFCR = flags;
 
-	stream->handler(stream->arg);
+	if (flags & DMA_ISR_TCIF)
+		stream->handler(stream->arg);
 }
 
 int stm32_dma_transfer(struct dma_stream *dma_stream, struct dma_transfer *dma_trans)
