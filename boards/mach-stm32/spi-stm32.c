@@ -161,13 +161,13 @@ static int stm32_spi_dma_exchange(struct spi_device *spidev, unsigned char *in, 
 	SPI->CR2 |= SPI_CR2_TXDMAEN;
 	SPI->CR2 |= SPI_CR2_RXDMAEN;
 
-	SPI->CR1 |= SPI_CR1_SPE;
-
 	dma_r->enable_interrupt = 1;
 	dma_w->enable_interrupt = 0;
 
 	stm32_dma_enable(dma_w);
 	stm32_dma_enable(dma_r);
+
+	SPI->CR1 |= SPI_CR1_SPE;
 
 	ksem_wait(&spidev->master->sem);
 
