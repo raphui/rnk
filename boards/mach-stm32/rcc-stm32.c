@@ -10,6 +10,7 @@
 #define RCC_CFGR_HSE      	1
 #define RCC_CFGR_PLL      	2
 
+#define LSI_FREQ	32000
 
 struct clk
 {
@@ -76,6 +77,7 @@ static struct clk clk_lut[] = {
 	{DMA2_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_DMA2EN},
 	{USB_OTG_FS_PERIPH_BASE, (unsigned int)&RCC->AHB2ENR, RCC_AHB2ENR_OTGFSEN},
 	{USB_OTG_HS_PERIPH_BASE, (unsigned int)&RCC->AHB2ENR, RCC_AHB2ENR_OTGFSEN},
+	{RTC_BASE, (unsigned int)&RCC->BDCR, RCC_BDCR_RTCEN},
 #ifdef CONFIG_STM32F429
 	{SPI4_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_SPI4EN},
 	{SPI5_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_SPI5EN},
@@ -160,6 +162,9 @@ int stm32_rcc_get_freq_clk(unsigned int clk)
 	case APB2_CLK:
 		ret = apb2_freq;
 		break;
+	case LSI_CLK:
+		ret = LSI_FREQ;
+		break;
 	default:
 		ret = -EINVAL;
 		break;
@@ -188,6 +193,29 @@ int stm32_rcc_get_pres_clk(unsigned int clk)
 	}
 
 	return ret;
+}
+
+
+int stm32_rcc_enable_internal_clk(unsigned int clk)
+{
+	int ret = 0;
+
+	switch (clk) {
+	case LSI_CLK:
+		RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+		PWR->CR |= PWR_CR_DBP;
+		RCC->CSR |= RCC_CSR_LSION;
+
+		while (!(RCC->CSR & RCC_CSR_LSIRDY))
+			;
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+
+	return ret;
+
 }
 
 int stm32_rcc_enable_clk(int periph_base)
