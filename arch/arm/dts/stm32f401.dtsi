@@ -138,6 +138,14 @@
                         interrupts = <50>;
                         status = "okay";
                 };
+
+		rtc: rtc@0x40002800 {
+			compatible = "st,stm32f4xx-rtc";
+			reg = <0x40002800 0x400>;
+			interrupts = <3>;
+			status = "okay";
+
+		};
 	};
 
 	apb2
