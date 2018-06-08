@@ -20,8 +20,12 @@ unsigned long thread_lock = SPIN_LOCK_INITIAL_VALUE;
 
 static void idle_thread(void)
 {
-	while(1)
+	while(1) {
+#ifdef CONFIG_TICKLESS
+
+#endif
 		wait_for_interrupt();
+	}
 }
 
 #if defined(CONFIG_SCHEDULE_RR_PRIO) || defined(CONFIG_SCHEDULE_ROUND_ROBIN)
