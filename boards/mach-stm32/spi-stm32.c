@@ -409,9 +409,9 @@ int stm32_spi_init(struct device *device)
 	SPI->CR1 |= SPI_CR1_SSM;
 	SPI->CR1 |= SPI_CR1_SSI;
 
-	SPI->CR1 |= SPI_CR1_SPE;
-
 	SPI->CR1 |= spi->mode;
+
+	SPI->CR1 |= SPI_CR1_SPE;
 
 	ret = spi_register_master(spi);
 	if (ret < 0) {
