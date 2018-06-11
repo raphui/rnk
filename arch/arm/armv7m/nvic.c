@@ -2,6 +2,7 @@
 #include <armv7m/system.h>
 #include <printk.h>
 #include <utils.h>
+#include <board.h>
 
 void nvic_enable_interrupt(unsigned int num)
 {
@@ -125,5 +126,5 @@ void nvic_set_priority_interrupt(int num, unsigned char priority)
 		writel(reg, priority << shift);
 	}
 	else
-		writel(NVIC_IPR(num), priority);
+		writel(NVIC_IPR(num), ((priority & 0xF) << (8 - __NVIC_PRIO_BITS)));
 }
