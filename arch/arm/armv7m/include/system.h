@@ -128,6 +128,8 @@ static inline void wait_for_interrupt(void)
 #define NVIC_ICPR3                      (unsigned int) (NVIC_BASE + 0x18C)               /* Interrupt clear-pending register 3 */
 #define NVIC_IPR(n)                     (unsigned char)  (NVIC_BASE + 0x300 + n)           /* Interrupt n priority register */
 
+#define SCS_ICTR			(unsigned int) (SCS_BASE + 0x004)
+
 /* System Control Block (SCB) */
 #define SCB_ICSR                        (unsigned int) (SCB_BASE + 0x004)                /* Interrupt Control and State Register */
 #define SCB_VTOR                        (unsigned int) (SCB_BASE + 0x008)                /* Vector Table Offset Register */
