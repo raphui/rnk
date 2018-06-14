@@ -144,7 +144,7 @@ int kmutex_unlock(struct mutex *mutex)
 				mutex->lock = 1;
 				mutex->owner = thread;
 
-				schedule_thread(thread);
+				schedule_yield();
 			}
 		}
 
