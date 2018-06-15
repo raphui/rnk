@@ -6,98 +6,31 @@
 
 void nvic_enable_interrupt(unsigned int num)
 {
-	unsigned int base = num / 32;
-	unsigned int off = num % 32;
-	unsigned int nvic_reg;
+	unsigned int *nvic_reg = (unsigned int *)NVIC_ISER0;
 
-	switch (base) {
-		case 0:
-			nvic_reg = NVIC_ISER0;
-			break;
-		case 1:
-			nvic_reg = NVIC_ISER1;
-			break;
-		case 2:
-			nvic_reg = NVIC_ISER2;
-			break;
-		case 3:
-			nvic_reg = NVIC_ISER3;
-			break;
-	}
-
-	writel(nvic_reg, (1 << off));
+	writel((unsigned int)&nvic_reg[num >> 0x5], (1 << (num & 0x1F)));
 }
 
 void nvic_disable_interrupt(unsigned int num)
 {
-	unsigned int base = num / 32;
-	unsigned int off = num % 32;
-	unsigned int nvic_reg;
+	unsigned int *nvic_reg = (unsigned int *)NVIC_ICER0;
 
-	switch (base) {
-		case 0:
-			nvic_reg = NVIC_ICER0;
-			break;
-		case 1:
-			nvic_reg = NVIC_ICER1;
-			break;
-		case 2:
-			nvic_reg = NVIC_ICER2;
-			break;
-		case 3:
-			nvic_reg = NVIC_ICER3;
-			break;
-	}
-
-	writel(nvic_reg, (1 << off));
+	writel((unsigned int)&nvic_reg[num >> 0x5], (1 << (num & 0x1F)));
 }
 
 void nvic_set_interrupt(unsigned int num)
 {
-	unsigned int base = num / 32;
-	unsigned int off = num % 32;
-	unsigned int nvic_reg;
+	unsigned int *nvic_reg = (unsigned int *)NVIC_ISPR0;
 
-	switch (base) {
-		case 0:
-			nvic_reg = NVIC_ISPR0;
-			break;
-		case 1:
-			nvic_reg = NVIC_ISPR1;
-			break;
-		case 2:
-			nvic_reg = NVIC_ISPR2;
-			break;
-		case 3:
-			nvic_reg = NVIC_ISPR3;
-			break;
-	}
-
-	writel(nvic_reg, (1 << off));
+	writel((unsigned int)&nvic_reg[num >> 0x5], (1 << (num & 0x1F)));
 }
 
 void nvic_clear_interrupt(unsigned int num)
 {
-	unsigned int base = num / 32;
-	unsigned int off = num % 32;
-	unsigned int nvic_reg;
 
-	switch (base) {
-		case 0:
-			nvic_reg = NVIC_ICPR0;
-			break;
-		case 1:
-			nvic_reg = NVIC_ICPR1;
-			break;
-		case 2:
-			nvic_reg = NVIC_ICPR2;
-			break;
-		case 3:
-			nvic_reg = NVIC_ICPR3;
-			break;
-	}
+	unsigned int *nvic_reg = (unsigned int *)NVIC_ICPR0;
 
-	writel(nvic_reg, (1 << off));
+	writel((unsigned int)&nvic_reg[num >> 0x5], (1 << (num & 0x1F)));
 }
 
 void nvic_set_priority_interrupt(int num, unsigned char priority)
