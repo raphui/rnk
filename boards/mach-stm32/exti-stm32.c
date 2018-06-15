@@ -134,6 +134,23 @@ static void stm32_exti_isr(void *arg)
 	stm32_exti_action(line);
 }
 
+int stm32_exti_configure(unsigned int line, unsigned int edge)
+{
+	int ret = 0;
+
+	/* clean any previous interrupt flags */
+	if (edge & IRQF_RISING)
+		EXTI->RTSR |= (1 << line);
+
+	if (edge & IRQF_FALLING)
+		EXTI->FTSR |= (1 << line);
+
+
+	EXTI->IMR |= (1 << line);
+
+	return ret;
+}
+
 int stm32_exti_configure_line(unsigned int gpio_base, unsigned int gpio_num)
 {
 	unsigned char mask = stm32_exti_base_mask(gpio_base);
