@@ -47,6 +47,7 @@ struct timer_operations
 };
 
 int timer_init(void);
+int timer_wakeup(unsigned int delay);
 int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg);
 int timer_oneshot_soft(unsigned int delay, void (*handler)(void *), void *arg);
 void timer_set_rate(struct timer *timer, unsigned long rate);

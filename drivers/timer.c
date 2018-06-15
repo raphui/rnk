@@ -79,6 +79,35 @@ static void timer_isr(void *arg)
 	}
 }
 
+
+int timer_wakeup(unsigned int delay)
+{
+	int ret = 0;
+	struct timer *timer = NULL;
+
+	kmutex_lock(&timer_mutex);
+
+	timer = timer_request();
+	if (!timer) {
+		error_printk("failed to request timer\n");
+		return -ENOENT;
+	}
+
+	timer->one_shot = 1;
+	timer->one_pulse = 1;
+	timer->count_up = 0;
+	timer->counter = delay;
+
+	timer_set_counter(timer, timer->counter);
+	timer_enable(timer);
+
+	kmutex_unlock(&timer_mutex);
+
+	return ret;
+
+}
+
+
 int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 {
 	int ret = 0;
