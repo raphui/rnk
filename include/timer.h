@@ -59,6 +59,8 @@ void timer_soft_decrease_delay(void);
 struct timer *timer_new(void);
 int timer_remove(struct timer *timer);
 int timer_register(struct timer *timer);
+int timer_lp_remove(struct timer *timer);
+int timer_lp_register(struct timer *timer);
 
 
 #endif /* TIMER_H*/

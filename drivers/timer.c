@@ -9,6 +9,7 @@
 
 static struct mutex timer_mutex;
 static struct list_node timer_list;
+static struct list_node timer_lp_list;
 static struct list_node timer_soft_list;
 
 void timer_set_rate(struct timer *timer, unsigned long rate)
@@ -41,6 +42,24 @@ static struct timer *timer_request(void)
 	struct timer *timer = NULL;
 
 	list_for_every_entry(&timer_list, timer, struct timer, node)
+		if (!timer->is_used)
+			break;
+
+	if (!timer) {
+		error_printk("all timers are used\n");
+		return NULL;
+	}
+
+	timer->is_used = 1;
+
+	return timer;
+}
+
+static struct timer *timer_lp_request(void)
+{
+	struct timer *timer = NULL;
+
+	list_for_every_entry(&timer_lp_list, timer, struct timer, node)
 		if (!timer->is_used)
 			break;
 
@@ -115,7 +134,7 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 
 	kmutex_lock(&timer_mutex);
 
-	timer = timer_request();
+	timer = timer_lp_request();
 	if (!timer) {
 		error_printk("failed to request timer\n");
 		return -ENOENT;
@@ -220,9 +239,35 @@ int timer_remove(struct timer *timer)
 	return ret;
 }
 
+int timer_lp_remove(struct timer *timer)
+{
+	int ret = 0;
+	struct timer *timerdev = NULL;
+
+	list_for_every_entry(&timer_lp_list, timerdev, struct timer, node)
+		if (timerdev == timer)
+			break;
+
+	if (timerdev) {
+		list_delete(&timerdev->node);
+		kfree(timerdev);
+	}
+	else
+		ret = -ENOENT;
+
+	return ret;
+}
+
 int timer_register(struct timer *timer)
 {
 	list_add_tail(&timer_list, &timer->node);
+
+	return 0;
+}
+
+int timer_lp_register(struct timer *timer)
+{
+	list_add_tail(&timer_lp_list, &timer->node);
 
 	return 0;
 }
@@ -233,6 +278,7 @@ int timer_init(void)
 
 	kmutex_init(&timer_mutex);
 	list_initialize(&timer_list);
+	list_initialize(&timer_lp_list);
 	list_initialize(&timer_soft_list);
 
 	return ret;
