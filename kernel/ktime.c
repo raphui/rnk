@@ -67,6 +67,22 @@ void ktime_oneshot(int delay, void (*handler)(void *), void *arg)
 		error_printk("failed to create software timer oneshot\n");
 }
 
+void ktime_wakeup_next_delay(void)
+{
+	int delay;
+	struct thread *thread;
+
+	thread = list_peek_head_type(&sleeping_threads, struct thread, node);
+
+	delay = thread->delay;
+
+	list_for_every_entry(&sleeping_threads, thread, struct thread, node)
+		if (thread->delay < delay)
+			delay = thread->delay;
+
+	timer_wakeup(delay);
+}
+
 void decrease_thread_delay(void)
 {
 	struct thread *thread;
