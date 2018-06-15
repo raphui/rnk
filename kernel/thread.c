@@ -6,6 +6,7 @@
 #include <arch/system.h>
 #include <spinlock.h>
 #include <syscall.h>
+#include <ktime.h>
 
 static struct thread *current_thread = NULL;
 static int thread_count = 0;
@@ -20,9 +21,16 @@ unsigned long thread_lock = SPIN_LOCK_INITIAL_VALUE;
 
 static void idle_thread(void)
 {
+	unsigned long irqstate;
+
 	while(1) {
 #ifdef CONFIG_TICKLESS
 
+		arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
+
+		ktime_wakeup_next_delay();
+
+		arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 #endif
 		wait_for_interrupt();
 	}
