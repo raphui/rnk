@@ -1,8 +1,5 @@
 #include <asm.h>
 
-#define INSTR_CODE_SVC		(0xDF00)
-#define INSTR_CODE_BX_LR	(0x4770)
-
 .syntax unified
 .thumb
 
