@@ -67,12 +67,14 @@ static inline void __dsb(void)
 
 static inline void __enable_it(void)
 {
+	asm volatile("" ::: "memory");
 	asm volatile ("cpsie i":::);
 }
 
 static inline void __disable_it(void)
 {
 	asm volatile ("cpsid i":::);
+	asm volatile("" ::: "memory");
 }
 
 static inline int arch_it_disabled(void)
