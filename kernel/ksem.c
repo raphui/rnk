@@ -73,8 +73,8 @@ int ksem_wait(struct semaphore *sem)
 		schedule_yield();
 	}
 
-	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 err:
+	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 	return ret;
 }
 
@@ -110,7 +110,7 @@ int ksem_post(struct semaphore *sem)
 		}
 	}
 
-	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 err:
+	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 	return ret;
 }
