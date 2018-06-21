@@ -1,8 +1,3 @@
-# Copyright (C) 2015 Raphaël Poggi. All rights reserved.
-# Author: Raphaël Poggi <poggi.raph@gmail.com>
-#
-# Provided under the three clause BSD license found in the LICENSE file.
-
 obj-y := rcc-stm32.o
 obj-$(CONFIG_STM32F4XX) += stm32f4xx.o
 obj-$(CONFIG_STM32F746) += stm32f746.o

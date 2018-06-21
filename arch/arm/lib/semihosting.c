@@ -1,20 +1,3 @@
-/*
- * Copyright 2017 Poggi Raphaël <poggi.raph@gmail.com>
- * Copyright 2014 Broadcom Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
- */
-
-/*
- * Minimal semihosting implementation for reading files into memory. If more
- * features like writing files or console output are required they can be
- * added later. This code has been tested on arm64/aarch64 fastmodel only.
- * An untested placeholder exists for armv7 architectures, but since they
- * are commonly available in silicon now, fastmodel usage makes less sense
- * for them.
- */
-
-#include <printk.h>
 #include <stddef.h>
 #include <string.h>
 
