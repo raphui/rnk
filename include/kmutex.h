@@ -2,14 +2,13 @@
 #define KMUTEX_H
 
 #include <thread.h>
-#include <list.h>
+#include <wait.h>
 
 struct mutex {
-	unsigned char lock;
+	int lock;
 	struct thread *owner;
-	unsigned int waiting;
 	unsigned old_prio;
-	struct list_node waiting_threads;
+	struct wait_queue wait;
 };
 
 int kmutex_init(struct mutex *mutex);
