@@ -6,13 +6,20 @@ static sem_t sem;
 
 void thread_a(void *arg)
 {
+	int times_wakeup = 0;
+
 	printf("starting thread A\n");
 
 	while (1) {
-		printf("[A] waiting sem\n");
+		printf("[A] waiting on sem\n");
 		sem_wait(&sem);
-		printf("[A] posting sem\n");
-		sem_post(&sem);
+
+		if (!(++times_wakeup % 2)) {
+			printf("[A] waking up thread B\n");
+			sem_post(&sem);
+
+			printf("[A] should wakup after waiting again...\n");
+		}
 	}
 }
 
@@ -21,10 +28,11 @@ void thread_b(void *arg)
 	printf("starting thread B\n");
 
 	while (1) {
-		printf("[B] waiting sem\n");
-		sem_wait(&sem);
-		printf("[B] posting sem\n");
+		printf("[B] waking up thread A\n");
 		sem_post(&sem);
+
+		printf("[B] waiting on sem\n");
+		sem_wait(&sem);
 	}
 }
 
@@ -33,9 +41,7 @@ void thread_c(void *arg)
 	printf("starting thread C\n");
 
 	while (1) {
-		printf("[C] waiting sem\n");
-		sem_wait(&sem);
-		printf("[C] posting sem\n");
+		printf("[C] waking up thread A\n");
 		sem_post(&sem);
 	}
 }
@@ -44,7 +50,7 @@ int main(void)
 {
 	printf("Starting mutex tests\n");
 
-	sem_init(&sem, 2);
+	sem_init(&sem, 1);
 
 	printf("- adding thread A (%x)\n", &thread_a);
 	pthread_create(&thread_a, NULL, 4);
