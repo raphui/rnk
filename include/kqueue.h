@@ -1,7 +1,7 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include <list.h>
+#include <wait.h>
 
 struct queue {
 	unsigned int *head;
@@ -11,10 +11,8 @@ struct queue {
 	unsigned int item_queued;
 	unsigned int size;
 	unsigned int item_size;
-	unsigned int waiting_post;
-	unsigned int waiting_receive;
-	struct list_node waiting_receive_threads;
-	struct list_node waiting_post_threads;
+	struct wait_queue wait_receive;
+	struct wait_queue wait_post;
 };
 
 int kqueue_init(struct queue *queue, unsigned int size, unsigned int item_size);
