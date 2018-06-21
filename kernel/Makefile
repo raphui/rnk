@@ -7,3 +7,4 @@ obj-y += kqueue.o
 obj-y += thread.o
 obj-y += ktime.o
 obj-y += printk.o
+obj-y += wait.o
