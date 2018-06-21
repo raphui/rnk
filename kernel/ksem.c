@@ -8,7 +8,7 @@
 #include <syscall.h>
 #include <export.h>
 
-int ksem_init(struct semaphore *sem, unsigned int value)
+int ksem_init(struct semaphore *sem, int value)
 {
 	int ret = 0;
 
