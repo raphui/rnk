@@ -9,7 +9,6 @@
 
 static int dev_count = 0;
 static int master_count = 0;
-static char dev_prefix[10] = "/dev/i2c";
 static struct list_node i2c_device_list;
 static struct list_node i2c_master_list;
 
@@ -165,14 +164,8 @@ int i2c_remove_device(struct i2c_device *i2c)
 int i2c_register_device(struct i2c_device *i2c)
 {
 	int ret = 0;
-	char tmp[10] = {0};
 
-	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
-	
-	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + dev_count;
-
-	memcpy(i2c->dev.name, tmp, sizeof(tmp));
+	snprintf(i2c->dev.name, sizeof(i2c->dev.name), "/dev/i2c%d", dev_count);
 
 	i2c->dev.read = i2c_read;
 	i2c->dev.write = i2c_write;
