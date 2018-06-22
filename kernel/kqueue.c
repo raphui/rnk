@@ -125,7 +125,7 @@ int kqueue_post(struct queue *queue, void *item, unsigned int timeout)
 	for (;;) {
 		if (back_from_sleep) {
 			break;
-		} else if (queue->item_queued < queue->item_size) {
+		} else if (queue->item_queued < queue->size) {
 			_kqueue_post(queue, item);
 			break;
 		} else if (timeout) {
@@ -133,6 +133,7 @@ int kqueue_post(struct queue *queue, void *item, unsigned int timeout)
 			ktime_usleep(timeout);
 			back_from_sleep = 1;
 		} else if (!timeout) {
+			ret = -EAGAIN;
 			break;
 		}
 	}
@@ -183,6 +184,7 @@ int kqueue_receive(struct queue *queue, void *item, unsigned int timeout)
 			ktime_usleep(timeout);
 			back_from_sleep = 1;
 		} else if (back_from_sleep || !timeout) {
+			ret = -EAGAIN;
 			break;
 		}
 	}
