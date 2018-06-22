@@ -28,6 +28,7 @@ void thread_c(void *arg)
 
 	while (1) {
 		printf("C\n");
+		time_usleep(3000);
 	}
 }
 
