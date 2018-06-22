@@ -207,6 +207,10 @@ int mq_setattr(mqd_t fd, const struct mq_attr *attr, struct mq_attr *oldattr)
 	if (!mq)
 		goto err;
 
+	ret = syscall(SYSCALL_QUEUE_UPDATE, &mq->q, mq->attr.mq_maxmsg, mq->attr.mq_msgsize);
+	if (ret < 0)
+		goto err;
+
 	if (oldattr)
 		memcpy(oldattr, &mq->attr, sizeof(struct mq_attr));
 
