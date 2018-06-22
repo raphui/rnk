@@ -24,6 +24,7 @@ static struct mq_attr default_attr = {
 static struct mq_priv *mq_get(int handle)
 {
 	int i = 0;
+	int found = 0;
 	struct mq_priv *mq = NULL;
 
 	pthread_mutex_lock(&mutex);
@@ -32,11 +33,16 @@ static struct mq_priv *mq_get(int handle)
 		return NULL;
 
 	list_for_every_entry(&mq_list, mq, struct mq_priv, node) {
-		if (i++ == handle)
+		if (i++ == (handle - 1)) {
+			found = 1;
 			break;
+		}
 	}
 
 	pthread_mutex_unlock(&mutex);
+
+	if (!found)
+		mq = NULL;
 
 	return mq;
 }
@@ -114,20 +120,16 @@ mqd_t mq_open(const char *name, int flags, ...)
 
 	mq->name = malloc(strlen(name) + 1);
 
-	if(!mq->name) {
-		free(mq);
+	if(!mq->name)
 		goto err;
-	}
 
 	strcpy(mq->name, name);
 	mq->name[strlen(name)] = '\0';
 
-	ret = syscall(SYSCALL_QUEUE_CREATE, &mq->q);
+	ret = syscall(SYSCALL_QUEUE_CREATE, &mq->q, mq->attr.mq_maxmsg, mq->attr.mq_msgsize);
 
-	if (ret < 0) {
-		free(mq);
+	if (ret < 0)
 		goto err;
-	}
 
 	mq_count++;
 
@@ -143,6 +145,7 @@ err_inval:
 err_nomem:
 	return -ENOMEM;
 err:
+	free(mq);
 	return -EIO;
 }
 EXPORT_SYMBOL(mq_open);
@@ -178,8 +181,10 @@ int mq_getattr(mqd_t fd, struct mq_attr *attr)
 	}
 
 	mq = mq_get(fd);
-	if (!mq)
+	if (!mq) {
+		ret = -EBADF;
 		goto err;
+	}
 
 	memcpy(attr, &mq->attr, sizeof(struct mq_attr));
 
