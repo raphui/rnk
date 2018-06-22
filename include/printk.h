@@ -3,6 +3,7 @@
 
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdio.h>
 
 #define SEEK_SET	0
 #define SEEK_CUR	1
@@ -31,6 +32,5 @@
 #define error_printk(...) do{ if(ERROR){ printk(__VA_ARGS__); } }while(0)
 
 void printk(char *fmt, ...);
-void vprintk(char *fmt, va_list va);
 
 #endif /* PRINTK_H */
