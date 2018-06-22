@@ -134,6 +134,11 @@ static void stm32_exti_isr(void *arg)
 	stm32_exti_action(line);
 }
 
+void stm32_exti_clear_line(unsigned int line)
+{
+	EXTI->PR |= line;
+}
+
 int stm32_exti_configure(unsigned int line, unsigned int edge)
 {
 	int ret = 0;
