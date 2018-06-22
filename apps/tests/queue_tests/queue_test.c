@@ -2,6 +2,8 @@
 #include <pthread.h>
 #include <mqueue.h>
 #include <unistd.h>
+#include <time.h>
+#include <errno.h>
 
 static mqd_t mqueue_rw;
 
@@ -15,30 +17,71 @@ static struct mq_attr attr_alt = {
 	.mq_msgsize = 4,
 };
 
+static struct mq_attr attr_fixed = {
+	.mq_maxmsg = 5,
+	.mq_msgsize = 4,
+	.mq_flags = O_RDWR,
+};
+
 void thread_a(void *arg)
 {
+	int ret;
 	int a;
 
 	printf("starting thread A\n");
 
+	printf("[A] receiving from queue (should fail): ");
+	ret = mq_receive(mqueue_rw, (char *)&a, sizeof(int), 0);
+	if (ret < 0)
+		printf("failed: reason %d\n", ret);
+
+	printf("[A] fixing mqueue permission: ");
+	ret = mq_setattr(mqueue_rw, &attr_fixed, NULL);
+	if (ret < 0) {
+		printf("KO\n");
+		return;
+	}
+
+	printf("OK\n");
+
 	while (1) {
 		printf("[A] receiving from queue: ");
-		mq_receive(mqueue_rw, (char *)&a, sizeof(int), 0);
+		ret = mq_receive(mqueue_rw, (char *)&a, sizeof(int), 0);
+		if (ret == -EAGAIN) {
+			printf("queue empty, sleeping to wait someone write in it (thread B should be scheduled)...\n");
+			time_usleep(10000);
+		} else if (ret < 0) {
+			printf("KO\n");
+			break;
+		}
+
 		printf("%d\n", a);
 	}
 }
 
 void thread_b(void *arg)
 {
-	int b = 1;
+	int ret;
+	int b = 0;
+	struct mq_attr attr_ret;
 
 	printf("starting thread B\n");
 
+	mq_getattr(mqueue_rw, &attr_ret);
+
 	while (1) {
 		printf("[B] posting from queue: ");
-		mq_send(mqueue_rw, (const char *)&b, sizeof(int), 0);
-		printf("%d\n", b);
-		b++;
+		ret = mq_send(mqueue_rw, (const char *)&b, sizeof(int), 0);
+		if (ret < 0 && b == attr_ret.mq_maxmsg) {
+			printf("queue full, sleeping to wait someone read it (thread A should be scheduled)...\n");
+			time_usleep(200000);
+		} else if (ret < 0) {
+			printf("failed, reason %d\n", ret);
+			break;
+		} else {
+			printf("%d\n", b);
+			b++;
+		}
 	}
 }
 
