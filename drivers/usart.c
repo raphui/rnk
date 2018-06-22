@@ -10,7 +10,6 @@
 
 static int dev_count = 0;
 static int master_count = 0;
-static char dev_prefix[10] = "/dev/tty";
 static struct list_node usart_device_list;
 static struct list_node usart_master_list;
 
@@ -87,14 +86,8 @@ int usart_remove_device(struct usart_device *usart)
 int usart_register_device(struct usart_device *usart)
 {
 	int ret = 0;
-	char tmp[10] = {0};
 
-	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
-	
-	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + dev_count;
-
-	memcpy(usart->dev.name, tmp, sizeof(tmp));
+	snprintf(usart->dev.name, sizeof(usart->dev.name), "/dev/tty%d", dev_count);
 
 	usart->dev.read = usart_read;
 	usart->dev.write = usart_write;
