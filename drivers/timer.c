@@ -106,7 +106,7 @@ int timer_wakeup(unsigned int delay)
 
 	kmutex_lock(&timer_mutex);
 
-	timer = timer_request();
+	timer = timer_lp_request();
 	if (!timer) {
 		error_printk("failed to request timer\n");
 		return -ENOENT;

@@ -1,0 +1,2 @@
+SUBDIRS := mtd
+SUBDIRS += spi

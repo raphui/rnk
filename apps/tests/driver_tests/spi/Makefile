@@ -1,6 +1,6 @@
-TARGET_NAME := driver_test.elf
+TARGET_NAME := spi_test.elf
 
-OBJS := driver_test.o
+OBJS := spi_test.o
 
 MCPU=cortex-m4
 
