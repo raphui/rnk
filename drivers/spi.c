@@ -10,7 +10,6 @@
 
 static int dev_count = 0;
 static int master_count = 0;
-static char *dev_prefix = "/dev/spi";
 static struct list_node spi_device_list;
 static struct list_node spi_master_list;
 
@@ -143,19 +142,8 @@ int spi_register_device(struct spi_device *spi, struct device_operations *dev_op
 {
 	int ret = 0;
 	char *tmp = NULL;
-	int size = strlen(dev_prefix) + 2;
 
-	tmp = (char *)kmalloc(size);
-
-	memset(tmp, 0, size);
-
-	memcpy(tmp, dev_prefix, strlen(dev_prefix));
-	
-	/* XXX: ascii 0 start at 0x30 */
-	tmp[strlen(dev_prefix)] = 0x30 + dev_count;
-	tmp[strlen(dev_prefix) + 1] = 0;
-
-	memcpy(spi->dev.name, tmp, strlen(tmp));
+	snprintf(spi->dev.name, sizeof(spi->dev.name), "/dev/spi%d", dev_count);
 
 	if (dev_ops) {
 		spi->dev.read = dev_ops->read;
