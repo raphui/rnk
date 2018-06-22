@@ -51,22 +51,32 @@ static int put_hex(const unsigned int val, int width, const char pad)
 	return n;
 }
 
-static void put_dec(const unsigned int val, const int width, const char pad)
+static void put_dec(const int val, const int width, const char pad)
 {
 	unsigned int divisor;
 	int digits;
+	int neg = 0;
+	int v = val;
+
+	if (v < 0) {
+		neg = 1;
+		v = -val;
+	}
 
 	/* estimate number of spaces and digits */
-	for (divisor = 1, digits = 1; val / divisor >= 10; divisor *= 10, digits++)
+	for (divisor = 1, digits = 1; v / divisor >= 10; divisor *= 10, digits++)
 		/* */ ;
 
 	/* print spaces */
 	for (; digits < width; digits++)
 		putchar(pad);
 
+	if (neg)
+		putchar('-');
+
 	/* print digits */
 	do {
-		putchar(((val / divisor) % 10) + '0');
+		putchar(((v / divisor) % 10) + '0');
 	} while (divisor /= 10);
 }
 
@@ -118,8 +128,8 @@ void vprintk(char *fmt, va_list va)
 			case 'd':
 			case 'D':
 				put_dec((size == 32) ?
-				        va_arg(va, unsigned int) :
-				        va_arg(va, unsigned long long),
+				        va_arg(va, int) :
+				        va_arg(va, long long),
 				        width, pad);
 				mode = 0;
 				break;
