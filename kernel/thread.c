@@ -21,7 +21,9 @@ unsigned long thread_lock = SPIN_LOCK_INITIAL_VALUE;
 
 static void idle_thread(void)
 {
+#ifdef CONFIG_TICKLESS
 	unsigned long irqstate;
+#endif
 
 	while(1) {
 #ifdef CONFIG_TICKLESS
@@ -92,17 +94,7 @@ static void end_thread(void)
 	syscall(SYSCALL_THREAD_STOP, NULL);
 }
 
-void thread_init(void)
-{
-	int i;
-
-	for (i = 0; i < NB_RUN_QUEUE; i++)
-		list_initialize(&run_queue[i]);
-
-	add_thread(&idle_thread, NULL, IDLE_PRIORITY);
-}
-
-void add_thread(void (*func)(void), void *arg, unsigned int priority)
+void add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged)
 {
 	struct thread *thread = (struct thread *)kmalloc(sizeof(struct thread));
 	if (!thread) {
@@ -137,11 +129,26 @@ void add_thread(void (*func)(void), void *arg, unsigned int priority)
 	memset(thread->arch, 0, sizeof(struct arch_thread));
 
 	/* Creating thread context */
-	arch_create_context(thread->arch, (unsigned int)thread->func, (unsigned int)&end_thread, (unsigned int *)thread->start_stack, (unsigned int )arg, (unsigned int)NULL);
+	arch_create_context(thread->arch, (unsigned int)thread->func, (unsigned int)&end_thread, (unsigned int *)thread->start_stack, (unsigned int )arg, privileged);
 
 	insert_thread(thread);
 
 	thread_count++;
+}
+
+void thread_init(void)
+{
+	int i;
+
+	for (i = 0; i < NB_RUN_QUEUE; i++)
+		list_initialize(&run_queue[i]);
+
+	add_thread(&idle_thread, NULL, IDLE_PRIORITY, PRIVILEGED_THREAD);
+}
+
+void thread_create(void (*func)(void), void *arg, unsigned int priority)
+{
+	add_thread(func, arg, priority, USER_THREAD);
 }
 
 void switch_thread(struct thread *thread)

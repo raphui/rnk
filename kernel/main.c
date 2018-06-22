@@ -55,7 +55,7 @@ int main(void)
 
 	printk("- Add app thread to scheduler\n");
 
-	add_thread((void *)ret, NULL, HIGHEST_PRIORITY);
+	add_thread((void *)ret, NULL, HIGHEST_PRIORITY, PRIVILEGED_THREAD);
 
 	printk("- Start scheduling...\n");
 	start_schedule();

@@ -13,7 +13,7 @@
 
 struct syscall syscall_table[] = {
 	{SYSCALL_THREAD_SWITCH,	(unsigned int *)&schedule_yield,	SYSCALL_PRIVILEGE_OPERATION},
-	{SYSCALL_THREAD_CREATE, (unsigned int *)&add_thread,		SYSCALL_PRIVILEGE_OPERATION},
+	{SYSCALL_THREAD_CREATE, (unsigned int *)&thread_create,		SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_THREAD_STOP,	(unsigned int *)&schedule_thread_stop,	SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_MUTEX_CREATE,	(unsigned int *)&kmutex_init,		SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_MUTEX_ACQUIRE, (unsigned int *)&kmutex_lock,		SYSCALL_PRIVILEGE_ELEVATION},

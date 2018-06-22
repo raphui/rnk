@@ -2,6 +2,7 @@
 #include <armv7m/thread.h>
 #include <armv7m/system.h>
 #include <string.h>
+#include <thread.h>
 
 
 struct arch_sw_context_frame *current_ctx_frame;
@@ -10,7 +11,7 @@ static struct arch_thread *current_thread_frame;
 
 int *current_thread_mode;
 
-void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, unsigned int param2)
+void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, int privileged)
 {
 	stack = (unsigned int *)ALIGN((unsigned int)stack, 8);
 
@@ -18,7 +19,7 @@ void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned i
 
 	/* HW frame */
 	arch->hw_frame.r0 = param1;
-	arch->hw_frame.r1 = param2;
+	arch->hw_frame.r1 = 1;
 	arch->hw_frame.r2 = 2;
 	arch->hw_frame.r3 = 3;
 	arch->hw_frame.r12 = 12;
@@ -50,6 +51,8 @@ void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned i
 	*stack = arch->ctx_frame.sp;
 
 	arch->mpu.start_pc = func | 1;
+
+	arch->privileged = privileged;
 }
 
 static unsigned int arch_get_thread_stack(void)
@@ -72,12 +75,14 @@ void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 
 		memcpy(&old->hw_frame, (void *)old_sp, sizeof(struct arch_short_context_frame));
 
-		mpu_unmap_prio(old->mpu.prio);
+		if (old->privileged == USER_THREAD)
+			mpu_unmap_prio(old->mpu.prio);
 	}
 
 	current_ctx_frame = &new->ctx_frame;
 
-	new->mpu.prio = mpu_map_from_high((void *)(new->mpu.top_sp - CONFIG_THREAD_STACK_SIZE), CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
+	if (new->privileged == USER_THREAD)
+		new->mpu.prio = mpu_map_from_high((void *)(new->mpu.top_sp - CONFIG_THREAD_STACK_SIZE), CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
 
 	current_thread_frame = new;
 	current_thread_mode = &new->privileged;

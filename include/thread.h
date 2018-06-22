@@ -24,6 +24,9 @@
 #define DEFAULT_PRIORITY	(NUM_PRIORITIES / 2)
 #define HIGH_PRIORITY		((NUM_PRIORITIES / 4) * 3)
 
+#define USER_THREAD		0
+#define PRIVILEGED_THREAD	1
+
 #ifdef CONFIG_SCHEDULE_RR_PRIO
 #define NB_RUN_QUEUE	32
 #else
@@ -47,7 +50,8 @@ struct thread
 };
 
 void thread_init(void);
-void add_thread(void (*func)(void), void *arg, unsigned int priority);
+void thread_create(void (*func)(void), void *arg, unsigned int priority);
+void add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged);
 void switch_thread(struct thread *thread);
 struct thread *get_current_thread(void);
 struct thread *find_next_thread(void);

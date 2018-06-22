@@ -41,7 +41,7 @@ struct arch_thread {
 	int privileged;
 };
 
-void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, unsigned int param2);
+void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, int privileged);
 void arch_switch_context(struct arch_thread *old, struct arch_thread *new);;
 void arch_thread_set_return(void *ret);
 void arch_thread_switch_unpriv(void);
