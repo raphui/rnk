@@ -7,7 +7,6 @@
 #include <printk.h>
 
 static int dev_count = 0;
-static char dev_prefix[10] = "/dev/mtd";
 static struct list_node mtd_controller_list;
 
 static inline int mtd_offset_in_page(unsigned int addr, struct mtd_page *page)
@@ -248,7 +247,6 @@ int mtd_register_controller(struct mtd *mtd)
 	int i;
 	int ret = 0;
 	int total_size = 0;
-	char tmp[10] = {0};
 
 	mtd->curr_off = 0;
 
@@ -258,12 +256,7 @@ int mtd_register_controller(struct mtd *mtd)
 
 	mtd->total_size = total_size;
 
-	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
-
-	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + dev_count;
-
-	memcpy(mtd->dev.name, tmp, 10);
+	snprintf(mtd->dev.name, sizeof(mtd->dev.name), "/dev/mtd%d", dev_count);
 
 	mtd->dev.read = mtd_read;
 	mtd->dev.write = mtd_page_write;
