@@ -1,3 +1,4 @@
+obj-y += printf.o
 obj-y += stdio.o
 obj-y += stdlib.o
 obj-y += string.o

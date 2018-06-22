@@ -675,6 +675,11 @@ static pthread_mutex_t *mutex = NULL;
 
 void _putchar(char c)
 {
+	char r = '\r';
+
+	if (c == '\n')
+		write(fd, (unsigned char *)&r, sizeof(unsigned char));
+
 	write(fd, (unsigned char *)&c, sizeof(unsigned char));
 }
 

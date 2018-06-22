@@ -3,15 +3,13 @@
 
 #include <stdarg.h>
 #include <stddef.h>
+#include <printf.h>
 
 #define FILE	long
 
 #define SEEK_SET	0
 #define SEEK_CUR	1
 #define SEEK_END	2
-
-void printf(char *fmt, ...);
-void vprintf(char *fmt, va_list va);
 
 FILE *fopen(const char *path, const char *mode);
 int fclose(FILE *stream); 
