@@ -33,6 +33,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <export.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
 
