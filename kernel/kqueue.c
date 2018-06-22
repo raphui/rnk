@@ -58,6 +58,40 @@ err:
 	return ret;
 }
 
+int kqueue_destroy(struct queue *queue)
+{
+	int ret = 0;
+
+	if (!queue) {
+		ret = -EINVAL;
+		goto err;
+	}
+
+	kfree(queue->head);
+
+err:
+	return ret;
+}
+
+int kqueue_update(struct queue *queue, unsigned int size, unsigned int item_size)
+{
+	int ret = 0;
+
+	if (!queue) {
+		ret = -EINVAL;
+		goto err;
+	}
+
+	ret = kqueue_destroy(queue);
+	if (ret < 0)
+		goto err;
+
+	ret = kqueue_init(queue, size, item_size);
+
+err:
+	return ret;
+}
+
 static void _kqueue_post(struct queue *queue, void *item)
 {
 	unsigned long irqstate;
