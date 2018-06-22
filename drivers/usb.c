@@ -8,7 +8,6 @@
 #include <kmutex.h>
 
 static int dev_count = 0;
-static char dev_prefix[10] = "/dev/usb";
 static struct list_node usb_device_list;
 
 int usb_read(struct device *dev, unsigned char *buff, unsigned int size)
@@ -79,14 +78,8 @@ int usb_remove_device(struct usb_device *usb)
 int usb_register_device(struct usb_device *usb)
 {
 	int ret = 0;
-	char tmp[10] = {0};
 
-	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
-	
-	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + dev_count;
-
-	memcpy(usb->dev.name, tmp, sizeof(tmp));
+	snprintf(usb->dev.name, sizeof(usb->dev.name), "/dev/usb%d", dev_count);
 
 	usb->dev.read = usb_read;
 	usb->dev.write = usb_write;
