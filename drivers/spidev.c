@@ -1,12 +1,12 @@
-#include <printk.h>
-#include <spi.h>
-#include <mm.h>
+#include <kernel/printk.h>
+#include <drv/spi.h>
+#include <mm/mm.h>
 #include <errno.h>
 #include <string.h>
 #include <utils.h>
 #include <init.h>
 #include <fdtparse.h>
-#include <pio.h>
+#include <drv/pio.h>
 
 static int spidev_of_init(struct spi_device *spi, int offset)
 {

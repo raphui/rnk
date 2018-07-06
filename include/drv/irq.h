@@ -1,7 +1,7 @@
 #ifndef IRQ_H
 #define IRQ_H
 
-#include <device.h>
+#include <drv/device.h>
 
 struct irq {
 	unsigned int num_line;

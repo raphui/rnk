@@ -1,15 +1,14 @@
 #include <board.h>
 #include <errno.h>
-#include <timer.h>
+#include <drv/timer.h>
 #include <stddef.h>
 #include <armv7m/nvic.h>
 #include <armv7m/vector.h>
-#include <irq.h>
-#include <mm.h>
+#include <drv/irq.h>
+#include <mm/mm.h>
 #include <fdtparse.h>
-#include <timer.h>
 #include <init.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <mach/rcc-stm32.h>
 
 struct action {

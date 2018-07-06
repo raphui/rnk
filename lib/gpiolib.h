@@ -1,7 +1,7 @@
 #ifndef GPIOLIB_H
 #define GPIOLIB_H
 
-#include <pio.h>
+#include <drv/pio.h>
 
 struct pio_desc *gpiolib_export(unsigned int gpio_num);
 int gpiolib_set_output(struct pio_desc *desc, int gpio_value);

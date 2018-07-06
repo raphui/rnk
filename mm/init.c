@@ -1,5 +1,5 @@
-#include "memory.h"
 #include <init.h>
+#include <mm/memory.h>
 
 int heap_size = MAX_KERNEL_HEAP_SIZE;
 

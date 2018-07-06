@@ -1,10 +1,10 @@
 #include <utils.h>
-#include <mtd.h>
-#include <mm.h>
+#include <drv/mtd.h>
+#include <mm/mm.h>
 #include <errno.h>
 #include <string.h>
 #include <init.h>
-#include <printk.h>
+#include <kernel/printk.h>
 
 static int dev_count = 0;
 static struct list_node mtd_controller_list;

@@ -1,11 +1,11 @@
-#include <ksem.h>
-#include <wait.h>
-#include <thread.h>
+#include <kernel/ksem.h>
+#include <kernel/wait.h>
+#include <kernel/thread.h>
 #include <errno.h>
-#include <scheduler.h>
-#include <spinlock.h>
-#include <printk.h>
-#include <syscall.h>
+#include <kernel/scheduler.h>
+#include <kernel/spinlock.h>
+#include <kernel/printk.h>
+#include <kernel/syscall.h>
 #include <export.h>
 
 int ksem_init(struct semaphore *sem, int value)

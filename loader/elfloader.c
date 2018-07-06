@@ -1,10 +1,10 @@
-#include <printk.h>
+#include <kernel/printk.h>
 #include <string.h>
 #include <errno.h>
-#include <elf.h>
-#include <mm.h>
+#include <elf/elf.h>
+#include <mm/mm.h>
 #include <symbols.h>
-#include <syscall.h>
+#include <kernel/syscall.h>
 
 /*
  * S (when used on its own) is the address of the symbol.

@@ -1,9 +1,8 @@
-#include <board.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <errno.h>
 #include <string.h>
-#include <mm.h>
-#include <irq.h>
+#include <mm/mm.h>
+#include <drv/irq.h>
 #include <armv7m/vector.h>
 #include <init.h>
 

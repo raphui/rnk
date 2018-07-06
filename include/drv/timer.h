@@ -1,7 +1,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include <device.h>
+#include <drv/device.h>
 #include <list.h>
 
 struct timer_device

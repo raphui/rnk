@@ -1,12 +1,12 @@
 #include <board.h>
 #include <utils.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <armv7m/nvic.h>
 #include <armv7m/vector.h>
 #include <errno.h>
 #include <list.h>
-#include <irq.h>
-#include <mm.h>
+#include <drv/irq.h>
+#include <mm/mm.h>
 #include <init.h>
 
 struct action {

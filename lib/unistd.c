@@ -1,11 +1,10 @@
-#include <board.h>
 #include <unistd.h>
 #include <errno.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <string.h>
-#include <device.h>
+#include <drv/device.h>
 #include <export.h>
-#include <syscall.h>
+#include <kernel/syscall.h>
 
 #define MAX_SYSCALL_ARGUMENT	3
 #define MAX_FD	8

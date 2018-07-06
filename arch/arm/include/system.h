@@ -1,7 +1,7 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#include <thread.h>
+#include <kernel/thread.h>
 
 extern void arch_init(void);
 extern void arch_init_tick(void);

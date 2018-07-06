@@ -1,10 +1,10 @@
-#include <wait.h>
+#include <kernel/wait.h>
 #include <list.h>
-#include <thread.h>
+#include <kernel/thread.h>
 #include <errno.h>
-#include <scheduler.h>
-#include <spinlock.h>
-#include <printk.h>
+#include <kernel/scheduler.h>
+#include <kernel/spinlock.h>
+#include <kernel/printk.h>
 
 static void insert_waiting_thread(struct wait_queue *wait, struct thread *t)
 {

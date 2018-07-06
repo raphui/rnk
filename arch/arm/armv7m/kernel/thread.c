@@ -2,7 +2,7 @@
 #include <armv7m/thread.h>
 #include <armv7m/system.h>
 #include <string.h>
-#include <thread.h>
+#include <kernel/thread.h>
 
 
 struct arch_sw_context_frame *current_ctx_frame;

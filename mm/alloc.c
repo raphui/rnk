@@ -1,7 +1,7 @@
 #include <stddef.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <string.h>
-#include "memory.h"
+#include <mm/memory.h>
 
 #ifdef CONFIG_TLSF
 tlsf_t tlsf_mem_kernel_pool;

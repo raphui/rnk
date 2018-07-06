@@ -1,5 +1,5 @@
 #include <stddef.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <stdlib.h>
 #include <string.h>
 

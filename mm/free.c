@@ -1,5 +1,5 @@
-#include <printk.h>
-#include "memory.h"
+#include <kernel/printk.h>
+#include <mm/memory.h>
 
 #ifdef CONFIG_CUSTOM_MALLOC
 static void free_mem(void *mem, struct memory_block *heap, void *base)

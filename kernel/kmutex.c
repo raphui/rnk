@@ -1,12 +1,13 @@
-#include <printk.h>
-#include <kmutex.h>
+#include <kernel/printk.h>
+#include <kernel/kmutex.h>
 #include <errno.h>
-#include <scheduler.h>
+#include <kernel/scheduler.h>
 #include <utils.h>
-#include <thread.h>
-#include <spinlock.h>
+#include <kernel/thread.h>
+#include <kernel/spinlock.h>
 #include <export.h>
-#include <syscall.h>
+#include <kernel/syscall.h>
+#include <kernel/wait.h>
 
 int kmutex_init(struct mutex *mutex)
 {

@@ -1,6 +1,6 @@
 #include <board.h>
 #include <utils.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <mach/dma-stm32.h>
 #include <mach/rcc-stm32.h>
 #include <mach/pio-stm32.h>
@@ -8,8 +8,8 @@
 #include <errno.h>
 #include <fdtparse.h>
 #include <init.h>
-#include <device.h>
-#include <spi.h>
+#include <drv/device.h>
+#include <drv/spi.h>
 
 static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long rate)
 {

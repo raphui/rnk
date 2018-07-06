@@ -4,7 +4,7 @@
 #include <mach/exti-stm32.h>
 #include <errno.h>
 #include <fdtparse.h>
-#include <printk.h>
+#include <kernel/printk.h>
 
 #define GPIO_MODER(pin)			(3 << (pin * 2))
 #define GPIO_MODER_OUTPUT(pin)		(1 << (pin * 2))

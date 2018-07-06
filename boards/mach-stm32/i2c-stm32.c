@@ -1,7 +1,7 @@
 #include <board.h>
 #include <utils.h>
-#include <printk.h>
-#include <i2c.h>
+#include <kernel/printk.h>
+#include <drv/i2c.h>
 #include <mach/rcc-stm32.h>
 #include <armv7m/nvic.h>
 #include <errno.h>

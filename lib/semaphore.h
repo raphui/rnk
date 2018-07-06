@@ -1,7 +1,7 @@
 #ifndef SEMAPHORE_H
 #define SEMAPHORE_H
 
-#include <ksem.h>
+#include <kernel/ksem.h>
 
 typedef struct sem {
 	struct semaphore ksem;

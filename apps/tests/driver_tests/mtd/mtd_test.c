@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <thread.h>
-#include <board.h>
-#include <mtd.h>
+#include <kernel/thread.h>
+#include <drv/mtd.h>
 #include <unistd.h>
 
 #define MTD_DEVICE	"/dev/mtd"

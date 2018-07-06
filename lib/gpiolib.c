@@ -1,6 +1,6 @@
 #include <gpiolib.h>
 #include <unistd.h>
-#include <syscall.h>
+#include <kernel/syscall.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <export.h>

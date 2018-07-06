@@ -1,7 +1,7 @@
 #ifndef PTHREAD_H
 #define PTHREAD_H
 
-#include <kmutex.h>
+#include <kernel/kmutex.h>
 
 typedef struct pthread_mutex {
 	struct mutex kmutex;

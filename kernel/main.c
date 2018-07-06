@@ -1,9 +1,9 @@
-#include <printk.h>
-#include <scheduler.h>
-#include <thread.h>
-#include <mm.h>
-#include <ktime.h>
-#include <elfloader.h>
+#include <kernel/printk.h>
+#include <kernel/scheduler.h>
+#include <kernel/thread.h>
+#include <mm/mm.h>
+#include <kernel/ktime.h>
+#include <elf/elfloader.h>
 #include <arch/system.h>
 #include <arch/spinlock.h>
 

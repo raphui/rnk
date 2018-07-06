@@ -1,9 +1,9 @@
-#include <dma.h>
+#include <drv/dma.h>
 #include <errno.h>
 #include <string.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <init.h>
-#include <mm.h>
+#include <mm/mm.h>
 
 static int dev_count = 0;
 static struct list_node dma_controller_list;

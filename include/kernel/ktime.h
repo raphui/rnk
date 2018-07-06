@@ -2,8 +2,8 @@
 #define KTIME_H
 
 #include <list.h>
-#include <thread.h>
-#include <timer.h>
+#include <kernel/thread.h>
+#include <drv/timer.h>
 
 int time_init(void);
 void ktime_usleep(unsigned int usec);

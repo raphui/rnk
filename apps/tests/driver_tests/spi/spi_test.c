@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <thread.h>
-#include <board.h>
-#include <spi.h>
+#include <kernel/thread.h>
+#include <drv/spi.h>
 #include <unistd.h>
 
 #define SPI_DEVICE	"/dev/spi1"

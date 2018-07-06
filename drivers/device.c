@@ -1,7 +1,7 @@
-#include <device.h>
+#include <drv/device.h>
 #include <list.h>
 #include <string.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <fdtparse.h>
 #include <init.h>
 

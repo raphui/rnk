@@ -1,7 +1,7 @@
 #ifndef DMA_H
 #define DMA_H
 
-#include <device.h>
+#include <drv/device.h>
 #include <list.h>
 
 #define INCR0	0x0

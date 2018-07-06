@@ -1,10 +1,10 @@
 #include <armv7m/mpu.h>
 #include <armv7m/system.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <sizes.h>
 #include <errno.h>
 #include <utils.h>
-#include <spinlock.h>
+#include <kernel/spinlock.h>
 
 #define MPU_MAX_REGION	8
 #define MPU_RBAR_BASE_MASK	0xFFFFFFC0

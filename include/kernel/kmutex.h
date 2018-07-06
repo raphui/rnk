@@ -1,8 +1,8 @@
 #ifndef KMUTEX_H
 #define KMUTEX_H
 
-#include <thread.h>
-#include <wait.h>
+#include <kernel/thread.h>
+#include <kernel/wait.h>
 
 struct mutex {
 	int lock;

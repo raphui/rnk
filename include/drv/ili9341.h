@@ -1,9 +1,9 @@
 #ifndef ILI9341_H
 #define ILI9341_H
 
-#include <device.h>
-#include <spi.h>
-#include <lcd.h>
+#include <drv/device.h>
+#include <drv/spi.h>
+#include <drv/lcd.h>
 
 struct ili9341_device {
 	unsigned int fb_addr;

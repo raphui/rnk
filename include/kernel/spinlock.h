@@ -2,7 +2,7 @@
 #define SPINLOCK_H
 
 #include <arch/spinlock.h>
-#include <thread.h>
+#include <kernel/thread.h>
 
 #define SPIN_LOCK_FLAG_INTERRUPTS ARCH_DEFAULT_SPIN_LOCK_FLAG_INTERRUPTS
 

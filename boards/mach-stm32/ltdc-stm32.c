@@ -1,11 +1,11 @@
 #include <board.h>
-#include <lcd.h>
+#include <drv/lcd.h>
 #include <utils.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <mach/pio-stm32.h>
 #include <mach/rcc-stm32.h>
 #include <errno.h>
-#include <device.h>
+#include <drv/device.h>
 #include <init.h>
 #include <string.h>
 #include <fdtparse.h>

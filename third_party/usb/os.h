@@ -1,7 +1,7 @@
 #ifndef __OS_H__
 
-#include <ksem.h>
-#include <ktime.h>
+#include <kernel/ksem.h>
+#include <kernel/ktime.h>
 
 
 typedef struct semaphore SEMAPHORE_TYPE ;

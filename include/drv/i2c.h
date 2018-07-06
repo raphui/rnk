@@ -1,10 +1,10 @@
 #ifndef I2C_H
 #define I2C_H
 
-#include <device.h>
-#include <dma.h>
+#include <drv/device.h>
+#include <drv/dma.h>
 #include <list.h>
-#include <kmutex.h>
+#include <kernel/kmutex.h>
 
 #define I2C_TRANSFER_READ	0
 #define I2C_TRANSFER_WRITE	1

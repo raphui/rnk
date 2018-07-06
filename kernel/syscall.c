@@ -1,15 +1,15 @@
 #include <stdarg.h>
 #include <errno.h>
-#include <syscall.h>
-#include <scheduler.h>
-#include <kmutex.h>
-#include <kqueue.h>
-#include <ksem.h>
-#include <ktime.h>
-#include <io_ops.h>
-#include <elfloader.h>
-#include <mm.h>
-#include <pio.h>
+#include <kernel/syscall.h>
+#include <kernel/scheduler.h>
+#include <kernel/kmutex.h>
+#include <kernel/kqueue.h>
+#include <kernel/ksem.h>
+#include <kernel/ktime.h>
+#include <fs/io_ops.h>
+#include <elf/elfloader.h>
+#include <mm/mm.h>
+#include <drv/pio.h>
 
 struct syscall syscall_table[] = {
 	{SYSCALL_THREAD_SWITCH,	(unsigned int *)&schedule_yield,	SYSCALL_PRIVILEGE_OPERATION},

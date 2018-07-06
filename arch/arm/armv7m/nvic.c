@@ -1,6 +1,6 @@
 #include <armv7m/nvic.h>
 #include <armv7m/system.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <utils.h>
 #include <board.h>
 

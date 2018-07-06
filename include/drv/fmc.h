@@ -1,7 +1,7 @@
 #ifndef FMC_H
 #define FMC_H
 
-#include <device.h>
+#include <drv/device.h>
 
 struct fmc_sdram_cmd_config {
 	unsigned int cmd_mode;

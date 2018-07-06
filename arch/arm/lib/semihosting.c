@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include <console.h>
+#include <drv/console.h>
 
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02

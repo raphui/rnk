@@ -1,5 +1,5 @@
 #include <armv7m/thread.h>
-#include <syscall.h>
+#include <kernel/syscall.h>
 
 int arch_syscall_is_elevation(unsigned int svc_number)
 {

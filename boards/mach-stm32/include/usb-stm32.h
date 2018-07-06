@@ -1,7 +1,7 @@
 #ifndef USB_STM32_H
 #define USB_STM32_H
 
-#include <ksem.h>
+#include <kernel/ksem.h>
 #include <stdint.h>
 
 #define __IO volatile

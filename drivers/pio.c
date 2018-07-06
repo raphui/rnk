@@ -1,7 +1,7 @@
 #include <board.h>
-#include <pio.h>
-#include <mm.h>
-#include <printk.h>
+#include <drv/pio.h>
+#include <mm/mm.h>
+#include <kernel/printk.h>
 #include <string.h>
 #include <errno.h>
 

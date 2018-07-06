@@ -1,7 +1,7 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include <wait.h>
+#include <kernel/wait.h>
 
 struct queue {
 	unsigned int *head;

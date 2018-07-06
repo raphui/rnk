@@ -1,11 +1,11 @@
-#include <printk.h>
+#include <kernel/printk.h>
 #include <utils.h>
-#include <usb.h>
-#include <mm.h>
+#include <drv/usb.h>
+#include <mm/mm.h>
 #include <errno.h>
 #include <string.h>
 #include <init.h>
-#include <kmutex.h>
+#include <kernel/kmutex.h>
 
 static int dev_count = 0;
 static struct list_node usb_device_list;

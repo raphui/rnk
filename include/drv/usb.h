@@ -1,7 +1,7 @@
 #ifndef USB_H
 #define USB_H
 
-#include <device.h>
+#include <drv/device.h>
 
 struct usb_device;
 

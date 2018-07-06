@@ -1,11 +1,11 @@
 #ifndef SPI_H
 #define SPI_H
 
-#include <device.h>
-#include <dma.h>
+#include <drv/device.h>
+#include <drv/dma.h>
 #include <list.h>
-#include <kmutex.h>
-#include <ksem.h>
+#include <kernel/kmutex.h>
+#include <kernel/ksem.h>
 
 #define SPI_TRANSFER_READ	0
 #define SPI_TRANSFER_WRITE	1

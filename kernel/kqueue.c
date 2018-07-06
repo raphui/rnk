@@ -1,13 +1,13 @@
-#include <kqueue.h>
-#include <wait.h>
-#include <thread.h>
-#include <scheduler.h>
-#include <mm.h>
-#include <syscall.h>
-#include <printk.h>
+#include <kernel/kqueue.h>
+#include <kernel/wait.h>
+#include <kernel/thread.h>
+#include <kernel/scheduler.h>
+#include <mm/mm.h>
+#include <kernel/syscall.h>
+#include <kernel/printk.h>
 #include <string.h>
-#include <ktime.h>
-#include <spinlock.h>
+#include <kernel/ktime.h>
+#include <kernel/spinlock.h>
 #include <export.h>
 #include <errno.h>
 

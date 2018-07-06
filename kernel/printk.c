@@ -1,6 +1,6 @@
-#include <printk.h>
+#include <kernel/printk.h>
 #include <errno.h>
-#include <console.h>
+#include <drv/console.h>
 
 #include <printf.h>
 

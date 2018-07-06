@@ -5,14 +5,14 @@
 #include <mach/usb-stm32.h>
 #include <errno.h>
 #include <fdtparse.h>
-#include <device.h>
+#include <drv/device.h>
 #include <init.h>
 #include <string.h>
-#include <printk.h>
-#include <ksem.h>
-#include <irq.h>
-#include <mm.h>
-#include <usb.h>
+#include <kernel/printk.h>
+#include <kernel/ksem.h>
+#include <drv/irq.h>
+#include <mm/mm.h>
+#include <drv/usb.h>
 
 extern uint32_t USBD_OTG_ISR_Handler(USB_OTG_CORE_HANDLE *pdev);
 

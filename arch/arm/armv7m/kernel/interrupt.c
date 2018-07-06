@@ -1,9 +1,8 @@
 #include <board.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <utils.h>
-#include <interrupt.h>
-#include <scheduler.h>
-#include <syscall.h>
+#include <kernel/scheduler.h>
+#include <kernel/syscall.h>
 #include <armv7m/system.h>
 #include <armv7m/thread.h>
 #include <arch/system.h>

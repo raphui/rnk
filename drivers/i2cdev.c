@@ -1,13 +1,13 @@
-#include <printk.h>
-#include <i2c.h>
-#include <mm.h>
+#include <kernel/printk.h>
+#include <drv/i2c.h>
+#include <mm/mm.h>
 #include <errno.h>
 #include <string.h>
 #include <utils.h>
 #include <init.h>
 #include <fdtparse.h>
-#include <i2cdev.h>
-#include <pio.h>
+#include <drv/i2cdev.h>
+#include <drv/pio.h>
 
 static int i2cdev_of_init(struct i2cdev_device *i2c)
 {

@@ -1,12 +1,12 @@
-#include <printk.h>
+#include <kernel/printk.h>
 #include <utils.h>
-#include <usart.h>
-#include <mm.h>
+#include <drv/usart.h>
+#include <mm/mm.h>
 #include <errno.h>
 #include <string.h>
 #include <init.h>
-#include <console.h>
-#include <kmutex.h>
+#include <drv/console.h>
+#include <kernel/kmutex.h>
 
 static int dev_count = 0;
 static int master_count = 0;

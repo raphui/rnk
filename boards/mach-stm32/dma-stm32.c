@@ -1,16 +1,16 @@
 #include <board.h>
 #include <mach/rcc-stm32.h>
-#include <dma.h>
+#include <drv/dma.h>
 #include <utils.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <armv7m/nvic.h>
 #include <errno.h>
-#include <device.h>
+#include <drv/device.h>
 #include <init.h>
 #include <string.h>
 #include <fdtparse.h>
-#include <mm.h>
-#include <irq.h>
+#include <mm/mm.h>
+#include <drv/irq.h>
 #include <armv7m/vector.h>
 
 #define MAX_DMA_SIZE 0xFFFF

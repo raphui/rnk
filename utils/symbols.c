@@ -1,5 +1,5 @@
 #include <stdarg.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <stddef.h>
 #include <string.h>
 #include <errno.h>

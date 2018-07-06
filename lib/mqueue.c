@@ -1,7 +1,7 @@
 #include <mqueue.h>
 #include <errno.h>
 #include <export.h>
-#include <syscall.h>
+#include <kernel/syscall.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>

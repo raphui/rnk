@@ -1,12 +1,11 @@
 #include <board.h>
-#include <fmc.h>
+#include <drv/fmc.h>
 #include <utils.h>
-#include <printk.h>
+#include <kernle/printk.h>
 #include <init.h>
-#include <mm.h>
+#include <mm/mm.h>
 #include <errno.h>
 #include <fdtparse.h>
-#include <printk.h>
 #include <string.h>
 #include <mach/pio-stm32.h>
 

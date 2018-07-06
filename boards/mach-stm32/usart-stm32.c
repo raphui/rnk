@@ -3,10 +3,10 @@
 #include <mach/pio-stm32.h>
 #include <errno.h>
 #include <fdtparse.h>
-#include <device.h>
+#include <drv/device.h>
 #include <init.h>
 #include <string.h>
-#include <usart.h>
+#include <drv/usart.h>
 
 /* Calculates the value for the USART_BRR */
 static unsigned short stm32_baud_rate(long clock, unsigned int baud)

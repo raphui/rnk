@@ -1,10 +1,10 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include <device.h>
+#include <drv/device.h>
 
 #ifdef CONFIG_USART_DEBUG
-#include <usart.h>
+#include <drv/usart.h>
 #endif
 
 #ifndef CONFIG_USART_DEBUG

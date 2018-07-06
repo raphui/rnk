@@ -1,7 +1,7 @@
 #ifndef KSEM_H
 #define KSEM_H
 
-#include <wait.h>
+#include <kernel/wait.h>
 
 struct semaphore {
 	int value;

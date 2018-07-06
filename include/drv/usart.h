@@ -1,9 +1,9 @@
 #ifndef USART_H
 #define USART_H
 
-#include <device.h>
-#include <printk.h>
-#include <kmutex.h>
+#include <drv/device.h>
+#include <kernel/printk.h>
+#include <kernel/kmutex.h>
 
 struct usart_master;
 

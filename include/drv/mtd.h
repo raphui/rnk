@@ -1,7 +1,7 @@
 #ifndef MTD_H
 #define MTD_H
 
-#include <device.h>
+#include <drv/device.h>
 #include <list.h>
 
 #define MAX_SECTORS	32

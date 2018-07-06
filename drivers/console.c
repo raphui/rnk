@@ -1,9 +1,9 @@
-#include <console.h>
-#include <mm.h>
+#include <drv/console.h>
+#include <mm/mm.h>
 #include <errno.h>
 #include <init.h>
 #include <fdtparse.h>
-#include <printk.h>
+#include <kernel/printk.h>
 
 static struct console *cons;
 

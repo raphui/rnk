@@ -1,9 +1,8 @@
-#include <scheduler.h>
-#include <thread.h>
-#include <printk.h>
-#include <pit.h>
+#include <kernel/scheduler.h>
+#include <kernel/thread.h>
+#include <kernel/printk.h>
 #include <arch/system.h>
-#include <ktime.h>
+#include <kernel/ktime.h>
 #include <init.h>
 
 int thread_switching = 0;

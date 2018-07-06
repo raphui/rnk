@@ -1,5 +1,5 @@
 #include <pthread.h>
-#include <syscall.h>
+#include <kernel/syscall.h>
 #include <unistd.h>
 #include <export.h>
 

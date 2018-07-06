@@ -2,14 +2,14 @@
 #define BOARD_STM32F4XX_H
 
 #ifdef CONFIG_STM32F401
-#include <stm32f401.h>
+#include <platform/stm32f401.h>
 #elif defined(CONFIG_STM32F407)
-#include <stm32f407.h>
+#include <platform/stm32f407.h>
 #elif defined(CONFIG_STM32F429)
-#include <stm32f429.h>
+#include <platform/stm32f429.h>
 #endif
 
-#include <pio.h>
+#include <drv/pio.h>
 
 /*#define VECT_TAB_SRAM */
 #define VECT_TAB_OFFSET 0x00

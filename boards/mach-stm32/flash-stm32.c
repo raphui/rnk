@@ -1,12 +1,12 @@
 #include <board.h>
 #include <errno.h>
-#include <printk.h>
-#include <mm.h>
+#include <kernel/printk.h>
+#include <mm/mm.h>
 #include <string.h>
 #include <init.h>
-#include <device.h>
+#include <drv/device.h>
 #include <fdtparse.h>
-#include <mtd.h>
+#include <drv/mtd.h>
 #include <sizes.h>
 
 #define FLASH_PSIZE_BYTE	(0 << 8)

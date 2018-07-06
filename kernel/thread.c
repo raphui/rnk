@@ -1,12 +1,12 @@
-#include <scheduler.h>
-#include <printk.h>
+#include <kernel/scheduler.h>
+#include <kernel/printk.h>
 #include <string.h>
-#include <mm.h>
+#include <mm/mm.h>
 #include <utils.h>
 #include <arch/system.h>
-#include <spinlock.h>
-#include <syscall.h>
-#include <ktime.h>
+#include <kernel/spinlock.h>
+#include <kernel/syscall.h>
+#include <kernel/ktime.h>
 
 static struct thread *current_thread = NULL;
 static int thread_count = 0;

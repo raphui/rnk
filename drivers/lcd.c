@@ -1,9 +1,8 @@
-#include <board.h>
-#include <lcd.h>
-#include <printk.h>
+#include <drv/lcd.h>
+#include <kernel/printk.h>
 #include <errno.h>
 #include <string.h>
-#include <mm.h>
+#include <mm/mm.h>
 #include <init.h>
 
 static int dev_count = 0;

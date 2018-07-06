@@ -1,6 +1,6 @@
-#include <printk.h>
-#include <i2c.h>
-#include <mm.h>
+#include <kernel/printk.h>
+#include <drv/i2c.h>
+#include <mm/mm.h>
 #include <errno.h>
 #include <string.h>
 #include <utils.h>

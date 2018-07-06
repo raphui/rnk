@@ -1,10 +1,10 @@
-#include <thread.h>
-#include <ktime.h>
-#include <timer.h>
-#include <syscall.h>
-#include <printk.h>
-#include <scheduler.h>
-#include <spinlock.h>
+#include <kernel/thread.h>
+#include <kernel/ktime.h>
+#include <drv/timer.h>
+#include <kernel/syscall.h>
+#include <kernel/printk.h>
+#include <kernel/scheduler.h>
+#include <kernel/spinlock.h>
 #include <init.h>
 #include <export.h>
 

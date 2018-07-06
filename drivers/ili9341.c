@@ -1,12 +1,12 @@
-#include <board.h>
-#include <ili9341.h>
-#include <pio.h>
-#include <ktime.h>
+#include <platform/board.h>
+#include <drv/ili9341.h>
+#include <drv/pio.h>
+#include <kernel/ktime.h>
 #include <init.h>
-#include <mm.h>
+#include <mm/mm.h>
 #include <errno.h>
 #include <fdtparse.h>
-#include <printk.h>
+#include <kernel/printk.h>
 #include <string.h>
 
 static void ili9341_send_command(struct ili9341_device *dev, unsigned char data)

@@ -1,4 +1,4 @@
-#include <printk.h>
+#include <kernel/printk.h>
 #include <errno.h>
 #include <stddef.h>
 #include <armv7m/system.h>

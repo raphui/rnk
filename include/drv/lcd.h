@@ -1,7 +1,7 @@
 #ifndef LCD_H
 #define LCD_H
 
-#include <device.h>
+#include <drv/device.h>
 #include <list.h>
 
 struct lcd {

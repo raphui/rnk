@@ -1,11 +1,11 @@
-#include <timer.h>
+#include <drv/timer.h>
 #include <errno.h>
-#include <mm.h>
+#include <mm/mm.h>
 #include <string.h>
-#include <kmutex.h>
-#include <device.h>
+#include <kernel/kmutex.h>
+#include <drv/device.h>
 #include <init.h>
-#include <printk.h>
+#include <kernel/printk.h>
 
 static struct mutex timer_mutex;
 static struct list_node timer_list;

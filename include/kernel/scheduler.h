@@ -1,7 +1,7 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include <thread.h>
+#include <kernel/thread.h>
 
 extern int thread_switching;
 extern unsigned int system_tick;

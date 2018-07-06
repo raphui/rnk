@@ -1,7 +1,7 @@
 #ifndef PIO_H
 #define PIO_H
 
-#include <device.h>
+#include <drv/device.h>
 
 #define IRQF_RISING	1
 #define IRQF_FALLING	2

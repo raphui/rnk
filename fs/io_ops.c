@@ -1,7 +1,6 @@
-#include <board.h>
 #include <errno.h>
-#include <printk.h>
-#include <device.h>
+#include <kernel/printk.h>
+#include <drv/device.h>
 #include <unistd.h>
 
 #define MAX_FD	8

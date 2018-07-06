@@ -1,7 +1,7 @@
 #ifndef MQUEUE_H
 #define MQUEUE_H
 
-#include <kqueue.h>
+#include <kernel/kqueue.h>
 #include <stddef.h>
 #include <list.h>
 

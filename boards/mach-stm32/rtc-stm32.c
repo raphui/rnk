@@ -1,16 +1,15 @@
 #include <board.h>
 #include <errno.h>
-#include <timer.h>
+#include <drv/timer.h>
 #include <stddef.h>
 #include <armv7m/nvic.h>
 #include <armv7m/vector.h>
-#include <irq.h>
-#include <mm.h>
+#include <drv/irq.h>
+#include <mm/mm.h>
 #include <fdtparse.h>
 #include <init.h>
-#include <printk.h>
-#include <timer.h>
-#include <device.h>
+#include <kernel/printk.h>
+#include <drv/device.h>
 #include <mach/rcc-stm32.h>
 #include <mach/exti-stm32.h>
 
