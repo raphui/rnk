@@ -45,7 +45,7 @@ int main(void)
 
 	printk("- Loading app\n");
 
-	ret = elf_exec((char *)0x08020000, 220417, 0x08020000);
+	ret = elf_exec((char *)0x08020000);
 	if (ret <= 0) {
 		printk("failed to exec elf\n");
 		goto fail;

@@ -246,7 +246,7 @@ out:
 	return ret;
 }
 
-int elf_load(char *elf_data, int elf_size, int reloc_addr)
+int elf_load(char *elf_data)
 {
 	char *str;
 	elf32_shdr *shdr;
@@ -254,10 +254,9 @@ int elf_load(char *elf_data, int elf_size, int reloc_addr)
 	int i;
 	int ret = 0;
 
-	size = elf_size;
 	buff = elf_data;
 
-	printk("[+] ELF at %p (size: %d)\n", buff, size);
+	printk("[+] ELF at %x\n", buff);
 
 	ehdr = (elf32_ehdr *)buff;
 
@@ -308,12 +307,12 @@ out:
 	return ret;
 }
 
-int elf_exec(char *elf_data, int elf_size, int reloc_addr)
+int elf_exec(char *elf_data)
 {
 	int ret = 0;
 	unsigned int entry_point;
 
-	ret = elf_load(elf_data, elf_size, reloc_addr);
+	ret = elf_load(elf_data);
 	if (ret < 0) {
 		error_printk("failed to load elf\n");
 		return -EIO;
