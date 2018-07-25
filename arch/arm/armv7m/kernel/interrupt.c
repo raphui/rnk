@@ -9,7 +9,7 @@
 #include <symbols.h>
 #include <backtrace.h>
 
-static void dump_stack(unsigned int *stack)
+static void __attribute__((optimize("O0"))) dump_stack(unsigned int *stack)
 {
 	volatile unsigned int lr;
 	volatile unsigned int pc;
@@ -27,7 +27,7 @@ static void dump_stack(unsigned int *stack)
 }
 
 
-void hardfault_handler(void)
+void __attribute__((optimize("O0"))) hardfault_handler(void)
 {
 	asm volatile (
 		"tst lr, #4			\n"
