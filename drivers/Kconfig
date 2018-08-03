@@ -16,6 +16,10 @@ config AT45DB
 	depends on SPI_SUBSYS
 	bool "NOR flash driver for AT45DB"
 
+config BME280
+	depends on SPI_SUBSYS
+	bool "BME280 humidity driver"
+
 config ILI9341
 	depends on SPI_SUBSYS && LCD_SUBSYS
 	bool "TFT driver for ILI9341"

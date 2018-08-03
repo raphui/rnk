@@ -14,3 +14,4 @@ obj-$(CONFIG_LCD_SUBSYS) += lcd.o
 obj-$(CONFIG_ILI9341) += ili9341.o
 obj-$(CONFIG_IRQ_SUBSYS) += irq.o
 obj-$(CONFIG_USB_SUBSYS) += usb.o
+obj-$(CONFIG_BME280) += bme280.o
