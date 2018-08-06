@@ -13,6 +13,16 @@ static int master_count = 0;
 static struct list_node spi_device_list;
 static struct list_node spi_master_list;
 
+static inline void spi_set_cs(struct spi_device *spi, int value)
+{
+	if (spi->use_cs) {
+		if (value)
+			pio_set_value(spi->cs_port, spi->cs_pin);
+		else
+			pio_set_value(spi->cs_port, spi->cs_pin);
+	}
+}
+
 static int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
 {
 	int ret;
@@ -20,11 +30,11 @@ static int spi_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("writing from spi !\n");
 
-	//kmutex_lock(&spi->master->spi_mutex);
+	spi_set_cs(spi, 0);
 
 	ret = spi->master->spi_ops->write(spi, buff, size);
 
-	//kmutex_unlock(&spi->master->spi_mutex);
+	spi_set_cs(spi, 1);
 
 	return ret;
 }
@@ -36,7 +46,11 @@ static int spi_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("reading from spi !\n");
 
+	spi_set_cs(spi, 0);
+
 	ret = spi->master->spi_ops->read(spi, buff, size);
+
+	spi_set_cs(spi, 1);
 
 	return ret;
 }

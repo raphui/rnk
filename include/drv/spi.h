@@ -12,6 +12,7 @@
 
 struct spi_device {
 	struct spi_master *master;
+	int use_cs;
 	unsigned int cs_port;
 	unsigned int cs_pin;
 	unsigned int speed;
