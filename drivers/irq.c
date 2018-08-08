@@ -9,7 +9,7 @@
 int irq_action(void)
 {
 	int ret = 0;
-	unsigned char irq;
+	unsigned int irq;
 	struct isr_entry *entry = NULL;
 
 	irq = vector_current_irq();
