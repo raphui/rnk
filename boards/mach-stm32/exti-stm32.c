@@ -4,19 +4,17 @@
 #include <armv7m/nvic.h>
 #include <armv7m/vector.h>
 #include <errno.h>
-#include <list.h>
 #include <drv/irq.h>
 #include <mm/mm.h>
 #include <init.h>
+#include <string.h>
 
 struct action {
 	void (*irq_action)(void *);
 	void *arg;
-	int irq;
-	struct list_node node;
 };
 
-static struct list_node action_list;
+static struct action exti_callbacks[CONFIG_EXTI_LINES];
 
 static int nvic_array[15] = {
 	EXTI0_IRQn,
@@ -100,38 +98,21 @@ static int stm32_exti_get_nvic_number(unsigned int gpio_num)
 	return nvic;
 }
 
-
-static int stm32_exti_action(unsigned int line)
-{
-	int ret = 0;
-	struct action *action = NULL;
-	void (*hook)(void *) = NULL;
-
-	list_for_every_entry(&action_list, action, struct action, node)
-		if (action->irq == line)
-			break;
-
-	if (!action) {
-		error_printk("no action has been found for exti: %d\n", line);
-		return -ENOSYS;
-	}
-
-	hook = action->irq_action;
-
-	hook(action->arg);
-
-	return ret;
-}
-
 static void stm32_exti_isr(void *arg)
 {
+	int i;
 	int line = EXTI->PR & 0x7FFFFF;
+	void (*hook)(void *) = NULL;
 
-	line >>= 1;
-
-	EXTI->PR |= (0x7FFFFF);
-
-	stm32_exti_action(line);
+	for (i = 0; i < 32; i++) {
+		if (line & (1 << i)) {
+			if (exti_callbacks[i].irq_action) {
+				hook = exti_callbacks[i].irq_action;
+				hook(exti_callbacks[i].arg);
+				EXTI->PR |= (1 << i);
+			}
+		}
+	}
 }
 
 void stm32_exti_clear_line(unsigned int line)
@@ -266,8 +247,6 @@ int stm32_exti_disable_rising(unsigned int gpio_base, unsigned int gpio_num)
 int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (*handler)(void *), int flags, void *arg)
 {
 	int ret = 0;
-	int found = 0;
-	struct action *action = NULL;
 
 	ret = stm32_exti_configure_line(gpio_base, gpio_num);
 	if (ret < 0) {
@@ -297,31 +276,8 @@ int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (
 		}
 	}
 
-	/* Do we have already an action ? */
-	list_for_every_entry(&action_list, action, struct action, node) {
-		if (action->irq == gpio_num) {
-			found = 1;
-			break;
-		}
-	}
-
-	if (!found) {
-		action = (struct action *)kmalloc(sizeof(struct action));
-		if (!action) {
-			error_printk("cannot allocate exti irq action\n");
-			ret = -ENOMEM;
-			goto fail;
-		}
-
-		if (list_is_empty(&action_list))
-			list_add_head(&action_list, &action->node);
-		else
-			list_add_tail(&action_list, &action->node);
-	}
-
-	action->irq_action = handler;
-	action->arg = arg;
-	action->irq = gpio_num;
+	exti_callbacks[gpio_num].irq_action = handler;
+	exti_callbacks[gpio_num].arg = arg;
 
 fail:
 	return ret;
@@ -359,8 +315,7 @@ int stm32_exti_init(void)
 	if (ret < 0)
 		goto fail;
 
-	list_initialize(&action_list);
-
+	memset(exti_callbacks, 0, sizeof(exti_callbacks));
 fail:
 	return ret;
 }
