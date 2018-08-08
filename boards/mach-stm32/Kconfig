@@ -36,4 +36,8 @@ config GPIO_PER_PORT
 config GPIO_PORT_NUM
 	int "Number of gpio port"
 
+config EXTI_LINES
+	int "Number of EXTI Lines"
+	default 40
+
 endmenu
