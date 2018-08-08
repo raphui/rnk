@@ -57,7 +57,7 @@ void _putchar(char character);
  */
 int printf(const char* format, ...);
 
-int __printk(const char* format, ...);
+int __printk(const char* format, va_list va);
 
 /**
  * Tiny sprintf implementation

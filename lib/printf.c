@@ -712,10 +712,8 @@ int printf(const char* format, ...)
 }
 EXPORT_SYMBOL(printf);
 
-int __printk(const char* format, ...)
+int __printk(const char* format, va_list va)
 {
-  va_list va;
-  va_start(va, format);
   char buffer[1];
 
   const int ret = _vsnprintf(k_out_char, buffer, (size_t)-1, format, va);
