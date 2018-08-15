@@ -1,13 +1,29 @@
 #include <pthread.h>
 #include <kernel/syscall.h>
 #include <unistd.h>
+#include <errno.h>
 #include <export.h>
 
-int pthread_create(void (*start_routine)(void *), void *arg, unsigned int priority)
+int pthread_create(pthread_t *thread, void (*start_routine)(void *), void *arg, unsigned int priority)
 {
-	return syscall(SYSCALL_THREAD_CREATE, start_routine, arg, priority);
+	if (!thread)
+		return -EINVAL;
+
+	thread->thr = (struct thread *)syscall(SYSCALL_THREAD_CREATE, start_routine, arg, priority);
+	if (!thread->thr)
+		return -EAGAIN;
+
+	return 0;
 }
 EXPORT_SYMBOL(pthread_create);
+
+int pthread_join(pthread_t *thread, void **retval)
+{
+	if (!thread)
+		return -EINVAL;
+	return syscall(SYSCALL_THREAD_JOIN, thread->thr);
+}
+EXPORT_SYMBOL(pthread_join);
 
 int pthread_mutex_init(pthread_mutex_t *mutex)
 {
