@@ -2,6 +2,9 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+static pthread_t thr_a;
+static pthread_t thr_b;
+static pthread_t thr_c;
 static sem_t sem;
 
 void thread_a(void *arg)
@@ -53,11 +56,11 @@ int main(void)
 	sem_init(&sem, 1);
 
 	printf("- adding thread A (%x)\n", &thread_a);
-	pthread_create(&thread_a, NULL, 4);
+	pthread_create(&thr_a, &thread_a, NULL, 4);
 
 	printf("- adding thread B(%x)\n", &thread_b);
-	pthread_create(&thread_b, NULL, 3);
+	pthread_create(&thr_b, &thread_b, NULL, 3);
 
 	printf("- adding thread C(%x)\n", &thread_c);
-	pthread_create(&thread_c, NULL, 2);
+	pthread_create(&thr_c, &thread_c, NULL, 2);
 }

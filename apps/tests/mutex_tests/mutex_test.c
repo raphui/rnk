@@ -2,6 +2,8 @@
 #include <pthread.h>
 #include <time.h>
 
+static pthread_t thr_a;
+static pthread_t thr_b;
 static pthread_mutex_t mutex;
 
 void thread_a(void *arg)
@@ -44,8 +46,8 @@ int main(void)
 	pthread_mutex_init(&mutex);
 
 	printf("- adding thread A (%x)\n", &thread_a);
-	pthread_create(&thread_a, NULL, 10);
+	pthread_create(&thr_a, &thread_a, NULL, 10);
 
 	printf("- adding thread B(%x)\n", &thread_b);
-	pthread_create(&thread_b, NULL, 2);
+	pthread_create(&thr_b, &thread_b, NULL, 2);
 }

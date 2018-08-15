@@ -5,6 +5,8 @@
 #include <time.h>
 #include <errno.h>
 
+static pthread_t thr_a;
+static pthread_t thr_b;
 static mqd_t mqueue_rw;
 
 static struct mq_attr attr = {
@@ -116,10 +118,10 @@ int main(void)
 		goto out;
 
 	printf("- adding thread A (%x)\n", &thread_a);
-	pthread_create(&thread_a, NULL, 4);
+	pthread_create(&thr_a, &thread_a, NULL, 4);
 
 	printf("- adding thread B(%x)\n", &thread_b);
-	pthread_create(&thread_b, NULL, 3);
+	pthread_create(&thr_b, &thread_b, NULL, 3);
 
 out:
 	return 0;
