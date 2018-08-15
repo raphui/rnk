@@ -3,6 +3,7 @@
 #include <kernel/printk.h>
 #include <arch/system.h>
 #include <kernel/ktime.h>
+#include <kernel/wait.h>
 #include <init.h>
 
 int thread_switching = 0;
@@ -90,6 +91,8 @@ void schedule_thread_stop(struct thread *thread)
 		t = get_current_thread();
 
 	t->state = THREAD_STOPPED;
+
+	wait_queue_wake(&t->wait_exit);
 
 	remove_runnable_thread(t);
 
