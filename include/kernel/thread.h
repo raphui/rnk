@@ -4,6 +4,7 @@
 #include <list.h>
 #include <stddef.h>
 #include <arch/thread.h>
+#include <kernel/wait.h>
 
 #define THREAD_RUNNING		0
 #define THREAD_RUNNABLE		1
@@ -47,11 +48,13 @@ struct thread
 	struct arch_thread *arch;
 	struct list_node node;
 	struct list_node event_node;
+	struct wait_queue wait_exit;
 };
 
 void thread_init(void);
-void thread_create(void (*func)(void), void *arg, unsigned int priority);
-void add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged);
+struct thread *thread_create(void (*func)(void), void *arg, unsigned int priority);
+int thread_join(struct thread *t);
+struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged);
 void switch_thread(struct thread *thread);
 struct thread *get_current_thread(void);
 struct thread *find_next_thread(void);

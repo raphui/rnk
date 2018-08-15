@@ -7,6 +7,8 @@
 #include <kernel/spinlock.h>
 #include <kernel/syscall.h>
 #include <kernel/ktime.h>
+#include <unistd.h>
+#include <errno.h>
 
 static struct thread *current_thread = NULL;
 static int thread_count = 0;
@@ -94,12 +96,12 @@ static void end_thread(void)
 	syscall(SYSCALL_THREAD_STOP, NULL);
 }
 
-void add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged)
+struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged)
 {
 	struct thread *thread = (struct thread *)kmalloc(sizeof(struct thread));
 	if (!thread) {
 		error_printk("failed to allocate thread: %p\n", func);
-		return;
+		return NULL;
 	}
 
 	memset(thread, 0, sizeof(struct thread));
@@ -123,10 +125,12 @@ void add_thread(void (*func)(void), void *arg, unsigned int priority, int privil
 	if (!thread->arch) {
 		error_printk("failed to allocate arch thread for: %p\n", func);
 		kfree(thread);
-		return;
+		return NULL;
 	}
 
 	memset(thread->arch, 0, sizeof(struct arch_thread));
+
+	wait_queue_init(&thread->wait_exit);
 
 	/* Creating thread context */
 	arch_create_context(thread->arch, (unsigned int)thread->func, (unsigned int)&end_thread, (unsigned int *)thread->start_stack, (unsigned int )arg, privileged);
@@ -134,6 +138,8 @@ void add_thread(void (*func)(void), void *arg, unsigned int priority, int privil
 	insert_thread(thread);
 
 	thread_count++;
+
+	return thread;
 }
 
 void thread_init(void)
@@ -146,9 +152,9 @@ void thread_init(void)
 	add_thread(&idle_thread, NULL, IDLE_PRIORITY, PRIVILEGED_THREAD);
 }
 
-void thread_create(void (*func)(void), void *arg, unsigned int priority)
+struct thread *thread_create(void (*func)(void), void *arg, unsigned int priority)
 {
-	add_thread(func, arg, priority, USER_THREAD);
+	return add_thread(func, arg, priority, USER_THREAD);
 }
 
 void switch_thread(struct thread *thread)
@@ -238,4 +244,14 @@ void remove_runnable_thread(struct thread *thread)
 int is_thread_runnable(struct thread *thread)
 {
 	return ((thread->state != THREAD_BLOCKED) && (thread->state != THREAD_STOPPED)) ? 1 : 0;
+}
+
+int thread_join(struct thread *t)
+{
+	if (t->state == THREAD_STOPPED)
+		return -ENOENT;
+
+	wait_queue_block(&t->wait_exit);
+
+	return 0;
 }
