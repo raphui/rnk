@@ -6,6 +6,8 @@ static pthread_t thr_a;
 static pthread_t thr_b;
 static pthread_t thr_c;
 
+static int token = 0;
+
 void thread_a(void *arg)
 {
 	printf("starting thread A\n");
@@ -20,19 +22,33 @@ void thread_b(void *arg)
 {
 	printf("starting thread B\n");
 
-	while (1) {
-		printf("B\n");
-		time_usleep(10000);
-	}
+	printf("B\n");
+	time_usleep(10000);
+	token = 1;
 }
 
 void thread_c(void *arg)
 {
+	int last_token;
+	int i = 0;
+	int ret = 0;
 	printf("starting thread C\n");
 
 	while (1) {
 		printf("C\n");
 		time_usleep(3000);
+
+		last_token = token;
+
+		printf("joining on thread B, should: %s\n", i ? "FAIL" : "SUCCEEDED");
+
+		ret = pthread_join(&thr_b, NULL);
+		if ((ret == 0) && (last_token != token))
+			printf("pthread_join SUCCEEDED, %d-%d\n", last_token, token);
+		else
+			printf("pthread_join FAIL, error code: %d\n", ret);
+
+		i++;
 	}
 }
 
