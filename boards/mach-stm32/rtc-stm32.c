@@ -19,6 +19,7 @@ static void stm32_rtc_isr(void *arg)
 {
 	struct timer *timer = (struct timer *)arg;
 
+	printk("%s\n", __func__);
 	stm32_exti_clear_line(22);
 }
 
@@ -121,7 +122,7 @@ static int stm32_rtc_of_init(struct timer *timer)
 
 	timer->base_reg = (unsigned int)fdtparse_get_addr32(offset, "reg");
 	if (!timer->base_reg) {
-		error_printk("failed to retrieve usart base reg from fdt\n");
+		error_printk("failed to retrieve rtc base reg from fdt\n");
 		ret = -ENOENT;
 		goto out;
 	}
@@ -198,7 +199,11 @@ static int stm32_rtc_init(struct device *dev)
 		goto clk_disable;
 	}
 
+#ifdef CONFIG_TICKLESS
 	ret = timer_lp_register(timer);
+#else
+	ret = timer_register(timer);
+#endif
 	if (ret < 0) {
 		error_printk("failed to register stm32 timer\n");
 		goto clk_disable;
