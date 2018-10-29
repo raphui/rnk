@@ -67,6 +67,7 @@ void ktime_oneshot(int delay, void (*handler)(void *), void *arg)
 		error_printk("failed to create software timer oneshot\n");
 }
 
+#ifdef CONFIG_TICKLESS
 void ktime_wakeup_next_delay(void)
 {
 	int delay;
@@ -82,6 +83,7 @@ void ktime_wakeup_next_delay(void)
 
 	timer_wakeup(delay);
 }
+#endif /* CONFIG_TICKLESS */
 
 void decrease_thread_delay(void)
 {
