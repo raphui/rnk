@@ -55,6 +55,7 @@ static struct timer *timer_request(void)
 	return timer;
 }
 
+#ifdef CONFIG_TICKLESS
 static struct timer *timer_lp_request(void)
 {
 	struct timer *timer = NULL;
@@ -72,6 +73,7 @@ static struct timer *timer_lp_request(void)
 
 	return timer;
 }
+#endif /* CONFIG_TICKLESS */
 
 static int timer_release_from_isr(struct timer *timer)
 {
@@ -98,7 +100,7 @@ static void timer_isr(void *arg)
 	}
 }
 
-
+#ifdef CONFIG_TICKLESS
 int timer_wakeup(unsigned int delay)
 {
 	int ret = 0;
@@ -125,7 +127,7 @@ int timer_wakeup(unsigned int delay)
 	return ret;
 
 }
-
+#endif /* CONFIG_TICKLESS */
 
 int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 {
@@ -134,7 +136,11 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 
 	kmutex_lock(&timer_mutex);
 
+#ifdef CONFIG_TICKLESS
 	timer = timer_lp_request();
+#else
+	timer = timer_request();
+#endif
 	if (!timer) {
 		error_printk("failed to request timer\n");
 		return -ENOENT;
@@ -239,6 +245,7 @@ int timer_remove(struct timer *timer)
 	return ret;
 }
 
+#ifdef CONFIG_TICKLESS
 int timer_lp_remove(struct timer *timer)
 {
 	int ret = 0;
@@ -257,6 +264,7 @@ int timer_lp_remove(struct timer *timer)
 
 	return ret;
 }
+#endif /* CONFIG_TICKLESS */
 
 int timer_register(struct timer *timer)
 {
@@ -265,12 +273,14 @@ int timer_register(struct timer *timer)
 	return 0;
 }
 
+#ifdef CONFIG_TICKLESS
 int timer_lp_register(struct timer *timer)
 {
 	list_add_tail(&timer_lp_list, &timer->node);
 
 	return 0;
 }
+#endif /* CONFIG_TICKLESS */
 
 int timer_init(void)
 {
@@ -278,7 +288,9 @@ int timer_init(void)
 
 	kmutex_init(&timer_mutex);
 	list_initialize(&timer_list);
+#ifdef CONFIG_TICKLESS
 	list_initialize(&timer_lp_list);
+#endif /* CONFIG_TICKLESS */
 	list_initialize(&timer_soft_list);
 
 	return ret;
