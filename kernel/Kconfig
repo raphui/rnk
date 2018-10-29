@@ -33,4 +33,7 @@ config BW_DELAY
 config TICKLESS
 	bool "Tickless kernel"
 
+config PRIORITY_INHERITANCE
+	bool "Enable priority inheritance for mutex"
+
 endmenu
