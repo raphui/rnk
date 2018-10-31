@@ -15,15 +15,27 @@
 
 #define RTC_WKUP_FREQ	16000
 
+struct irq_callback {
+	void (*callback)(void *arg);
+	void *arg;
+};
+
+static struct irq_callback irq_callback_infos;
+
+extern unsigned int system_tick;
+
 static void stm32_rtc_isr(void *arg)
 {
 	struct timer *timer = (struct timer *)arg;
+	RTC_TypeDef *rtc = (RTC_TypeDef *)timer->base_reg;
 
-	printk("%s\n", __func__);
+	rtc->ISR &= ~RTC_ISR_WUTF;
 	stm32_exti_clear_line(22);
-	timer->is_used = 0;
-}
 
+	system_tick += timer->counter;
+
+	irq_callback_infos.callback(irq_callback_infos.arg);
+}
 static short stm32_rtc_find_best_pres(unsigned long parent_rate, unsigned long rate)
 {
 	unsigned int i;
@@ -93,16 +105,34 @@ static void stm32_rtc_enable(struct timer *timer)
 
 static void stm32_rtc_disable(struct timer *timer)
 {
+	RTC_TypeDef *rtc = (RTC_TypeDef *)timer->base_reg;
 	int nvic = timer->irq;
 
-
 	nvic_disable_interrupt(nvic);
+
+	rtc->CR &= ~RTC_CR_WUTE;
+}
+
+static int stm32_rtc_request_irq(struct timer *timer, void (*handler)(void *), void *arg)
+{
+	irq_callback_infos.callback = handler;
+	irq_callback_infos.arg = arg;
+
+	return 0;
+}
+
+static int stm32_rtc_release_irq(struct timer *timer)
+{
+	memset(&irq_callback_infos, 0, sizeof(struct irq_callback));
+	return 0;
 }
 
 struct timer_operations rtc_ops = {
 	.set_counter = stm32_rtc_set_counter,
 	.enable = stm32_rtc_enable,
 	.disable = stm32_rtc_disable,
+	.request_irq = stm32_rtc_request_irq,
+	.release_irq = stm32_rtc_release_irq,
 };
 
 static int stm32_rtc_of_init(struct timer *timer)
