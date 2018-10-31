@@ -21,7 +21,7 @@ core_initcall(schedule_init);
 
 void start_schedule(void)
 {
-#ifndef CONFIG_TICKESS
+#ifndef CONFIG_TICKLESS
 	arch_init_tick();
 #endif
 	arch_request_sched();
