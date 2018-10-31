@@ -21,6 +21,7 @@ static void stm32_rtc_isr(void *arg)
 
 	printk("%s\n", __func__);
 	stm32_exti_clear_line(22);
+	timer->is_used = 0;
 }
 
 static short stm32_rtc_find_best_pres(unsigned long parent_rate, unsigned long rate)
