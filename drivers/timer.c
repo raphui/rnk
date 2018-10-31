@@ -58,13 +58,17 @@ static struct timer *timer_request(void)
 #ifdef CONFIG_TICKLESS
 static struct timer *timer_lp_request(void)
 {
+	int found = 0;
 	struct timer *timer = NULL;
 
-	list_for_every_entry(&timer_lp_list, timer, struct timer, node)
-		if (!timer->is_used)
+	list_for_every_entry(&timer_lp_list, timer, struct timer, node) {
+		if (!timer->is_used) {
+			found = 1;
 			break;
+		}
+	}
 
-	if (!timer) {
+	if (!found) {
 		error_printk("all timers are used\n");
 		return NULL;
 	}
