@@ -23,20 +23,16 @@ unsigned long thread_lock = SPIN_LOCK_INITIAL_VALUE;
 
 static void idle_thread(void)
 {
-#ifdef CONFIG_TICKLESS
 	unsigned long irqstate;
-#endif
 
 	while(1) {
-#ifdef CONFIG_TICKLESS
-
 		arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
-
+#ifdef CONFIG_TICKLESS
 		ktime_wakeup_next_delay();
+#endif
+		arch_idle();
 
 		arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
-#endif
-		wait_for_interrupt();
 	}
 }
 
