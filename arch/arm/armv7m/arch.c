@@ -45,3 +45,16 @@ void arch_init_tick(void)
 {
 	systick_init();
 }
+
+void arch_idle(void)
+{
+	__disable_it();
+
+	__dsb();
+	wait_for_interrupt();
+	__isb();
+
+	__enable_it();
+	__dsb();
+	__isb();
+}
