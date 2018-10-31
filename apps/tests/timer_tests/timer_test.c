@@ -1,65 +1,56 @@
 #include <stdio.h>
-#include <thread.h>
-#include <board.h>
-#include <pio.h>
+#include <pthread.h>
 #include <time.h>
-#include <timer.h>
 
-//#define DEBUG_IO_SLEEP
-#define SOFT_TIMER
+static pthread_t thr_a;
+static pthread_t thr_b;
+static pthread_t thr_c;
 
-void callback(void *arg)
+void thread_a(void *arg)
 {
-#ifdef DEBUG_IO_SLEEP
-	pio_toggle_value(GPIOC_BASE, 7);
-#else
-	pio_clear_value(GPIOA_BASE, 3);
-#endif /* DEBUG_IO_SLEEP */
+	printf("starting thread A\n");
+
+	while (1) {
+		printf("A, sleep...");
+		time_usleep(30000);
+		printf("wakeup !\n");
+	}
 }
 
-void thread_a(void)
+void thread_b(void *arg)
 {
+	printf("starting thread B\n");
+
 	while (1) {
-		printk("Timer launched !\n");
+		printf("B, sleep...");
+		time_usleep(10000);
+		printf("wakeup !\n");
+	}
+}
 
-#ifdef DEBUG_IO_SLEEP
-#ifdef SOFT_TIMER
-		timer_soft_oneshot(5000, &callback, NULL);
-#else
-		timer_oneshot(200, &callback, NULL);
-#endif
-		printk("Sleeping...");
-		pio_set_value(GPIOA_BASE, 3);
-		usleep(200000);
-		pio_clear_value(GPIOA_BASE, 3);
-		printk("Waking up !\n");
-#else
-		pio_set_value(GPIOA_BASE, 3);
-#ifdef SOFT_TIMER
-		timer_soft_oneshot(5000, &callback, NULL);
-#else
-		timer_oneshot(200, &callback, NULL);
+void thread_c(void *arg)
+{
+	printf("starting thread C\n");
 
-#endif
-		printk("Sleeping...");
-		pio_set_value(GPIOC_BASE, 7);
-		usleep(100000);
-		pio_clear_value(GPIOC_BASE, 7);
-		printk("Waking up !\n");
-
-#endif /* DEBUG_IO_SLEEP */
+	while (1) {
+		printf("C, sleep...");
+		time_usleep(3000);
+		printf("wakeup !\n");
 	}
 }
 
 int main(void)
 {
-	printk("Starting timer tests\n");
+	printf("Starting thread tests\n");
 
-	pio_set_output(GPIOA_BASE, 3, 0);
-	pio_set_output(GPIOC_BASE, 7, 0);
+	printf("- adding thread A (%x)\n", &thread_a);
+	pthread_create(&thr_a, &thread_a, NULL, 4);
 
-	add_thread(&thread_a, DEFAULT_PRIORITY);
+	printf("- adding thread B(%x)\n", &thread_b);
+	pthread_create(&thr_b, &thread_b, NULL, 3);
+
+	printf("- adding thread C(%x)\n", &thread_c);
+	pthread_create(&thr_c, &thread_c, NULL, 2);
 
 	return 0;
-
 }
