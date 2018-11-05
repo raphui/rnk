@@ -224,17 +224,25 @@ struct thread *find_next_thread(void)
 
 void insert_runnable_thread(struct thread *thread)
 {
+	thread_lock(state);
+
 	insert_thread(thread);
 	thread->state = THREAD_RUNNABLE;
+
+	thread_unlock(state);
 }
 
 void remove_runnable_thread(struct thread *thread)
 {
+	thread_lock(state);
+
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 	current_thread->quantum = CONFIG_THREAD_QUANTUM;
 #endif
 
 	list_delete(&thread->node);
+
+	thread_unlock(state);
 }
 
 int is_thread_runnable(struct thread *thread)
