@@ -45,6 +45,7 @@ void stm32_pio_set_output(unsigned int port, unsigned int mask, int pull_up)
 
 	stm32_pio_set_clock(port);
 
+	base->MODER &= ~GPIO_MODER(mask);
 	base->MODER |= GPIO_MODER_OUTPUT(mask);
 	base->OSPEEDR |= GPIO_OSPEEDR(mask);
 
@@ -92,6 +93,7 @@ void stm32_pio_set_alternate(unsigned int port, unsigned int mask, unsigned int 
 
 	stm32_pio_set_clock(port);
 
+	base->MODER &= ~GPIO_MODER(mask);
 	base->MODER |= GPIO_MODER_ALTERNATE(mask);
 	base->OSPEEDR |= GPIO_OSPEEDR(mask);
 
