@@ -55,9 +55,15 @@ void ktime_usleep(unsigned int usec)
 		wait_for_interrupt();
 	} while (end > system_tick);
 #else
-	timer.counter = usec / 1000;
 
 	thread = get_current_thread();
+
+#ifdef CONFIG_TICKLESS
+	timer.counter = usec;
+#else
+	timer.counter = usec / 1000;
+#endif
+
 	thread->delay = timer.counter + system_tick;
 
 	thread->state = THREAD_BLOCKED;
@@ -81,18 +87,30 @@ void ktime_oneshot(int delay, void (*handler)(void *), void *arg)
 #ifdef CONFIG_TICKLESS
 void ktime_wakeup_next_delay(void)
 {
-	int delay;
 	struct thread *thread;
+	struct thread *next;
+	struct thread *curr = get_current_thread();
 
 	thread = list_peek_head_type(&sleeping_threads, struct thread, node);
 
-	delay = thread->delay;
+	while (thread) {
+		next = list_next_type(&sleeping_threads, &thread->node, struct thread, node);
 
-	list_for_every_entry(&sleeping_threads, thread, struct thread, node)
-		if (thread->delay < delay)
-			delay = thread->delay;
+		if (thread->delay <= system_tick) {
+			remove_sleeping_thread(thread);
+			insert_runnable_thread(thread);
 
-	timer_wakeup(delay);
+			if (curr->priority < thread->priority)
+				schedule_yield();
+		}
+		else
+			break;
+
+		thread = next;
+	}
+
+	if (thread)
+		timer_wakeup(thread->delay - system_tick, (void (*)(void *))ktime_wakeup_next_delay, NULL);
 }
 #endif /* CONFIG_TICKLESS */
 
