@@ -3,7 +3,7 @@ rnk
 
 rnk is a RTOS targeting ARM architecture.
 
-For now, only the Cortex-M4 is supported. ARM7TDMI is no longer supported.
+For now, only the Cortex-M4 is supported.
 
 
 Building
@@ -24,6 +24,3 @@ then
 
 Current known bugs
 ------------------
-
-  * Scheduling algo needs to be improved on real applications.
-  * Writing data in flash on stm32 boards are buggy.
