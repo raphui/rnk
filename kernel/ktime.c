@@ -10,6 +10,17 @@
 
 static struct list_node sleeping_threads;
 
+static void insert_sleeping_thread(struct thread *thread)
+{
+	struct thread *t;
+
+	list_for_every_entry(&sleeping_threads, t, struct thread, node)
+		if (thread->delay < t->delay)
+			break;
+
+	list_add_before(&t->node, &thread->node);
+}
+
 static void remove_sleeping_thread(struct thread *thread)
 {
 	list_delete(&thread->node);
@@ -52,7 +63,7 @@ void ktime_usleep(unsigned int usec)
 	thread->state = THREAD_BLOCKED;
 	remove_runnable_thread(thread);
 
-	list_add_tail(&sleeping_threads, &thread->node);
+	insert_sleeping_thread(thread);
 
 	schedule_yield();
 #endif /* CONFIG_BW_DELAY */
