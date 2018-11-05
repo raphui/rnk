@@ -74,7 +74,7 @@ void schedule_thread(struct thread *thread)
 	switch_thread(t);
 #endif
 
-#if !defined(CONFIG_HR_TIMER) && !defined(CONFIG_BW_DELAY)
+#if !defined(CONFIG_HR_TIMER) && !defined(CONFIG_BW_DELAY) && !defined(CONFIG_TICKLESS)
 	decrease_thread_delay();
 #endif
 
