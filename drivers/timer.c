@@ -58,22 +58,9 @@ static struct timer *timer_request(void)
 #ifdef CONFIG_TICKLESS
 static struct timer *timer_lp_request(void)
 {
-	int found = 0;
 	struct timer *timer = NULL;
 
-	list_for_every_entry(&timer_lp_list, timer, struct timer, node) {
-		if (!timer->is_used) {
-			found = 1;
-			break;
-		}
-	}
-
-	if (!found) {
-		error_printk("all timers are used\n");
-		return NULL;
-	}
-
-	timer->is_used = 1;
+	timer = list_peek_head_type(&timer_lp_list, struct timer, node);
 
 	return timer;
 }
@@ -96,40 +83,18 @@ static void timer_isr(void *arg)
 	void (*callback)(void *) = timer->callback.handler;
 	void *callback_arg = timer->callback.arg;
 
-	callback(callback_arg);
-
 	if (timer->one_shot) {
 		timer_disable(timer);
 		timer_release_from_isr(timer);
 	}
+
+	callback(callback_arg);
 }
 
 #ifdef CONFIG_TICKLESS
-int timer_wakeup(unsigned int delay)
+int timer_wakeup(unsigned int delay, void (*handler)(void *), void *arg)
 {
-	int ret = 0;
-	struct timer *timer = NULL;
-
-	kmutex_lock(&timer_mutex);
-
-	timer = timer_lp_request();
-	if (!timer) {
-		error_printk("failed to request timer\n");
-		return -ENOENT;
-	}
-
-	timer->one_shot = 1;
-	timer->one_pulse = 1;
-	timer->count_up = 0;
-	timer->counter = delay;
-
-	timer_set_counter(timer, timer->counter);
-	timer_enable(timer);
-
-	kmutex_unlock(&timer_mutex);
-
-	return ret;
-
+	return timer_oneshot(delay, handler, arg);
 }
 #endif /* CONFIG_TICKLESS */
 
@@ -159,7 +124,10 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 
 	timer->tim_ops->request_irq(timer, &timer_isr, timer);
 
+#ifndef CONFIG_TICKLESS
 	timer_set_rate(timer, 1000000);
+#endif /* CONFIG_TICKLESS */
+
 	timer_set_counter(timer, timer->counter);
 	timer_enable(timer);
 
