@@ -14,16 +14,24 @@ static void insert_sleeping_thread(struct thread *thread)
 {
 	struct thread *t;
 
+	thread_lock(state);
+
 	list_for_every_entry(&sleeping_threads, t, struct thread, node)
 		if (thread->delay < t->delay)
 			break;
 
 	list_add_before(&t->node, &thread->node);
+
+	thread_unlock(state);
 }
 
 static void remove_sleeping_thread(struct thread *thread)
 {
+	thread_lock(state);
+
 	list_delete(&thread->node);
+
+	thread_unlock(state);
 }
 
 int time_init(void)
@@ -66,10 +74,14 @@ void ktime_usleep(unsigned int usec)
 
 	thread->delay = timer.counter + system_tick;
 
+	thread_lock(state);
+
 	thread->state = THREAD_BLOCKED;
 	remove_runnable_thread(thread);
 
 	insert_sleeping_thread(thread);
+
+	thread_unlock(state);
 
 	schedule_yield();
 #endif /* CONFIG_BW_DELAY */
