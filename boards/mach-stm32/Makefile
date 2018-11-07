@@ -1,5 +1,6 @@
 obj-y := rcc-stm32.o
 obj-$(CONFIG_STM32F4XX) += stm32f4xx.o
+obj-$(CONFIG_STM32L4XX) += stm32l4xx.o
 obj-$(CONFIG_STM32F746) += stm32f746.o
 obj-y += usart-stm32.o
 obj-y += pio-stm32.o

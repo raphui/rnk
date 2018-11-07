@@ -4,6 +4,9 @@ config STM32F4XX
 config STM32F7XX
 	bool
 
+config STM32L4XX
+	bool
+
 menu "STM32 configuration"
 
 choice
@@ -24,6 +27,10 @@ choice
     config STM32F746
         bool "STM32F746"
 	select STM32F7XX
+
+    config STM32L443
+        bool "STM32L443"
+	select STM32L4XX
 
 endchoice
 
