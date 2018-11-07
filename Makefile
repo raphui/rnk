@@ -68,6 +68,7 @@ endif
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib -Wl,-Map=kernel.map#-Wl,--gc-sections
 
 LDSFLAGS := $(INCLUDES)
+DTCPPFLAGS := -MD -MP -nostdinc -Iinclude -undef -D__DTS__ -x assembler-with-cpp
 
 CC := $(CROSS_COMPILE)gcc
 AS := $(CROSS_COMPILE)as
@@ -76,6 +77,7 @@ LD := $(CROSS_COMPILE)ld
 OBJCOPY := $(CROSS_COMPILE)objcopy
 LDS := $(CROSS_COMPILE)gcc -E -P -C
 DTC := dtc
+CPP := cpp
 
 endif
 
@@ -124,6 +126,7 @@ clean:
  
 dist-clean: clean
 	$(RM) `find . -name *.d`
+	$(RM) `find . -name *.tmp`
 
 tests:
 	tools/make_apps.sh
