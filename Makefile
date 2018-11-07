@@ -13,24 +13,16 @@ ifeq ($(CONFIG_MACH_STM32),y)
 MACH=stm32
 endif
 
-ifeq ($(CONFIG_STM32F401),y)
-SOC=stm32f401
+ifeq ($(CONFIG_STM32F4XX),y)
 FAMILY=stm32f4xx
 endif
 
-ifeq ($(CONFIG_STM32F407),y)
-SOC=stm32f407
-FAMILY=stm32f4xx
-endif
-
-ifeq ($(CONFIG_STM32F429),y)
-SOC=stm32f429
-FAMILY=stm32f4xx
-endif
-
-ifeq ($(CONFIG_STM32F746),y)
-SOC=stm32f746
+ifeq ($(CONFIG_STM32F7XX),y)
 FAMILY=stm32f7xx
+endif
+
+ifeq ($(CONFIG_STM32L4XX),y)
+FAMILY=stm32l4xx
 endif
 
 ifeq ($(CONFIG_CPU_ARM_CORTEX_M4),y)
