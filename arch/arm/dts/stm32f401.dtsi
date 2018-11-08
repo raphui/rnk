@@ -70,14 +70,29 @@
 		dma1: dma@40026000 {
 			reg = <0x40026000 0x400>;
 			compatible = "st,stm32f4xx-dma";
-			num = <1>;
+			interrupts = <11>,
+				     <12>,
+				     <13>,
+				     <14>,
+				     <15>,
+				     <16>,
+				     <17>;
+			dma-requests = <8>;
 		};
 
 		dma2: dma@40026400 {
 			reg = <0x40026400 0x400>;
 			compatible = "st,stm32f4xx-dma";
-			num = <2>;
+			interrupts = <56>,
+				     <57>,
+				     <58>,
+				     <59>,
+				     <60>,
+				     <68>,
+				     <69>,
+				     <70>;
 			st,mem2mem;
+			dma-requests = <8>;
 		};
 	};
 
