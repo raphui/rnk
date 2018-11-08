@@ -47,4 +47,8 @@ config EXTI_LINES
 	int "Number of EXTI Lines"
 	default 40
 
+config DMA_REQUEST_LINES
+	int "Number of DMA request lines"
+	default 8
+
 endmenu
