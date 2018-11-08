@@ -1,53 +1,93 @@
+#include <dt-bindings/stm32fx-clock.h>
+#include <dt-bindings/stm32f4-rcc.h>
+
 / {
     compatible = "st,stm32f4";
 
     #address-cells = <1>;
     #size-cells = <1>;
 
-	clocks
-	{
-		sources
-		{
-			hsi = <16000000>;
-			hse = <16000000>;
-			lsi = <32000>;
+	clocks {
+
+		clk_hse: clk-hse {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <0>;
 		};
 
-		fast
-		{
-			source = <2>;			// hse is source
-			pll = <0 16 336 4 7>;		// hsi, m, n, p, q
+		clk-lse {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <32768>;
+			clocks = <&rcc 1 CLK_LSE>;
+		};
+
+		clk_lsi: clk-lsi {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <32000>;
+			clocks = <&rcc 1 CLK_LSI>;
+		};
+
+		clk_hsi: clk_hsi {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <16000000>;
+			clocks = <&rcc 1 CLK_HSI>;
+		};
+
+		clk_pll: clk_pll {
+			#clock-cells = <0>;
+			compatible = "variable-clock";
+			clock-frequency = <0>;
+
+			assigned-clock = <&clk_hsi>;
+
+			settings = <16 336 4 7>;
+		};
+
+		sysclk {
+			clocks = <&clk_pll 1 CLK_PLL>;
 			prescaler = <1 2 2>;		// ahb div1, apb1&apb2 div=2
 		};
 	};
 
-	ahb1
-	{
+	ahb1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 
 		gpioa: gpio@40020000 {
 			reg = <0x40020000 0x400>;
+			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(GPIOA)>;
+			compatible = "st,stm32f4xx-pio";
                         status = "okay";
 		};
 
 		gpiob: gpio@40020400 {
 			reg = <0x40020400 0x400>;
+			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(GPIOB)>;
+			compatible = "st,stm32f4xx-pio";
                         status = "okay";
 		};
 
 		gpioc: gpio@40020800 {
 			reg = <0x40020800 0x400>;
+			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(GPIOC)>;
+			compatible = "st,stm32f4xx-pio";
                         status = "okay";
 		};
 
 		gpiod: gpio@40020C00 {
 			reg = <0x40020C00 0x400>;
+			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(GPIOD)>;
+			compatible = "st,stm32f4xx-pio";
                         status = "okay";
 		};
 
 		gpioe: gpio@40021000 {
 			reg = <0x40021000 0x400>;
+			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(GPIOE)>;
+			compatible = "st,stm32f4xx-pio";
                         status = "okay";
 		};
 
@@ -69,6 +109,7 @@
 
 		dma1: dma@40026000 {
 			reg = <0x40026000 0x400>;
+			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(DMA1)>;
 			compatible = "st,stm32f4xx-dma";
 			interrupts = <11>,
 				     <12>,
@@ -82,6 +123,7 @@
 
 		dma2: dma@40026400 {
 			reg = <0x40026400 0x400>;
+			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(DMA2)>;
 			compatible = "st,stm32f4xx-dma";
 			interrupts = <56>,
 				     <57>,
@@ -96,13 +138,13 @@
 		};
 	};
 
-	ahb2
-	{
+	ahb2 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 
 		otgfs: otgfs@50000000 {
 			reg = <0x50000000 0x4000>;
+			clocks = <&rcc 0 STM32F4_AHB2_CLOCK(OTGFS)>;
 			compatible = "st,stm32f4xx-usb";
 			interrupts = <67>;
 
@@ -111,8 +153,7 @@
 		};
 	};
 
-	apb1
-	{
+	apb1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 
@@ -120,6 +161,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "st,stm32f4xx-i2c";
+			clocks = <&rcc 0 STM32F4_APB1_CLOCK(I2C1)>;
 			reg = <0x40005400 0x24>;
 			gpios = <&gpiob 0x418 0x0E>,    /* SCL PB8 */
 					<&gpiob 0x419 0x0E>;    /* SDA PB9 */
@@ -128,6 +170,7 @@
 
                 timer2: timer@40000000 {
                         compatible = "st,stm32f4xx-timer";
+			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM2)>;
                         reg = <0x40000000 0x400>;
                         interrupts = <28>;
                         status = "okay";
@@ -135,6 +178,7 @@
 
                 timer3: timer@40000400 {
                         compatible = "st,stm32f4xx-timer";
+			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM3)>;
                         reg = <0x40000400 0x400>;
                         interrupts = <29>;
                         status = "okay";
@@ -142,6 +186,7 @@
 
                 timer4: timer@40000800 {
                         compatible = "st,stm32f4xx-timer";
+			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM4)>;
                         reg = <0x40000800 0x400>;
                         interrupts = <30>;
                         status = "okay";
@@ -149,6 +194,7 @@
 
                 timer5: timer@40000c00 {
                         compatible = "st,stm32f4xx-timer";
+			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM5)>;
                         reg = <0x40000C00 0x400>;
                         interrupts = <50>;
                         status = "okay";
@@ -156,24 +202,24 @@
 
 		rtc: rtc@0x40002800 {
 			compatible = "st,stm32f4xx-rtc";
+			clocks = <&clk_lsi 1 CLK_LSI>;
 			reg = <0x40002800 0x400>;
 			interrupts = <3>;
-			status = "okay";
+			status = "disabled";
 
 		};
 	};
 
-	apb2
-	{
+	apb2 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 
 		usart1: usart2@40011000 {
 			compatible = "st,stm32f4xx-usart";
+			clocks = <&rcc 0 STM32F4_APB2_CLOCK(USART1)>;
 			reg = <0x40011000 0x1C>;
 			gpios = <&gpioa 0x709 0>,     /* TX PA2 */
 				<&gpioa 0x70A 0>;     /* RX PA3 */
-			clock = <3>;
 			baudrate = <115200>;
 			mode = <3>;
                         status = "okay";
@@ -183,12 +229,12 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "st,stm32f4xx-spi";
+			clocks = <&rcc 0 STM32F4_APB2_CLOCK(SPI1)>;
 			reg = <0x40013000 0x20>;
                         interrupts = <35>;
 			gpios =	<&gpioa 0x505 0x0A>,     /* SCK, PA5 */
 					<&gpioa 0x506 0x08>,     /* MISO PA6 */
 					<&gpioa 0x507 0x0A>;     /* MOSI PA7 */
-			clock = <3>;
 			dmas = <&dma2 0 3 0x10400 0x3>,
 				<&dma2 3 3 0x10400 0x3>;
 			dma-names = "rx", "tx";
@@ -209,7 +255,7 @@
 
 		syscfg: syscfg@40013800 {
 			reg = <0x40013800 0x20>;
-			if = <14>;
+			clocks = <&rcc 0 STM32F4_APB2_CLOCK(SYSCFG)>;
 		};
 
 		exti: exti@40013C00 {
