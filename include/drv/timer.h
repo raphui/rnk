@@ -2,6 +2,7 @@
 #define TIMER_H
 
 #include <drv/device.h>
+#include <drv/clk.h>
 #include <list.h>
 
 struct timer_device
@@ -20,6 +21,7 @@ struct timer
 {
 	unsigned int num;
 	unsigned int base_reg;
+	struct clk clock;
 	unsigned int one_shot;
 	unsigned long rate;
 	unsigned int prescaler;

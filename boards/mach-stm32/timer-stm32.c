@@ -236,6 +236,13 @@ static int stm32_timer_of_init(struct timer *timer)
 		goto out;
 	}
 
+	ret = stm32_rcc_of_enable_clk(offset, &timer->clock);
+	if (ret < 0) {
+		error_printk("failed to retrieve timer clock\n");
+		ret = -EIO;
+		goto out;
+	}
+
 out:
 	return ret;
 }
@@ -262,19 +269,13 @@ static int stm32_timer_init(struct device *dev)
 		goto err;
 	}
 
-	ret = stm32_rcc_enable_clk(timer->base_reg);
-	if (ret < 0) {
-		error_printk("cannot enable TIM%d clock\r\n", timer->num);
-		goto err;
-	}
-
-	pres = stm32_rcc_get_pres_clk(AHB_CLK);
+	pres = stm32_rcc_get_pres_clk(CLK_AHB);
 	if (pres < 0) {
 		error_printk("failed to retrieve ahb prescaler\n");
 		goto clk_disable;
 	}
 
-	freq = stm32_rcc_get_freq_clk(APB1_CLK);
+	freq = stm32_rcc_get_freq_clk(CLK_APB1);
 	if (freq < 0) {
 		error_printk("failed to retrieve apb1 freq\n");
 		goto clk_disable;
@@ -300,7 +301,7 @@ static int stm32_timer_init(struct device *dev)
 	return ret;
 
 clk_disable:
-	stm32_rcc_disable_clk(timer->base_reg);
+	stm32_rcc_disable_clk(timer->clock.gated, timer->clock.id);
 err:
 	return ret;
 }
