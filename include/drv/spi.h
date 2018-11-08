@@ -3,6 +3,7 @@
 
 #include <drv/device.h>
 #include <drv/dma.h>
+#include <drv/clk.h>
 #include <list.h>
 #include <kernel/kmutex.h>
 #include <kernel/ksem.h>
@@ -31,7 +32,7 @@ struct spi_operations
 struct spi_master {
 	unsigned int num;
 	unsigned int base_reg;
-	unsigned int source_clk;
+	struct clk clock;
 	unsigned int rate;	/* current rate */
 	unsigned int speed;	/* wanted speed */
 	unsigned int irq;

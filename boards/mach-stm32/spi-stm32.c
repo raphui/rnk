@@ -285,15 +285,6 @@ int stm32_spi_of_init(struct spi_master *spi)
 		goto out;
 	}
 
-	ret = fdtparse_get_int(offset, "clock", (int *)&spi->source_clk);
-	if (ret < 0) {
-		error_printk("failed to retrieve spi source clk\n");
-		ret = -EIO;
-		goto out;
-	}
-
-	spi->source_clk = stm32_rcc_get_freq_clk(spi->source_clk);
-
 	ret = fdtparse_get_int(offset, "interrupts", (int *)&spi->irq);
 	if (ret < 0) {
 		error_printk("failed to retrieve spi irq\n");
@@ -311,6 +302,13 @@ int stm32_spi_of_init(struct spi_master *spi)
 	ret = fdtparse_get_int(offset, "speed", (int *)&spi->speed);
 	if (ret < 0) {
 		error_printk("failed to retrieve spi speed\n");
+		ret = -EIO;
+		goto out;
+	}
+
+	ret = stm32_rcc_of_enable_clk(offset, &spi->clock);
+	if (ret < 0) {
+		error_printk("failed to retrieve spi periph clock\n");
 		ret = -EIO;
 		goto out;
 	}
@@ -364,13 +362,7 @@ int stm32_spi_init(struct device *device)
 
 	SPI = (SPI_TypeDef *)spi->base_reg;
 
-	ret = stm32_rcc_enable_clk(spi->base_reg);
-	if (ret < 0) {
-		error_printk("cannot enable SPI periph clock\r\n");
-		goto err;
-	}
-
-	spi->rate = spi->source_clk;
+	spi->rate = spi->clock.source_clk;
 	spi->rate = stm32_spi_find_best_pres(spi->rate, spi->speed);
 
 	spi->spi_ops = &spi_ops;
@@ -405,7 +397,7 @@ int stm32_spi_init(struct device *device)
 	return ret;
 
 disable_clk:
-	stm32_rcc_disable_clk(spi->base_reg);
+	stm32_rcc_disable_clk(spi->clock.gated, spi->clock.id);
 err:
 	return ret;
 }
