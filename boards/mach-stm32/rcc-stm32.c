@@ -5,19 +5,7 @@
 #include <kernel/printk.h>
 #include <init.h>
 
-/* system clock source */
-#define RCC_CFGR_HSI      	0
-#define RCC_CFGR_HSE      	1
-#define RCC_CFGR_PLL      	2
-
 #define LSI_FREQ	32000
-
-struct clk
-{
-	unsigned int periph_base;
-	unsigned int reg_base;
-	unsigned int mask;
-};
 
 struct clk_div_table {
         unsigned int val;
@@ -38,57 +26,6 @@ static const struct clk_div_table apb_div_table[] = {
         { 0 },
 };
 
-static struct clk clk_lut[] = {
-	{TIM2_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_TIM2EN}, 
-	{TIM3_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_TIM3EN}, 
-	{TIM4_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_TIM4EN}, 
-	{TIM5_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_TIM5EN}, 
-	{TIM6_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_TIM6EN}, 
-	{TIM7_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_TIM7EN}, 
-	{TIM12_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_TIM12EN},
-	{TIM13_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_TIM13EN},
-	{TIM14_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_TIM14EN},
-	{SPI2_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_SPI2EN},
-	{SPI3_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_SPI3EN},
-	{USART2_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_USART2EN},
-	{USART3_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_USART3EN},
-	{I2C1_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_I2C1EN},
-	{I2C2_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_I2C2EN},
-	{I2C3_BASE, (unsigned int)&RCC->APB1ENR, RCC_APB1ENR_I2C3EN},
-	{TIM1_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_TIM1EN},
-	{TIM8_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_TIM8EN},
-	{USART1_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_USART1EN},
-	{USART6_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_USART6EN},
-	{SPI1_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_SPI1EN},
-	{SYSCFG_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_SYSCFGEN},
-	{TIM9_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_TIM9EN},
-	{TIM10_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_TIM10EN},
-	{TIM11_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_TIM11EN},
-	{GPIOA_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_GPIOAEN},
-	{GPIOB_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_GPIOBEN},
-	{GPIOC_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_GPIOCEN},
-	{GPIOD_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_GPIODEN},
-	{GPIOE_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_GPIOEEN},
-	{GPIOF_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_GPIOFEN},
-	{GPIOG_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_GPIOGEN},
-	{GPIOH_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_GPIOHEN},
-	{GPIOI_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_GPIOIEN},
-	{DMA1_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_DMA1EN},
-	{DMA2_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_DMA2EN},
-	{USB_OTG_FS_PERIPH_BASE, (unsigned int)&RCC->AHB2ENR, RCC_AHB2ENR_OTGFSEN},
-	{USB_OTG_HS_PERIPH_BASE, (unsigned int)&RCC->AHB2ENR, RCC_AHB2ENR_OTGFSEN},
-	{RTC_BASE, (unsigned int)&RCC->BDCR, RCC_BDCR_RTCEN},
-#ifdef CONFIG_STM32F429
-	{SPI4_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_SPI4EN},
-	{SPI5_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_SPI5EN},
-	{SPI6_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_SPI6EN},
-	{LTDC_BASE, (unsigned int)&RCC->APB2ENR, RCC_APB2ENR_LTDCEN},
-	{GPIOJ_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_GPIOJEN},
-	{GPIOK_BASE, (unsigned int)&RCC->AHB1ENR, RCC_AHB1ENR_GPIOKEN},
-#endif /* CONFIG_STM32F429 */
-	{ /* sentinel */ }
-};
-
 static int sysclk_freq;
 static int ahb_freq;
 static int apb1_freq;
@@ -96,22 +33,6 @@ static int apb2_freq;
 static int ahb_pres;
 static int apb1_pres;
 static int apb2_pres;
-
-static int stm32_rcc_find_periph(int periph_base)
-{
-	int ret = -ENODEV;
-	int i = 0;
-	int size = sizeof(clk_lut) / sizeof(struct clk);
-
-	for (i = 0; i < size; i++) {
-		if (periph_base == clk_lut[i].periph_base) {
-			ret = i;
-			break;
-		}
-	}
-
-	return ret;
-}
 
 static int stm32_rcc_find_ahb_div(int pres)
 {
@@ -145,63 +66,12 @@ static int stm32_rcc_find_apb_div(int pres)
 	return ret;
 }
 
-int stm32_rcc_get_freq_clk(unsigned int clk)
+static int stm32_rcc_enable_internal_clk(unsigned int clk)
 {
 	int ret = 0;
 
 	switch (clk) {
-	case SYSCLK:
-		ret = sysclk_freq;
-		break;
-	case AHB_CLK:
-		ret = ahb_freq;
-		break;
-	case APB1_CLK:
-		ret = apb1_freq;
-		break;
-	case APB2_CLK:
-		ret = apb2_freq;
-		break;
-	case LSI_CLK:
-		ret = LSI_FREQ;
-		break;
-	default:
-		ret = -EINVAL;
-		break;
-	}
-
-	return ret;
-}
-
-int stm32_rcc_get_pres_clk(unsigned int clk)
-{
-	int ret = 0;
-
-	switch (clk) {
-	case AHB_CLK:
-		ret = ahb_pres;
-		break;
-	case APB1_CLK:
-		ret = apb1_pres;
-		break;
-	case APB2_CLK:
-		ret = apb2_pres;
-		break;
-	default:
-		ret = -EINVAL;
-		break;
-	}
-
-	return ret;
-}
-
-
-int stm32_rcc_enable_internal_clk(unsigned int clk)
-{
-	int ret = 0;
-
-	switch (clk) {
-	case LSI_CLK:
+	case CLK_LSI:
 		RCC->APB1ENR |= RCC_APB1ENR_PWREN;
 		PWR->CR |= PWR_CR_DBP;
 		RCC->CSR |= RCC_CSR_LSION;
@@ -218,45 +88,253 @@ int stm32_rcc_enable_internal_clk(unsigned int clk)
 
 }
 
-int stm32_rcc_enable_clk(int periph_base)
+static int stm32_rcc_disable_internal_clk(unsigned int clk)
 {
 	int ret = 0;
-	int i = 0;
-	unsigned int *reg_base;
-	unsigned int mask;
 
-	i = stm32_rcc_find_periph(periph_base);
-	if (i < 0) {
-		error_printk("cannot find periph base: 0x%x\r\n", periph_base);
-		return i;
+	switch (clk) {
+	case CLK_LSI:
+		RCC->CSR &= ~RCC_CSR_LSION;
+		break;
+	default:
+		ret = -EINVAL;
+		break;
 	}
 
-	reg_base = (unsigned int *)clk_lut[i].reg_base;
-	mask = clk_lut[i].mask;
+	return ret;
 
-	*reg_base |= mask;
+}
+
+static int stm32_rcc_enable_gated_clk(int id)
+{
+	int ret = 0;
+	int bus_id = id / 32;
+	volatile unsigned int *p;
+
+	p = (volatile unsigned int *)(&RCC->AHB1ENR + bus_id);
+
+	id %= 32;
+
+	*p |= (1 << id);
+
+	if (bus_id < 2)
+		ret = ahb_freq;
+	else if (bus_id < 3)
+		ret = apb1_freq;
+	else
+		ret = apb2_freq;
 
 	return ret;
 }
 
-int stm32_rcc_disable_clk(int periph_base)
+static int stm32_rcc_disable_gated_clk(int id)
 {
 	int ret = 0;
-	int i = 0;
-	unsigned int *reg_base;
-	unsigned int mask;
+	int bus_id = id / 32;
+	volatile unsigned int *p;
 
-	i = stm32_rcc_find_periph(periph_base);
-	if (i < 0) {
-		error_printk("cannot find periph base: 0x%x\r\n", periph_base);
-		return i;
+	p = (volatile unsigned int *)(&RCC->AHB1ENR + bus_id);
+
+	id %= 32;
+
+	*p &= ~(1 << id);
+
+	return ret;
+}
+
+static void stm32_rcc_set_sysclk(int source)
+{
+	RCC->CFGR &= (unsigned int)((unsigned int)~(RCC_CFGR_SW));
+
+	switch (source) {
+	case CLK_HSI:
+		RCC->CFGR |= RCC_CFGR_SW_HSI;
+		while ((RCC->CFGR & (unsigned int)RCC_CFGR_SWS ) != RCC_CFGR_SWS_HSI)
+			;
+		break;
+	case CLK_LSI:
+	case CLK_LSE:
+		break;
+	case CLK_PLL:
+		RCC->CFGR |= RCC_CFGR_SW_PLL;
+		while ((RCC->CFGR & (unsigned int)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL)
+			;
+		break;
+	}
+}
+
+static void stm32_rcc_adjust_flash_ws(int freq)
+{
+	if (freq <= 16000000)
+		FLASH->ACR |= FLASH_ACR_LATENCY_0WS;
+	else if (freq <= 32000000)
+		FLASH->ACR |= FLASH_ACR_LATENCY_1WS;
+	else if (freq <= 48000000)
+		FLASH->ACR |= FLASH_ACR_LATENCY_2WS;
+	else if (freq <= 64000000)
+		FLASH->ACR |= FLASH_ACR_LATENCY_3WS;
+	else if (freq <= 80000000)
+		FLASH->ACR |= FLASH_ACR_LATENCY_4WS;
+	else if (freq <= 84000000)
+		FLASH->ACR |= FLASH_ACR_LATENCY_5WS;
+}
+
+static int stm32_rcc_find_parent_clock(int offset, int *source_freq)
+{
+	int ret = -ENOENT;
+	int len;
+	int parent_phandle;
+	const void *fdt_blob = fdtparse_get_blob();
+	const struct fdt_property *prop;
+	fdt32_t *cell;
+
+	prop = fdt_get_property(fdt_blob, offset, "assigned-clock", &len);
+	if (prop) {
+		cell = (fdt32_t *)prop->data;
+
+		parent_phandle = fdt32_to_cpu(cell[0]);
+		offset = fdt_node_offset_by_phandle(fdt_blob, parent_phandle);
 	}
 
-	reg_base = (unsigned int *)clk_lut[i].reg_base;
-	mask = clk_lut[i].mask;
+	prop = fdt_get_property(fdt_blob, offset, "clocks", &len);
+	if (!prop) {
+		error_printk("cannot find source clock in fdt\n");
+		ret = -ENOENT;
+		goto out;
+	}
 
-	*reg_base &= ~mask;
+	if (len <= 3) {
+		error_printk("not enough parameters for clock\n");
+		ret = -EINVAL;
+		goto out;
+	}
 
+	cell = (fdt32_t *)prop->data;
+
+	ret = fdt32_to_cpu(cell[2]);
+
+	fdtparse_get_int(offset, "clock-frequency", source_freq);
+
+out:
+	return ret;
+}
+
+int stm32_rcc_get_freq_clk(unsigned int clk)
+{
+	int ret = 0;
+
+	switch (clk) {
+	case CLK_SYSCLK:
+		ret = sysclk_freq;
+		break;
+	case CLK_AHB:
+		ret = ahb_freq;
+		break;
+	case CLK_APB1:
+		ret = apb1_freq;
+		break;
+	case CLK_APB2:
+		ret = apb2_freq;
+		break;
+	case CLK_LSI:
+		ret = LSI_FREQ;
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+
+	return ret;
+}
+
+int stm32_rcc_get_pres_clk(unsigned int clk)
+{
+	int ret = 0;
+
+	switch (clk) {
+	case CLK_AHB:
+		ret = ahb_pres;
+		break;
+	case CLK_APB1:
+		ret = apb1_pres;
+		break;
+	case CLK_APB2:
+		ret = apb2_pres;
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+
+	return ret;
+}
+
+int stm32_rcc_enable_clk(int secondary, int id)
+{
+	int ret = 0;
+
+	if (secondary)
+		ret = stm32_rcc_enable_internal_clk(id);
+	else
+		ret = stm32_rcc_enable_gated_clk(id);
+
+	return ret;
+}
+
+int stm32_rcc_disable_clk(int secondary, int id)
+{
+
+	int ret = 0;
+
+	if (secondary)
+		ret = stm32_rcc_disable_internal_clk(id);
+	else
+		ret = stm32_rcc_disable_gated_clk(id);
+
+	return ret;
+}
+
+int stm32_rcc_of_enable_clk(int offset, struct clk *clk)
+{
+	int ret = 0;
+	int len;
+	const void *fdt_blob = fdtparse_get_blob();
+	const struct fdt_property *prop;
+	int parent_phandle, parent_offset;
+	fdt32_t *cell;
+
+	prop = fdt_get_property(fdt_blob, offset, "clocks", &len);
+	if (!prop) {
+		error_printk("cannot find clock in fdt\n");
+		ret = -ENOENT;
+		goto out;
+	}
+
+	if (len < 0) {
+		error_printk("not enough parameters for clock\n");
+		ret = -EINVAL;
+		goto out;
+	}
+
+	cell = (fdt32_t *)prop->data;
+
+	ret = stm32_rcc_enable_clk(fdt32_to_cpu(cell[1]), fdt32_to_cpu(cell[2]));
+
+	if (clk) {
+		clk->gated = !fdt32_to_cpu(cell[1]);
+		clk->id = fdt32_to_cpu(cell[2]);
+
+		if (!clk->gated) {
+			parent_phandle = fdt32_to_cpu(cell[0]);
+			parent_offset = fdt_node_offset_by_phandle(fdt_blob, parent_phandle);
+
+			fdtparse_get_int(parent_offset, "clock-frequency", (int *)&clk->source_clk);
+		} else {
+			clk->source_clk = ret;
+		}
+	}
+
+out:
 	return ret;
 }
 
@@ -265,42 +343,39 @@ int stm32_rcc_enable_sys_clk(void)
 	int ret = 0;
 	int offset;
 	int len;
-	int pll_source, pll_m, pll_q, pll_n, pll_p;
+	int sysclk_source, pll_m, pll_q, pll_n, pll_p;
 	int div_ahb, div_apb1, div_apb2;
 	int source, source_freq;
 	const void *fdt_blob = fdtparse_get_blob();
 	const struct fdt_property *prop;
+	int parent_offset, parent_phandle;
 	fdt32_t *cell;
 
-	offset = fdt_path_offset(fdt_blob, "/clocks/fast");
+	offset = fdt_path_offset(fdt_blob, "/clocks/sysclk");
 	if (offset < 0) {
 		error_printk("cannot find clock definition in fdt\n");
 		ret = -ENOENT;
 		goto out;
 	}
 
-	prop = fdt_get_property(fdt_blob, offset, "pll", &len);
+	prop = fdt_get_property(fdt_blob, offset, "clocks", &len);
 	if (!prop) {
-		error_printk("cannot find pll clocks in fdt\n");
+		error_printk("cannot find source clock in fdt\n");
 		ret = -ENOENT;
 		goto out;
 	}
 
-	if (len < 5) {
-		error_printk("not enough parameters for pll (has to be 5)\n");
+	if (len <= 0) {
+		error_printk("not enough parameters for source\n");
 		ret = -EINVAL;
 		goto out;
 	}
 
-	fdtparse_get_int(offset, "source", &source);
-
 	cell = (fdt32_t *)prop->data;
 
-	pll_source = fdt32_to_cpu(cell[0]);
-	pll_m = fdt32_to_cpu(cell[1]);
-	pll_n = fdt32_to_cpu(cell[2]);
-	pll_p = fdt32_to_cpu(cell[3]);
-	pll_q = fdt32_to_cpu(cell[4]);
+	parent_phandle = fdt32_to_cpu(cell[0]);
+	parent_offset = fdt_node_offset_by_phandle(fdt_blob, parent_phandle);
+	sysclk_source = fdt32_to_cpu(cell[2]);
 
 	prop = fdt_get_property(fdt_blob, offset, "prescaler", &len);
 	if (!prop) {
@@ -345,50 +420,50 @@ int stm32_rcc_enable_sys_clk(void)
 	RCC->CFGR |= (div_apb1 << 10);
 	RCC->CFGR |= (div_apb2 << 13);
 
-	offset = fdt_path_offset(fdt_blob, "/clocks/sources");
-	if (offset < 0) {
-		error_printk("cannot find clock sources in fdt\n");
-		ret = -ENOENT;
-		goto out;
-	}
-
-
-	switch (source) {
-	case RCC_CFGR_HSI:
-		ret = fdtparse_get_int(offset, "hsi", &source_freq);
+	switch (sysclk_source) {
+	case CLK_HSI:
+	case CLK_LSI:
+	case CLK_LSE:
+		ret = fdtparse_get_int(offset, "clock-frequency", &source_freq);
 		if (ret < 0) {
-			error_printk("failed to retrieve hsi freq\n");
-			ret = -EIO;
-			goto out;
-		}
-		break;
-	case RCC_CFGR_HSE:
-		ret = fdtparse_get_int(offset, "hse", &source_freq);
-		if (ret < 0) {
-			error_printk("failed to retrieve hsi freq\n");
+			error_printk("failed to retrieve sysclk source freq\n");
 			ret = -EIO;
 			goto out;
 		}
 
 		sysclk_freq = source_freq;
 		break;
-	case RCC_CFGR_PLL:
-		if (pll_source == 0) {
-			ret = fdtparse_get_int(offset, "hsi", &source_freq);
-			if (ret < 0) {
-				error_printk("failed to retrieve hsi freq\n");
-				ret = -EIO;
-				goto out;
-			}
-			RCC->CR |= RCC_CFGR_HSI;
-			RCC->PLLCFGR = pll_m | (pll_n << 6) | (((pll_p >> 1) -1) << 16) | (pll_q << 24);
+	case CLK_PLL:
+		source = stm32_rcc_find_parent_clock(parent_offset, &source_freq);
+
+		prop = fdt_get_property(fdt_blob, parent_offset, "settings", &len);
+		if (!prop) {
+			error_printk("cannot find source clock in fdt\n");
+			ret = -ENOENT;
+			goto out;
+		}
+
+		if (len <= 4) {
+			error_printk("not enough parameters for source\n");
+			ret = -EINVAL;
+			goto out;
+		}
+
+		cell = (fdt32_t *)prop->data;
+
+		pll_m = fdt32_to_cpu(cell[0]);
+		pll_n = fdt32_to_cpu(cell[1]);
+		pll_p = fdt32_to_cpu(cell[2]);
+		pll_q = fdt32_to_cpu(cell[3]);
+
+		RCC->PLLCFGR = pll_m | (pll_n << 6) | (((pll_p >> 1) -1) << 16) | (pll_q << 24);
+
+		if (source == CLK_HSI) {
+			RCC->CR |= RCC_CR_HSION;
+
+			while (!(RCC->CR & RCC_CR_HSIRDY))
+				;
 		} else {
-			ret = fdtparse_get_int(offset, "hse", &source_freq);
-			if (ret < 0) {
-				error_printk("failed to retrieve hse freq\n");
-				ret = -EIO;
-				goto out;
-			}
 
 			RCC->CR |= RCC_CR_HSEON;
 
@@ -396,9 +471,9 @@ int stm32_rcc_enable_sys_clk(void)
 			while(!(RCC->CR & RCC_CR_HSERDY))
 				;
 
-			RCC->PLLCFGR = pll_m | (pll_n << 6) | (((pll_p >> 1) -1) << 16) | (RCC_PLLCFGR_PLLSRC_HSE) | (pll_q << 24);
+			RCC->PLLCFGR |= RCC_PLLCFGR_PLLSRC_HSE;
 		}
-
+			
 		RCC->CR |= RCC_CR_PLLON;
 
 		while(!(RCC->CR & RCC_CR_PLLRDY))
@@ -415,19 +490,14 @@ int stm32_rcc_enable_sys_clk(void)
 
 	/* Select regulator voltage output Scale 1 mode */
 	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
-	PWR->CR |= PWR_CR_VOS;
 
 	/* Configure Flash prefetch, Instruction cache, Data cache and wait state */
-	FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN | FLASH_ACR_LATENCY_5WS;
+	stm32_rcc_adjust_flash_ws(sysclk_freq);
 
+	FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN;
 
-	/* Select the main PLL as system clock source */
-	RCC->CFGR &= (unsigned int)((unsigned int)~(RCC_CFGR_SW));
-	RCC->CFGR |= RCC_CFGR_SW_PLL;
+	stm32_rcc_set_sysclk(sysclk_source);
 
-	/* Wait till the main PLL is used as system clock source */
-	while ((RCC->CFGR & (unsigned int)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL);
-		;
 out:
 	return ret;
 }

@@ -18,7 +18,6 @@
 void low_level_init(void)
 {
 	/* Reset RCC clock */
-	RCC->CR |= RCC_CR_HSION;
 	RCC->CFGR = 0x00000000;
 	/* Reset HSEON, CSSON and PLLON bits */
 	RCC->CR &= (unsigned int)0xFEF6FFFF;
