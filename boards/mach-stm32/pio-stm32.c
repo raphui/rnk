@@ -5,6 +5,8 @@
 #include <errno.h>
 #include <fdtparse.h>
 #include <kernel/printk.h>
+#include <init.h>
+#include <drv/clk.h>
 
 #define GPIO_MODER(pin)			(3 << (pin * 2))
 #define GPIO_MODER_OUTPUT(pin)		(1 << (pin * 2))
@@ -29,21 +31,9 @@ struct gpio_options
 	unsigned char edge:2;
 };
 
-static void stm32_pio_set_clock(unsigned int port)
-{
-	int ret = 0;
-
-	ret = stm32_rcc_enable_clk(port);
-	if (ret < 0)
-		error_printk("cannot enable GPIO periph clock\r\n");
-
-}
-
 void stm32_pio_set_output(unsigned int port, unsigned int mask, int pull_up)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
-
-	stm32_pio_set_clock(port);
 
 	base->MODER &= ~GPIO_MODER(mask);
 	base->MODER |= GPIO_MODER_OUTPUT(mask);
@@ -69,7 +59,6 @@ static void stm32_pio_set_output_type(unsigned int port, unsigned int mask, int 
 void stm32_pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
-	stm32_pio_set_clock(port);
 	base->MODER &= ~(GPIO_MODER(mask));
 
 	if (pull_up)
@@ -82,7 +71,6 @@ void stm32_pio_set_input(unsigned int port, unsigned int mask, int pull_up, int 
 void stm32_pio_set_analog(unsigned int port, unsigned int mask)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
-	stm32_pio_set_clock(port);
 	base->MODER |= GPIO_MODER(mask);
 }
 
@@ -90,8 +78,6 @@ void stm32_pio_set_alternate(unsigned int port, unsigned int mask, unsigned int 
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 	unsigned int afr_high_base = 8;
-
-	stm32_pio_set_clock(port);
 
 	base->MODER &= ~GPIO_MODER(mask);
 	base->MODER |= GPIO_MODER_ALTERNATE(mask);
@@ -275,3 +261,47 @@ struct pio_operations pio_ops = {
 	.of_get = stm32_pio_of_get,
 	.export_pio = stm32_pio_export,
 };
+
+static int stm32_pio_init(struct device *dev)
+{
+	int offset;
+	struct clk clock;
+	int ret = 0;
+	const void *fdt_blob = fdtparse_get_blob();
+
+	offset = fdt_path_offset(fdt_blob, dev->of_path);
+	if (offset < 0) {
+		ret = -ENOENT;
+		goto err;
+	}
+
+	ret = fdt_node_check_compatible(fdt_blob, offset, dev->of_compat);
+	if (ret < 0)
+		goto err;
+
+
+	ret = stm32_rcc_of_enable_clk(offset, &clock);
+	if (ret < 0) {
+		error_printk("failed to retrieve pio clock\n");
+		ret = -EIO;
+	}
+
+err:
+	return ret;
+}
+
+struct device stm32_pio_driver = {
+	.of_compat = "st,stm32f4xx-pio",
+	.probe = stm32_pio_init,
+};
+
+static int stm32_pio_register(void)
+{
+	int ret = 0;
+
+	ret = device_of_register(&stm32_pio_driver);
+	if (ret < 0)
+		error_printk("failed to register stm32_pio device\n");
+	return ret;
+}
+postarch_initcall(stm32_pio_register);
