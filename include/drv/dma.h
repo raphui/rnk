@@ -2,6 +2,7 @@
 #define DMA_H
 
 #include <drv/device.h>
+#include <drv/clk.h>
 #include <list.h>
 
 #define INCR0	0x0
@@ -40,6 +41,7 @@ struct dma_stream {
 
 struct dma_controller {
 	unsigned int base_reg;
+	struct clk clock;
 	unsigned int mem2mem;
 	unsigned char interrupts[CONFIG_DMA_REQUEST_LINES];
 	struct device dev;

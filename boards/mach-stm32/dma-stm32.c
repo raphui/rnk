@@ -339,7 +339,7 @@ int stm32_dma_of_init(struct dma_controller *dma)
 		goto out;
 	}
 
-	ret = fdtparse_get_int(offset, "clocks", (int *)&dma->clock);
+	ret = stm32_rcc_of_enable_clk(offset, &dma->clock);
 	if (ret < 0) {
 		error_printk("failed to retrieve dma clock\n");
 		ret = -EIO;
@@ -357,6 +357,14 @@ int stm32_dma_of_init(struct dma_controller *dma)
 
 	for(i = 0; i < num; i++, cell++)
 		dma->interrupts[i] = fdt32_to_cpu(cell[0]);
+
+	ret = stm32_rcc_of_enable_clk(offset, &dma->clock);
+	if (ret < 0) {
+		error_printk("failed to retrieve dma clock\n");
+		ret = -EIO;
+		goto out;
+	}
+
 out:
 	return ret;
 }
@@ -382,12 +390,6 @@ int stm32_dma_init(struct device *dev)
 		goto err;
 	}
 
-	ret = stm32_rcc_enable_clk(dma->base_reg);
-	if (ret < 0) {
-		error_printk("cannot enable clk for dma controller\n");
-		goto err;
-	}
-
 	ret = dma_register_controller(dma);
 	if (ret < 0) {
 		error_printk("failed to register stm32 dma controller\n");
@@ -397,7 +399,7 @@ int stm32_dma_init(struct device *dev)
 	return 0;
 
 disable_clk:
-	stm32_rcc_disable_clk(dma->base_reg);
+	stm32_rcc_disable_clk(dma->clock.gated, dma->clock.id);
 err:
 	return ret;
 }
