@@ -2,6 +2,7 @@
 #define USB_H
 
 #include <drv/device.h>
+#include <drv/clk.h>
 
 struct usb_device;
 
@@ -13,6 +14,7 @@ struct usb_operations
 
 struct usb_device {
 	unsigned int base_reg;
+	struct clk clock;
 	unsigned int irq;
 	void *priv;
 	struct device dev;

@@ -112,6 +112,13 @@ static int stm32_usb_of_init(struct usb_device *usb)
 		goto out;
 	}
 
+	ret = stm32_rcc_of_enable_clk(offset, &usb->clock);
+	if (ret < 0) {
+		error_printk("failed to retrieve usb clock\n");
+		ret = -EIO;
+		goto out;
+	}
+
 out:
 	return ret;
 }
@@ -144,12 +151,6 @@ static int stm32_usb_init(struct device *device)
 		goto err;
 	}
 
-	ret = stm32_rcc_enable_clk(usb->base_reg);
-	if (ret < 0) {
-		error_printk("cannot enable clk for usb\r\n");
-		goto err;
-	}
-
 	memset(pdata, 0, sizeof(struct usb_pdata));
 
 	pdata->cdcCmd = 0xFF;
@@ -179,7 +180,7 @@ static int stm32_usb_init(struct device *device)
 	return 0;
 
 disable_clk:
-	stm32_rcc_disable_clk(usb->base_reg);
+	stm32_rcc_disable_clk(usb->clock.gated, usb->clock.id);
 err:
 	return ret;
 }
