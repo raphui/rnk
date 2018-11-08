@@ -39,9 +39,9 @@ struct dma_stream {
 };
 
 struct dma_controller {
-	unsigned char num;
 	unsigned int base_reg;
 	unsigned int mem2mem;
+	unsigned char interrupts[CONFIG_DMA_REQUEST_LINES];
 	struct device dev;
 	struct list_node node;
 	struct dma_operations *dma_ops;

@@ -39,69 +39,8 @@ static inline unsigned int stm32_dma_get_base(struct dma_stream *dma_stream)
 
 static int stm32_dma_get_nvic_number(struct dma_stream *dma_stream)
 {
-	int nvic = 0;
 
-	if (dma_stream->dma->num == 1) {
-
-		switch (dma_stream->stream_num) {
-			case 0:
-				nvic = DMA1_Stream0_IRQn;
-				break;
-			case 1:
-				nvic = DMA1_Stream1_IRQn;
-				break;
-			case 2:
-				nvic = DMA1_Stream2_IRQn;
-				break;
-			case 3:
-				nvic = DMA1_Stream3_IRQn;
-				break;
-			case 4:
-				nvic = DMA1_Stream4_IRQn;
-				break;
-			case 5:
-				nvic = DMA1_Stream5_IRQn;
-				break;
-			case 6:
-				nvic = DMA1_Stream6_IRQn;
-				break;
-			case 7:
-				nvic = DMA1_Stream7_IRQn;
-				break;
-		}
-
-	} else if (dma_stream->dma->num == 2) {
-
-		switch (dma_stream->stream_num) {
-			case 0:
-				nvic = DMA2_Stream0_IRQn;
-				break;
-			case 1:
-				nvic = DMA2_Stream1_IRQn;
-				break;
-			case 2:
-				nvic = DMA2_Stream2_IRQn;
-				break;
-			case 3:
-				nvic = DMA2_Stream3_IRQn;
-				break;
-			case 4:
-				nvic = DMA2_Stream4_IRQn;
-				break;
-			case 5:
-				nvic = DMA2_Stream5_IRQn;
-				break;
-			case 6:
-				nvic = DMA2_Stream6_IRQn;
-				break;
-			case 7:
-				nvic = DMA2_Stream7_IRQn;
-				break;
-		}
-
-	}
-
-	return nvic;
+	return dma_stream->dma->interrupts[dma_stream->stream_num];
 }
 
 static int stm32_dma_get_interrupt_flags(struct dma_stream *dma_stream)
@@ -379,6 +318,9 @@ int stm32_dma_of_init(struct dma_controller *dma)
 	int offset;
 	int ret = 0;
 	const void *fdt_blob = fdtparse_get_blob();
+	const struct fdt_property *prop;
+	int len, num, i;
+	fdt32_t *cell;
 
 	offset = fdt_path_offset(fdt_blob, dma->dev.of_path);
 	if (offset < 0) {
@@ -397,13 +339,24 @@ int stm32_dma_of_init(struct dma_controller *dma)
 		goto out;
 	}
 
-	ret = fdtparse_get_int(offset, "num", (int *)&dma->num);
+	ret = fdtparse_get_int(offset, "clocks", (int *)&dma->clock);
 	if (ret < 0) {
-		error_printk("failed to retrieve dma num\n");
+		error_printk("failed to retrieve dma clock\n");
 		ret = -EIO;
 		goto out;
 	}
 
+	prop = fdt_get_property(fdt_blob, offset, "interrupts", &len);
+	if (len < 0) {
+		return len;
+	}
+
+	num = len / (3 * sizeof(fdt32_t));
+
+	cell = (fdt32_t *)prop->data;
+
+	for(i = 0; i < num; i++, cell++)
+		dma->interrupts[i] = fdt32_to_cpu(cell[0]);
 out:
 	return ret;
 }
