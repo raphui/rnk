@@ -113,15 +113,6 @@ static int stm32_usart_of_init(struct usart_master *usart)
 		goto out;
 	}
 
-	ret = fdtparse_get_int(offset, "clock", (int *)&usart->source_clk);
-	if (ret < 0) {
-		error_printk("failed to retrieve usart source clk\n");
-		ret = -EIO;
-		goto out;
-	}
-
-	usart->source_clk = stm32_rcc_get_freq_clk(usart->source_clk);
-
 	ret = fdtparse_get_int(offset, "baudrate", (int *)&usart->baud_rate);
 	if (ret < 0) {
 		error_printk("failed to retrieve usart baudrate\n");
@@ -135,6 +126,8 @@ static int stm32_usart_of_init(struct usart_master *usart)
 		ret = -EIO;
 		goto out;
 	}
+
+	ret = stm32_rcc_of_enable_clk(offset, &usart->clock);
 
 out:
 	return ret;
@@ -164,16 +157,10 @@ static int stm32_usart_init(struct device *dev)
 
 	USART = (USART_TypeDef *)usart->base_reg;
 
-	ret = stm32_rcc_enable_clk(usart->base_reg);
-	if (ret < 0) {
-		error_printk("cannot enable clk for usart\r\n");
-		goto err;
-	}
-
 	USART->CR1 &= ~USART_CR1_M;
 	USART->CR1 &= ~USART_CR1_UE;
 
-	USART->BRR = stm32_baud_rate(usart->source_clk, usart->baud_rate);
+	USART->BRR = stm32_baud_rate(usart->clock.source_clk, usart->baud_rate);
 
 	USART->CR1 |= usart->mode << 2;
 	USART->CR1 |= USART_CR1_UE;
@@ -187,7 +174,7 @@ static int stm32_usart_init(struct device *dev)
 	return 0;
 
 disable_clk:
-	stm32_rcc_disable_clk(usart->base_reg);
+	stm32_rcc_disable_clk(usart->clock.gated, usart->clock.id);
 err:
 	return ret;
 }

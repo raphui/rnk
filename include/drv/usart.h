@@ -2,6 +2,7 @@
 #define USART_H
 
 #include <drv/device.h>
+#include <drv/clk.h>
 #include <kernel/printk.h>
 #include <kernel/kmutex.h>
 
@@ -25,7 +26,7 @@ struct usart_operations
 struct usart_master {
 	unsigned int num;
 	unsigned int base_reg;
-	unsigned int source_clk;
+	struct clk clock;
 	unsigned int baud_rate;
 	unsigned int mode;
 	struct mutex usart_mutex;
