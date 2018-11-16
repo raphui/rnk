@@ -97,8 +97,8 @@ EXPORT_SYMBOL(strlen);
 
 char *strcpy(char *dst, const char *src)
 {
-	while (*src++)
-		*dst++ = *src;
+	while (*src)
+		*dst++ = *src++;
 
 	return dst;
 }
