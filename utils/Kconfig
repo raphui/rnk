@@ -3,6 +3,9 @@ menu "Utility configuration"
 config UNWIND
 	bool "Enable stack unwinding"
 
+config TRACE
+	bool "Enable SEGGER trace"
+
 choice
     prompt "Debug output"
     default LITTLE_ENDIAN

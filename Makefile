@@ -40,6 +40,7 @@ INCLUDES	+= -I$(KERNEL_BASE)/include
 INCLUDES	+= -I$(KERNEL_BASE)/boards
 INCLUDES	+= -I$(KERNEL_BASE)/lib
 INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/fdt/include
+INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/trace
 
 ifeq ($(CONFIG_TLSF),y)
 INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/tlsf
@@ -47,6 +48,10 @@ endif
 
 ifeq ($(CONFIG_USB_STACK),y)
 INCLUDES	+= -I$(KERNEL_BASE)/third_party/usb
+endif
+
+ifeq ($(CONFIG_TRACE),y)
+INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/trace
 endif
 
 INCLUDES	+= -include $(KERNEL_BASE)/config.h

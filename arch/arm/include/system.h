@@ -1,6 +1,10 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+#ifdef CONFIG_CPU_ARMV7M
+#include <armv7m/system.h>
+#endif /* CONFIG_CPU_ARMV7M */
+
 #include <kernel/thread.h>
 
 extern void arch_init(void);

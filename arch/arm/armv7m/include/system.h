@@ -104,6 +104,7 @@ static inline void wait_for_interrupt(void)
 #define SCB_BASE                        (SCS_BASE + 0x0D00)                                     /* System Control Block Base Address */
 #define MPU_BASE                        (SCB_BASE + 0x0090)                                     /* MPU Block Base Address */
 #define FPU_BASE                        (SCB_BASE + 0x0230)                                     /* FPU Block Base Address */
+#define DWT_BASE			(SCB_BASE + 0x1000)					/* DWT Block Base Address */
 
 /* SysTick Timer */
 #define SYSTICK_CTL                     (volatile unsigned int) (SYSTICK_BASE)                    /* Control register for SysTick timer peripheral */
@@ -131,6 +132,7 @@ static inline void wait_for_interrupt(void)
 #define NVIC_IPR(n)                     (volatile unsigned char)  (NVIC_BASE + 0x300 + n)           /* Interrupt n priority register */
 
 #define SCS_ICTR			(volatile unsigned int) (SCS_BASE + 0x004)
+#define SCS_DEMCR			(volatile unsigned int) (SCS_BASE + 0xDFC)
 
 /* System Control Block (SCB) */
 #define SCB_ICSR                        (volatile unsigned int) (SCB_BASE + 0x004)                /* Interrupt Control and State Register */
@@ -232,6 +234,67 @@ static inline void wait_for_interrupt(void)
 /* Floating Point Unit (FPU)
  * ST PM0214 (Cortex M4 Programming Manual) pg. 236 */
 #define FPU_CCR_ASPEN                   (unsigned int) (1 << 31)                                    /* FPU Automatic State Preservation */
+
+#define DWT_CTRL			(volatile unsigned int) (DWT_BASE + 0x00)
+
+#define DWT_CYCCNT			(volatile unsigned int) (DWT_BASE + 0x04)
+#define DWT_CPICNT			(volatile unsigned int) (DWT_BASE + 0x08)
+#define DWT_EXCCNT			(volatile unsigned int) (DWT_BASE + 0x0C)
+#define DWT_SLEEPCNT			(volatile unsigned int) (DWT_BASE + 0x10)
+#define DWT_LSUCNT			(volatile unsigned int) (DWT_BASE + 0x14)
+#define DWT_FOLDCNT			(volatile unsigned int) (DWT_BASE + 0x18)
+
+#define DWT_PCSR			(volatile unsigned int) (DWT_BASE + 0x1C)
+#define DWT_COMP(n)			(volatile unsigned int) (DWT_BASE + 0x20 + (n) * 16)
+#define DWT_MASK(n)			(volatile unsigned int) (DWT_BASE + 0x24 + (n) * 16)
+#define DWT_FUNCTION(n)			(volatile unsigned int) (DWT_BASE + 0x28 + (n) * 16)
+
+#define DWT_CTRL_NUMCOMP_SHIFT		28
+#define DWT_CTRL_NUMCOMP		(0x0F << DWT_CTRL_NUMCOMP_SHIFT)
+#define DWT_CTRL_NOTRCPKT		(1 << 27)
+#define DWT_CTRL_NOEXTTRIG		(1 << 26)
+#define DWT_CTRL_NOCYCCNT		(1 << 25)
+#define DWT_CTRL_NOPRFCCNT		(1 << 24)
+#define DWT_CTRL_CYCEVTENA		(1 << 22)
+#define DWT_CTRL_FOLDEVTENA		(1 << 21)
+#define DWT_CTRL_LSUEVTENA		(1 << 20)
+#define DWT_CTRL_SLEEPEVTENA		(1 << 19)
+#define DWT_CTRL_EXCEVTENA		(1 << 18)
+#define DWT_CTRL_CPIEVTENA		(1 << 17)
+#define DWT_CTRL_EXCTRCENA		(1 << 16)
+#define DWT_CTRL_PCSAMPLENA		(1 << 12)
+#define DWT_CTRL_SYNCTAP_SHIFT		10
+#define DWT_CTRL_SYNCTAP		(3 << DWT_CTRL_SYNCTAP_SHIFT)
+#define DWT_CTRL_SYNCTAP_DISABLED	(0 << DWT_CTRL_SYNCTAP_SHIFT)
+#define DWT_CTRL_SYNCTAP_BIT24		(1 << DWT_CTRL_SYNCTAP_SHIFT)
+#define DWT_CTRL_SYNCTAP_BIT26		(2 << DWT_CTRL_SYNCTAP_SHIFT)
+#define DWT_CTRL_SYNCTAP_BIT28		(3 << DWT_CTRL_SYNCTAP_SHIFT)
+#define DWT_CTRL_CYCTAP			(1 << 9)
+#define DWT_CTRL_POSTCNT_SHIFT		5
+#define DWT_CTRL_POSTCNT		(0x0F << DWT_CTRL_POSTCNT_SHIFT)
+#define DWT_CTRL_POSTPRESET_SHIFT	1
+#define DWT_CTRL_POSTPRESET		(0x0F << DWT_CTRL_POSTPRESET_SHIFT)
+#define DWT_CTRL_CYCCNTENA		(1 << 0)
+
+#define DWT_MASKx_MASK			0x0F
+
+#define DWT_FUNCTIONx_MATCHED		(1 << 24)
+#define DWT_FUNCTIONx_DATAVADDR1_SHIFT	16
+#define DWT_FUNCTIONx_DATAVADDR1	(15 << DWT_FUNCTIONx_DATAVADDR1_SHIFT)
+#define DWT_FUNCTIONx_DATAVADDR0_SHIFT	12
+#define DWT_FUNCTIONx_DATAVADDR0	(15 << DWT_FUNCTIONx_DATAVADDR0_SHIFT)
+#define DWT_FUNCTIONx_DATAVSIZE_SHIFT	10
+#define DWT_FUNCTIONx_DATAVSIZE		(3 << DWT_FUNCTIONx_DATAVSIZE_SHIFT)
+#define DWT_FUNCTIONx_DATAVSIZE_BYTE	(0 << DWT_FUNCTIONx_DATAVSIZE_SHIFT)
+#define DWT_FUNCTIONx_DATAVSIZE_HALF	(1 << DWT_FUNCTIONx_DATAVSIZE_SHIFT)
+#define DWT_FUNCTIONx_DATAVSIZE_WORD	(2 << DWT_FUNCTIONx_DATAVSIZE_SHIFT)
+#define DWT_FUNCTIONx_DATAVMATCH	(1 << 8)
+#define DWT_FUNCTIONx_CYCMATCH		(1 << 7)
+#define DWT_FUNCTIONx_EMITRANGE		(1 << 5)
+#define DWT_FUNCTIONx_FUNCTION				15
+#define DWT_FUNCTIONx_FUNCTION_DISABLED			0
+
+#define SCS_DEMCR_TRCENA	(1 << 24)
 
 static inline void pendsv_request(void)
 {
