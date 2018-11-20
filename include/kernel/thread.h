@@ -44,6 +44,9 @@ struct thread
 	unsigned int quantum;
 	unsigned int start_stack;
 	unsigned int delay;
+#ifdef CONFIG_TRACE
+	char name[16];
+#endif /* CONFIG_TRACE */
 	void (*func)(void);
 	struct arch_thread *arch;
 	struct list_node node;

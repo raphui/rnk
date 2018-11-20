@@ -12,6 +12,7 @@
 #endif /* CONFIG_UNWIND */
 
 #include <init.h>
+#include <trace.h>
 
 extern initcall_t __rnk_initcalls_start[], __rnk_initcalls_end[];
 extern exitcall_t __rnk_exitcalls_start[], __rnk_exitcalls_end[];
@@ -27,6 +28,10 @@ int main(void)
 	printk("Welcome to rnk\n");
 
 	printk("- Initialise architecture...\n");
+
+#ifdef CONFIG_TRACE
+	trace_enable();
+#endif /* CONFIG_TRACE */
 
 	arch_init();
 

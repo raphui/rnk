@@ -7,6 +7,7 @@
 #include <kernel/printk.h>
 #include <kernel/syscall.h>
 #include <export.h>
+#include <trace.h>
 
 int ksem_init(struct semaphore *sem, int value)
 {
@@ -21,6 +22,8 @@ int ksem_init(struct semaphore *sem, int value)
 	sem->count = 0;
 
 	wait_queue_init(&sem->wait);
+
+	trace_sem_create(sem);
 
 err:
 	return ret;
@@ -37,6 +40,8 @@ int ksem_wait(struct semaphore *sem)
 		ret = -EINVAL;
 		goto err;
 	}
+
+	trace_sem_wait(sem);
 
 	if (--sem->count < 0) {
 		debug_printk("unable to got sem (%p)(%d)\r\n", sem, sem->count);
@@ -60,6 +65,8 @@ int ksem_post(struct semaphore *sem)
 		ret = -EINVAL;
 		goto err;
 	}
+
+	trace_sem_post(sem);
 
 	sem->count++;
 

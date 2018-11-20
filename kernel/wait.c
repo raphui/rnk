@@ -5,6 +5,7 @@
 #include <kernel/scheduler.h>
 #include <kernel/spinlock.h>
 #include <kernel/printk.h>
+#include <trace.h>
 
 static void insert_waiting_thread(struct wait_queue *wait, struct thread *t)
 {
@@ -28,7 +29,7 @@ static void insert_waiting_thread(struct wait_queue *wait, struct thread *t)
 		list_add_head(&wait->list, &t->event_node);
 	}
 
-
+	trace_thread_blocked(t);
 }
 
 static void remove_waiting_thread(struct wait_queue *wait, struct thread *t)

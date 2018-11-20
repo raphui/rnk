@@ -10,6 +10,7 @@
 #include <kernel/spinlock.h>
 #include <export.h>
 #include <errno.h>
+#include <trace.h>
 
 int kqueue_init(struct queue *queue, unsigned int size, unsigned int item_size)
 {
@@ -37,6 +38,8 @@ int kqueue_init(struct queue *queue, unsigned int size, unsigned int item_size)
 	wait_queue_init(&queue->wait_receive);
 	wait_queue_init(&queue->wait_post);
 
+	trace_queue_create(queue, item_size, size);
+
 err:
 	return ret;
 }
@@ -53,6 +56,8 @@ int kqueue_clear(struct queue *queue)
 	queue->item_queued = 0;
 	queue->wr = queue->head;
 	queue->curr = queue->head;
+
+	trace_queue_clear(queue);
 
 err:
 	return ret;
@@ -88,6 +93,8 @@ int kqueue_update(struct queue *queue, unsigned int size, unsigned int item_size
 
 	ret = kqueue_init(queue, size, item_size);
 
+	trace_queue_update(queue, item_size, size);
+
 err:
 	return ret;
 }
@@ -121,6 +128,8 @@ int kqueue_post(struct queue *queue, void *item, unsigned int timeout)
 		ret = -EINVAL;
 		goto err;
 	}
+
+	trace_queue_send(queue, item);
 
 	for (;;) {
 		if (back_from_sleep) {
@@ -174,6 +183,8 @@ int kqueue_receive(struct queue *queue, void *item, unsigned int timeout)
 		ret = -EINVAL;
 		goto err;
 	}
+
+	trace_queue_receive(queue, timeout);
 
 	for (;;) {
 		if (queue->item_queued) {

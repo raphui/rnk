@@ -8,6 +8,7 @@
 #include <export.h>
 #include <kernel/syscall.h>
 #include <kernel/wait.h>
+#include <trace.h>
 
 int kmutex_init(struct mutex *mutex)
 {
@@ -22,6 +23,8 @@ int kmutex_init(struct mutex *mutex)
 	mutex->owner = NULL;
 	mutex->old_prio = 0;
 
+	trace_mutex_create(mutex);
+
 	wait_queue_init(&mutex->wait);
 
 err:
@@ -33,6 +36,8 @@ int kmutex_lock(struct mutex *mutex)
 	int ret = 0;
 	struct thread *current_thread = get_current_thread();
 	unsigned long irqstate;
+
+	trace_mutex_lock(mutex);
 
 	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 
@@ -67,6 +72,8 @@ int kmutex_unlock(struct mutex *mutex)
 	int ret = 0;
 	struct thread *current_thread = get_current_thread();
 	unsigned long irqstate;
+
+	trace_mutex_unlock(mutex);
 
 	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 

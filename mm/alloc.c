@@ -2,6 +2,7 @@
 #include <kernel/printk.h>
 #include <string.h>
 #include <mm/memory.h>
+#include <trace.h>
 
 #ifdef CONFIG_TLSF
 tlsf_t tlsf_mem_kernel_pool;
@@ -92,6 +93,8 @@ static void alloc(size_t size, unsigned int *m)
 #endif
 {
 	void *mem = NULL;
+
+	trace_mem_alloc(size);
 #ifdef CONFIG_CUSTOM_MALLOC
 	int chunks;
 

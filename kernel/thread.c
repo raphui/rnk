@@ -9,6 +9,7 @@
 #include <kernel/ktime.h>
 #include <unistd.h>
 #include <errno.h>
+#include <trace.h>
 
 static struct thread *current_thread = NULL;
 static int thread_count = 0;
@@ -131,6 +132,12 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 	/* Creating thread context */
 	arch_create_context(thread->arch, (unsigned int)thread->func, (unsigned int)&end_thread, (unsigned int *)thread->start_stack, (unsigned int )arg, privileged);
 
+#ifdef CONFIG_TRACE
+	snprintf(thread->name, sizeof(thread->name), "thread %d\n", thread->pid);
+#endif /* CONFIG_TRACE */
+
+	trace_thread_create(thread);
+
 	insert_thread(thread);
 
 	thread_count++;
@@ -156,6 +163,8 @@ struct thread *thread_create(void (*func)(void), void *arg, unsigned int priorit
 void switch_thread(struct thread *thread)
 {
 	thread->state = THREAD_RUNNING;
+
+	trace_sched_thread(thread);
 
 	arch_switch_context(current_thread->arch, thread->arch);
 
@@ -225,6 +234,8 @@ struct thread *find_next_thread(void)
 void insert_runnable_thread(struct thread *thread)
 {
 	thread_lock(state);
+
+	trace_thread_runnable(thread);
 
 	insert_thread(thread);
 	thread->state = THREAD_RUNNABLE;

@@ -7,6 +7,7 @@
 #include <kernel/spinlock.h>
 #include <init.h>
 #include <export.h>
+#include <trace.h>
 
 static struct list_node sleeping_threads;
 
@@ -73,6 +74,8 @@ void ktime_usleep(unsigned int usec)
 #endif
 
 	thread->delay = timer.counter + system_tick;
+
+	trace_time_usleep(usec);
 
 	thread_lock(state);
 

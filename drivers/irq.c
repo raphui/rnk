@@ -5,12 +5,15 @@
 #include <drv/irq.h>
 #include <armv7m/vector.h>
 #include <init.h>
+#include <trace.h>
 
 int irq_action(void)
 {
 	int ret = 0;
 	unsigned int irq;
 	struct isr_entry *entry = NULL;
+
+	trace_enter_isr();
 
 	irq = vector_current_irq();
 
@@ -22,6 +25,8 @@ int irq_action(void)
 
 	if (entry->isr)
 		entry->isr(entry->arg);
+
+	trace_exit_isr();
 
 	return ret;	
 }

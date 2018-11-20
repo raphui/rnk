@@ -5,6 +5,7 @@
 #include <kernel/ktime.h>
 #include <kernel/wait.h>
 #include <init.h>
+#include <trace.h>
 
 int thread_switching = 0;
 unsigned int system_tick = 0;
@@ -95,6 +96,8 @@ void schedule_thread_stop(struct thread *thread)
 	wait_queue_wake(&t->wait_exit);
 
 	remove_runnable_thread(t);
+
+	trace_thread_stop(thread);
 
 	schedule_thread(NULL);
 }
