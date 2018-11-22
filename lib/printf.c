@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <kernel/syscall.h>
 
 #include "printf.h"
 
@@ -671,42 +672,18 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static int fd;
-static pthread_mutex_t *mutex = NULL;
-
 void _putchar(char c)
 {
-	char r = '\r';
 
-	if (c == '\n')
-		write(fd, (unsigned char *)&r, sizeof(unsigned char));
-
-	write(fd, (unsigned char *)&c, sizeof(unsigned char));
 }
 
 int printf(const char* format, ...)
 {
+  int ret;
   va_list va;
   va_start(va, format);
-  char buffer[1];
 
-  if (!mutex) {
-    mutex = malloc(sizeof(pthread_mutex_t));
-    pthread_mutex_init(mutex);
-  }
-
-  pthread_mutex_lock(mutex);
-
-  fd = open("/dev/tty1", O_RDWR);
-  if (fd < 0)
-    return fd;
-
-  const int ret = _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
-  va_end(va);
-
-  close(fd);
-
-  pthread_mutex_unlock(mutex);
+  ret = syscall(SYSCALL_PRINT, format, va);
 
   return ret;
 }
