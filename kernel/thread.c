@@ -164,8 +164,6 @@ void switch_thread(struct thread *thread)
 {
 	thread->state = THREAD_RUNNING;
 
-	trace_sched_thread(thread);
-
 	if (current_thread)
 		arch_switch_context(current_thread->arch, thread->arch);
 	else
@@ -175,6 +173,13 @@ void switch_thread(struct thread *thread)
 
 	current_thread = thread;
 }
+
+#ifdef CONFIG_TRACE
+void switch_thread_trace(void)
+{
+	trace_sched_thread(current_thread);
+}
+#endif
 
 struct thread *get_current_thread(void)
 {

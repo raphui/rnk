@@ -44,6 +44,12 @@ ENTRY(interrupt_handler)
 	ldr r1, [r2]
 	add r1, r1, #4
 
+#ifdef CONFIG_TRACE
+	stmdb sp!, {r0-r2, lr}
+	bl switch_thread_trace
+	ldmia sp!, {r0-r2, lr}
+#endif
+
 2:
 	ldmia	r1!, {r4-r11,r14}
 
