@@ -45,5 +45,17 @@ define load_apps
 	end
 end
 
+define cfsr
+	x/x 0xE000ED28
+end
+
+define mmar
+	x/x 0xE000ED34
+end
+
+define bfar
+	x/x 0xE000ED38
+end
+
 tar rem 127.0.0.1:2331
 file kernel.elf
