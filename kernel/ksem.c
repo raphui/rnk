@@ -41,9 +41,11 @@ int ksem_wait(struct semaphore *sem)
 		goto err;
 	}
 
+	sem->count--;
+
 	trace_sem_wait(sem);
 
-	if (--sem->count < 0) {
+	if (sem->count < 0) {
 		debug_printk("unable to got sem (%p)(%d)\r\n", sem, sem->count);
 
 		ret = wait_queue_block_irqstate(&sem->wait, &irqstate);
@@ -66,12 +68,12 @@ int ksem_post(struct semaphore *sem)
 		goto err;
 	}
 
-	trace_sem_post(sem);
-
 	sem->count++;
 
 	if (sem->count > sem->value)
 		sem->count = sem->value;
+
+	trace_sem_post(sem);
 
 	if (sem->count <= 0)
 		ret = wait_queue_wake_irqstate(&sem->wait, &irqstate);
