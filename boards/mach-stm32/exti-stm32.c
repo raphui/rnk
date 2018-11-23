@@ -104,12 +104,13 @@ static void stm32_exti_isr(void *arg)
 	int line = EXTI->PR & 0x7FFFFF;
 	void (*hook)(void *) = NULL;
 
+	EXTI->PR = line;
+
 	for (i = 0; i < 32; i++) {
 		if (line & (1 << i)) {
 			if (exti_callbacks[i].irq_action) {
 				hook = exti_callbacks[i].irq_action;
 				hook(exti_callbacks[i].arg);
-				EXTI->PR |= (1 << i);
 			}
 		}
 	}
