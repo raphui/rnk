@@ -101,6 +101,10 @@ static void _cbSendSystemDesc(void) {
   SEGGER_SYSVIEW_SendSysDesc("I#11=SVCall");
   SEGGER_SYSVIEW_SendSysDesc("I#14=PendSV");
   SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick");
+  SEGGER_SYSVIEW_SendSysDesc("I#19=EXTI22/RTC WKUP");
+  SEGGER_SYSVIEW_SendSysDesc("I#24=EXTI2");
+  SEGGER_SYSVIEW_SendSysDesc("I#72=DMA2_Stream0");
+  SEGGER_SYSVIEW_SendSysDesc("I#83=OTG_FS");
 }
 
 /*********************************************************************
