@@ -165,6 +165,8 @@ static int stm32_rtc_of_init(struct timer *timer)
 		goto out;
 	}
 
+	ret = stm32_rcc_of_enable_clk(offset, &timer->clock);
+
 out:
 	return ret;
 }
@@ -188,23 +190,10 @@ static int stm32_rtc_init(struct device *dev)
 	ret = stm32_rtc_of_init(timer);
 	if (ret < 0) {
 		error_printk("failed to init timer with fdt data\n");
-		goto err;
-	}
-
-	ret = stm32_rcc_enable_internal_clk(LSI_CLK);
-	if (ret < 0) {
-		error_printk("cannot enable lse clock\n");
 		goto free_timer;
 	}
 
 	RCC->BDCR |= (2 << 8);
-
-	ret = stm32_rcc_enable_clk(timer->base_reg);
-	if (ret < 0) {
-		error_printk("cannot enable RTC clock\n");
-		goto free_timer;
-	}
-
 
 	rtc = (RTC_TypeDef *)timer->base_reg;
 
@@ -220,7 +209,7 @@ static int stm32_rtc_init(struct device *dev)
 
 	rtc->CR |= RTC_CR_WUTIE;
 
-	timer->rate = stm32_rcc_get_freq_clk(LSI_CLK);
+	timer->rate = timer->clock.source_clk;
 
 	stm32_exti_configure(22, IRQF_RISING);
 
@@ -243,7 +232,7 @@ static int stm32_rtc_init(struct device *dev)
 	return ret;
 
 clk_disable:
-	stm32_rcc_disable_clk(timer->base_reg);
+	stm32_rcc_disable_clk(timer->clock.gated, timer->clock.id);
 free_timer:
 	kfree(timer);
 err:
