@@ -79,6 +79,9 @@ static int stm32_rcc_enable_internal_clk(unsigned int clk)
 		while (!(RCC->CSR & RCC_CSR_LSIRDY))
 			;
 		break;
+	case CLK_RTC:
+		RCC->BDCR |= RCC_BDCR_RTCEN | RCC_BDCR_RTCSEL_1;
+		break;
 	default:
 		ret = -EINVAL;
 		break;
@@ -95,6 +98,9 @@ static int stm32_rcc_disable_internal_clk(unsigned int clk)
 	switch (clk) {
 	case CLK_LSI:
 		RCC->CSR &= ~RCC_CSR_LSION;
+		break;
+	case CLK_RTC:
+		RCC->BDCR &= ~RCC_BDCR_RTCEN;
 		break;
 	default:
 		ret = -EINVAL;
