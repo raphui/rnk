@@ -72,8 +72,6 @@ static int stm32_rcc_enable_internal_clk(unsigned int clk)
 
 	switch (clk) {
 	case CLK_LSI:
-		RCC->APB1ENR |= RCC_APB1ENR_PWREN;
-		PWR->CR |= PWR_CR_DBP;
 		RCC->CSR |= RCC_CSR_LSION;
 
 		while (!(RCC->CSR & RCC_CSR_LSIRDY))
@@ -507,6 +505,9 @@ int stm32_rcc_enable_sys_clk(void)
 	stm32_rcc_adjust_flash_ws(sysclk_freq);
 
 	FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN;
+
+	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+	PWR->CR |= PWR_CR_DBP;
 
 	stm32_rcc_set_sysclk(sysclk_source);
 
