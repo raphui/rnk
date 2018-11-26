@@ -335,6 +335,12 @@ int stm32_rcc_of_enable_clk(int offset, struct clk *clk)
 			parent_offset = fdt_node_offset_by_phandle(fdt_blob, parent_phandle);
 
 			fdtparse_get_int(parent_offset, "clock-frequency", (int *)&clk->source_clk);
+
+			/* maybe parent clock is not init... */
+			prop = fdt_get_property(fdt_blob, parent_offset, "clocks", &len);
+			cell = (fdt32_t *)prop->data;
+			ret = stm32_rcc_enable_clk(fdt32_to_cpu(cell[1]), fdt32_to_cpu(cell[2]));
+
 		} else {
 			clk->source_clk = ret;
 		}
