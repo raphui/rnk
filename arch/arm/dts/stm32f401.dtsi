@@ -202,7 +202,7 @@
 
 		rtc: rtc@0x40002800 {
 			compatible = "st,stm32f4xx-rtc";
-			clocks = <&clk_lsi 1 CLK_LSI>;
+			clocks = <&clk_lsi 1 CLK_RTC>;
 			reg = <0x40002800 0x400>;
 			interrupts = <3>;
 			status = "disabled";
