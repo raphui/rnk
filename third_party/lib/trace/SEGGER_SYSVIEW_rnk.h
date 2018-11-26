@@ -163,8 +163,8 @@ Notes:
 						      }								\
 						}								\
 
-#define trace_time_usleep(thread)		SEGGER_SYSVIEW_OnTaskStopReady((U32)thread,  (1u << 2))
-#define trace_thread_blocked(thread)		SEGGER_SYSVIEW_OnTaskStopReady((U32)thread, ((3u << 3) | 3))
+#define trace_time_usleep(thread)		SEGGER_SYSVIEW_OnTaskStopReady((U32)thread,  1)
+#define trace_thread_blocked(thread)		SEGGER_SYSVIEW_OnTaskStopReady((U32)thread, 4)
 
 
 //#define traceISR_EXIT_TO_SCHEDULER()                SEGGER_SYSVIEW_RecordExitISRToScheduler()
