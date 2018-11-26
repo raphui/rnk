@@ -36,6 +36,7 @@ static void stm32_rtc_isr(void *arg)
 
 	irq_callback_infos.callback(irq_callback_infos.arg);
 }
+
 static short stm32_rtc_find_best_pres(unsigned long parent_rate, unsigned long rate)
 {
 	unsigned int i;
