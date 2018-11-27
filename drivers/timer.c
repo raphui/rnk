@@ -9,7 +9,11 @@
 
 static struct mutex timer_mutex;
 static struct list_node timer_list;
+
+#ifdef CONFIG_TICKLESS
 static struct list_node timer_lp_list;
+#endif
+
 static struct list_node timer_soft_list;
 
 void timer_set_rate(struct timer *timer, unsigned long rate)
