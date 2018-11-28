@@ -52,8 +52,8 @@ static int __wait_queue_block(struct wait_queue *wait, unsigned long *irqstate)
 {
 	struct thread *current_thread = get_current_thread();
 	
-	current_thread->state = THREAD_BLOCKED;
 	remove_runnable_thread(current_thread);
+	current_thread->state = THREAD_BLOCKED;
 
 	insert_waiting_thread(wait, current_thread);
 	wait->count++;

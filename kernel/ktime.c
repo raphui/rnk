@@ -79,8 +79,8 @@ void ktime_usleep(unsigned int usec)
 
 	thread_lock(state);
 
-	thread->state = THREAD_BLOCKED;
 	remove_runnable_thread(thread);
+	thread->state = THREAD_BLOCKED;
 
 	insert_sleeping_thread(thread);
 

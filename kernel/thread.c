@@ -162,14 +162,14 @@ struct thread *thread_create(void (*func)(void), void *arg, unsigned int priorit
 
 void switch_thread(struct thread *thread)
 {
-	thread->state = THREAD_RUNNING;
-
 	if (current_thread)
 		arch_switch_context(current_thread->arch, thread->arch);
 	else
 		arch_switch_context(NULL, thread->arch);
 
 	remove_runnable_thread(thread);
+
+	thread->state = THREAD_RUNNING;
 
 	current_thread = thread;
 }
@@ -259,7 +259,8 @@ void remove_runnable_thread(struct thread *thread)
 	current_thread->quantum = CONFIG_THREAD_QUANTUM;
 #endif
 
-	list_delete(&thread->node);
+	if (thread->state != THREAD_RUNNING && thread->state != THREAD_STOPPED)
+		list_delete(&thread->node);
 
 	thread_unlock(state);
 }
