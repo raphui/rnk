@@ -129,7 +129,7 @@ static inline void wait_for_interrupt(void)
 #define NVIC_ICPR1                      (volatile unsigned int) (NVIC_BASE + 0x184)               /* Interrupt clear-pending register 1 */
 #define NVIC_ICPR2                      (volatile unsigned int) (NVIC_BASE + 0x188)               /* Interrupt clear-pending register 2 */
 #define NVIC_ICPR3                      (volatile unsigned int) (NVIC_BASE + 0x18C)               /* Interrupt clear-pending register 3 */
-#define NVIC_IPR(n)                     (volatile unsigned char)  (NVIC_BASE + 0x300 + n)           /* Interrupt n priority register */
+#define NVIC_IPR(n)                     (volatile unsigned int)  (NVIC_BASE + 0x300 + n)           /* Interrupt n priority register */
 
 #define SCS_ICTR			(volatile unsigned int) (SCS_BASE + 0x004)
 #define SCS_DEMCR			(volatile unsigned int) (SCS_BASE + 0xDFC)
