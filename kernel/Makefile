@@ -1,9 +1,9 @@
 obj-y := main.o
-obj-y += kmutex.o
+obj-$(CONFIG_MUTEX) += kmutex.o
 obj-y += scheduler.o
-obj-y += ksem.o
+obj-$(CONFIG_SEMAPHORE) += ksem.o
 obj-y += syscall.o
-obj-y += kqueue.o
+obj-$(CONFIG_QUEUE) += kqueue.o
 obj-y += thread.o
 obj-y += ktime.o
 obj-y += printk.o

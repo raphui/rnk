@@ -33,7 +33,17 @@ config BW_DELAY
 config TICKLESS
 	bool "Tickless kernel"
 
+config SEMAPHORE
+	bool "Enable semaphore primitive"
+
+config MUTEX
+	bool "Enable mutex primitive"
+
+config QUEUE
+	bool "Enable queue primitive"
+
 config PRIORITY_INHERITANCE
+	depends on MUTEX
 	bool "Enable priority inheritance for mutex"
 
 endmenu
