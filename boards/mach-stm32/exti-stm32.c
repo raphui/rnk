@@ -181,7 +181,7 @@ int stm32_exti_enable_falling(unsigned int gpio_base, unsigned int gpio_num)
 		return -EINVAL;
 	}
 
-	EXTI->RTSR |= (1 << gpio_num);
+	EXTI->FTSR |= (1 << gpio_num);
 	EXTI->IMR |= (1 << gpio_num);
 
 	nvic_enable_interrupt(nvic);
@@ -199,7 +199,7 @@ int stm32_exti_enable_rising(unsigned int gpio_base, unsigned int gpio_num)
 		return -EINVAL;
 	}
 
-	EXTI->FTSR |= (1 << gpio_num);
+	EXTI->RTSR |= (1 << gpio_num);
 	EXTI->IMR |= (1 << gpio_num);
 
 	nvic_enable_interrupt(nvic);
@@ -217,7 +217,7 @@ int stm32_exti_disable_falling(unsigned int gpio_base, unsigned int gpio_num)
 		return -EINVAL;
 	}
 
-	EXTI->RTSR &= ~(1 << gpio_num);
+	EXTI->FTSR &= ~(1 << gpio_num);
 	EXTI->IMR &= ~(1 << gpio_num);
 
 	nvic_clear_interrupt(nvic);
@@ -236,7 +236,7 @@ int stm32_exti_disable_rising(unsigned int gpio_base, unsigned int gpio_num)
 		return -EINVAL;
 	}
 
-	EXTI->FTSR &= ~(1 << gpio_num);
+	EXTI->RTSR &= ~(1 << gpio_num);
 	EXTI->IMR &= ~(1 << gpio_num);
 
 	nvic_clear_interrupt(nvic);
