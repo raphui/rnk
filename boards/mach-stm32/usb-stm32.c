@@ -18,7 +18,7 @@ extern uint32_t USBD_OTG_ISR_Handler(USB_OTG_CORE_HANDLE *pdev);
 
 static int stm32_usb_write(struct usb_device *usbdev, unsigned char *buff, unsigned int len)
 {
-	int ret = 0;
+	int ret = len;
 
 	struct usb_pdata *pdata = usbdev->priv;
 
@@ -31,10 +31,14 @@ static int stm32_usb_read(struct usb_device *usbdev, unsigned char *buff, unsign
 {
 	int ret = 0;
 	struct usb_pdata *pdata = usbdev->priv;
-	
-	pdata->user_buffer = buff;
+	unsigned char tmp[64]; // min usb packet size
 
-	DCD_EP_PrepareRx(&pdata->USB_OTG_dev, CDC_OUT_EP, buff, len);
+	if (len < 64)
+		pdata->user_buffer = tmp;
+	else
+		pdata->user_buffer = buff;
+
+	DCD_EP_PrepareRx(&pdata->USB_OTG_dev, CDC_OUT_EP, pdata->user_buffer, len);
 
 	ksem_wait(&pdata->acknoledge);
 		
@@ -44,6 +48,9 @@ static int stm32_usb_read(struct usb_device *usbdev, unsigned char *buff, unsign
 	}
 	else
 	{
+		if (len < 64)
+			memcpy(buff, tmp, len);
+
 		ret = pdata->len;
 		pdata->len = 0;
 	}
