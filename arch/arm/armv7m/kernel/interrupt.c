@@ -1,6 +1,7 @@
 #include <board.h>
 #include <kernel/printk.h>
 #include <utils.h>
+#include <kernel/ktime.h>
 #include <kernel/scheduler.h>
 #include <kernel/syscall.h>
 #include <armv7m/system.h>
@@ -66,7 +67,11 @@ void systick_handler(void)
 {
 	system_tick++;
 
-	arch_request_sched();
+#if !defined(CONFIG_HR_TIMER) && !defined(CONFIG_BW_DELAY) && !defined(CONFIG_TICKLESS)
+	decrease_thread_delay();
+#endif
+
+	decrease_timer_delay();
 }
 
 void pendsv_handler(void)
