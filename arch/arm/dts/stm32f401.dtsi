@@ -173,7 +173,7 @@
 			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM2)>;
                         reg = <0x40000000 0x400>;
                         interrupts = <28>;
-                        status = "okay";
+                        status = "disabled";
                 };
 
                 timer3: timer@40000400 {
@@ -181,7 +181,7 @@
 			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM3)>;
                         reg = <0x40000400 0x400>;
                         interrupts = <29>;
-                        status = "okay";
+                        status = "disabled";
                 };
 
                 timer4: timer@40000800 {
@@ -189,7 +189,7 @@
 			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM4)>;
                         reg = <0x40000800 0x400>;
                         interrupts = <30>;
-                        status = "okay";
+                        status = "disabled";
                 };
 
                 timer5: timer@40000c00 {
@@ -197,7 +197,7 @@
 			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM5)>;
                         reg = <0x40000C00 0x400>;
                         interrupts = <50>;
-                        status = "okay";
+                        status = "disabled";
                 };
 
 		rtc: rtc@0x40002800 {
