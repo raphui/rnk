@@ -129,11 +129,14 @@ int device_of_probe(void)
 
 		prop = fdt_get_property(blob, offset, "status", &statuslen);
 
-		if (prop)
+		if (prop) {
 			status = (const char *)prop->data;
 
-		if (!strcmp(status, "okay"))
-			available = 1;
+			if (!strcmp(status, "okay"))
+				available = 1;
+			else
+				available = 0;
+		}
 		else
 			available = 0;
 
