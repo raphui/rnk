@@ -119,6 +119,7 @@
 				     <16>,
 				     <17>;
 			dma-requests = <8>;
+                        status = "okay";
 		};
 
 		dma2: dma@40026400 {
@@ -135,6 +136,7 @@
 				     <70>;
 			st,mem2mem;
 			dma-requests = <8>;
+                        status = "okay";
 		};
 	};
 
@@ -150,6 +152,7 @@
 
 			gpios = <&gpioa 0xA0B 0x18>,
 				<&gpioa 0xA0C 0x18>;
+			status = "okay";
 		};
 	};
 
@@ -165,6 +168,7 @@
 			reg = <0x40005400 0x24>;
 			gpios = <&gpiob 0x418 0x0E>,    /* SCL PB8 */
 					<&gpiob 0x419 0x0E>;    /* SDA PB9 */
+                        status = "disabled";
 		};
 
 
