@@ -246,7 +246,7 @@ static void stm32_spi_isr(void *arg)
 {
 	struct spi_master *spi = (struct spi_master *)arg;
 
-	ksem_post(&spi->sem);
+	ksem_post_isr(&spi->sem);
 }
 
 struct spi_operations spi_ops = {
