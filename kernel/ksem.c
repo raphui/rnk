@@ -82,3 +82,26 @@ err:
 	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 	return ret;
 }
+
+int ksem_post_isr(struct semaphore *sem)
+{
+	int ret = 0;
+
+	if (!sem) {
+		ret = -EINVAL;
+		goto err;
+	}
+
+	sem->count++;
+
+	if (sem->count > sem->value)
+		sem->count = sem->value;
+
+	trace_sem_post(sem);
+
+	if (sem->count <= 0)
+		ret = wait_queue_wake_isr(&sem->wait);
+
+err:
+	return ret;
+}

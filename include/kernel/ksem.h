@@ -12,5 +12,6 @@ struct semaphore {
 int ksem_init(struct semaphore *sem, int value);
 int ksem_wait(struct semaphore *sem);
 int ksem_post(struct semaphore *sem);
+int ksem_post_isr(struct semaphore *sem);
 
 #endif /* KSEM_H */
