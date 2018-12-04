@@ -58,6 +58,7 @@ INCLUDES	+= -include $(KERNEL_BASE)/config.h
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
 CFLAGS  :=  -Wall -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -nostdinc -g $(INCLUDES)
 CFLAGS += -MD -MP
+CFLAGS += -Os
 
 ifeq ($(CONFIG_UNWIND),y)
 CFLAGS += -funwind-tables
@@ -65,7 +66,7 @@ endif
 
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffunction-sections -mcpu=arm7tdmi -nostdlib -g $(INCLUDES)
 #CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
-LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib -Wl,-Map=kernel.map#-Wl,--gc-sections
+LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib -Wl,-Map=kernel.map -Wl,--gc-sections
 
 LDSFLAGS := $(INCLUDES)
 DTCPPFLAGS := -MD -MP -nostdinc -Iinclude -undef -D__DTS__ -x assembler-with-cpp
