@@ -13,5 +13,6 @@ int wait_queue_block(struct wait_queue *wait);
 int wait_queue_block_irqstate(struct wait_queue *wait, unsigned long *irqstate);
 int wait_queue_wake(struct wait_queue *wait);
 int wait_queue_wake_irqstate(struct wait_queue *wait, unsigned long *irqstate);
+int wait_queue_wake_isr(struct wait_queue *wait);
 
 #endif /* WAIT_H */

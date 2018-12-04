@@ -145,3 +145,24 @@ int wait_queue_wake(struct wait_queue *wait)
 
 	return ret;	
 }
+
+int wait_queue_wake_isr(struct wait_queue *wait)
+{
+	struct thread *thread;
+
+	if (!wait)
+		return -EINVAL;
+
+	if (wait->count) {
+			wait->count--;
+
+			thread = list_peek_head_type(&wait->list, struct thread, event_node);
+
+			remove_waiting_thread(wait, thread);
+			insert_runnable_thread(thread);
+
+			schedule_thread(NULL);
+	}
+
+	return 0;
+}
