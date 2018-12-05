@@ -164,6 +164,7 @@ int spi_register_device(struct spi_device *spi, struct device_operations *dev_op
 	snprintf(spi->dev.name, sizeof(spi->dev.name), "/dev/spi%d", dev_count);
 
 	if (dev_ops) {
+		spi->dev.open = dev_ops->open;
 		spi->dev.read = dev_ops->read;
 		spi->dev.write = dev_ops->write;
 	} else {
