@@ -19,7 +19,7 @@ static inline void spi_set_cs(struct spi_device *spi, int value)
 		if (value)
 			pio_set_value(spi->cs_port, spi->cs_pin);
 		else
-			pio_set_value(spi->cs_port, spi->cs_pin);
+			pio_clear_value(spi->cs_port, spi->cs_pin);
 	}
 }
 
