@@ -7,8 +7,31 @@
 #include <drv/spi.h>
 #include <kernel/ksem.h>
 #include <kernel/printk.h>
+#include <kernel/ktime.h>
 #include <mm/mm.h>
 
+#define BME280_CHIP_ID			0x60
+
+#define BME280_MODE_MASK		0x03
+#define	BME280_SLEEP_MODE		0x00
+#define	BME280_FORCED_MODE		0x01
+#define	BME280_NORMAL_MODE		0x03
+
+#define BME280_OVERSAMPLING_1X		0x01
+#define BME280_OVERSAMPLING_2X		0x02
+#define BME280_OVERSAMPLING_4X		0x03
+#define BME280_OVERSAMPLING_8X		0x04
+#define BME280_OVERSAMPLING_16X		0x05
+
+#define BME280_FILTER_COEFF_OFF         0x00
+#define BME280_FILTER_COEFF_2           0x01
+#define BME280_FILTER_COEFF_4           0x02
+#define BME280_FILTER_COEFF_8           0x03
+#define BME280_FILTER_COEFF_16		0x04
+
+#define BME280_REG_CHIP_ID		0xD0
+#define BME280_REG_RESET		0xE0
+#define BME280_REG_PWR_CTRL		0xF4
 #define BME280_REG_TEMP_PRES_CAL	0x88
 #define BME280_REG_HUM_CAL		0xE1
 #define BME280_REG_ID			0xD0
@@ -180,7 +203,9 @@ static int bme280_read_reg(struct device *dev, int reg, unsigned char *buffer, u
 
 	memcpy(&data[1], buffer, n);
 
-	spi_transfer(spi, data, n);
+	spi_transfer(spi, data, n + 1);
+
+	memcpy(buffer, &data[1], n);
 
 	return ret;
 }
@@ -192,7 +217,7 @@ static int bme280_write_reg(struct device *dev, unsigned char reg, unsigned char
 	unsigned char data[BME280_MAX_BURST];
 	struct spi_device *spi = container_of(dev, struct spi_device, dev);
 
-	reg &= ~0x80;
+	reg &= 0x7F;
 
 	n = (size < BME280_MAX_BURST) ? size : BME280_MAX_BURST;
 
@@ -200,7 +225,7 @@ static int bme280_write_reg(struct device *dev, unsigned char reg, unsigned char
 
 	memcpy(&data[1], buffer, n);
 
-	spi_transfer(spi, data, n);
+	spi_transfer(spi, &data[0], n + 1);
 
 	return ret;
 }
@@ -244,6 +269,119 @@ err:
 	return ret;
 }
 
+static int bme280_soft_reset(struct device *dev)
+{
+	int ret;
+	unsigned char soft_reset_cmd = 0xB6;
+
+	ret = bme280_write_reg(dev, BME280_REG_RESET, &soft_reset_cmd, 1);
+
+	ktime_usleep(2000);
+
+	return ret;
+}
+
+static int bme280_set_sensor_mode(struct device *dev, unsigned char sensor_mode)
+{
+	int ret = 0;
+	unsigned char last_sensor_mode;
+
+	ret = bme280_read_reg(dev, BME280_REG_PWR_CTRL, &last_sensor_mode, 1);
+	if (ret < 0)
+		goto err;
+
+	if (!(last_sensor_mode & BME280_SLEEP_MODE)) {
+		ret = bme280_soft_reset(dev);
+		if (ret < 0)
+			goto err;
+	}
+
+	last_sensor_mode &= ~BME280_MODE_MASK;
+	sensor_mode |= last_sensor_mode;
+
+	ret = bme280_write_reg(dev, BME280_REG_PWR_CTRL, &sensor_mode, 1);
+
+err:
+	return ret;
+}
+
+static int bme280_open(struct device *dev)
+{
+	int ret = -EIO;
+	int try = 5;
+	unsigned char val;
+	unsigned char chip_id = 0;
+	unsigned char hum_oversampling = BME280_OVERSAMPLING_1X;
+	unsigned char temp_oversampling = BME280_OVERSAMPLING_2X;
+	unsigned char pres_oversampling = BME280_OVERSAMPLING_16X;
+	unsigned char filter = BME280_FILTER_COEFF_16;
+
+	while (try--) {
+		ktime_usleep(1000);
+
+		ret = bme280_read_reg(dev, BME280_REG_ID, &chip_id, 1);
+		if (ret < 0)
+			continue;
+
+		if (chip_id != BME280_CHIP_ID) {
+			printk("bme280 chip id not match: %x %x\n", chip_id, BME280_CHIP_ID);
+			continue;
+		}
+
+		ret = bme280_soft_reset(dev);
+		if (ret < 0)
+			break;
+
+		ret = bme280_read_cal(dev);
+		if (ret < 0)
+			goto err;
+
+		break;
+	}
+
+	/* set humidity oversampling */
+	ret = bme280_write_reg(dev, BME280_REG_CTRL_HUM, &hum_oversampling, 1);
+	if (ret < 0)
+		goto err;
+
+	ret = bme280_read_reg(dev, BME280_REG_CTRL_MEAS, &val, 1);
+	if (ret < 0)
+		goto err;
+
+	ret = bme280_write_reg(dev, BME280_REG_CTRL_MEAS, &val, 1);
+	if (ret < 0)
+		goto err;
+
+	/* set temperature/pressure oversampling */
+	ret = bme280_read_reg(dev, BME280_REG_CTRL_MEAS, &val, 1);
+	if (ret < 0)
+		goto err;
+
+	val &= ~0xFC;
+	val |= (temp_oversampling << 5) | (pres_oversampling << 2);
+
+	ret = bme280_write_reg(dev, BME280_REG_CTRL_MEAS, &val, 1);
+	if (ret < 0)
+		goto err;
+
+	/* set filter */
+	ret = bme280_read_reg(dev, BME280_REG_CONFIG, &val, 1);
+	if (ret < 0)
+		goto err;
+
+	val &= ~0x1C;
+	val |= (filter << 2);
+
+	ret = bme280_write_reg(dev, BME280_REG_CONFIG, &val, 1);
+	if (ret < 0)
+		goto err;
+
+	ret = bme280_set_sensor_mode(dev, BME280_NORMAL_MODE);
+
+err:
+	return ret;
+}
+
 static int bme280_read(struct device *dev, unsigned char *buffer, unsigned int size)
 {
 	int ret = 0;
@@ -257,6 +395,7 @@ static int bme280_read(struct device *dev, unsigned char *buffer, unsigned int s
 
 	if (size < (3 * sizeof(unsigned int))) /* ensure enough space to return pressure/temp/humidity */
 		return -EINVAL;
+
 
 	ret = bme280_read_reg(dev, BME280_REG_DATA, sensor_data, BME280_REG_DATA_SIZE);
 	if (ret < 0)
@@ -311,6 +450,7 @@ out:
 }
 
 struct device_operations dev_ops = {
+	.open = bme280_open,
 	.read = bme280_read,
 	.write = bme280_write,
 };
@@ -357,12 +497,6 @@ int bme280_init(struct device *dev)
 	ret = spi_register_device(spi, &dev_ops);
 	if (ret < 0) {
 		error_printk("failed to register spi device\n");
-		goto err_free_spi;
-	}
-
-	ret = bme280_read_cal(dev);
-	if (ret < 0) {
-		error_printk("failed to read cal from sensor\n");
 		goto err_free_spi;
 	}
 
