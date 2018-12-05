@@ -59,7 +59,11 @@ int spi_transfer(struct spi_device *spi, unsigned char *buff, unsigned int size)
 {
 	int ret = 0;
 
+	spi_set_cs(spi, 0);
+
 	ret = spi->master->spi_ops->exchange(spi, buff, buff, size);
+
+	spi_set_cs(spi, 1);
 
 	return ret;
 }
