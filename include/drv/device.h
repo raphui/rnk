@@ -12,12 +12,14 @@ struct device {
 	struct list_node next;
 	int (*probe)(struct device *device);
 	int (*remove)(struct device *device);
+	int (*open)(struct device *device);
 	int (*read)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*write)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*lseek)(struct device *device, int offset, int whence);
 };
 
 struct device_operations {
+	int (*open)(struct device *device);
 	int (*read)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*write)(struct device *device, unsigned char *buff, unsigned int size);
 };
