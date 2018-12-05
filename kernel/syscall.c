@@ -35,7 +35,7 @@ struct syscall syscall_table[] = {
 	{SYSCALL_QUEUE_UPDATE,	(unsigned int *)&kqueue_update,		SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_QUEUE_DESTROY, (unsigned int *)&kqueue_destroy,	SYSCALL_PRIVILEGE_OPERATION},
 #endif /* CONFIG_QUEUE */
-	{SYSCALL_FD_OPEN,	(unsigned int *)&svc_open,		SYSCALL_PRIVILEGE_OPERATION},
+	{SYSCALL_FD_OPEN,	(unsigned int *)&svc_open,		SYSCALL_PRIVILEGE_ELEVATION},
 	{SYSCALL_FD_CLOSE,	(unsigned int *)&svc_close,		SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_FD_WRITE,	(unsigned int *)&svc_write,		SYSCALL_PRIVILEGE_ELEVATION},
 	{SYSCALL_FD_READ,	(unsigned int *)&svc_read,		SYSCALL_PRIVILEGE_ELEVATION},
