@@ -25,6 +25,13 @@ int svc_open(const char *path, int flags)
 	if (fd_num < MAX_FD) {
 		dev = device_from_name(path);
 		if (dev) {
+
+			if (dev->open) {
+				ret = dev->open(dev);
+				if (ret < 0)
+					goto err;
+			}
+
 			devs[fd_num].dev = dev;
 			devs[fd_num].read = dev->read;
 			devs[fd_num].write = dev->write;
@@ -44,6 +51,7 @@ int svc_open(const char *path, int flags)
 		ret = -EMFILE;
 	}
 
+err:
 	return ret;
 }
 
