@@ -20,6 +20,10 @@ config BME280
 	depends on SPI_SUBSYS
 	bool "BME280 humidity driver"
 
+config SPIDEV
+	depends on SPI_SUBSYS
+	bool "SPIDEV driver"
+
 config ILI9341
 	depends on SPI_SUBSYS && LCD_SUBSYS
 	bool "TFT driver for ILI9341"
