@@ -59,5 +59,5 @@ void nvic_set_priority_interrupt(int num, unsigned char priority)
 		writel(reg, priority << shift);
 	}
 	else
-		writel(NVIC_IPR(num), ((priority & 0xF) << (8 - __NVIC_PRIO_BITS)));
+		writel(NVIC_IPR((num >> 2)), ((priority & 0xF) << (8 - __NVIC_PRIO_BITS)));
 }
