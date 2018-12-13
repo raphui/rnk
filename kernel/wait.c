@@ -149,6 +149,7 @@ int wait_queue_wake(struct wait_queue *wait)
 int wait_queue_wake_isr(struct wait_queue *wait)
 {
 	struct thread *thread;
+	struct thread *current_thread = get_current_thread();
 
 	if (!wait)
 		return -EINVAL;
@@ -161,7 +162,8 @@ int wait_queue_wake_isr(struct wait_queue *wait)
 			remove_waiting_thread(wait, thread);
 			insert_runnable_thread(thread);
 
-			schedule_thread(NULL);
+			if (thread->priority > current_thread->priority)
+				schedule_thread(NULL);
 	}
 
 	return 0;
