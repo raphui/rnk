@@ -243,6 +243,7 @@ void SYSVIEW_SendTaskInfo (unsigned int pid, char *name, unsigned int stack, uns
 
 	memset(&TaskInfo, 0, sizeof(TaskInfo)); // Fill all elements with 0 to allow extending the structure in future version without breaking the code
 	TaskInfo.TaskID     = pid;
+	TaskInfo.Prio	    = ((struct thread *)pid)->priority;
 	TaskInfo.sName       = name;
 	TaskInfo.StackBase  = stack;
 	TaskInfo.StackSize  = CONFIG_THREAD_STACK_SIZE;
