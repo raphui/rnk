@@ -2,12 +2,11 @@
 #include <errno.h>
 #include <mm/mm.h>
 #include <string.h>
-#include <kernel/kmutex.h>
+#include <kernel/spinlock.h>
 #include <drv/device.h>
 #include <init.h>
 #include <kernel/printk.h>
 
-static struct mutex timer_mutex;
 static struct list_node timer_list;
 
 #ifdef CONFIG_TICKLESS
@@ -107,7 +106,7 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 	int ret = 0;
 	struct timer *timer = NULL;
 
-	kmutex_lock(&timer_mutex);
+	thread_lock(state);
 
 #ifdef CONFIG_TICKLESS
 	timer = timer_lp_request();
@@ -135,7 +134,7 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 	timer_set_counter(timer, timer->counter);
 	timer_enable(timer);
 
-	kmutex_unlock(&timer_mutex);
+	thread_unlock(state);
 
 	return ret;
 }
@@ -262,7 +261,6 @@ int timer_init(void)
 {
 	int ret = 0;
 
-	kmutex_init(&timer_mutex);
 	list_initialize(&timer_list);
 #ifdef CONFIG_TICKLESS
 	list_initialize(&timer_lp_list);
