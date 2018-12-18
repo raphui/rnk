@@ -118,6 +118,11 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 		return -ENOENT;
 	}
 
+#ifdef CONFIG_TICKLESS
+	/* if timer is already running */
+	timer_disable(timer);
+#endif
+
 	timer->one_shot = 1;
 	timer->one_pulse = 1;
 	timer->count_up = 0;
