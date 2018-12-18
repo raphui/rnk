@@ -1,18 +1,26 @@
 menu "Memory management configuration"
 
+config MALLOC
+	bool "Enable use of malloc"
+
 config KERNEL_HEAP_START
+	depends on MALLOC
 	hex "Start address of kernel heap"
 
 config KERNEL_HEAP_END
+	depends on MALLOC
 	hex "End address of kernel heap"
 
 config USER_HEAP_START
+	depends on MALLOC
 	hex "Start address of user heap"
 
 config USER_HEAP_END
+	depends on MALLOC
 	hex "End address of user heap"
 
 choice
+	depends on MALLOC
 	prompt "malloc implementation"
 
 config CUSTOM_MALLOC
