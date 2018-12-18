@@ -11,6 +11,10 @@
 #include <errno.h>
 #include <trace.h>
 
+#ifdef CONFIG_MAX_THREADS
+static struct thread threads[CONFIG_MAX_THREADS];
+#endif
+
 static struct thread *current_thread = NULL;
 static int thread_count = 0;
 
@@ -95,7 +99,16 @@ static void end_thread(void)
 
 struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged)
 {
-	struct thread *thread = (struct thread *)kmalloc(sizeof(struct thread));
+	struct thread *thread;
+
+#ifdef CONFIG_MAX_THREADS
+	if (thread_count < CONFIG_MAX_THREADS)
+		thread  = &threads[thread_count];
+	else
+		thread = NULL;
+#else
+	thread = (struct thread *)kmalloc(sizeof(struct thread));
+#endif
 	if (!thread) {
 		error_printk("failed to allocate thread: %p\n", func);
 		return NULL;

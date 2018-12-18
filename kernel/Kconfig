@@ -1,5 +1,9 @@
 menu "Kernel configuration"
 
+config MAX_THREADS
+	depends on !MALLOC
+	int "Max number of threads"
+
 config THREAD_STACK_START
 	hex "Start address of kernel THREAD stack"
 
@@ -40,6 +44,7 @@ config MUTEX
 	bool "Enable mutex primitive"
 
 config QUEUE
+	depends on MALLOC
 	bool "Enable queue primitive"
 
 config PRIORITY_INHERITANCE
