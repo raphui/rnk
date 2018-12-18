@@ -25,6 +25,7 @@ int pthread_join(pthread_t *thread, void **retval)
 }
 EXPORT_SYMBOL(pthread_join);
 
+#ifdef CONFIG_MUTEX
 int pthread_mutex_init(pthread_mutex_t *mutex)
 {
 	return syscall(SYSCALL_MUTEX_CREATE, &mutex->kmutex);
@@ -42,3 +43,4 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex)
 	return syscall(SYSCALL_MUTEX_RELEASE, &mutex->kmutex);
 }
 EXPORT_SYMBOL(pthread_mutex_unlock);
+#endif
