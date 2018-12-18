@@ -30,6 +30,8 @@ static void stm32_rtc_isr(void *arg)
 	RTC_TypeDef *rtc = (RTC_TypeDef *)timer->base_reg;
 
 	rtc->ISR &= ~RTC_ISR_WUTF;
+	rtc->CR &= ~RTC_CR_WUTE;
+
 	stm32_exti_clear_line(22);
 
 	system_tick += timer->counter;
@@ -89,7 +91,10 @@ static void stm32_rtc_set_counter(struct timer *timer, unsigned short counter)
 	stm32_rtc_set_rate(timer, RTC_WKUP_FREQ);
 
 	n = counter / (1000 / (timer->rate / 1000));
-	n--;
+	n -= 2;
+
+	while (!(rtc->ISR & RTC_ISR_WUTWF))
+		;
 
 	rtc->WUTR = n;
 }
