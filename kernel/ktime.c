@@ -104,13 +104,10 @@ void ktime_wakeup_next_delay(void)
 {
 	struct thread *thread;
 	struct thread *next;
+	struct thread *tmp;
 	struct thread *curr = get_current_thread();
 
-	thread = list_peek_head_type(&sleeping_threads, struct thread, node);
-
-	while (thread) {
-		next = list_next_type(&sleeping_threads, &thread->node, struct thread, node);
-
+	list_for_every_entry_safe(&sleeping_threads, thread, tmp, struct thread, node) {
 		if (thread->delay <= system_tick) {
 			remove_sleeping_thread(thread);
 			insert_runnable_thread(thread);
@@ -118,14 +115,12 @@ void ktime_wakeup_next_delay(void)
 			if (curr->priority < thread->priority)
 				schedule_yield();
 		}
-		else
-			break;
-
-		thread = next;
 	}
 
-	if (thread)
-		timer_wakeup(thread->delay - system_tick, (void (*)(void *))ktime_wakeup_next_delay, NULL);
+
+	next = list_peek_head_type(&sleeping_threads, struct thread, node);
+	if (next)
+		timer_wakeup(next->delay - system_tick, (void (*)(void *))ktime_wakeup_next_delay, NULL);
 }
 #endif /* CONFIG_TICKLESS */
 
