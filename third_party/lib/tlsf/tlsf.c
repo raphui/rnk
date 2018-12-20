@@ -206,7 +206,7 @@ enum tlsf_public
 	** values require more memory in the control structure. Values of
 	** 4 or 5 are typical.
 	*/
-	SL_INDEX_COUNT_LOG2 = 5,
+	SL_INDEX_COUNT_LOG2 = 4,
 };
 
 /* Private constants: do not modify. */
