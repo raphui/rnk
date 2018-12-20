@@ -60,7 +60,11 @@ int main(void)
 
 	printk("- Add app thread to scheduler\n");
 
+#ifdef CONFIG_USER
+	add_thread((void *)ret, NULL, HIGHEST_PRIORITY, USER_THREAD);
+#else
 	add_thread((void *)ret, NULL, HIGHEST_PRIORITY, PRIVILEGED_THREAD);
+#endif
 
 	printk("- Start scheduling...\n");
 	start_schedule();
