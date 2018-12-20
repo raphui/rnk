@@ -177,6 +177,19 @@ struct thread *thread_create(void (*func)(void), void *arg, unsigned int priorit
 #endif
 }
 
+int thread_destroy(struct thread *thread)
+{
+	if (!thread)
+		return -EINVAL;
+
+#ifndef CONFIG_MAX_THREADS
+	kfree(thread->arch);
+	kfree(thread);
+#endif
+
+	return 0;
+}
+
 void switch_thread(struct thread *thread)
 {
 	if (current_thread)

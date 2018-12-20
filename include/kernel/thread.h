@@ -56,6 +56,7 @@ struct thread
 
 void thread_init(void);
 struct thread *thread_create(void (*func)(void), void *arg, unsigned int priority);
+int thread_destroy(struct thread *thread);
 int thread_join(struct thread *t);
 struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged);
 void switch_thread(struct thread *thread);
