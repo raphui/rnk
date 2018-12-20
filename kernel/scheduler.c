@@ -4,6 +4,7 @@
 #include <arch/system.h>
 #include <kernel/ktime.h>
 #include <kernel/wait.h>
+#include <mm/mm.h>
 #include <init.h>
 #include <trace.h>
 
@@ -90,6 +91,8 @@ void schedule_thread_stop(struct thread *thread)
 
 	remove_runnable_thread(t);
 	t->state = THREAD_STOPPED;
+
+	thread_destroy(t);
 
 	trace_thread_stop(thread);
 
