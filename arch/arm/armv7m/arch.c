@@ -13,7 +13,9 @@ void arch_init(void)
 	int i;
 	struct isr_entry entry;
 
+#ifdef CONFIG_USER
 	mpu_init();
+#endif
 
 	entry.isr = (void *)__svc;
 	entry.arg = NULL;

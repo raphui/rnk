@@ -12,11 +12,11 @@ config KERNEL_HEAP_END
 	hex "End address of kernel heap"
 
 config USER_HEAP_START
-	depends on MALLOC
+	depends on MALLOC && USER
 	hex "Start address of user heap"
 
 config USER_HEAP_END
-	depends on MALLOC
+	depends on MALLOC && USER
 	hex "End address of user heap"
 
 choice

@@ -15,7 +15,11 @@ int heap_init(void)
 	}
 #elif defined(CONFIG_TLSF)
 	tlsf_mem_kernel_pool = tlsf_create_with_pool((void *)KERNEL_HEAP_START, MAX_KERNEL_HEAP_SIZE);
+
+#ifdef CONFIG_USER
 	tlsf_mem_user_pool = tlsf_create_with_pool((void *)USER_HEAP_START, MAX_USER_HEAP_SIZE);
+#endif
+
 #endif
 
 	return ret;

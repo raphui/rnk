@@ -38,7 +38,13 @@ void ufree(void *mem)
 #ifdef CONFIG_CUSTOM_MALLOC
 	free_mem(mem, kernel_heap, (void *)KERNEL_HEAP_START);
 #elif defined(CONFIG_TLSF)
+
+#ifdef CONFIG_USER
 	tlsf_free(tlsf_mem_user_pool, mem);
+#else
+	tlsf_free(tlsf_mem_kernel_pool, mem);
+#endif
+
 #endif
 }
 

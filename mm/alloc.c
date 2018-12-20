@@ -120,7 +120,13 @@ void umalloc(size_t size, void *m)
 {
 	unsigned int mem;
 #ifdef CONFIG_TLSF
+
+#ifdef CONFIG_USER
 	alloc(size, &mem, tlsf_mem_user_pool);
+#else
+	alloc(size, &mem, tlsf_mem_kernel_pool);
+#endif
+
 #else
 	alloc(size, &mem);
 #endif

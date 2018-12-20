@@ -51,6 +51,7 @@ ENTRY(interrupt_handler)
 	tst r14, #EXC_RETURN_PROCESS_STACK /* nonzero if context on process stack */
 	beq 3f
 
+#ifdef CONFIG_USER
 	ldr r3, =current_thread_mode
 	ldr r3, [r3]
 	ldr r3, [r3]
@@ -58,6 +59,7 @@ ENTRY(interrupt_handler)
 	ite eq
 	orreq r2, r2, #1
 	bicne r2, r2, #1
+#endif
 
 	msr psp, r1
 	b 4f

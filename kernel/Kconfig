@@ -1,5 +1,8 @@
 menu "Kernel configuration"
 
+config USER
+	bool "Usermode allows isolation between kernel and user loaded application"
+
 config MAX_THREADS
 	depends on !MALLOC
 	int "Max number of threads"

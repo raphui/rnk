@@ -75,14 +75,18 @@ void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 
 		memcpy(&old->hw_frame, (void *)old_sp, sizeof(struct arch_short_context_frame));
 
+#ifdef CONFIG_USER
 		if (old->privileged == USER_THREAD)
 			mpu_unmap_prio(old->mpu.prio);
+#endif
 	}
 
 	current_ctx_frame = &new->ctx_frame;
 
+#ifdef CONFIG_USER
 	if (new->privileged == USER_THREAD)
 		new->mpu.prio = mpu_map_from_high((void *)(new->mpu.top_sp - CONFIG_THREAD_STACK_SIZE), CONFIG_THREAD_STACK_SIZE, MPU_RASR_SHARE_CACHE | MPU_RASR_AP_PRIV_RW_UN_RW);
+#endif
 
 	current_thread_frame = new;
 	current_thread_mode = &new->privileged;

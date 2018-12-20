@@ -170,7 +170,11 @@ void thread_init(void)
 
 struct thread *thread_create(void (*func)(void), void *arg, unsigned int priority)
 {
+#ifdef CONFIG_USER
 	return add_thread(func, arg, priority, USER_THREAD);
+#else
+	return add_thread(func, arg, priority, PRIVILEGED_THREAD);
+#endif
 }
 
 void switch_thread(struct thread *thread)
