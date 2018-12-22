@@ -10,6 +10,7 @@ Building
 --------
 
   * get a cross compiler for baremetal arm, here: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+  * install kconfig-frontends: http://ymorin.is-a-geek.org/projects/kconfig-frontends
   * export ARCH=arm
   * export your cross compiler bin/ folder in PATH
   * export CROSS_COMPILE=arm-none-eabi-
