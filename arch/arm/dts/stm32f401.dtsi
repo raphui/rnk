@@ -248,12 +248,18 @@
 
 			status = "okay";
 
-			spidev@0
-			{
+			spidev@0 {
 				compatible = "spi,spidev";
 				status = "okay";
 				speed = <8000000>;
 				gpios = <&gpioa 0x004 0x3>;
+			};
+
+			bme280@0 {
+				compatible = "bosch,bme280";
+				status = "okay";
+				speed = <8000000>;
+				cs-gpio = <&gpioa 0x001 0x3>;
 			};
 		};
 
