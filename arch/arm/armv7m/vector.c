@@ -43,7 +43,7 @@ vect __attribute__((__section__(".isr_vector_cmsis"))) isr_vector_table[CONFIG_N
 
 static inline int is_irq_valid(int irq)
 {
-	if (irq > CONFIG_NUM_IRQS) {
+	if (irq > CONFIG_NUM_IRQS + 16) {
 		error_printk("invalid irq num\n");
 		return -EINVAL;
 	}
