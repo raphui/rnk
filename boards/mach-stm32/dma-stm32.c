@@ -351,7 +351,7 @@ int stm32_dma_of_init(struct dma_controller *dma)
 		return len;
 	}
 
-	num = len / (3 * sizeof(fdt32_t));
+	num = len;
 
 	cell = (fdt32_t *)prop->data;
 
