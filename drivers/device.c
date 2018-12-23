@@ -131,11 +131,7 @@ int device_of_probe(void)
 
 		if (prop) {
 			status = (const char *)prop->data;
-
-			if (!strcmp(status, "okay"))
-				available = 1;
-			else
-				available = 0;
+			available = 1;
 		}
 		else
 			available = 0;
