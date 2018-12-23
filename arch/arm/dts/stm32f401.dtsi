@@ -204,7 +204,7 @@
                         status = "disabled";
                 };
 
-		rtc: rtc@0x40002800 {
+		rtc: rtc@40002800 {
 			compatible = "st,stm32f4xx-rtc";
 			clocks = <&clk_lsi 1 CLK_RTC>;
 			reg = <0x40002800 0x400>;
@@ -218,7 +218,7 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 
-		usart1: usart2@40011000 {
+		usart1: usart1@40011000 {
 			compatible = "st,stm32f4xx-usart";
 			clocks = <&rcc 0 STM32F4_APB2_CLOCK(USART1)>;
 			reg = <0x40011000 0x1C>;
