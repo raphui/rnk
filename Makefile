@@ -79,6 +79,9 @@ OBJCOPY := $(CROSS_COMPILE)objcopy
 LDS := $(CROSS_COMPILE)gcc -E -P -C
 DTC := dtc
 CPP := cpp
+PYTHON := python3
+
+DT_PARSER=$(KERNEL_BASE)/tools/dt_parser/dt_parser.py
 
 endif
 
