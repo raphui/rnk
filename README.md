@@ -6,15 +6,17 @@ rnk is a RTOS targeting ARM architecture.
 For now, only the Cortex-M4 is supported.
 
 
+Dependencies
+------------
+  * arm-none-eabi toolchain (https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads)
+  * kconfig-frontends (http://ymorin.is-a-geek.org/projects/kconfig-frontends)
+  * python3 with pyfdt module
+
 Building
 --------
-
-  * get a cross compiler for baremetal arm, here: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
-  * install kconfig-frontends: http://ymorin.is-a-geek.org/projects/kconfig-frontends
   * export ARCH=arm
   * export your cross compiler bin/ folder in PATH
   * export CROSS_COMPILE=arm-none-eabi-
-  
 or
   * edit the cross compiler path in "setup.sh" and use it like: $. setup.sh
   
