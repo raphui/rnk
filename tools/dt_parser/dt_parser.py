@@ -22,7 +22,6 @@ if __name__ == '__main__':
 
 
     for path in disabled_path:
-        print(path)
         node = fdt.resolve_path(path)
         node.get_parent_node().remove(node.get_name())
 
