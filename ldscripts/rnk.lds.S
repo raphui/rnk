@@ -3,7 +3,7 @@
 MEMORY
 {
     rom (rx)  : ORIGIN = CONFIG_TEXT_BASE, LENGTH = CONFIG_TEXT_SIZE
-    ram (rwx) : ORIGIN = CONFIG_RAM_BASE, LENGTH = CONFIG_RAM_SIZE
+    ram (rwx) : ORIGIN = CONFIG_RAM_BASE + CONFIG_STACK_SIZE, LENGTH = CONFIG_RAM_SIZE - CONFIG_STACK_SIZE
 }
  
 _eram = CONFIG_RAM_BASE + CONFIG_RAM_SIZE;
@@ -103,6 +103,6 @@ SECTIONS
     . = ALIGN(4);
     _end = . ;
 
-    PROVIDE(_sstack = _eram - CONFIG_STACK_SIZE);
-    PROVIDE( _estack = _eram );
+    PROVIDE(_sstack = CONFIG_RAM_BASE);
+    PROVIDE(_estack = CONFIG_RAM_BASE + CONFIG_STACK_SIZE);
 }
