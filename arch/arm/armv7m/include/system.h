@@ -139,6 +139,9 @@ static inline void wait_for_interrupt(void)
 #define SCB_VTOR                        (volatile unsigned int) (SCB_BASE + 0x008)                /* Vector Table Offset Register */
 #define SCB_SCR                         (volatile unsigned int) (SCB_BASE + 0x010)                /* System Control Register */
 #define SCB_SHPR(n)			(volatile unsigned int) (SCB_BASE + 0x18 + (n - 4))	 /* System Handler Priority Register */
+#define SCB_SHPR1			(volatile unsigned int) (SCB_BASE + 0x18)		  /* System Handler Priority Register 1 */
+#define SCB_SHPR2			(volatile unsigned int) (SCB_BASE + 0x1C)		  /* System Handler Priority Register 2 */
+#define SCB_SHPR3			(volatile unsigned int) (SCB_BASE + 0x20)		  /* System Handler Priority Register 3 */
 #define SCB_SHCSR                       (volatile unsigned int) (SCB_BASE + 0x024)                /* System Handler Control and State Register */
 #define SCB_CFSR                        (volatile unsigned int) (SCB_BASE + 0x028)                /* Configurable fault status register - Describes Usage, Bus, and Memory faults */
 #define SCB_HFSR                        (volatile unsigned int) (SCB_BASE + 0x02C)                /* Hard fault status register - Describes hard fault */
