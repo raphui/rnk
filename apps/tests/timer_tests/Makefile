@@ -9,7 +9,7 @@ INCLUDES	+= -I$(KERNEL_BASE)/boards
 INCLUDES	+= -I$(KERNEL_BASE)/lib
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
 
-CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections
+CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -fomit-frame-pointer
 CFLAGS += -mcpu=$(MCPU) -mthumb -nostdlib $(INCLUDES)
 CFLAGS +=  -mword-relocations -fno-common
 
