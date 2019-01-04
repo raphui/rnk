@@ -41,22 +41,22 @@ void nvic_set_priority_interrupt(int num, unsigned char priority)
 	if (num < 0) {
 		switch (num) {
 		case svcall_irq:
-			reg = SCB_SHPR(2);
+			reg = SCB_SHPR2;
 			shift = 24;
 			break;
 		case pendsv_irq:
-			reg = SCB_SHPR(3);
+			reg = SCB_SHPR3;
 			shift = 16;
 			break;
 		case systick_irq:
-			reg = SCB_SHPR(3);
+			reg = SCB_SHPR3;
 			shift = 24;
 			break;
 		default:
 			return;
 		}
 
-		writel(reg, priority << shift);
+		writel(reg, (priority << (8 - __NVIC_PRIO_BITS)) << shift);
 	}
 	else
 		writel(NVIC_IPR((num >> 2)), ((priority & 0xF) << (8 - __NVIC_PRIO_BITS)));
