@@ -92,11 +92,12 @@ void schedule_thread_stop(struct thread *thread)
 	remove_runnable_thread(t);
 	t->state = THREAD_STOPPED;
 
-	thread_destroy(t);
-
 	trace_thread_stop(thread);
 
 	schedule_thread(NULL);
+
+	thread_destroy(t);
+
 }
 
 void schedule_yield(void)
