@@ -27,20 +27,6 @@ void arch_init(void)
 
 	entry.isr = (void *)systick_handler;
 	vector_set_isr_entry(&entry, systick_irq);
-
-
-	/* Set PendSV and SVC to lowest priority.
-	* This means that both will be deferred
-	* until all other exceptions have executed.
-	* Additionally, PendSV will not interrupt
-	* an SVC. */
-
-	nvic_set_priority_interrupt(systick_irq, 0x3);
-	nvic_set_priority_interrupt(svcall_irq, 0x7);
-	nvic_set_priority_interrupt(pendsv_irq, 0x7);
-
-	for (i = 0; i < CONFIG_NUM_IRQS; i++)
-		nvic_set_priority_interrupt(i, 0x3);
 }
 
 void arch_init_tick(void)
