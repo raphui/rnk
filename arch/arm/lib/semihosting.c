@@ -19,7 +19,7 @@
 
 #ifdef CONFIG_SEMIHOSTING_DEBUG_BUFFERED
 
-#define PRINT_BUFFER_SIZE	128
+#define PRINT_BUFFER_SIZE	32
 
 static char print_buffer[PRINT_BUFFER_SIZE];
 static int print_n;
@@ -89,7 +89,17 @@ long smh_open(const char *fname, char *modestr)
 
 static int smh_write0(struct device *dev, unsigned char *buff, unsigned int len)
 {
-	smh_trap(SYSWRITE0, buff);
+	struct smh_writec_s {
+		int handle;
+		void *buff;
+		int size;
+	} write0;
+
+	write0.handle = 1;
+	write0.buff = buff;
+	write0.size = len;
+
+	smh_trap(SYSWRITE, &write0);
 
 	return 0;
 }
