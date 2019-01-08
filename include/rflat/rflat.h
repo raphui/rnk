@@ -20,6 +20,7 @@ struct rflat_header {
 
 struct rflat_app_header {
 	unsigned int addr;
+	int size;
 	unsigned int got_loc;
 };
 

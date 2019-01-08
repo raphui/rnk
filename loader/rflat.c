@@ -27,7 +27,7 @@ struct rflat {
 	unsigned char *data_seg;
 	unsigned char *got;
 	int reloc_entries;
-	unsigned int app_header;
+	struct rflat_app_header *app_header;
 };
 
 struct rflat_reloc_info {
@@ -82,7 +82,7 @@ static int rflat_alloc_segments(struct rflat_header *header, struct rflat *ctx)
 		return -ENOMEM;
 	}
 
-	ctx->app_header = (unsigned int)ptr;
+	ctx->app_header = (struct rflat_app_header *)ptr;
 
 	return ret;
 }
@@ -122,7 +122,7 @@ out:
 static int rflat_reloc(struct rflat *ctx, unsigned int seg_addr, struct rflat_reloc_info *rel)
 {
 	int *ref = (int *)(seg_addr + rel->offset);
-	int func;
+	int func = 0;
 	int ret = 0;
 	int t;
 
@@ -170,7 +170,7 @@ static int rflat_parse_reloc(struct rflat_header *header, struct rflat *ctx, str
 	return ret;
 }
 
-static int rflat_load(char *rflat_data, unsigned int *app_header)
+static int rflat_load(char *rflat_data)
 {
 	int ret = 0;
 	struct rflat ctx;
@@ -199,26 +199,13 @@ static int rflat_load(char *rflat_data, unsigned int *app_header)
 		goto err;
 	}
 
-	((struct rflat_app_header *)ctx.app_header)->addr = (int)(rflat_data + header->entry_point);
-	((struct rflat_app_header *)ctx.app_header)->got_loc = (int)ctx.got;
+	ctx.app_header->addr = (int)(rflat_data + header->entry_point);
+	ctx.app_header->size = RFLAT_GET_SEG_ADDR(header->data_offset) - RFLAT_GET_SEG_ADDR(header->text_offset);
+	ctx.app_header->got_loc = (int)ctx.got;
 
-	*app_header = (unsigned int)ctx.app_header;
-
+	current_app_header = ctx.app_header;
 err:
 	return ret;
-}
-
-static int rflat_thread_init(void *arg)
-{
-	struct rflat_app_header *app_header = (struct rflat_app_header *)arg;
-	void (*app)(void *) = (void (*)())app_header->addr;
-
-	asm("ldr r9, %0" : : "m" (app_header->got_loc));
-	current_app_header = app_header;
-
-	app(NULL);
-
-	return 0;
 }
 
 struct rflat_app_header *rflat_get_app_header(void)
@@ -229,13 +216,17 @@ struct rflat_app_header *rflat_get_app_header(void)
 int rflat_exec(char *rflat_data)
 {
 	int ret = 0;
-	unsigned int app_header;
+	struct rflat_app_header *app_header;
 
-	ret = rflat_load(rflat_data, &app_header);
-	if (ret < 0)
+	ret = rflat_load(rflat_data);
+	if (ret < 0) {
 		error_printk("failed to load rflat binary\n");
+		goto out;
+	}
 
-	add_thread((void *)rflat_thread_init, (void *)app_header, HIGHEST_PRIORITY, PRIVILEGED_THREAD);
+	app_header = rflat_get_app_header();
+	ret = app_header->addr;
 
+out:
 	return ret;
 }
