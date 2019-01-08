@@ -1,27 +1,6 @@
-TARGET_NAME := mutex_test.elf
+TARGET_NAME := mutex_test
 
 OBJS := mutex_test.o
-
-MCPU=cortex-m4
-
-INCLUDES	+= -I$(KERNEL_BASE)/include
-INCLUDES	+= -I$(KERNEL_BASE)/boards
-INCLUDES	+= -I$(KERNEL_BASE)/lib
-INCLUDES	+= -include $(KERNEL_BASE)/config.h
-
-CFLAGS  :=  -Wall -mlong-calls -fno-builtin -ffunction-sections -fomit-frame-pointer
-CFLAGS += -mcpu=$(MCPU) -mthumb -nostdlib $(INCLUDES)
-CFLAGS +=  -mword-relocations -fno-common
-
-LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib #-Wl,--gc-sections
-LDFLAGS += -r -Bsymbolic -mcpu=$(MCPU) -mthumb -mlong-calls -fno-common
-
-LD_SCRIPT = $(APPS_BASE)/apps.ld
-
-CC := $(CROSS_COMPILE)gcc
-AS := $(CROSS_COMPILE)as
-AR := $(CROSS_COMPILE)ar
-LD := $(CROSS_COMPILE)ld
 
 all: $(TARGET_NAME)
 
