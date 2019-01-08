@@ -6,6 +6,7 @@
 #include <elf/elfloader.h>
 #include <arch/system.h>
 #include <arch/spinlock.h>
+#include <rflat/rflat.h>
 
 #ifdef CONFIG_UNWIND
 #include <backtrace.h>
@@ -62,14 +63,12 @@ int main(void)
 	else
 		printk("load user application execution done\n");
 
-#ifdef CONFIG_ELF_LOADER
 	printk("- Add app thread to scheduler\n");
 
 #ifdef CONFIG_USER
 	add_thread((void *)ret, NULL, HIGHEST_PRIORITY, USER_THREAD);
 #else
 	add_thread((void *)ret, NULL, HIGHEST_PRIORITY, PRIVILEGED_THREAD);
-#endif
 #endif
 
 	printk("- Start scheduling...\n");
