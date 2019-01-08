@@ -11,7 +11,7 @@ static struct arch_thread *current_thread_frame;
 
 int *current_thread_mode;
 
-void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, int privileged)
+void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, int privileged, int platform_register)
 {
 	stack = (unsigned int *)ALIGN((unsigned int)stack, 8);
 
@@ -37,7 +37,7 @@ void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned i
 	arch->ctx_frame.r6 = 6;
 	arch->ctx_frame.r7 = 7;
 	arch->ctx_frame.r8 = 8;
-	arch->ctx_frame.r9 = 9;
+	arch->ctx_frame.r9 = (platform_register) ? platform_register : 9;
 	arch->ctx_frame.r10 = 10;
 	arch->ctx_frame.r11 = 11;
 	arch->ctx_frame.exc_lr = 0xFFFFFFFD;

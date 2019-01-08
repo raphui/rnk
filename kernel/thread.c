@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <trace.h>
+#include <rflat/rflat.h>
 
 #ifdef CONFIG_MAX_THREADS
 static struct thread threads[CONFIG_MAX_THREADS];
@@ -100,6 +101,7 @@ static void end_thread(void)
 struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged)
 {
 	struct thread *thread;
+	int platform_register = 0;
 
 #ifdef CONFIG_MAX_THREADS
 	if (thread_count < CONFIG_MAX_THREADS)
@@ -142,8 +144,11 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 
 	wait_queue_init(&thread->wait_exit);
 
+#ifdef CONFIG_RFLAT_LOADER
+	platform_register = rflat_get_app_header()->got_loc;
+#endif
 	/* Creating thread context */
-	arch_create_context(thread->arch, (unsigned int)thread->func, (unsigned int)&end_thread, (unsigned int *)thread->start_stack, (unsigned int )arg, privileged);
+	arch_create_context(thread->arch, (unsigned int)thread->func, (unsigned int)&end_thread, (unsigned int *)thread->start_stack, (unsigned int )arg, privileged, platform_register);
 
 #ifdef CONFIG_TRACE
 	snprintf(thread->name, sizeof(thread->name), "thread %d\n", thread->pid);
