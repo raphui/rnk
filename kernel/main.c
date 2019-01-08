@@ -50,20 +50,26 @@ int main(void)
 
 	printk("- Loading app\n");
 
+#ifdef CONFIG_ELF_LOADER
 	ret = elf_exec((char *)0x08020000);
-	if (ret <= 0) {
-		printk("failed to exec elf\n");
+#else
+	ret = rflat_exec((char *)0x08020000);
+#endif
+	if (ret < 0) {
+		printk("failed to load user application\n");
 		goto fail;
 	}
 	else
-		printk("efl execution done\n");
+		printk("load user application execution done\n");
 
+#ifdef CONFIG_ELF_LOADER
 	printk("- Add app thread to scheduler\n");
 
 #ifdef CONFIG_USER
 	add_thread((void *)ret, NULL, HIGHEST_PRIORITY, USER_THREAD);
 #else
 	add_thread((void *)ret, NULL, HIGHEST_PRIORITY, PRIVILEGED_THREAD);
+#endif
 #endif
 
 	printk("- Start scheduling...\n");
