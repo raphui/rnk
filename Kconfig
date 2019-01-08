@@ -9,6 +9,7 @@ source boards/Kconfig
 source kernel/Kconfig
 source ldscripts/Kconfig
 source lib/Kconfig
+source loader/Kconfig
 source drivers/Kconfig
 source mm/Kconfig
 source third_party/Kconfig

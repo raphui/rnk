@@ -1,0 +1,13 @@
+menu "Loader configuration"
+
+choice
+    prompt "Application loader"
+
+    config ELF_LOADER
+        bool "Use ELF loader"
+
+    config RFLAT_LOADER
+        bool "Use RFLAT loader"
+endchoice
+
+endmenu
