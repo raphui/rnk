@@ -10,6 +10,8 @@
 #include <sizes.h>
 
 #define FLASH_PSIZE_BYTE	(0 << 8)
+#define FLASH_PSIZE_WORD	(2 << 8)
+#define FLASH_PSIZE_MASK	(3 << 8)
 #define CR_PSIZE_MASK		0xFFFFFCFF
 #define SR_ERR_MASK		0xF3
 
@@ -95,7 +97,7 @@ static int stm32_flash_erase(struct mtd *mtd, unsigned int sector)
 	return ret;
 }
 
-static int stm32_flash_write_byte(unsigned int address, unsigned char data)
+static int stm32_flash_write_byte(unsigned int address, void *data, int byte_access)
 {
 	int ret = 0;
 
@@ -106,10 +108,14 @@ static int stm32_flash_write_byte(unsigned int address, unsigned char data)
 	}
 
 	FLASH->CR &= CR_PSIZE_MASK;
-	FLASH->CR |= FLASH_PSIZE_BYTE;
+	if (!byte_access)
+		FLASH->CR |= FLASH_PSIZE_WORD;
 	FLASH->CR |= FLASH_CR_PG;
 
-	*(unsigned char *)address = data;
+	if (byte_access)
+		*(volatile unsigned char *)address = *(unsigned char *)data;
+	else
+		*(volatile unsigned int *)address = *(unsigned int *)data;
 
 	ret = stm32_flash_wait_operation();
 	if (ret < 0) {
@@ -126,7 +132,11 @@ static int stm32_flash_write(struct mtd *mtd, unsigned char *buff, unsigned int 
 {
 	int ret = 0;
 	int i;
+	int step;
+	int byte_access = size % sizeof(unsigned int);
 	unsigned int addr = mtd->base_addr + mtd->curr_off;
+
+	FLASH->ACR &= ~FLASH_ACR_DCEN;
 
 	ret = stm32_flash_erase_needed((unsigned char *)addr, buff, size);
 	if (ret) {
@@ -137,15 +147,26 @@ static int stm32_flash_write(struct mtd *mtd, unsigned char *buff, unsigned int 
 
 	stm32_flash_unlock();
 
-	for (i = 0; i < size; i++) {
-		ret = stm32_flash_write_byte(addr, buff[i]);
+	if (byte_access)
+		step = 1;
+	else
+		step = 4;
+
+	for (i = 0; i < size; i += step) {
+		ret = stm32_flash_write_byte(addr, &buff[i], byte_access);
 		if (ret < 0)
 			break;
 
-		addr += sizeof(unsigned char);
+		if (byte_access)
+			addr += sizeof(unsigned char);
+		else
+			addr += sizeof(unsigned int);
 	}
 
 	stm32_flash_lock();
+
+	FLASH->ACR |= FLASH_ACR_DCRST;
+	FLASH->ACR |= FLASH_ACR_DCEN;
 
 err:
 	return ret;
