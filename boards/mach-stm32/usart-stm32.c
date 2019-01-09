@@ -23,10 +23,18 @@ static void stm32_usart_print(struct usart_master *usart, unsigned char byte)
 {
 	USART_TypeDef *USART = (USART_TypeDef *)usart->base_reg;
 
+#ifdef CONFIG_STM32F4XX
 	while(!(USART->SR & USART_SR_TXE))
 		;
 
 	USART->DR = byte;
+#else
+	while(!(USART->ISR & USART_ISR_TXE))
+		;
+
+	USART->TDR = byte;
+
+#endif
 }
 
 static int stm32_usart_printl(struct usart_master *usart, const char *string)
@@ -49,10 +57,17 @@ static int stm32_usart_write(struct usart_device *usartdev, unsigned char *buff,
 	int ret = 0;
 
 	for (i = 0; i < len;  i++) {
+#ifdef CONFIG_STM32F4XX
 		while(!(USART->SR & USART_SR_TXE))
 			;
 
 		USART->DR = buff[i];
+#else
+		while(!(USART->ISR & USART_ISR_TXE))
+			;
+
+		USART->TDR = buff[i];
+#endif
 	}
 
 
@@ -67,10 +82,17 @@ static int stm32_usart_read(struct usart_device *usartdev, unsigned char *buff, 
 	int ret = 0;
 
 	for (i = 0; i < len;  i++) {
+#ifdef CONFIG_STM32F4XX
 		while(!(USART->SR & USART_SR_RXNE))
 			;
 
 		buff[i] = USART->DR;
+#else
+		while(!(USART->ISR & USART_ISR_RXNE))
+			;
+
+		buff[i] = USART->RDR;
+#endif
 	}
 
 
@@ -180,7 +202,7 @@ err:
 }
 
 struct device stm32_usart_driver = {
-	.of_compat = "st,stm32f4xx-usart",
+	.of_compat = "st,stm32-usart",
 	.probe = stm32_usart_init,
 };
 
