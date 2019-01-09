@@ -1,27 +1,19 @@
-#ifndef _DT_BINDINGS_CLK_STMFX_H
-#define _DT_BINDINGS_CLK_STMFX_H
+#ifndef _DT_BINDINGS_CLK_STMLX_H
+#define _DT_BINDINGS_CLK_STMLX_H
 
 #define SYSTICK			0
 #define FCLK			1
 #define CLK_LSI			2
 #define CLK_LSE			3
-#define CLK_HSE_RTC		4
+#define CLK_MSI			4
 #define CLK_RTC			5
-#define PLL_VCO_I2S		6
-#define PLL_VCO_SAI		7
-#define CLK_LCD			8
-#define CLK_I2S			9
-#define CLK_SAI1		10
-#define CLK_SAI2		11
-#define CLK_I2SQ_PDIV		12
-#define CLK_SAIQ_PDIV		13
-#define CLK_HSI			14
-#define CLK_SYSCLK		15
-#define CLK_F469_DSI		16
-#define CLK_PLL			17
-#define CLK_AHB			18
-#define CLK_APB1		19
-#define CLK_APB2		20	
+#define CLK_HSI			6
+#define CLK_HSI48		7
+#define CLK_SYSCLK		8
+#define CLK_PLL			9
+#define CLK_AHB			10
+#define CLK_APB1		11
+#define CLK_APB2		12	
 
 #define END_PRIMARY_CLK		20	
 
