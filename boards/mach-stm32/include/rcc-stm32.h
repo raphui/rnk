@@ -5,6 +5,8 @@
 
 #if defined(CONFIG_STM32F4XX) | defined(CONFIG_STM32F7xx)
 #include <dt-bindings/stm32fx-clock.h>
+#elif defined(CONFIG_STM32L4XX)
+#include <dt-bindings/stm32lx-clock.h>
 #endif
 
 

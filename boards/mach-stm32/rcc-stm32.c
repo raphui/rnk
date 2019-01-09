@@ -26,6 +26,23 @@ static const struct clk_div_table apb_div_table[] = {
         { 0 },
 };
 
+#ifdef CONFIG_STM32L4XX
+static const int clk_msi_range[] = {
+	100000,
+	200000,
+	400000,
+	800000,
+	1000000,
+	2000000,
+	4000000,
+	8000000,
+	16000000,
+	24000000,
+	32000000,
+	48000000,
+};
+#endif
+
 static int sysclk_freq;
 static int ahb_freq;
 static int apb1_freq;
@@ -33,6 +50,24 @@ static int apb2_freq;
 static int ahb_pres;
 static int apb1_pres;
 static int apb2_pres;
+
+#ifdef CONFIG_STM32L4XX
+static int stm32_rcc_find_msi_range(int freq)
+{
+	int i;
+	int ret = -EINVAL;
+	int size = sizeof(clk_msi_range) / sizeof(int);
+
+	for (i = 0; i < size; i++) {
+		if (freq == clk_msi_range[i]) {
+			ret = i;
+			break;
+		}
+	}
+
+	return ret;
+}
+#endif
 
 static int stm32_rcc_find_ahb_div(int pres)
 {
@@ -77,9 +112,11 @@ static int stm32_rcc_enable_internal_clk(unsigned int clk)
 		while (!(RCC->CSR & RCC_CSR_LSIRDY))
 			;
 		break;
+#ifdef CONFIG_STM32F4XX
 	case CLK_RTC:
 		RCC->BDCR |= RCC_BDCR_RTCEN | RCC_BDCR_RTCSEL_1;
 		break;
+#endif
 	default:
 		ret = -EINVAL;
 		break;
@@ -97,9 +134,11 @@ static int stm32_rcc_disable_internal_clk(unsigned int clk)
 	case CLK_LSI:
 		RCC->CSR &= ~RCC_CSR_LSION;
 		break;
+#ifdef CONFIG_STM32F4XX
 	case CLK_RTC:
 		RCC->BDCR &= ~RCC_BDCR_RTCEN;
 		break;
+#endif
 	default:
 		ret = -EINVAL;
 		break;
@@ -121,12 +160,21 @@ static int stm32_rcc_enable_gated_clk(int id)
 
 	*p |= (1 << id);
 
+#ifdef CONFIG_STM32F4XX
 	if (bus_id < 2)
 		ret = ahb_freq;
 	else if (bus_id < 3)
 		ret = apb1_freq;
 	else
 		ret = apb2_freq;
+#else
+	if (bus_id < 3)
+		ret = ahb_freq;
+	else if (bus_id < 5)
+		ret = apb1_freq;
+	else
+		ret = apb2_freq;
+#endif
 
 	return ret;
 }
@@ -156,6 +204,12 @@ static void stm32_rcc_set_sysclk(int source)
 		while ((RCC->CFGR & (unsigned int)RCC_CFGR_SWS ) != RCC_CFGR_SWS_HSI)
 			;
 		break;
+#ifdef CONFIG_STM32L4XX
+	case CLK_MSI:
+		RCC->CFGR |= RCC_CFGR_SW_MSI;
+		while ((RCC->CFGR & (unsigned int)RCC_CFGR_SWS ) != RCC_CFGR_SWS_MSI)
+			;
+#endif
 	case CLK_LSI:
 	case CLK_LSE:
 		break;
@@ -179,8 +233,10 @@ static void stm32_rcc_adjust_flash_ws(int freq)
 		FLASH->ACR |= FLASH_ACR_LATENCY_3WS;
 	else if (freq <= 80000000)
 		FLASH->ACR |= FLASH_ACR_LATENCY_4WS;
+#ifdef CONFIG_STM32F4XX
 	else if (freq <= 84000000)
 		FLASH->ACR |= FLASH_ACR_LATENCY_5WS;
+#endif
 }
 
 static int stm32_rcc_find_parent_clock(int offset, int *source_freq)
@@ -191,6 +247,10 @@ static int stm32_rcc_find_parent_clock(int offset, int *source_freq)
 	const void *fdt_blob = fdtparse_get_blob();
 	const struct fdt_property *prop;
 	fdt32_t *cell;
+
+	ret = fdtparse_get_int(offset, "clock-frequency", source_freq);
+	if (ret)
+		*source_freq = 0; // means field is not present, set to 0 and try in parent node
 
 	prop = fdt_get_property(fdt_blob, offset, "assigned-clock", &len);
 	if (prop) {
@@ -217,7 +277,8 @@ static int stm32_rcc_find_parent_clock(int offset, int *source_freq)
 
 	ret = fdt32_to_cpu(cell[2]);
 
-	fdtparse_get_int(offset, "clock-frequency", source_freq);
+	if (!*source_freq)
+		fdtparse_get_int(offset, "clock-frequency", source_freq);
 
 out:
 	return ret;
@@ -353,7 +414,13 @@ int stm32_rcc_enable_sys_clk(void)
 	int ret = 0;
 	int offset;
 	int len;
+#ifdef CONFIG_STM32F4XX
 	int sysclk_source, pll_m, pll_q, pll_n, pll_p;
+#else
+	int msi_range;
+	int sysclk_source, pll_m, pll_q, pll_n, pll_r;
+#endif
+
 	int div_ahb, div_apb1, div_apb2;
 	int source, source_freq;
 	const void *fdt_blob = fdtparse_get_blob();
@@ -426,9 +493,15 @@ int stm32_rcc_enable_sys_clk(void)
 		goto out;
 	}
 
+#ifdef CONFIG_STM32F4XX
 	RCC->CFGR |= (div_ahb << 4);
 	RCC->CFGR |= (div_apb1 << 10);
 	RCC->CFGR |= (div_apb2 << 13);
+#else
+	RCC->CFGR |= (div_ahb << RCC_CFGR_HPRE_Pos);
+	RCC->CFGR |= (div_apb1 << RCC_CFGR_PPRE1_Pos);
+	RCC->CFGR |= (div_apb2 << RCC_CFGR_PPRE2_Pos);
+#endif
 
 	switch (sysclk_source) {
 	case CLK_HSI:
@@ -443,6 +516,18 @@ int stm32_rcc_enable_sys_clk(void)
 
 		sysclk_freq = source_freq;
 		break;
+#ifdef CONFIG_STM32L4XX
+	case CLK_MSI:
+		source = stm32_rcc_find_parent_clock(parent_offset, &source_freq);
+
+		msi_range = stm32_rcc_find_msi_range(source_freq);
+
+		RCC->CR |= RCC_CR_MSIRGSEL;
+		RCC->CR = (RCC->CR & ~RCC_CR_MSIRANGE_Msk) | (msi_range << RCC_CR_MSIRANGE_Pos);
+
+		sysclk_freq = source_freq;
+		break;
+#endif
 	case CLK_PLL:
 		source = stm32_rcc_find_parent_clock(parent_offset, &source_freq);
 
@@ -463,10 +548,16 @@ int stm32_rcc_enable_sys_clk(void)
 
 		pll_m = fdt32_to_cpu(cell[0]);
 		pll_n = fdt32_to_cpu(cell[1]);
-		pll_p = fdt32_to_cpu(cell[2]);
 		pll_q = fdt32_to_cpu(cell[3]);
+#ifdef CONFIG_STM32F4XX
+		pll_p = fdt32_to_cpu(cell[2]);
 
 		RCC->PLLCFGR = pll_m | (pll_n << 6) | (((pll_p >> 1) -1) << 16) | (pll_q << 24);
+#else
+		pll_r = fdt32_to_cpu(cell[2]);
+		RCC->PLLCFGR = (pll_m << 4) | (pll_n << 8) | (((pll_r >> 1) -1) << 25) | (pll_q << 21);
+#endif
+
 
 		if (source == CLK_HSI) {
 			RCC->CR |= RCC_CR_HSION;
@@ -489,7 +580,11 @@ int stm32_rcc_enable_sys_clk(void)
 		while(!(RCC->CR & RCC_CR_PLLRDY))
 			; // Wait till the main PLL is ready
 
+#ifdef CONFIG_STM32F4XX
 		sysclk_freq = ((source_freq / pll_m) * pll_n) / pll_p;
+#else
+		sysclk_freq = ((source_freq / pll_m) * pll_n) / pll_r;
+#endif
 
 		break;
 	}
@@ -499,15 +594,20 @@ int stm32_rcc_enable_sys_clk(void)
 	apb2_freq = (sysclk_freq / ahb_pres) / apb2_pres;
 
 	/* Select regulator voltage output Scale 1 mode */
+#ifdef CONFIG_STM32F4XX
 	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+	PWR->CR |= PWR_CR_DBP;
+#else
+	RCC->APB1ENR1 |= RCC_APB1ENR1_PWREN;
+#endif
+
+	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
 
 	/* Configure Flash prefetch, Instruction cache, Data cache and wait state */
 	stm32_rcc_adjust_flash_ws(sysclk_freq);
 
 	FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN;
 
-	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
-	PWR->CR |= PWR_CR_DBP;
 
 	stm32_rcc_set_sysclk(sysclk_source);
 
