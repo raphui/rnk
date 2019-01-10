@@ -291,7 +291,7 @@ err:
 }
 
 struct device stm32_pio_driver = {
-	.of_compat = "st,stm32f4xx-pio",
+	.of_compat = "st,stm32-pio",
 	.probe = stm32_pio_init,
 };
 
