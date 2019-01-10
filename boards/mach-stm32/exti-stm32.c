@@ -54,18 +54,22 @@ static unsigned char stm32_exti_base_mask(unsigned int gpio_base)
 		case GPIOE_BASE:
 			mask = 0x4;
 			break;
+#ifdef CONFIG_STM32F4XX
 		case GPIOF_BASE:
 			mask = 0x5;
 			break;
 		case GPIOG_BASE:
 			mask = 0x6;
 			break;
+#endif
 		case GPIOH_BASE:
 			mask = 0x7;
 			break;
+#ifdef CONFIG_STM32F4XX
 		case GPIOI_BASE:
 			mask = 0x8;
 			break;
+#endif
 #ifdef CONFIG_STM32F429
 		case GPIOJ_BASE:
 			mask = 0x9;
@@ -101,10 +105,16 @@ static int stm32_exti_get_nvic_number(unsigned int gpio_num)
 static void stm32_exti_isr(void *arg)
 {
 	int i;
-	int line = EXTI->PR & 0x7FFFFF;
 	void (*hook)(void *) = NULL;
+#ifdef CONFIG_STM32F4XX
+	int line = EXTI->PR & 0x7FFFFF;
 
 	EXTI->PR = line;
+#else
+	int line = EXTI->PR1 & 0x7FFFFF;
+
+	EXTI->PR1 = line;
+#endif
 
 	for (i = 0; i < 32; i++) {
 		if (line & (1 << i)) {
@@ -118,13 +128,18 @@ static void stm32_exti_isr(void *arg)
 
 void stm32_exti_clear_line(unsigned int line)
 {
+#ifdef CONFIG_STM32F4XX
 	EXTI->PR |= line;
+#else
+	EXTI->PR1 |= line;
+#endif
 }
 
 int stm32_exti_configure(unsigned int line, unsigned int edge)
 {
 	int ret = 0;
 
+#ifdef CONFIG_STM32F4XX
 	/* clean any previous interrupt flags */
 	if (edge & IRQF_RISING)
 		EXTI->RTSR |= (1 << line);
@@ -134,6 +149,17 @@ int stm32_exti_configure(unsigned int line, unsigned int edge)
 
 
 	EXTI->IMR |= (1 << line);
+#else
+	/* clean any previous interrupt flags */
+	if (edge & IRQF_RISING)
+		EXTI->RTSR1 |= (1 << line);
+
+	if (edge & IRQF_FALLING)
+		EXTI->FTSR1 |= (1 << line);
+
+
+	EXTI->IMR1 |= (1 << line);
+#endif
 
 	return ret;
 }
@@ -158,10 +184,17 @@ int stm32_exti_configure_line(unsigned int gpio_base, unsigned int gpio_num)
 	if (gpio_num <= 15) {
 		SYSCFG->EXTICR[gpio_num >> 2] = (mask << ((gpio_num % 4) *  4));
 
+#ifdef CONFIG_STM32F4XX
 		/* clean any previous interrupt flags */
 		EXTI->RTSR &= ~(1 << gpio_num);
 		EXTI->FTSR &= ~(1 << gpio_num);
 		EXTI->IMR &= ~(1 << gpio_num);
+#else
+		/* clean any previous interrupt flags */
+		EXTI->RTSR1 &= ~(1 << gpio_num);
+		EXTI->FTSR1 &= ~(1 << gpio_num);
+		EXTI->IMR1 &= ~(1 << gpio_num);
+#endif
 
 	} else {
 		error_printk("pin %d is not configurable\r\n", gpio_num);
@@ -181,8 +214,13 @@ int stm32_exti_enable_falling(unsigned int gpio_base, unsigned int gpio_num)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_STM32F4XX
 	EXTI->FTSR |= (1 << gpio_num);
 	EXTI->IMR |= (1 << gpio_num);
+#else
+	EXTI->FTSR1 |= (1 << gpio_num);
+	EXTI->IMR1 |= (1 << gpio_num);
+#endif
 
 	nvic_enable_interrupt(nvic);
 
@@ -199,8 +237,13 @@ int stm32_exti_enable_rising(unsigned int gpio_base, unsigned int gpio_num)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_STM32F4XX
 	EXTI->RTSR |= (1 << gpio_num);
 	EXTI->IMR |= (1 << gpio_num);
+#else
+	EXTI->RTSR1 |= (1 << gpio_num);
+	EXTI->IMR1 |= (1 << gpio_num);
+#endif
 
 	nvic_enable_interrupt(nvic);
 
@@ -217,8 +260,13 @@ int stm32_exti_disable_falling(unsigned int gpio_base, unsigned int gpio_num)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_STM32F4XX
 	EXTI->FTSR &= ~(1 << gpio_num);
 	EXTI->IMR &= ~(1 << gpio_num);
+#else
+	EXTI->FTSR1 &= ~(1 << gpio_num);
+	EXTI->IMR1 &= ~(1 << gpio_num);
+#endif
 
 	nvic_clear_interrupt(nvic);
 	nvic_disable_interrupt(nvic);
@@ -236,8 +284,13 @@ int stm32_exti_disable_rising(unsigned int gpio_base, unsigned int gpio_num)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_STM32F4XX
 	EXTI->RTSR &= ~(1 << gpio_num);
 	EXTI->IMR &= ~(1 << gpio_num);
+#else
+	EXTI->RTSR1 &= ~(1 << gpio_num);
+	EXTI->IMR1 &= ~(1 << gpio_num);
+#endif
 
 	nvic_clear_interrupt(nvic);
 	nvic_disable_interrupt(nvic);
