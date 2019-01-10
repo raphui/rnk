@@ -11,6 +11,9 @@ clean:
 $(TARGET_NAME): $(OBJS) 
 	@@echo "LD " $@
 	@$(CC) $(LDFLAGS) -T$(LD_SCRIPT) -o $@ $^
+ifeq ($(CONFIG_RFLAT_LOADER), y)
+	$(RFLAT) $(TARGET_NAME) $(TARGET_NAME).bin
+endif
 
 %.o: %.c
 	@@echo "CC " $<
