@@ -45,6 +45,7 @@ struct usart_device *usart_new_device(void);
 int usart_remove_device(struct usart_device *usart);
 int usart_register_device(struct usart_device *usart);
 struct usart_master *usart_new_master(void);
+struct usart_device *usart_new_device_with_master(int fdt_offset);
 int usart_remove_master(struct usart_master *usart);
 int usart_register_master(struct usart_master *usart);
 int usart_init(void);

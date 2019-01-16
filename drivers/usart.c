@@ -7,6 +7,7 @@
 #include <init.h>
 #include <drv/console.h>
 #include <kernel/kmutex.h>
+#include <fdtparse.h>
 
 static int dev_count = 0;
 static int master_count = 0;
@@ -53,6 +54,49 @@ struct usart_device *usart_new_device(void)
 	dev_count++;
 
 	return usartdev;
+}
+
+struct usart_device *usart_new_device_with_master(int fdt_offset)
+{
+	int parent_offset;
+	char *fdt_path = NULL;
+	struct device *dev;
+	struct usart_master *usart;
+	struct usart_device *usartdev = NULL;
+	const void *fdt_blob = fdtparse_get_blob();
+
+	usartdev = usart_new_device();
+	if (!usartdev) {
+		error_printk("cannot allocate usart device\n");
+		goto err;
+	}
+
+	parent_offset = fdt_parent_offset(fdt_blob, fdt_offset);
+	if (parent_offset < 0) {
+		error_printk("failed to retrive usart master for this usart device\n");
+		goto err;
+	}
+
+	fdt_path = fdtparse_get_path(parent_offset);
+	if (!fdt_path) {
+		error_printk("failed to fdt path of usart device parent node\n");
+		goto err;
+	}
+
+	dev = device_from_of_path((const char *)fdt_path);
+	if (!dev) {
+		error_printk("failed to find device with fdt path: %s\n", fdt_path);
+		goto err;
+	}
+
+	usart = container_of(dev, struct usart_master, dev);
+
+	usartdev->master = usart;
+
+	return usartdev;
+
+err:
+	return NULL;
 }
 
 int usart_remove_device(struct usart_device *usart)
