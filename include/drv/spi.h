@@ -37,6 +37,7 @@ struct spi_master {
 	unsigned int speed;	/* wanted speed */
 	unsigned int irq;
 	unsigned short mode;
+	unsigned short master;
 	struct dma_transfer dma_trans_w;
 	struct dma_transfer dma_trans_r;
 	unsigned char only_tx;

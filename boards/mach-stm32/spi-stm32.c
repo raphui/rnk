@@ -228,7 +228,11 @@ static int stm32_spi_exchange(struct spi_device *spidev, unsigned char *in, unsi
 		while (SPI->SR & SPI_SR_BSY)
 			;
 
+#ifdef CONFIG_STM32F4XX
 		SPI->DR = out[i];
+#else
+		*((volatile unsigned char *)&SPI->DR) = out[i];
+#endif
 
 		while (!(SPI->SR & SPI_SR_RXNE))
 			;
@@ -236,7 +240,11 @@ static int stm32_spi_exchange(struct spi_device *spidev, unsigned char *in, unsi
 		while (SPI->SR & SPI_SR_BSY)
 			;
 
+#ifdef CONFIG_STM32F4XX
 		in[i] = SPI->DR;
+#else
+		in[i] = *((volatile unsigned char *)&SPI->DR);
+#endif
 	}
 
 	return i;
@@ -295,6 +303,13 @@ int stm32_spi_of_init(struct spi_master *spi)
 	ret = fdtparse_get_int(offset, "mode", (int *)&spi->mode);
 	if (ret < 0) {
 		error_printk("failed to retrieve spi mode\n");
+		ret = -EIO;
+		goto out;
+	}
+
+	ret = fdtparse_get_int(offset, "master", (int *)&spi->master);
+	if (ret < 0) {
+		error_printk("failed to retrieve spi master\n");
 		ret = -EIO;
 		goto out;
 	}
@@ -378,13 +393,18 @@ int stm32_spi_init(struct device *device)
 	SPI->CR1 |= (spi->rate << 3);
 
 	/* Set master mode */
-	SPI->CR1 |= SPI_CR1_MSTR;
+	if (spi->master)
+		SPI->CR1 |= SPI_CR1_MSTR;
 
 	/* Handle slave selection via software */
 	SPI->CR1 |= SPI_CR1_SSM;
 	SPI->CR1 |= SPI_CR1_SSI;
 
 	SPI->CR1 |= spi->mode;
+
+#ifdef CONFIG_STM32L4XX
+	SPI->CR2 |= SPI_CR2_FRXTH;
+#endif
 
 	SPI->CR1 |= SPI_CR1_SPE;
 
@@ -403,7 +423,7 @@ err:
 }
 
 struct device stm32_spi_driver = {
-	.of_compat = "st,stm32f4xx-spi",
+	.of_compat = "st,stm32-spi",
 	.probe = stm32_spi_init,
 };
 
