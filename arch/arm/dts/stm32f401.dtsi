@@ -59,35 +59,35 @@
 		gpioa: gpio@40020000 {
 			reg = <0x40020000 0x400>;
 			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(GPIOA)>;
-			compatible = "st,stm32f4xx-pio";
+			compatible = "st,stm32-pio";
                         status = "okay";
 		};
 
 		gpiob: gpio@40020400 {
 			reg = <0x40020400 0x400>;
 			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(GPIOB)>;
-			compatible = "st,stm32f4xx-pio";
+			compatible = "st,stm32-pio";
                         status = "okay";
 		};
 
 		gpioc: gpio@40020800 {
 			reg = <0x40020800 0x400>;
 			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(GPIOC)>;
-			compatible = "st,stm32f4xx-pio";
+			compatible = "st,stm32-pio";
                         status = "okay";
 		};
 
 		gpiod: gpio@40020C00 {
 			reg = <0x40020C00 0x400>;
 			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(GPIOD)>;
-			compatible = "st,stm32f4xx-pio";
+			compatible = "st,stm32-pio";
                         status = "okay";
 		};
 
 		gpioe: gpio@40021000 {
 			reg = <0x40021000 0x400>;
 			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(GPIOE)>;
-			compatible = "st,stm32f4xx-pio";
+			compatible = "st,stm32-pio";
                         status = "okay";
 		};
 
@@ -103,14 +103,14 @@
 		rcc: rcc@40023800 {
 			#clock-cells = <2>;
 			reg = <0x40023800 0x400>;
-			compatible = "st,stm32f4xx-rcc";
+			compatible = "st,stm32-rcc";
                         status = "okay";
 		};
 
 		dma1: dma@40026000 {
 			reg = <0x40026000 0x400>;
 			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(DMA1)>;
-			compatible = "st,stm32f4xx-dma";
+			compatible = "st,stm32-dma";
 			interrupts = <11>,
 				     <12>,
 				     <13>,
@@ -125,7 +125,7 @@
 		dma2: dma@40026400 {
 			reg = <0x40026400 0x400>;
 			clocks = <&rcc 0 STM32F4_AHB1_CLOCK(DMA2)>;
-			compatible = "st,stm32f4xx-dma";
+			compatible = "st,stm32-dma";
 			interrupts = <56>,
 				     <57>,
 				     <58>,
@@ -219,7 +219,7 @@
 		#size-cells = <1>;
 
 		usart1: usart1@40011000 {
-			compatible = "st,stm32f4xx-usart";
+			compatible = "st,stm32-usart";
 			clocks = <&rcc 0 STM32F4_APB2_CLOCK(USART1)>;
 			reg = <0x40011000 0x1C>;
 			gpios = <&gpioa 0x709 0>,     /* TX PA2 */
@@ -232,7 +232,7 @@
 		spi1: spi1@40013000 {
 			#address-cells = <1>;
 			#size-cells = <0>;
-			compatible = "st,stm32f4xx-spi";
+			compatible = "st,stm32-spi";
 			clocks = <&rcc 0 STM32F4_APB2_CLOCK(SPI1)>;
 			reg = <0x40013000 0x20>;
                         interrupts = <35>;
@@ -243,6 +243,7 @@
 				<&dma2 3 3 0x10400 0x3>;
 			dma-names = "rx", "tx";
 
+			master = <1>;
 			mode = <3>;
 			speed = <1000000>;
 
@@ -252,12 +253,12 @@
 				compatible = "spi,spidev";
 				status = "okay";
 				speed = <8000000>;
-				gpios = <&gpioa 0x004 0x3>;
+				cs-gpio = <&gpioa 0x004 0x3>;
 			};
 
 			bme280@0 {
 				compatible = "bosch,bme280";
-				status = "okay";
+				status = "disabled";
 				speed = <8000000>;
 				cs-gpio = <&gpioa 0x001 0x3>;
 			};
