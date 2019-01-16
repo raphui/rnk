@@ -24,6 +24,9 @@ config SPIDEV
 	depends on SPI_SUBSYS
 	bool "SPIDEV driver"
 
+config USARTDEV
+	bool "USARTDEV driver"
+
 config ILI9341
 	depends on SPI_SUBSYS && LCD_SUBSYS
 	bool "TFT driver for ILI9341"
