@@ -1,6 +1,6 @@
 
 #include <armv7m/swo.h>
-#include <console.h>
+#include <drv/console.h>
 
 #define ITM_STIM_U32 (*(volatile unsigned int *)0xE0000000)    // Stimulus Port Register word acces
 #define ITM_STIM_U8  (*(volatile char *)0xE0000000)    // Stimulus Port Register byte acces
