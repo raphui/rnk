@@ -1,0 +1,26 @@
+TaskState 0xFF 0=Ready, 1=Delayed or Timeout, 2=Pending, 3=Pending with Timeout, 4=Suspended, 5=Suspended with Timeout, 6=Suspended and Pending, 7=Suspended and Pending with Timeout, 255=Deleted
+
+33        add_thread		thread=%s
+34        end_thread		thread_ended=%x
+35        thread_join		thread_join=%x
+36        thread_switch     
+37        thread_make_runnable	thread_runnable=%s
+38        thread_make_blocked	thread_blocked=%s
+39        schedule_thread	sched_thread=%x
+40        schedule_yield	sched_yield
+41        mutex_create		mutex_create=%x
+42        mutex_lock		mutex_lock=%x
+43        mutex_unlock		mutex_unlock=%x
+44        sem_create		sem_create=%x
+45        sem_wait		sem_wait=%x, count=%d
+46        sem_post		sem_post=%x, count=%d
+47        queue_create		queue_create=%x item_size=%u size=%u  
+48        queue_send		queue_send=%x item=%x
+49        queue_receive         queue_receive=%x timeout=5u
+50        queue_clear		queue_clear=%x
+51        queue_destroy		queue_destroy=%x
+52        queue_update		queue_update=%x item_size=%u size=%u
+53        time_sleep		sleep=%u dur=%x
+54        mem_alloc		mem_alloc_size=%u
+55        mem_free		mem_free_size=%u
+56        rnk_custom: %s		| Returns
