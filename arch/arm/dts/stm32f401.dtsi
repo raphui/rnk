@@ -94,7 +94,7 @@
 		flash {
 			#address-cells = <1>;
 			#size-cells = <0>;
-			compatible = "st,stm32f4xx-flash";
+			compatible = "st,stm32-flash";
 			reg = <0x40023C00 0x400>;
 			base = <0x08000000>;
                         status = "okay";

@@ -67,7 +67,7 @@
 
 		flash {
 			clocks = <&rcc 0 STM32L4_AHB1_CLOCK(FLASH)>;
-			compatible = "st,stm32l4xx-flash";
+			compatible = "st,stm32-flash";
 			reg = <0x40022000 0x400>;
 			base = <0x08000000>;
                         status = "okay";
