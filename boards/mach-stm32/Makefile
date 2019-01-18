@@ -16,4 +16,6 @@ obj-$(CONFIG_STM32F429) += fmc-stm32.o
 obj-$(CONFIG_STM32F746) += fmc-stm32.o
 obj-$(CONFIG_IRQ_SUBSYS) += exti-stm32.o
 obj-y += flash-stm32.o
+obj-$(CONFIG_STM32F4XX) += flash-stm32f4xx.o
+obj-$(CONFIG_STM32L4XX) += flash-stm32l4xx.o
 obj-$(CONFIG_USB_SUBSYS) += usb-stm32.o
