@@ -108,6 +108,7 @@ Notes:
 #define apiID_TIME_SLEEP		(21)
 #define apiID_MEM_ALLOC			(22)
 #define apiID_MEM_FREE			(23)
+#define apiID_CUSTOM			(24)
 
 
 #ifdef CONFIG_TRACE
@@ -170,6 +171,8 @@ Notes:
 //#define traceISR_EXIT_TO_SCHEDULER()                SEGGER_SYSVIEW_RecordExitISRToScheduler()
 #define trace_exit_isr()                            SEGGER_SYSVIEW_RecordExitISR()
 #define trace_enter_isr()                           SEGGER_SYSVIEW_RecordEnterISR()
+#define trace_entry_custom(s)			SEGGER_SYSVIEW_RecordString(apiID_OFFSET + apiID_CUSTOM, s)
+#define trace_exit_custom()			SEGGER_SYSVIEW_RecordEndCall(apiID_OFFSET + apiID_CUSTOM)
 #else
 
 //#define trace_thread_create(thread)
@@ -203,6 +206,8 @@ Notes:
 //#define traceISR_EXIT_TO_SCHEDULER()                SEGGER_SYSVIEW_RecordExitISRToScheduler()
 #define trace_exit_isr()
 #define trace_enter_isr()
+#define trace_entry_custom(s)
+#define trace_exit_custom()
 #endif
 
 /*********************************************************************
