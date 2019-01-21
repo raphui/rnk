@@ -43,7 +43,7 @@ RFLAT := $(KERNEL_BASE)/tools/rflat/rflat
 
 TOPTARGETS := all clean
 
-SUBDIRS := sensor tests/mutex_tests tests/queue_tests tests/sem_tests tests/syscall_tests tests/thread_tests tests/timer_tests
+SUBDIRS := sensor tests/mtd_tests tests/mutex_tests tests/queue_tests tests/sem_tests tests/syscall_tests tests/thread_tests tests/timer_tests
 
 $(TOPTARGETS): $(SUBDIRS)
 
