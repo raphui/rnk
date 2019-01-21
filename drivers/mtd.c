@@ -137,6 +137,7 @@ static int mtd_page_write(struct device *dev, unsigned char *buff, unsigned int 
 	struct mtd *mtd = container_of(dev, struct mtd, dev);
 	int part_size;
 	int ret = 0;
+	int n = 0;
 	struct mtd_page page;
 
 	ret = mtd_get_page(dev, mtd->curr_off, &page);
@@ -144,9 +145,13 @@ static int mtd_page_write(struct device *dev, unsigned char *buff, unsigned int 
 		goto err;
 
 	if ((mtd->curr_off + size) > page.end) {
-		part_size = mtd->curr_off - page.end;
+		part_size = page.end - mtd->curr_off;
 
-		mtd_write(dev, buff, part_size, &page);
+		ret = mtd_write(dev, buff, part_size, &page);
+		if (ret < 0)
+			goto err;
+
+		n += ret;
 
 		ret = mtd_get_next_page(dev, &page);
 		if (ret < 0)
@@ -154,7 +159,12 @@ static int mtd_page_write(struct device *dev, unsigned char *buff, unsigned int 
 
 		size -= part_size;
 
-		mtd_write(dev, buff + part_size, size, &page);
+		ret = mtd_write(dev, buff + part_size, size, &page);
+		if (ret < 0)
+			goto err;
+
+		n += ret;
+		ret = n;
 	} else {
 		ret = mtd_write(dev, buff, size, &page);
 	}
