@@ -42,10 +42,11 @@ int stm32_flash_wait_operation(void)
 	if (FLASH->SR & FLASH_SR_BSY)
 		while (FLASH->SR & FLASH_SR_BSY)
 			;
+
 #ifdef CONFIG_STM32F4XX
-	else if (FLASH->SR & (FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR)) {
+	if (FLASH->SR & (FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR)) {
 #else
-	else if (FLASH->SR & (FLASH_SR_WRPERR | FLASH_SR_PGAERR)) {
+	if (FLASH->SR & (FLASH_SR_WRPERR | FLASH_SR_PGAERR)) {
 #endif
 		FLASH->SR = SR_ERR_MASK;
 		ret = -EIO;
