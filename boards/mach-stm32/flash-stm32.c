@@ -58,7 +58,6 @@ int stm32_flash_wait_operation(void)
 
 static int stm32_flash_read(struct mtd *mtd, unsigned char *buff, unsigned int size)
 {
-	int i;
 	unsigned int addr = mtd->base_addr + mtd->curr_off;
 
 	stm32_flash_unlock();
