@@ -58,4 +58,6 @@ unsigned int next_power_of_2(unsigned int n);
 	printk("\n");\
 })
 
+#define ROUND_DOWN(a,b) (((a) / (b)) * (b))
+
 #endif /* UTILS_H */
