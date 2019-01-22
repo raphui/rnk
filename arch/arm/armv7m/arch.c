@@ -10,7 +10,6 @@ extern void systick_handler(void);
 
 void arch_init(void)
 {
-	int i;
 	struct isr_entry entry;
 
 #ifdef CONFIG_USER
