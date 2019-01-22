@@ -34,7 +34,7 @@ struct dma_stream {
 	unsigned int priority;
 	unsigned int irq;
 	unsigned char enable_interrupt;
-	void (*handler)(struct device *dev);
+	void (*handler)(void *arg);
 	void *arg;
 	struct dma_controller *dma;
 };
