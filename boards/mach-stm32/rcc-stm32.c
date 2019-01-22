@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <fdtparse.h>
 #include <kernel/printk.h>
+#include <drv/clk.h>
 #include <init.h>
 
 #define LSI_FREQ	32000
@@ -282,6 +283,11 @@ static int stm32_rcc_find_parent_clock(int offset, int *source_freq)
 
 out:
 	return ret;
+}
+
+static int stm32_rcc_get_sysfreq(void)
+{
+	return sysclk_freq;
 }
 
 int stm32_rcc_get_freq_clk(unsigned int clk)
@@ -614,4 +620,49 @@ int stm32_rcc_enable_sys_clk(void)
 out:
 	return ret;
 }
-arch_initcall(stm32_rcc_enable_sys_clk);
+
+
+struct clk_operations clk_ops = {
+	.clk_get_sysfreq = stm32_rcc_get_sysfreq,
+};
+
+int stm32_rcc_init(struct device *dev)
+{
+	int ret = 0;
+	struct clk_device *clk_dev = NULL;
+
+	clk_dev = clk_new_device();
+	if (!clk_dev) {
+		error_printk("failed to request new clk device\n");
+		ret = -EIO;
+		goto err;
+	}
+
+	memcpy(&clk_dev->dev, dev, sizeof(struct device));
+	clk_dev->clk_ops = &clk_ops;
+
+err:
+	return ret;
+}
+
+struct device stm32_rcc_driver = {
+	.of_compat = "st,stm32-rcc",
+	.probe = stm32_rcc_init,
+};
+
+static int stm32_rcc_register(void)
+{
+	int ret = 0;
+
+	ret = device_of_register(&stm32_rcc_driver);
+	if (ret < 0) {
+		error_printk("failed to register stm32_rcc device\n");
+		goto err;
+	}
+
+	ret = stm32_rcc_enable_sys_clk();
+
+err:
+	return ret;
+}
+arch_initcall(stm32_rcc_register);
