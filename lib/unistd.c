@@ -28,11 +28,9 @@ static int arch_system_call(unsigned int call, va_list va)
 		ret = (int)svc_arg3(call, args[0], args[1], args[2]);
 #else
 	void * (*handler)(void *, void *, void *);
-	unsigned char type;
 
 	if (call != SYSCALL_THREAD_STOP) {
 		handler = (void (*))syscall_table[call].handler;
-		type = syscall_table[call].type;
 
 		ret = (int)(*handler)(args[0], args[1], args[2]);
 	}
