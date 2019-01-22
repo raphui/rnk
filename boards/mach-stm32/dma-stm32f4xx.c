@@ -82,13 +82,6 @@ static int stm32_dma_get_interrupt_flags(struct dma_stream *dma_stream)
 	return mask;
 }
 
-static int stm32_dma_get_stream_base(struct dma_stream *stream)
-{
-	unsigned int base = stm32_dma_get_base(stream);
-
-	return (base + 0x10 + 0x18 * stream->stream_num);
-}
-
 static void stm32_dma_isr(void *arg)
 {
 	struct dma_stream *stream = (struct dma_stream *)arg;
