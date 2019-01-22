@@ -18,10 +18,17 @@ static int mtd_buff2[] = {0x00000000,
 			0x00000000,
 			0x00000000};
 
-static int mtd_buff3[] = {0xDEADBEEF,
-			0xBABEFACE,
+static int mtd_buff3[] = {0xDEADBABE,
 			0x12345678,
-			0xDEADBABE};
+			0xBABEFACE,
+			0xDEADBEEF};
+
+static int mtd_buff4[] = {0xDEADBEEF,
+			0xDEADBABE,
+			0x12345678,
+			0x12345678,
+			0xBABEFACE,
+			0xDEADC0DE};
 
 static pthread_t thr_a;
 
@@ -36,7 +43,7 @@ static int mtd_test(int fd, int offset, char *buff, int size)
 
 	ret = write(fd, buff, size);
 	if (ret != size) {
-		printf("failed to write mtd buff\n");
+		printf("failed to write mtd buff: %d bytes writes vs %d\n", ret, size);
 		goto err;
 	}
 
@@ -91,7 +98,7 @@ void thread_a(void *arg)
 	printf("Testing non-aligned write\n");
 	printf("---------------------\n");
 
-	ret = mtd_test(fd, 0x30000, (char *)mtd_buff2, 13);
+	ret = mtd_test(fd, 0x30000, (char *)mtd_buff, 13);
 	if (ret < 0)
 		printf("fail, reason: %d\n", ret);
 
@@ -105,6 +112,20 @@ void thread_a(void *arg)
 		printf("fail, reason: %d\n", ret);
 
 	printf("---------------------\n");
+
+	printf("Testing non-aligned address and size write\n");
+	printf("---------------------\n");
+
+	ret = mtd_test(fd, 0x31870, (char *)mtd_buff4, 13);
+	if (ret < 0)
+		printf("fail, reason: %d\n", ret);
+
+	ret = mtd_test(fd, 0x3187D, (char *)mtd_buff4, 13);
+	if (ret < 0)
+		printf("fail, reason: %d\n", ret);
+
+	printf("---------------------\n");
+
 
 	close(fd);
 err:
