@@ -5,6 +5,15 @@ rnk is a RTOS targeting ARM architecture.
 
 For now, only the Cortex-M4 is supported.
 
+Features
+--------
+
+  * Premptive scheduling
+  * Dynamic user application loading using custom file format - RFLAT
+  * Isolation using MPU
+  * Device tree utilisation
+  * POSIX API
+  * SEGGER SystemView support
 
 Dependencies
 ------------
