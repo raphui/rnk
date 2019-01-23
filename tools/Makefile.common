@@ -1,46 +1,53 @@
 subdirs-y :=
-dep = $(obj-y:.o=.d) $(ld-script-y:.lds=.d) $(extra-y:.lds=.d)
+dep = $(obj-y:.o=.d)
 
 include $(dir)/Makefile
 
 prepend-dir-to = $(addprefix $(dir)/,$1)
 prepend-dir = $(foreach d,$($1),$(call prepend-dir-to,$(d)))
 
-$(call prepend-dir,subdirs-y):
-	$(MAKE) -f tools/Makefile.common dir=$@ $(MAKECMDGOALS)
+prepend-objs-to = $(addprefix $(OBJS_DIR)$(subst $(KERNEL_BASE),,$(dir))/, $1)
+prepend-objs = $(foreach d,$($1),$(call prepend-objs-to,$(d)))
 
-all: $(call prepend-dir,subdirs-y) $(call prepend-dir,obj-y) $(call prepend-dir,ld-script-y) $(call prepend-dir,extra-y)
-	echo $(call prepend-dir,obj-y) >> objects.lst
-	echo $(call prepend-dir,extra-y) >> extra_objects.lst
+CUR_OBJS_DIR := $(addsuffix $(subst $(KERNEL_BASE),,$(dir))/, $(OBJS_DIR))
+
+$(call prepend-dir,subdirs-y):
+	$(MAKE) -f Makefile.common dir=$@ file=Makefile $(MAKECMDGOALS)
+
+all: $(call prepend-dir,subdirs-y) $(call prepend-objs,obj-y) $(call prepend-objs,extra-y)
+	echo $(call prepend-objs,obj-y) >> objects.lst
 
 clean: $(call prepend-dir,subdirs-y)
-	rm -f $(call prepend-dir,obj-y) $(call prepend-dir,dep) \
-	      $(call prepend-dir,clean-y) $(call prepend-dir,ld-script-y) \
-	      $(call prepend-dir,extra-y)
+	rm -f $(call prepend-objs,obj-y) $(call prepen-objs,dep) \
+	      $(call prepend-objs,extra-y)
 
-build = echo "$1 $@"
+build = echo "$1 $(subst $(OBJS_DIR)/,,$@)"
 
-%.o: %.c
+$(CUR_OBJS_DIR)%.o: $(dir)/%.c
 	$(call build,CC)
-	$(CC) $(CFLAGS) -c $(firstword $^) -o $@
+	$(MKDIR) $(dir $@)
+	$(CC) $(CFLAGS) -MMD -MF $(patsubst %.o,%.d,$@) -c -o $@ $<
 
-%.o: %.S
+$(CUR_OBJS_DIR)%.o: $(dir)/%.S
 	$(call build,CC)
-	$(CC) $(CFLAGS) -c $(firstword $^) -o $@
+	$(MKDIR) $(dir $@)
+	$(CC) $(CFLAGS) -MMD -MF $(patsubst %.o,%.d,$@) -c -o $@ $<
 
-%.lds: %.lds.S
+$(CUR_OBJS_DIR)%.lds: $(dir)/%.lds.S
 	$(call build,LDS)
-	$(LDS) $(LDSFLAGS) -o $@ $(firstword $^)
+	$(MKDIR) $(dir $@)
+	$(LDS) $(LDSFLAGS) -o $@ $<
 	mv $@ $(KERNEL_BASE)/$(linker_files)
 
-%.o: %.dts
+$(CUR_OBJS_DIR)%.o: $(dir)/%.dts
 	$(call build,DTC)
-	$(CPP) $(DTCPPFLAGS) $(firstword $^) > $(firstword $^).tmp
-	$(DTC) -Idts -Odtb $(firstword $^).tmp > $(dtb)
+	$(MKDIR) $(dir $@)
+	$(CPP) -MMD -MF $(patsubst %.o,%.d,$@) $(DTCPPFLAGS) $< > $@.tmp
+	$(DTC) -Idts -Odtb $@.tmp > $(dtb)
 	$(PYTHON) $(DT_PARSER) $(dtb) $(dtb)
 	@$(OBJCOPY) -I binary -O elf32-littlearm -B arm --rename-section .data=.text,contents,readonly $(dtb) $@
 
 
--include $(call prepend-dir,dep)
+-include $(addprefix $(CUR_OBJS_DIR),$(dep))
 
 .PHONY: all clean $(call prepend-dir,subdirs-y)

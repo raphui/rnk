@@ -1,0 +1,128 @@
+export
+
+CONFIG := $(KERNEL_BASE)/.config
+ifneq ($(CONFIG),)
+include $(CONFIG)
+endif
+
+ifeq ($(CONFIG_CPU_ARMV7M),y)
+ARMV=armv7m
+endif
+
+ifeq ($(CONFIG_MACH_STM32),y)
+MACH=stm32
+endif
+
+ifeq ($(CONFIG_STM32F4XX),y)
+FAMILY=stm32f4xx
+endif
+
+ifeq ($(CONFIG_STM32F7XX),y)
+FAMILY=stm32f7xx
+endif
+
+ifeq ($(CONFIG_STM32L4XX),y)
+FAMILY=stm32l4xx
+endif
+
+ifeq ($(CONFIG_CPU_ARM_CORTEX_M4),y)
+MCPU=cortex-m4
+endif
+
+ifeq ($(CONFIG_CPU_ARM_CORTEX_M7),y)
+MCPU=cortex-m7
+endif
+
+ifeq (${MAKELEVEL}, 1)
+INCLUDES	+= -I$(KERNEL_BASE)/include
+INCLUDES	+= -I$(KERNEL_BASE)/boards
+INCLUDES	+= -I$(KERNEL_BASE)/lib
+INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/fdt/include
+INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/trace
+
+ifeq ($(CONFIG_TLSF),y)
+INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/tlsf
+endif
+
+ifeq ($(CONFIG_USB_STACK),y)
+INCLUDES	+= -I$(KERNEL_BASE)/third_party/usb
+endif
+
+ifeq ($(CONFIG_TRACE),y)
+INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/trace
+endif
+
+INCLUDES	+= -include $(KERNEL_BASE)/config.h
+ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
+CFLAGS  :=  -Wall -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -nostdinc -g $(INCLUDES)
+CFLAGS += -Os
+
+ifeq ($(CONFIG_UNWIND),y)
+CFLAGS += -funwind-tables
+endif
+
+#CFLAGS  :=  -Wall -mlong-calls -fpic -ffunction-sections -mcpu=arm7tdmi -nostdlib -g $(INCLUDES)
+#CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
+LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib -Wl,-Map=kernel.map -Wl,--gc-sections
+
+LDSFLAGS := $(INCLUDES)
+DTCPPFLAGS := -nostdinc -I$(KERNEL_BASE)/include -undef -D__DTS__ -x assembler-with-cpp
+
+LINKER_SCRIPT := $(KERNEL_BASE)/$(linker_files)
+
+OBJS_DIR := $(KERNEL_BASE)/tools/objs
+
+endif
+
+ifeq (${MAKELEVEL}, 1)
+
+.PHONY: all clean
+
+all: conf kernel.img
+	$(MKDIR) $(OBJS_DIR)
+
+conf:
+	@ln -f -s $(KERNEL_BASE)/boards/mach-$(MACH)/board-$(FAMILY).h $(KERNEL_BASE)/boards/board.h
+	@ln -f -s $(KERNEL_BASE)/boards/mach-$(MACH)/include $(KERNEL_BASE)/include/mach
+	@ln -f -s $(KERNEL_BASE)/arch/arm/include $(KERNEL_BASE)/include/arch
+	@ln -f -s $(KERNEL_BASE)/arch/arm/$(ARMV)/include $(KERNEL_BASE)/include/$(ARMV)
+	@cd $(KERNEL_BASE)/tools/rflat; make
+
+
+cscope:
+	@@echo "GEN " $@
+	@cd $(KERNEL_BASE); cscope -b -q -k -R
+
+kernel.elf: conf
+	rm -f objects.lst
+	$(MAKE) -f Makefile.common dir=$(KERNEL_BASE) all
+	$(CC) -T$(LINKER_SCRIPT) -o $(KERNEL_BASE)/$@ \
+		`cat objects.lst | tr '\n' ' '` $(LDFLAGS)
+ 
+include $(wildcard *.d)
+ 
+kernel.img: kernel.elf 
+	@@echo "OBJCOPY " $<
+	@$(OBJCOPY) $(KERNEL_BASE)/kernel.elf -O binary $(KERNEL_BASE)/kernel.bin
+
+clean:
+	$(MAKE) -f Makefile.common dir=$(KERNEL_BASE) $@
+	$(RM) $(OBJS) $(KERNEL_BASE)/kernel.elf $(KERNEL_BASE)/kernel.img
+	$(RM) $(KERNEL_BASE)/boards/board.h
+	$(RM) $(KERNEL_BASE)/include/arch
+	$(RM) $(KERNEL_BASE)/include/$(ARMV)
+	$(RM) $(KERNEL_BASE)/include/mach
+ 
+dist-clean: clean
+	$(RM) `find . -name *.d`
+	$(RM) `find . -name *.tmp`
+
+endif
+
+.config:
+	echo "ERROR: No config file loaded."
+	exit 1
+
+ifndef VERBOSE
+.SILENT:
+endif

@@ -5,71 +5,24 @@ ifneq ($(CONFIG),)
 include $(CONFIG)
 endif
 
-ifeq ($(CONFIG_CPU_ARMV7M),y)
-ARMV=armv7m
-endif
+subdirs-$(CONFIG_DYNAMIC_APPS) := apps
+subdirs-y += arch
+subdirs-y += boards
+subdirs-y += boot
+subdirs-y += drivers
+subdirs-y += fs
+subdirs-y += kernel
+subdirs-y += ldscripts
+subdirs-y += lib
+subdirs-y += loader
+subdirs-y += mm
+subdirs-y += third_party
+subdirs-y += utils
 
-ifeq ($(CONFIG_MACH_STM32),y)
-MACH=stm32
-endif
-
-ifeq ($(CONFIG_STM32F4XX),y)
-FAMILY=stm32f4xx
-endif
-
-ifeq ($(CONFIG_STM32F7XX),y)
-FAMILY=stm32f7xx
-endif
-
-ifeq ($(CONFIG_STM32L4XX),y)
-FAMILY=stm32l4xx
-endif
-
-ifeq ($(CONFIG_CPU_ARM_CORTEX_M4),y)
-MCPU=cortex-m4
-endif
-
-ifeq ($(CONFIG_CPU_ARM_CORTEX_M7),y)
-MCPU=cortex-m7
-endif
-
-KCONFIG_AUTOHEADER=config.h
+linker_files = rnk.lds
+dtb = rnk.dtb
 
 ifeq (${MAKELEVEL}, 0)
-INCLUDES	+= -I$(KERNEL_BASE)/include
-INCLUDES	+= -I$(KERNEL_BASE)/boards
-INCLUDES	+= -I$(KERNEL_BASE)/lib
-INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/fdt/include
-INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/trace
-
-ifeq ($(CONFIG_TLSF),y)
-INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/tlsf
-endif
-
-ifeq ($(CONFIG_USB_STACK),y)
-INCLUDES	+= -I$(KERNEL_BASE)/third_party/usb
-endif
-
-ifeq ($(CONFIG_TRACE),y)
-INCLUDES	+= -I$(KERNEL_BASE)/third_party/lib/trace
-endif
-
-INCLUDES	+= -include $(KERNEL_BASE)/config.h
-ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
-CFLAGS  :=  -Wall -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -nostdinc -g $(INCLUDES)
-CFLAGS += -MD -MP
-CFLAGS += -Os
-
-ifeq ($(CONFIG_UNWIND),y)
-CFLAGS += -funwind-tables
-endif
-
-#CFLAGS  :=  -Wall -mlong-calls -fpic -ffunction-sections -mcpu=arm7tdmi -nostdlib -g $(INCLUDES)
-#CFLAGS  :=  -Wall -mlong-calls -fpic -ffreestanding -nostdlib -g $(INCLUDES)
-LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib -Wl,-Map=kernel.map -Wl,--gc-sections
-
-LDSFLAGS := $(INCLUDES)
-DTCPPFLAGS := -MD -MP -nostdinc -Iinclude -undef -D__DTS__ -x assembler-with-cpp
 
 CC := $(CROSS_COMPILE)gcc
 AS := $(CROSS_COMPILE)as
@@ -79,68 +32,27 @@ OBJCOPY := $(CROSS_COMPILE)objcopy
 LDS := $(CROSS_COMPILE)gcc -E -P -C
 DTC := dtc
 CPP := cpp
+MKDIR := mkdir -p
 PYTHON := python3
+RFLAT := $(KERNEL_BASE)/tools/rflat/rflat
 
 DT_PARSER=$(KERNEL_BASE)/tools/dt_parser/dt_parser.py
 
-endif
 
-subdirs-y := arch boards boot drivers fs kernel ldscripts lib loader mm third_party utils
+.PHONY: apps all clean
 
-linker_files = rnk.lds
-dtb = rnk.dtb
-
-ifeq (${MAKELEVEL}, 0)
-
-.PHONY: all clean
-
-all: conf kernel.img
-
-conf:
-	@cp boards/mach-$(MACH)/board-$(FAMILY).h boards/board.h
-	@ln -f -s $(KERNEL_BASE)/boards/mach-$(MACH)/include $(KERNEL_BASE)/include/mach
-	@ln -f -s $(KERNEL_BASE)/arch/arm/include $(KERNEL_BASE)/include/arch
-	@ln -f -s $(KERNEL_BASE)/arch/arm/$(ARMV)/include $(KERNEL_BASE)/include/$(ARMV)
-	@cd $(KERNEL_BASE)/tools/rflat; make
-
-
-cscope:
-	@@echo "GEN " $@
-	@cscope -b -q -k -R
-
-kernel.elf: conf config.h
+all: config.h
 	rm -f objects.lst
 	rm -f extra_objects.lst
-	$(MAKE) -f tools/Makefile.common dir=. all
-	$(CC) -T$(linker_files) -o $@ \
-		`cat objects.lst | tr '\n' ' '` $(LDFLAGS)
+	$(MAKE) -C tools -f Makefile.kernel dir=. all
  
-include $(wildcard *.d)
- 
-kernel.img: kernel.elf 
-	@@echo "OBJCOPY " $<
-	@$(OBJCOPY) kernel.elf -O binary kernel.bin
-
 clean:
-	$(MAKE) -f tools/Makefile.common dir=. $@
-	$(RM) $(OBJS) kernel.elf kernel.img
-	$(RM) boards/board.h
-	$(RM) include/arch
-	$(RM) include/$(ARMV)
-	$(RM) include/mach
+	$(MAKE) -C tools -f Makefile.kernel dir=. $@
+	$(MAKE) -C tools -f Makefile.apps dir=. $@
  
 dist-clean: clean
 	$(RM) `find . -name *.d`
 	$(RM) `find . -name *.tmp`
-
-tests:
-	tools/make_apps.sh
-
-endif
-
-.config:
-	echo "ERROR: No config file loaded."
-	exit 1
 
 %_defconfig:
 	cp arch/${ARCH}/configs/$@ .config
@@ -160,6 +72,14 @@ config: tools/kconfig-frontends/frontends/conf/conf
 
 tools/kconfig-frontends/bin/kconfig-%:
 	$(MAKE) -C ./tools/ $(subst tools/kconfig-frontends/bin/,,$@)
+
+%_tests:
+	$(MAKE) -C tools -f Makefile.apps dir=$(APPS_BASE)/tests/$@ app=$@ all
+
+%:
+	$(MAKE) -C tools -f Makefile.apps dir=$(APPS_BASE)/$@ app=$@ all
+
+endif
 
 ifndef VERBOSE
 .SILENT:
