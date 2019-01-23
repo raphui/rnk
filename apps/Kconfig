@@ -1,0 +1,27 @@
+choice
+    prompt "Application"
+    config SENSOR_APP
+        bool "Sensor BME280 application"
+
+    config TEST_MTD
+	bool "MTD test"	
+
+    config TEST_MUTEX
+	bool "Mutex test"	
+
+    config TEST_QUEUE
+	bool "Queue test"	
+
+    config TEST_SEM
+	bool "Semaphore test"	
+
+    config TEST_SYSCALL
+	bool "Syscall test"	
+
+    config TEST_THREAD
+	bool "Thread test"	
+
+    config TEST_TIMER
+	bool "Timer test"	
+
+endchoice
