@@ -5,7 +5,7 @@ ifneq ($(CONFIG),)
 include $(CONFIG)
 endif
 
-subdirs-$(CONFIG_DYNAMIC_APPS) := apps
+subdirs-$(CONFIG_STATIC_APPS) := apps
 subdirs-y += arch
 subdirs-y += boards
 subdirs-y += boot

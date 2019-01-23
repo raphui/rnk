@@ -18,7 +18,9 @@
 extern initcall_t __rnk_initcalls_start[], __rnk_initcalls_end[];
 extern exitcall_t __rnk_exitcalls_start[], __rnk_exitcalls_end[];
 
-int main(void)
+extern int main(void);
+
+int kmain(void)
 {
 	int ret;
 	unsigned long irqstate;
@@ -49,6 +51,9 @@ int main(void)
 	unwind_init();
 #endif /* CONFIG_UNWIND */
 
+#ifdef CONFIG_STATIC_APPS
+	main();
+#else
 	printk("- Loading app\n");
 
 #ifdef CONFIG_ELF_LOADER
@@ -73,6 +78,7 @@ int main(void)
 
 	printk("- Start scheduling...\n");
 	start_schedule();
+#endif
 
 	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 

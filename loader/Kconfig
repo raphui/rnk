@@ -1,6 +1,7 @@
 menu "Loader configuration"
 
 choice
+    depends on !STATIC_APPS
     prompt "Application loader"
 
     config ELF_LOADER

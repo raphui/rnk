@@ -1,6 +1,11 @@
 menu "Kernel configuration"
 
+config STATIC_APPS
+	default y
+	bool "User application statically linked with kernel"
+
 config USER
+	depends on !STATIC_APPS
 	bool "Usermode allows isolation between kernel and user loaded application"
 
 config MAX_THREADS

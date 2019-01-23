@@ -1,4 +1,4 @@
-obj-y := main.o
+obj-y := kmain.o
 obj-$(CONFIG_MUTEX) += kmutex.o
 obj-y += scheduler.o
 obj-$(CONFIG_SEMAPHORE) += ksem.o

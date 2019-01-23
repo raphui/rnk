@@ -4,6 +4,10 @@ config ARCH
     string
     option env="ARCH"
 
+if !DYNAMIC_APPS
+source apps/Kconfig
+endif
+
 source "arch/$ARCH/Kconfig"
 source boards/Kconfig
 source kernel/Kconfig
