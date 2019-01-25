@@ -52,7 +52,7 @@ int kmain(void)
 #endif /* CONFIG_UNWIND */
 
 #ifdef CONFIG_STATIC_APPS
-	main();
+	add_thread((void *)main, NULL, LOW_PRIORITY, PRIVILEGED_THREAD);
 #else
 	printk("- Loading app\n");
 
@@ -75,10 +75,9 @@ int kmain(void)
 #else
 	add_thread((void *)ret, NULL, HIGHEST_PRIORITY, PRIVILEGED_THREAD);
 #endif
-
+#endif
 	printk("- Start scheduling...\n");
 	start_schedule();
-#endif
 
 	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 
