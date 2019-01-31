@@ -16,6 +16,8 @@ struct syscall syscall_table[] = {
 	{SYSCALL_THREAD_CREATE, (unsigned int *)&thread_create,		SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_THREAD_JOIN,	(unsigned int *)&thread_join,		SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_THREAD_STOP,	(unsigned int *)&schedule_thread_stop,	SYSCALL_PRIVILEGE_OPERATION},
+	{SYSCALL_THREAD_SUSPEND,(unsigned int *)&thread_suspend,	SYSCALL_PRIVILEGE_OPERATION},
+	{SYSCALL_THREAD_RESUME,	(unsigned int *)&thread_resume,		SYSCALL_PRIVILEGE_OPERATION},
 #ifdef CONFIG_MUTEX
 	{SYSCALL_MUTEX_CREATE,	(unsigned int *)&kmutex_init,		SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_MUTEX_ACQUIRE, (unsigned int *)&kmutex_lock,		SYSCALL_PRIVILEGE_ELEVATION},
