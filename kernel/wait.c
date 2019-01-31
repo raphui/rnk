@@ -34,7 +34,8 @@ static void insert_waiting_thread(struct wait_queue *wait, struct thread *t)
 
 static void remove_waiting_thread(struct wait_queue *wait, struct thread *t)
 {
-	list_delete(&t->event_node);
+	if (t->state == THREAD_BLOCKED)
+		list_delete(&t->event_node);
 }
 
 int wait_queue_init(struct wait_queue *wait)

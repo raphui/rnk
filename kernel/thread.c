@@ -279,10 +279,12 @@ void insert_runnable_thread(struct thread *thread)
 {
 	thread_lock(state);
 
-	trace_thread_runnable(thread);
+	if (thread->state != THREAD_SUSPEND) {
+		trace_thread_runnable(thread);
 
-	insert_thread(thread);
-	thread->state = THREAD_RUNNABLE;
+		insert_thread(thread);
+		thread->state = THREAD_RUNNABLE;
+	}
 
 	thread_unlock(state);
 }
