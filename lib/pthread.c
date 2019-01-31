@@ -17,6 +17,22 @@ int pthread_create(pthread_t *thread, void (*start_routine)(void *), void *arg, 
 }
 EXPORT_SYMBOL(pthread_create);
 
+int pthread_suspend(pthread_t *thread)
+{
+	if (!thread)
+		return -EINVAL;
+	return syscall(SYSCALL_THREAD_SUSPEND, thread->thr);
+}
+EXPORT_SYMBOL(pthread_suspend);
+
+int pthread_resume(pthread_t *thread)
+{
+	if (!thread)
+		return -EINVAL;
+	return syscall(SYSCALL_THREAD_RESUME, thread->thr);
+}
+EXPORT_SYMBOL(pthread_resume);
+
 int pthread_join(pthread_t *thread, void **retval)
 {
 	if (!thread)

@@ -13,6 +13,8 @@ typedef struct pthread_mutex {
 } pthread_mutex_t;
 
 int pthread_create(pthread_t *thread, void (*start_routine)(void *), void *arg, unsigned int priority);
+int pthread_suspend(pthread_t *thread);
+int pthread_resume(pthread_t *thread);
 int pthread_join(pthread_t *thread, void **retval);
 int pthread_mutex_init(pthread_mutex_t *mutex);
 int pthread_mutex_lock(pthread_mutex_t *mutex);
