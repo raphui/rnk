@@ -11,6 +11,7 @@
 #define THREAD_STOPPED		2
 #define THREAD_INTERRUPTIBLE	3
 #define THREAD_BLOCKED		4
+#define THREAD_SUSPEND		5
 
 #define THREAD_STACK_START	CONFIG_THREAD_STACK_START
 #define THREAD_STACK_OFFSET	CONFIG_THREAD_STACK_SIZE
@@ -52,11 +53,14 @@ struct thread
 	struct list_node node;
 	struct list_node event_node;
 	struct wait_queue wait_exit;
+	struct wait_queue wait_suspend;
 };
 
 void thread_init(void);
 struct thread *thread_create(void (*func)(void), void *arg, unsigned int priority);
 int thread_destroy(struct thread *thread);
+int thread_suspend(struct thread *t);
+int thread_resume(struct thread *t);
 int thread_join(struct thread *t);
 struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged);
 void switch_thread(struct thread *thread);

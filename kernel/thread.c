@@ -143,6 +143,7 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 	memset(thread->arch, 0, sizeof(struct arch_thread));
 
 	wait_queue_init(&thread->wait_exit);
+	wait_queue_init(&thread->wait_suspend);
 
 #ifdef CONFIG_RFLAT_LOADER
 	platform_register = rflat_get_app_header()->got_loc;
@@ -303,6 +304,24 @@ void remove_runnable_thread(struct thread *thread)
 int is_thread_runnable(struct thread *thread)
 {
 	return ((thread->state != THREAD_BLOCKED) && (thread->state != THREAD_STOPPED)) ? 1 : 0;
+}
+
+int thread_suspend(struct thread *t)
+{
+	t->state = THREAD_SUSPEND;
+	wait_queue_block_thread(&t->wait_suspend, &t->event_node);
+
+	schedule_thread(NULL);
+
+	return 0;
+}
+
+int thread_resume(struct thread *t)
+{
+	t->state = THREAD_RUNNABLE;
+	wait_queue_wake(&t->wait_suspend);
+
+	return 0;
 }
 
 int thread_join(struct thread *t)
