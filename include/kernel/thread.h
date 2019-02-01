@@ -53,7 +53,6 @@ struct thread
 	struct list_node node;
 	struct list_node event_node;
 	struct wait_queue wait_exit;
-	struct wait_queue wait_suspend;
 };
 
 void thread_init(void);

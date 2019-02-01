@@ -24,6 +24,7 @@ static unsigned int run_queue_bitmap;
 #endif
 
 static struct list_node run_queue[NB_RUN_QUEUE];
+static struct list_node suspend_queue;
 
 unsigned long thread_lock = SPIN_LOCK_INITIAL_VALUE;
 
@@ -143,7 +144,6 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 	memset(thread->arch, 0, sizeof(struct arch_thread));
 
 	wait_queue_init(&thread->wait_exit);
-	wait_queue_init(&thread->wait_suspend);
 
 #ifdef CONFIG_RFLAT_LOADER
 	platform_register = rflat_get_app_header()->got_loc;
@@ -170,6 +170,8 @@ void thread_init(void)
 
 	for (i = 0; i < NB_RUN_QUEUE; i++)
 		list_initialize(&run_queue[i]);
+
+	list_initialize(&suspend_queue);
 
 	add_thread(&idle_thread, NULL, IDLE_PRIORITY, PRIVILEGED_THREAD);
 }
@@ -310,18 +312,24 @@ int is_thread_runnable(struct thread *thread)
 
 int thread_suspend(struct thread *t)
 {
-	t->state = THREAD_SUSPEND;
-	wait_queue_block_thread(&t->wait_suspend, &t->event_node);
-
-	schedule_thread(NULL);
+	if (t->state != THREAD_SUSPEND) {
+		remove_runnable_thread(t);
+		t->state = THREAD_SUSPEND;
+		list_add_tail(&suspend_queue, &t->node);
+		schedule_thread(NULL);
+	}
 
 	return 0;
 }
 
 int thread_resume(struct thread *t)
 {
-	t->state = THREAD_RUNNABLE;
-	wait_queue_wake(&t->wait_suspend);
+	if (t->state == THREAD_SUSPEND) {
+		t->state = THREAD_RUNNABLE;
+		list_delete(&t->node);
+		insert_runnable_thread(t);
+		schedule_thread(NULL);
+	}
 
 	return 0;
 }
