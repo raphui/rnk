@@ -29,7 +29,7 @@ static int arch_system_call(unsigned int call, va_list va)
 #else
 	void * (*handler)(void *, void *, void *);
 
-	if (call != SYSCALL_THREAD_STOP) {
+	if (syscall_table[call].type == SYSCALL_PRIVILEGE_ELEVATION) {
 		handler = (void (*))syscall_table[call].handler;
 
 		ret = (int)(*handler)(args[0], args[1], args[2]);
