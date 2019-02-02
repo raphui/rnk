@@ -13,8 +13,6 @@ static struct list_node timer_list;
 static struct list_node timer_lp_list;
 #endif
 
-static struct list_node timer_soft_list;
-
 void timer_set_rate(struct timer *timer, unsigned long rate)
 {
 	timer->tim_ops->set_rate(timer, rate);
@@ -144,53 +142,6 @@ int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg)
 	return ret;
 }
 
-
-int timer_oneshot_soft(unsigned int delay, void (*handler)(void *), void *arg)
-{
-	int ret = 0;
-	struct timer_callback *timer = NULL;
-	struct timer_callback *t = NULL;
-
-	timer = (struct timer_callback *)kmalloc(sizeof(struct timer_callback));
-	if (!timer) {
-		error_printk("cannot allocate soft timer\n");
-		return -ENOMEM;
-	}
-
-	timer->delay = delay;
-	timer->handler = handler;
-	timer->arg = arg;
-
-	list_for_every_entry(&timer_soft_list, t, struct timer_callback, node) {
-		if (t->delay > timer->delay) {
-			list_add_before(&t->node, &timer->node);
-			goto out;
-		}
-	}
-
-	list_add_tail(&timer_soft_list, &timer->node);
-
-out:
-	return ret;
-}
-
-void timer_soft_decrease_delay(void)
-{
-	struct timer_callback *t = NULL;
-	struct timer_callback *tmp = NULL;
-
-	list_for_every_entry_safe(&timer_soft_list, t, tmp, struct timer_callback, node) {
-		if (!t->delay) {
-			t->handler(t->arg);
-			list_delete(&t->node);
-			kfree(t);
-			continue;
-		}
-
-		t->delay--;
-	}
-}
-
 struct timer *timer_new(void)
 {
 	struct timer *timer = NULL;
@@ -270,7 +221,6 @@ int timer_init(void)
 #ifdef CONFIG_TICKLESS
 	list_initialize(&timer_lp_list);
 #endif /* CONFIG_TICKLESS */
-	list_initialize(&timer_soft_list);
 
 	return ret;
 }

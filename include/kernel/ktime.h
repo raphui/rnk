@@ -5,9 +5,18 @@
 #include <kernel/thread.h>
 #include <drv/timer.h>
 
+struct ktimer {
+	int delay;
+	void (*handler)(void *);
+	void *arg;
+	struct list_node node;
+};
+
+
 int time_init(void);
 void ktime_usleep(unsigned int usec);
-void ktime_oneshot(int delay, void (*handler)(void *), void *arg);
+void ktime_oneshot(struct ktimer *timer, int delay, void (*handler)(void *), void *arg);
+int ktime_oneshot_cancel(struct ktimer *timer);
 void ktime_wakeup_next_delay(void);
 void decrease_thread_delay(void);
 void decrease_timer_delay(void);
