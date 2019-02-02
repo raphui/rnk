@@ -163,6 +163,8 @@ int wait_queue_block_timed(struct wait_queue *wait, int timeout, unsigned long *
 		arch_interrupt_save(&_irqstate, SPIN_LOCK_FLAG_IRQ);
 	}
 
+	thread->err_wait = 0;
+
 	ktime_oneshot(&timer, timeout, wait_queue_timeout, thread);
 
 	ret = __wait_queue_block(wait, irqstate, thread);
