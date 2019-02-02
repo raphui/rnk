@@ -9,6 +9,7 @@ typedef struct sem {
 
 int sem_init(sem_t *sem, unsigned int value);
 int sem_wait(sem_t *sem);
+int sem_timedwait(sem_t *sem, int timeout);
 int sem_post(sem_t *sem);
 
 #endif /* SEMAPHORE_H */

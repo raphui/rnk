@@ -15,6 +15,13 @@ int sem_wait(sem_t *sem)
 }
 EXPORT_SYMBOL(sem_wait);
 
+
+int sem_timedwait(sem_t *sem, int timeout)
+{
+	return syscall(SYSCALL_SEM_TIMEDWAIT, &sem->ksem, timeout);
+}
+EXPORT_SYMBOL(sem_timedwait);
+
 int sem_post(sem_t *sem)
 {
 	return syscall(SYSCALL_SEM_POST, &sem->ksem);
