@@ -96,7 +96,7 @@ void ktime_oneshot(struct ktimer *timer, int delay, void (*handler)(void *), voi
 {
 	struct ktimer *t = NULL;
 
-	timer->delay = delay;
+	timer->delay = delay / 1000;
 	timer->handler = handler;
 	timer->arg = arg;
 
