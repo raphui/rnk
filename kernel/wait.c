@@ -56,6 +56,7 @@ static int __wait_queue_block(struct wait_queue *wait, unsigned long *irqstate, 
 	if (thread->state == THREAD_RUNNING)
 		thread->state = THREAD_BLOCKED;
 
+	thread->wait_queue = wait;
 	insert_waiting_thread(wait, thread);
 	wait->count++;
 			
@@ -80,6 +81,7 @@ static int __wait_queue_wake(struct wait_queue *wait, unsigned long *irqstate)
 
 			remove_waiting_thread(wait, thread);
 			insert_runnable_thread(thread);
+			thread->wait_queue = NULL;
 
 			schedule_yield();
 	}
@@ -120,11 +122,10 @@ int wait_queue_block(struct wait_queue *wait)
 	return ret;
 }
 
-int wait_queue_block_thread(struct wait_queue *wait, struct list_node *node)
+int wait_queue_block_thread(struct wait_queue *wait, struct thread *thread)
 {
 	int ret;
 	unsigned long irqstate;
-	struct thread *thread = container_of(node, struct thread, event_node);
 
 	if (!wait)
 		return -EINVAL;
@@ -163,6 +164,30 @@ int wait_queue_wake(struct wait_queue *wait)
 	ret = __wait_queue_wake(wait, &irqstate);
 
 	return ret;	
+}
+
+int wait_queue_wake_thread(struct thread *thread)
+{
+	int ret;
+	unsigned long irqstate;
+
+	if (!thread)
+		return -EINVAL;
+
+	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
+
+	thread->wait_queue->count--;
+
+	remove_waiting_thread(thread->wait_queue, thread);
+	insert_runnable_thread(thread);
+
+	thread->wait_queue = NULL;
+
+	schedule_thread(NULL);
+
+	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
+
+	return ret;
 }
 
 int wait_queue_wake_isr(struct wait_queue *wait)
