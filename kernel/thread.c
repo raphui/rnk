@@ -131,7 +131,7 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 	thread->quantum = CONFIG_THREAD_QUANTUM;
 #endif
 
-	thread->start_stack = THREAD_STACK_START + (thread_count * THREAD_STACK_OFFSET);
+	thread->start_stack = THREAD_STACK_START + ((thread_count + 1) * THREAD_STACK_OFFSET);
 	thread->delay = 0;
 	thread->func = func;
 	thread->arch = (struct arch_thread *)kmalloc(sizeof(struct arch_thread));
