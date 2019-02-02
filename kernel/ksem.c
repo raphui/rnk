@@ -77,10 +77,8 @@ int ksem_timedwait(struct semaphore *sem, int timeout)
 	if (sem->count < 0) {
 		debug_printk("unable to got sem (%p)(%d)\r\n", sem, sem->count);
 
-		ret = wait_queue_block_timed(&sem->wait, timeout);
+		ret = wait_queue_block_timed(&sem->wait, timeout, &irqstate);
 	}
-
-	ret = thread->err_wait;
 
 err:
 	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
