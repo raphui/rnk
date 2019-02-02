@@ -94,7 +94,6 @@ void ktime_usleep(unsigned int usec)
 
 void ktime_oneshot(struct ktimer *timer, int delay, void (*handler)(void *), void *arg)
 {
-	int ret = 0;
 	struct ktimer *t = NULL;
 
 	timer->delay = delay;
