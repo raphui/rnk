@@ -9,8 +9,8 @@ void time_usleep(unsigned int usec)
 }
 EXPORT_SYMBOL(time_usleep);
 
-void time_oneshot(int delay, void (*handler)(void *), void *arg)
+void time_oneshot(timer_t *timer, int delay, void (*handler)(void *), void *arg)
 {
-	syscall(SYSCALL_TIME_ONESHOT, delay, handler, arg);
+	syscall(SYSCALL_TIME_ONESHOT, timer->timer, delay, handler, arg);
 }
 EXPORT_SYMBOL(time_oneshot);
