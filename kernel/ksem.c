@@ -10,16 +10,6 @@
 #include <export.h>
 #include <trace.h>
 
-static void ksem_timeout_callback(void *arg)
-{
-	struct thread *thread = (struct thread *)arg;
-
-	if (thread->state == THREAD_BLOCKED) {
-		thread->err_wait = -ETIMEDOUT;
-		wait_queue_wake_thread(thread);
-	}
-}
-
 int ksem_init(struct semaphore *sem, int value)
 {
 	int ret = 0;
@@ -70,18 +60,30 @@ err:
 int ksem_timedwait(struct semaphore *sem, int timeout)
 {
 	int ret = 0;
+	unsigned long irqstate;
 	struct thread *thread = get_current_thread();
 
-	thread->err_wait = 0;
-	ktime_oneshot(timeout, ksem_timeout_callback, thread);
-	
-	ret = ksem_wait(sem);
-	if (ret)
+	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
+
+	if (!sem) {
+		ret = -EINVAL;
 		goto err;
+	}
+
+	sem->count--;
+
+	trace_sem_wait(sem);
+
+	if (sem->count < 0) {
+		debug_printk("unable to got sem (%p)(%d)\r\n", sem, sem->count);
+
+		ret = wait_queue_block_timed(&sem->wait, timeout);
+	}
 
 	ret = thread->err_wait;
 
 err:
+	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 	return ret;
 }
 
