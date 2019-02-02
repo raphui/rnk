@@ -75,7 +75,7 @@ static int __wait_queue_block(struct wait_queue *wait, unsigned long *irqstate, 
 
 	arch_interrupt_restore(*irqstate, SPIN_LOCK_FLAG_IRQ);
 
-	return 0;
+	return thread->err_wait;
 }
 
 static int __wait_queue_wake(struct wait_queue *wait, unsigned long *irqstate)
@@ -148,21 +148,24 @@ int wait_queue_block_thread(struct wait_queue *wait, struct thread *thread)
 	return ret;
 }
 
-int wait_queue_block_timed(struct wait_queue *wait, int timeout)
+int wait_queue_block_timed(struct wait_queue *wait, int timeout, unsigned long *irqstate)
 {
 	int ret;
-	unsigned long irqstate;
+	unsigned long _irqstate;
 	struct thread *thread = get_current_thread();
 	struct ktimer timer;
 
 	if (!wait)
 		return -EINVAL;
 
-	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
+	if (!irqstate) {
+		irqstate = &_irqstate;
+		arch_interrupt_save(&_irqstate, SPIN_LOCK_FLAG_IRQ);
+	}
 
 	ktime_oneshot(&timer, timeout, wait_queue_timeout, thread);
 
-	ret = __wait_queue_block(wait, &irqstate, thread);
+	ret = __wait_queue_block(wait, irqstate, thread);
 
 	ktime_oneshot_cancel(&timer);
 
