@@ -6,8 +6,19 @@
 #include <kernel/spinlock.h>
 #include <kernel/printk.h>
 #include <kernel/syscall.h>
+#include <kernel/ktime.h>
 #include <export.h>
 #include <trace.h>
+
+static void ksem_timeout_callback(void *arg)
+{
+	struct thread *thread = (struct thread *)arg;
+
+	if (thread->state == THREAD_BLOCKED) {
+		thread->err_wait = -ETIMEDOUT;
+		wait_queue_wake_thread(thread);
+	}
+}
 
 int ksem_init(struct semaphore *sem, int value)
 {
@@ -53,6 +64,24 @@ int ksem_wait(struct semaphore *sem)
 
 err:
 	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
+	return ret;
+}
+
+int ksem_timedwait(struct semaphore *sem, int timeout)
+{
+	int ret = 0;
+	struct thread *thread = get_current_thread();
+
+	thread->err_wait = 0;
+	ktime_oneshot(timeout, ksem_timeout_callback, thread);
+	
+	ret = ksem_wait(sem);
+	if (ret)
+		goto err;
+
+	ret = thread->err_wait;
+
+err:
 	return ret;
 }
 
