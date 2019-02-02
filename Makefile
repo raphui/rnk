@@ -73,6 +73,10 @@ config: tools/kconfig-frontends/frontends/conf/conf
 tools/kconfig-frontends/bin/kconfig-%:
 	$(MAKE) -C ./tools/ $(subst tools/kconfig-frontends/bin/,,$@)
 
+cscope:
+	@@echo "GEN " $@
+	@cd $(KERNEL_BASE); cscope -b -q -k -R
+
 %_tests:
 	$(MAKE) -C tools -f Makefile.apps dir=$(APPS_BASE)/tests/$@ app=$@ all
 

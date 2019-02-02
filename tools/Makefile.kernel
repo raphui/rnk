@@ -89,10 +89,6 @@ conf:
 	@cd $(KERNEL_BASE)/tools/rflat; make
 
 
-cscope:
-	@@echo "GEN " $@
-	@cd $(KERNEL_BASE); cscope -b -q -k -R
-
 kernel.elf: conf
 	rm -f objects.lst
 	$(MAKE) -f Makefile.common dir=$(KERNEL_BASE) all
