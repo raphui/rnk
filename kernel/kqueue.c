@@ -101,9 +101,7 @@ err:
 
 static void _kqueue_post(struct queue *queue, void *item)
 {
-	unsigned long irqstate;
-
-	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
+	thread_lock(state);
 
 	if (queue->item_queued < queue->size) {
 		if ((queue->wr + queue->item_size) <= queue->tail) {
@@ -112,11 +110,11 @@ static void _kqueue_post(struct queue *queue, void *item)
 			queue->wr += queue->item_size;
 			queue->item_queued++;
 
-			wait_queue_wake_irqstate(&queue->wait_receive, &irqstate);
+			wait_queue_wake_irqstate(&queue->wait_receive, &state);
 		}
 	}
 
-	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
+	thread_unlock(state);
 }
 
 int kqueue_post(struct queue *queue, void *item, unsigned int timeout)
@@ -153,10 +151,7 @@ err:
 
 static void _kqueue_receive(struct queue *queue, void *item)
 {
-	unsigned long irqstate;
-
-	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
-
+	thread_lock(state);
 
 	if (queue->item_queued) {
 		if ((queue->curr + queue->item_size) <= queue->wr) {
@@ -164,14 +159,14 @@ static void _kqueue_receive(struct queue *queue, void *item)
 			queue->curr += queue->item_size;
 			queue->item_queued--;
 
-			wait_queue_wake_irqstate(&queue->wait_post, &irqstate);
+			wait_queue_wake_irqstate(&queue->wait_post, &state);
 		}
 
 		if (queue->curr == queue->wr)
 			kqueue_clear(queue);
 	}
 
-	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
+	thread_unlock(state);
 }
 
 int kqueue_receive(struct queue *queue, void *item, unsigned int timeout)
