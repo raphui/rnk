@@ -33,9 +33,8 @@ err:
 int ksem_wait(struct semaphore *sem)
 {
 	int ret = 0;
-	unsigned long irqstate;
 
-	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
+	thread_lock(state);
 
 	if (!sem) {
 		ret = -EINVAL;
@@ -49,21 +48,20 @@ int ksem_wait(struct semaphore *sem)
 	if (sem->count < 0) {
 		debug_printk("unable to got sem (%p)(%d)\r\n", sem, sem->count);
 
-		ret = wait_queue_block_irqstate(&sem->wait, &irqstate);
+		ret = wait_queue_block_irqstate(&sem->wait, &state);
 	}
 
 err:
-	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
+	thread_unlock(state);
 	return ret;
 }
 
 int ksem_timedwait(struct semaphore *sem, int timeout)
 {
 	int ret = 0;
-	unsigned long irqstate;
 	struct thread *thread = get_current_thread();
 
-	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
+	thread_lock(state);
 
 	if (!sem) {
 		ret = -EINVAL;
@@ -77,20 +75,19 @@ int ksem_timedwait(struct semaphore *sem, int timeout)
 	if (sem->count < 0) {
 		debug_printk("unable to got sem (%p)(%d)\r\n", sem, sem->count);
 
-		ret = wait_queue_block_timed(&sem->wait, timeout, &irqstate);
+		ret = wait_queue_block_timed(&sem->wait, timeout, &state);
 	}
 
 err:
-	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
+	thread_unlock(state);
 	return ret;
 }
 
 int ksem_post(struct semaphore *sem)
 {
 	int ret = 0;
-	unsigned long irqstate;
 
-	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
+	thread_lock(state);
 
 	if (!sem) {
 		ret = -EINVAL;
@@ -105,10 +102,10 @@ int ksem_post(struct semaphore *sem)
 	trace_sem_post(sem);
 
 	if (sem->count <= 0)
-		ret = wait_queue_wake_irqstate(&sem->wait, &irqstate);
+		ret = wait_queue_wake_irqstate(&sem->wait, &state);
 
 err:
-	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
+	thread_unlock(state);
 	return ret;
 }
 
