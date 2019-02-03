@@ -44,8 +44,9 @@ all:
 	@-rm -f extra_objects.lst
 	$(MAKE) -f Makefile.common dir=$(dir) all
 	$(CC) -T$(LD_SCRIPT) -o $(dir)/$(app) \
-		`find $(OBJS_DIR) -name "*.o" -print0 | tr '\0' ' '` $(LDFLAGS)
+		`cat objects.lst | tr '\n' ' '` $(LDFLAGS)
 ifeq ($(CONFIG_RFLAT_LOADER), y)
+	@-rm $(dir)/$(app).bin
 	$(RFLAT) $(dir)/$(app) $(dir)/$(app).bin
 endif
  
