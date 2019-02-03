@@ -171,7 +171,7 @@ int wait_queue_block_timed(struct wait_queue *wait, int timeout, unsigned long *
 
 	ktime_oneshot_cancel(&timer);
 
-	return ret;
+	return thread->err_wait;
 }
 
 int wait_queue_wake_irqstate(struct wait_queue *wait, unsigned long *irqstate)
