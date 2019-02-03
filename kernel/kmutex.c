@@ -35,11 +35,10 @@ int kmutex_lock(struct mutex *mutex)
 {
 	int ret = 0;
 	struct thread *current_thread = get_current_thread();
-	unsigned long irqstate;
+
+	thread_lock(state);
 
 	trace_mutex_lock(mutex);
-
-	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 
 	if (!mutex) {
 		ret = -EINVAL;
@@ -58,12 +57,12 @@ int kmutex_lock(struct mutex *mutex)
 		}
 #endif /* CONFIG_PRIORITY_INHERITANCE */
 
-		ret = wait_queue_block_irqstate(&mutex->wait, &irqstate);
+		ret = wait_queue_block_irqstate(&mutex->wait, &state);
 	}
 
 	mutex->owner = current_thread;
 err:
-	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
+	thread_unlock(state);
 	return ret;
 }
 
@@ -71,11 +70,10 @@ int kmutex_unlock(struct mutex *mutex)
 {
 	int ret = 0;
 	struct thread *current_thread = get_current_thread();
-	unsigned long irqstate;
+
+	thread_lock(state);
 
 	trace_mutex_unlock(mutex);
-
-	arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 
 	if (!mutex) {
 		ret = -EINVAL;
@@ -96,12 +94,12 @@ int kmutex_unlock(struct mutex *mutex)
 #endif /* CONFIG_PRIORITY_INHERITANCE */
 
 		if (--mutex->lock >= 1)
-			ret = wait_queue_wake_irqstate(&mutex->wait, &irqstate);
+			ret = wait_queue_wake_irqstate(&mutex->wait, &state);
 	} else {
 		debug_printk("mutex cannot be unlock, thread %d [%x] is not the owner\n", mutex->owner->pid, mutex->owner);
 	}
 
 err:
-	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
+	thread_unlock(state);
 	return ret;
 }
