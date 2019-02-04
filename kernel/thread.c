@@ -62,6 +62,8 @@ static void insert_thread(struct thread *t)
 	int inserted = 0;
 	struct thread *thread = NULL;
 
+	assert(t != NULL);
+
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 	insert_in_run_queue_tail(t);
 	verbose_printk("inserting thread %d\r\n", t->pid);
@@ -272,6 +274,8 @@ struct thread *find_next_thread(void)
 	}
 #endif
 
+	assert(thread != NULL);
+
 	verbose_printk("next thread: %d\r\n", thread->pid);
 
 	return thread;
@@ -280,6 +284,8 @@ struct thread *find_next_thread(void)
 void insert_runnable_thread(struct thread *thread)
 {
 	thread_lock(state);
+
+	assert(thread != NULL);
 
 	if (thread->state != THREAD_SUSPEND) {
 		trace_thread_runnable(thread);
@@ -295,6 +301,8 @@ void remove_runnable_thread(struct thread *thread)
 {
 	thread_lock(state);
 
+	assert(thread != NULL);
+
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 	current_thread->quantum = CONFIG_THREAD_QUANTUM;
 #endif
@@ -307,11 +315,15 @@ void remove_runnable_thread(struct thread *thread)
 
 int is_thread_runnable(struct thread *thread)
 {
+	assert(thread != NULL);
+
 	return ((thread->state != THREAD_BLOCKED) && (thread->state != THREAD_STOPPED)) ? 1 : 0;
 }
 
 int thread_suspend(struct thread *t)
 {
+	assert(t != NULL);
+
 	if (t->state != THREAD_SUSPEND) {
 		remove_runnable_thread(t);
 		t->state = THREAD_SUSPEND;
@@ -324,6 +336,8 @@ int thread_suspend(struct thread *t)
 
 int thread_resume(struct thread *t)
 {
+	assert(t != NULL);
+
 	if (t->state == THREAD_SUSPEND) {
 		t->state = THREAD_RUNNABLE;
 		list_delete(&t->node);
