@@ -150,7 +150,6 @@ int wait_queue_block_thread(struct wait_queue *wait, struct thread *thread)
 
 int wait_queue_block_timed(struct wait_queue *wait, int timeout, unsigned long *irqstate)
 {
-	int ret;
 	unsigned long _irqstate;
 	struct thread *thread = get_current_thread();
 	struct ktimer timer;
@@ -167,7 +166,7 @@ int wait_queue_block_timed(struct wait_queue *wait, int timeout, unsigned long *
 
 	ktime_oneshot(&timer, timeout, wait_queue_timeout, thread);
 
-	ret = __wait_queue_block(wait, irqstate, thread);
+	__wait_queue_block(wait, irqstate, thread);
 
 	ktime_oneshot_cancel(&timer);
 
