@@ -10,6 +10,9 @@
 
 static void insert_waiting_thread(struct wait_queue *wait, struct thread *t)
 {
+	assert(wait != NULL);
+	assert(t != NULL);
+
 #ifdef CONFIG_SCHEDULE_ROUND_ROBIN
 	struct thread *thread;
 #endif
@@ -35,6 +38,9 @@ static void insert_waiting_thread(struct wait_queue *wait, struct thread *t)
 
 static void remove_waiting_thread(struct wait_queue *wait, struct thread *t)
 {
+	assert(wait != NULL);
+	assert(t != NULL);
+
 	if (t->state == THREAD_BLOCKED)
 		list_delete(&t->event_node);
 }
@@ -62,6 +68,9 @@ int wait_queue_init(struct wait_queue *wait)
 
 static int __wait_queue_block(struct wait_queue *wait, unsigned long *irqstate, struct thread *thread)
 {
+	assert(wait != NULL);
+	assert(thread != NULL);
+
 	remove_runnable_thread(thread);
 
 	if (thread->state == THREAD_RUNNING)
@@ -137,6 +146,8 @@ int wait_queue_block_thread(struct wait_queue *wait, struct thread *thread)
 {
 	int ret;
 	unsigned long irqstate;
+
+	assert(thread != NULL);
 
 	if (!wait)
 		return -EINVAL;
