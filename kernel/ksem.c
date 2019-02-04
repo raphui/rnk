@@ -59,7 +59,6 @@ err:
 int ksem_timedwait(struct semaphore *sem, int timeout)
 {
 	int ret = 0;
-	struct thread *thread = get_current_thread();
 
 	thread_lock(state);
 
