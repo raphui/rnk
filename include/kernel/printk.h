@@ -30,6 +30,7 @@
 #define verbose_printk(...) do{ if(VERBOSE){ printk(__VA_ARGS__); } }while(0)
 #define debug_printk(...) do{ if(DEBUG){ printk(__VA_ARGS__); } }while(0)
 #define error_printk(...) do{ if(ERROR){ printk(__VA_ARGS__); } }while(0)
+#define assert(x) do { if (!(x)) { printf("ASSERT FAILED at (%s:%d): %s\n", __FILE__, __LINE__, #x); for (;;){}; } } while(0)
 
 void printk(char *fmt, ...);
 
