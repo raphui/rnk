@@ -35,9 +35,10 @@ struct arch_mpu_priv {
 };
 
 struct arch_thread {
-	struct arch_sw_context_frame ctx_frame;
-	struct arch_short_context_frame hw_frame;
+	struct arch_sw_context_frame *ctx_frame;
+	struct arch_short_context_frame *hw_frame;
 	struct arch_mpu_priv mpu;
+	unsigned int stack;
 	int privileged;
 };
 

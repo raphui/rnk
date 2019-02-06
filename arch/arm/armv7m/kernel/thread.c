@@ -15,43 +15,42 @@ void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned i
 {
 	stack = (unsigned int *)ALIGN((unsigned int)stack, 8);
 
+	stack -= sizeof(struct arch_short_context_frame) / sizeof(unsigned int);
+
 	arch->mpu.top_sp = (unsigned int)stack;
 
 	/* HW frame */
-	arch->hw_frame.r0 = param1;
-	arch->hw_frame.r1 = 1;
-	arch->hw_frame.r2 = 2;
-	arch->hw_frame.r3 = 3;
-	arch->hw_frame.r12 = 12;
-	arch->hw_frame.lr = return_func | 1;
-	arch->hw_frame.pc = func | 1; 
-	arch->hw_frame.xpsr = 0x01000000;
-
-	stack -= sizeof(struct arch_short_context_frame) / sizeof(unsigned int);
-
-	memcpy(stack, &arch->hw_frame, sizeof(struct arch_short_context_frame));
-
-	/* SW frame */
-	arch->ctx_frame.r4 = 4;
-	arch->ctx_frame.r5 = 5;
-	arch->ctx_frame.r6 = 6;
-	arch->ctx_frame.r7 = 7;
-	arch->ctx_frame.r8 = 8;
-	arch->ctx_frame.r9 = (platform_register) ? platform_register : 9;
-	arch->ctx_frame.r10 = 10;
-	arch->ctx_frame.r11 = 11;
-	arch->ctx_frame.exc_lr = 0xFFFFFFFD;
+	arch->hw_frame = (struct arch_short_context_frame *)stack;
+	arch->hw_frame->r0 = param1;
+	arch->hw_frame->r1 = 1;
+	arch->hw_frame->r2 = 2;
+	arch->hw_frame->r3 = 3;
+	arch->hw_frame->r12 = 12;
+	arch->hw_frame->lr = return_func | 1;
+	arch->hw_frame->pc = func | 1; 
+	arch->hw_frame->xpsr = 0x01000000;
 
 	stack -= sizeof(struct arch_sw_context_frame) / sizeof(unsigned int);
 
-	memcpy(stack, &arch->ctx_frame, sizeof(struct arch_sw_context_frame));
+	/* SW frame */
+	arch->ctx_frame = (struct arch_sw_context_frame *)stack;
+	arch->ctx_frame->r4 = 4;
+	arch->ctx_frame->r5 = 5;
+	arch->ctx_frame->r6 = 6;
+	arch->ctx_frame->r7 = 7;
+	arch->ctx_frame->r8 = 8;
+	arch->ctx_frame->r9 = (platform_register) ? platform_register : 9;
+	arch->ctx_frame->r10 = 10;
+	arch->ctx_frame->r11 = 11;
+	arch->ctx_frame->exc_lr = 0xFFFFFFFD;
 
-	arch->ctx_frame.sp = (unsigned int)stack;
+	arch->ctx_frame->sp = (unsigned int)stack;
 
-	*stack = arch->ctx_frame.sp;
+	*stack = arch->ctx_frame->sp;
 
 	arch->mpu.start_pc = func | 1;
 
+	arch->stack = (unsigned int)stack;
 	arch->privileged = privileged;
 }
 
@@ -69,11 +68,7 @@ void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 		old_sp--;
 	        *old_sp = (unsigned int)old_sp;
 
-		memcpy(&old->ctx_frame, (void *)old_sp, sizeof(struct arch_sw_context_frame));
-
-		old_sp += sizeof(struct arch_sw_context_frame) / sizeof(unsigned int);
-
-		memcpy(&old->hw_frame, (void *)old_sp, sizeof(struct arch_short_context_frame));
+		old->stack = (unsigned int)old_sp;
 
 #ifdef CONFIG_USER
 		if (old->privileged == USER_THREAD)
@@ -81,7 +76,7 @@ void arch_switch_context(struct arch_thread *old, struct arch_thread *new)
 #endif
 	}
 
-	current_ctx_frame = &new->ctx_frame;
+	current_ctx_frame = (struct arch_sw_context_frame *)new->stack;
 
 #ifdef CONFIG_USER
 	if (new->privileged == USER_THREAD)
