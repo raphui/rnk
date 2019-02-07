@@ -42,7 +42,11 @@ static struct rflat_app_header *current_app_header;
 static void *rflat_alloc(int size)
 {
 #ifdef CONFIG_USER
-	return umalloc(size);
+	void *mem;
+
+	umalloc(size, &mem);
+
+	return mem;
 #else
 	return kmalloc(size);
 #endif
