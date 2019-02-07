@@ -17,13 +17,13 @@ SECTIONS
         KEEP(*(.isr_vector .isr_vector.*))
         KEEP(*(.cm_isr_vector))
 	KEEP(*(.isr_vector_cmsis))
-        *(EXCLUDE_FILE(lib/*) .text EXCLUDE_FILE(lib/*) .text.* .gnu.linkonce.t.*)
+        *(EXCLUDE_FILE(*objs/lib/*) .text EXCLUDE_FILE(*objs/lib/*) .text.* .gnu.linkonce.t.*)
         *(.glue_7t) *(.glue_7)
-        *(EXCLUDE_FILE(lib/*) .rodata EXCLUDE_FILE(lib/*) .rodata* .gnu.linkonce.r.*)
+        *(EXCLUDE_FILE(*objs/lib/*) .rodata EXCLUDE_FILE(*objs/lib/*) .rodata* .gnu.linkonce.r.*)
 
 	_slibtext = .;
-	*(.lib/* .text .lib/* .text.*)
-	*(.lib/* .rodata .lib/* .rodata*)
+	*(*objs/lib/* .text *objs/lib/* .text.*)
+	*(*objs/lib/* .rodata *objs/lib/* .rodata*)
         . = ALIGN(4);
 	_elibtext = .;
 
@@ -70,9 +70,9 @@ SECTIONS
     .data : AT (_sidata)
     {
         _sdata = .;
-        *(EXCLUDE_FILE(lib/*) .data EXCLUDE_FILE(lib/*) .data.*)
+        *(EXCLUDE_FILE(*objs/lib/*) .data EXCLUDE_FILE(*objs/lib/*) .data.*)
 	_slibdata = .;
-	*(.lib/* .data .lib/* .data.*)
+	*(*objs/lib/* .data *objs/lib/* .data.*)
         . = ALIGN(4);
 	_elibdata = .;
         _edata = . ;
@@ -83,10 +83,10 @@ SECTIONS
     {
         _sbss = . ;
 	__bss_start__ = . ;
-        *(EXCLUDE_FILE(lib/*) .bss EXCLUDE_FILE(lib/*) .bss.*)
+        *(EXCLUDE_FILE(*objs/lib/*) .bss EXCLUDE_FILE(*objs/lib/*) .bss.*)
         *(COMMON)
 	_slibbss = .;
-	*(.lib/* .bss .lib/* .bss.*)
+	*(*objs/lib/* .bss *objs/lib/* .bss.*)
         . = ALIGN(4);
 	_elibbss = .;
         _ebss = . ;
