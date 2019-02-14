@@ -29,15 +29,6 @@ void start_schedule(void)
 	arch_request_sched();
 }
 
-void schedule(void)
-{
-	struct thread *t;
-
-	t = find_next_thread();
-	switch_thread(t);
-	thread_switching = 1;
-}
-
 void schedule_thread(struct thread *thread)
 {
 	struct thread *t;
