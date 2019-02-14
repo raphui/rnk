@@ -245,7 +245,7 @@
 
 			master = <1>;
 			mode = <3>;
-			speed = <1000000>;
+			speed = <2000000>;
 
 			status = "okay";
 
