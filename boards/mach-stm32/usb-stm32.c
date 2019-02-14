@@ -31,12 +31,8 @@ static int stm32_usb_read(struct usb_device *usbdev, unsigned char *buff, unsign
 {
 	int ret = 0;
 	struct usb_pdata *pdata = usbdev->priv;
-	unsigned char tmp[64]; // min usb packet size
 
-	if (len < 64)
-		pdata->user_buffer = tmp;
-	else
-		pdata->user_buffer = buff;
+	pdata->user_buffer = buff;
 
 	DCD_EP_PrepareRx(&pdata->USB_OTG_dev, CDC_OUT_EP, pdata->user_buffer, len);
 
@@ -48,9 +44,6 @@ static int stm32_usb_read(struct usb_device *usbdev, unsigned char *buff, unsign
 	}
 	else
 	{
-		if (len < 64)
-			memcpy(buff, tmp, len);
-
 		ret = pdata->len;
 		pdata->len = 0;
 	}
@@ -70,9 +63,9 @@ static void stm32_usb_isr(void *arg)
 unsigned short VCP_DataRx(struct usb_pdata *pdata, unsigned char *buff, unsigned int len)
 {
 	if(pdata->user_buffer) {
-		pdata->user_buffer = 0;
+		pdata->user_buffer = NULL;
 		pdata->len = len;
-		ksem_post(&pdata->acknoledge);
+		ksem_post_isr(&pdata->acknoledge);
 	}
 
 	return USBD_OK;
