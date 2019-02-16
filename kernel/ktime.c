@@ -167,7 +167,7 @@ void decrease_thread_delay(void)
 
 #ifdef CONFIG_SCHEDULE_PRIORITY
 			if (curr->priority < thread->priority)
-				schedule_thread(NULL);
+				schedule_thread(thread);
 #endif /* CONFIG_SCHEDULE_PRIORITY */
 		}
 	}
