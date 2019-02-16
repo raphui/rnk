@@ -217,6 +217,7 @@ int wait_queue_wake_thread(struct thread *thread)
 {
 	int ret = 0;
 	unsigned long irqstate;
+	struct thread *current_thread = get_current_thread();
 
 	if (!thread)
 		return -EINVAL;
@@ -230,7 +231,8 @@ int wait_queue_wake_thread(struct thread *thread)
 
 	thread->wait_queue = NULL;
 
-	schedule_thread(NULL);
+	if (current_thread->priority < thread->priority)
+		schedule_thread(thread);
 
 	arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 
