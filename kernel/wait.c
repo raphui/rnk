@@ -175,11 +175,15 @@ int wait_queue_block_timed(struct wait_queue *wait, int timeout, unsigned long *
 
 	thread->err_wait = 0;
 
-	ktime_oneshot(&timer, timeout, wait_queue_timeout, thread);
+	if (timeout) {
+		ktime_oneshot(&timer, timeout, wait_queue_timeout, thread);
 
-	__wait_queue_block(wait, irqstate, thread);
+		__wait_queue_block(wait, irqstate, thread);
 
-	ktime_oneshot_cancel(&timer);
+		ktime_oneshot_cancel(&timer);
+	}
+	else
+		__wait_queue_block(wait, irqstate, thread);
 
 	return thread->err_wait;
 }
