@@ -82,16 +82,5 @@ int vector_set_isr_entry(struct isr_entry *entry, int irq)
 
 struct isr_entry *vector_get_isr_entry(int irq)
 {
-	int ret;
-	struct isr_entry *entry = NULL;
-
-	ret = is_irq_valid(irq);
-	if (ret < 0) {
-		error_printk("irq num is not valid\n");
-		return NULL;
-	}
-
-	entry = &sw_isr_table[irq];
-
-	return entry;
+	return &sw_isr_table[irq];
 }
