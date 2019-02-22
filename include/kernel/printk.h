@@ -9,28 +9,26 @@
 #define SEEK_CUR	1
 #define SEEK_END	2
 
-#ifdef CONFIG_DEBUG
-#define DEBUG	1
+#ifdef CONFIG_VERBOSE
+#define verbose_printk(...) do{ printk(__VA_ARGS__); }while(0)
 #else
-#define DEBUG	0
+#define verbose_printk(...)
+#endif
+
+#ifdef CONFIG_DEBUG
+#define debug_printk(...) do{ printk(__VA_ARGS__); }while(0)
+#define assert(x) do { if (!(x)) { printf("ASSERT FAILED at (%s:%d): %s\n", __FILE__, __LINE__, #x); for (;;){}; } } while(0)
+#else
+#define debug_printk(...)
+#define assert(x)
 #endif
 
 #ifdef CONFIG_ERROR
-#define ERROR	1
+#define error_printk(...) do{ printk(__VA_ARGS__); }while(0)
 #else
-#define ERROR	0
+#define error_printk(...)
 #endif
 
-#ifdef CONFIG_VERBOSE
-#define VERBOSE 1
-#else
-#define VERBOSE 0
-#endif
-
-#define verbose_printk(...) do{ if(VERBOSE){ printk(__VA_ARGS__); } }while(0)
-#define debug_printk(...) do{ if(DEBUG){ printk(__VA_ARGS__); } }while(0)
-#define error_printk(...) do{ if(ERROR){ printk(__VA_ARGS__); } }while(0)
-#define assert(x) do { if (!(x)) { printf("ASSERT FAILED at (%s:%d): %s\n", __FILE__, __LINE__, #x); for (;;){}; } } while(0)
 
 void printk(char *fmt, ...);
 
