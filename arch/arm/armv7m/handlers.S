@@ -87,6 +87,7 @@ ENTRY(__svc)
 	add r0, r0, #SW_CTX_FRAME_SIZE
 	sub r0, r0, #4
 
+#ifdef CONFIG_USER
 	push {r0}
 	ldr r0, [r0]
 	bl arch_syscall_is_elevation
@@ -96,6 +97,7 @@ ENTRY(__svc)
 	cmp r1, #1
 	it eq
 	beq 2f
+#endif
 
 	ldr r1, [r0, #4]
 	ldr r2, [r0, #8]
@@ -104,9 +106,11 @@ ENTRY(__svc)
 	bl svc_handler
 	b 3f
 
+#ifdef CONFIG_USER
 2:
 	ldr r1, =svc_handler
 	str r1, [r0, #24]
+#endif
 3:
 	pop {pc}
 
