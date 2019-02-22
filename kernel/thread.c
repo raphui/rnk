@@ -287,7 +287,7 @@ void insert_runnable_thread(struct thread *thread)
 
 	assert(thread != NULL);
 
-	if (thread->state != THREAD_SUSPEND) {
+	if (!list_in_list(&thread->event_node) && !list_in_list(&thread->node)) {
 		trace_thread_runnable(thread);
 
 		insert_thread(thread);
