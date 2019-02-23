@@ -109,13 +109,11 @@ int device_of_probe(void)
 {
 	int ret = 0;
 	int offset = 0;
-	int available = 0;
 	const void *blob = fdtparse_get_blob();
 	const struct fdt_property *prop;
 	const char *compat;
-	const char *status;
 	char *path;
-	int listlen, compatlen, statuslen;
+	int listlen, compatlen;
 	struct device *dev = NULL;
 
 	do {
@@ -126,16 +124,6 @@ int device_of_probe(void)
 			continue;
 
 		compat = (const char *)prop->data;
-
-		prop = fdt_get_property(blob, offset, "status", &statuslen);
-
-		if (prop) {
-			status = (const char *)prop->data;
-			available = 1;
-		}
-		else
-			available = 0;
-
 
 		while (listlen > 0) {
 			list_for_every_entry(&device_of_list, dev, struct device, next) {
@@ -149,8 +137,7 @@ int device_of_probe(void)
 					memset(dev->of_path, 0, sizeof(dev->of_path));
 					memcpy(dev->of_path, path, strlen(path));
 
-					if (available)
-						dev->probe(dev);
+					dev->probe(dev);
 
 					continue;
 				}
