@@ -43,8 +43,8 @@ $(CUR_OBJS_DIR)%.o: $(dir)/%.dts
 	$(call build,DTC)
 	$(MKDIR) $(dir $@)
 	$(CPP) -MMD -MF $(patsubst %.o,%.d,$@) $(DTCPPFLAGS) $< > $@.tmp
-	$(DTC) -Idts -Odtb $@.tmp > $(dtb)
-	$(PYTHON) $(DT_PARSER) $(dtb) $(dtb)
+	$(DTC) -q -Idts -Odtb $@.tmp > $(dtb)
+	$(DTC) -q -Idts -Oasm $@.tmp > $(dtb).asm
 	@$(OBJCOPY) -I binary -O elf32-littlearm -B arm --rename-section .data=.text,contents,readonly $(dtb) $@
 
 
