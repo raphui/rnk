@@ -80,38 +80,38 @@ typedef uint64_t __bitwise fdt64_t;
 			 (EXTRACT_BYTE(x, 6) << 8) | EXTRACT_BYTE(x, 7))
 static inline uint8_t fdt8_to_cpu(fdt8_t x)
 {
-	return (__force uint8_t)CPU_TO_FDT8(x);
+	return x;
 }
 static inline fdt8_t cpu_to_fdt8(uint8_t x)
 {
-	return (__force fdt8_t)CPU_TO_FDT8(x);
+	return x;
 }
 
 static inline uint16_t fdt16_to_cpu(fdt16_t x)
 {
-	return (__force uint16_t)CPU_TO_FDT16(x);
+	return x;
 }
 static inline fdt16_t cpu_to_fdt16(uint16_t x)
 {
-	return (__force fdt16_t)CPU_TO_FDT16(x);
+	return x;
 }
 
 static inline uint32_t fdt32_to_cpu(fdt32_t x)
 {
-	return (__force uint32_t)CPU_TO_FDT32(x);
+	return x;
 }
 static inline fdt32_t cpu_to_fdt32(uint32_t x)
 {
-	return (__force fdt32_t)CPU_TO_FDT32(x);
+	return x;
 }
 
 static inline uint64_t fdt64_to_cpu(fdt64_t x)
 {
-	return (__force uint64_t)CPU_TO_FDT64(x);
+	return x;
 }
 static inline fdt64_t cpu_to_fdt64(uint64_t x)
 {
-	return (__force fdt64_t)CPU_TO_FDT64(x);
+	return x;
 }
 #undef CPU_TO_FDT64
 #undef CPU_TO_FDT32
