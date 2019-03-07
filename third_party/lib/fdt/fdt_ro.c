@@ -113,6 +113,9 @@ static int _nextprop(const void *fdt, int offset)
 	do {
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
+		if (FDT_IS_PROP(tag))
+			return offset;
+
 		switch (tag) {
 		case FDT_END:
 			if (nextoffset >= 0)
@@ -246,6 +249,7 @@ const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
 						      int offset,
 						      int *lenp)
 {
+	fdt32_t val;
 	int err;
 	const struct fdt_property *prop;
 
@@ -257,8 +261,10 @@ const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
 
 	prop = _fdt_offset_ptr(fdt, offset);
 
-	if (lenp)
-		*lenp = fdt32_to_cpu(prop->len);
+	if (lenp) {
+		val = FDT_PROP_LEN(fdt32_to_cpu(prop->tag));
+		*lenp =	val;
+	}
 
 	return prop;
 }
@@ -272,12 +278,16 @@ const struct fdt_property *fdt_get_property_namelen(const void *fdt,
 	     (offset >= 0);
 	     (offset = fdt_next_property_offset(fdt, offset))) {
 		const struct fdt_property *prop;
+		fdt32_t nameoff;
 
 		if (!(prop = fdt_get_property_by_offset(fdt, offset, lenp))) {
 			offset = -FDT_ERR_INTERNAL;
 			break;
 		}
-		if (_fdt_string_eq(fdt, fdt32_to_cpu(prop->nameoff),
+
+		nameoff = FDT_PROP_STR(fdt32_to_cpu(prop->tag));
+
+		if (_fdt_string_eq(fdt, nameoff,
 				   name, namelen))
 			return prop;
 	}
@@ -310,13 +320,16 @@ const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
 const void *fdt_getprop_by_offset(const void *fdt, int offset,
 				  const char **namep, int *lenp)
 {
+	fdt32_t nameoff;
 	const struct fdt_property *prop;
 
 	prop = fdt_get_property_by_offset(fdt, offset, lenp);
 	if (!prop)
 		return NULL;
-	if (namep)
-		*namep = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
+	if (namep) {
+		nameoff = FDT_PROP_STR(fdt32_to_cpu(prop->tag));
+		*namep = fdt_string(fdt, nameoff);
+	}
 	return prop->data;
 }
 

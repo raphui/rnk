@@ -235,9 +235,9 @@ int fdt_property(void *fdt, const char *name, const void *val, int len)
 	if (! prop)
 		return -FDT_ERR_NOSPACE;
 
-	prop->tag = cpu_to_fdt32(FDT_PROP);
-	prop->nameoff = cpu_to_fdt32(nameoff);
-	prop->len = cpu_to_fdt32(len);
+	prop->tag = FDT_PROP_SET_PROP(prop->tag, cpu_to_fdt32(FDT_PROP));
+	prop->tag = FDT_PROP_SET_STR(prop->tag, cpu_to_fdt32(nameoff));
+	prop->tag = FDT_PROP_SET_LEN(prop->tag, cpu_to_fdt32(len));
 	memcpy(prop->data, val, len);
 	return 0;
 }
@@ -272,9 +272,9 @@ int fdt_finish(void *fdt)
 				_fdt_offset_ptr_w(fdt, offset);
 			int nameoff;
 
-			nameoff = fdt32_to_cpu(prop->nameoff);
+			nameoff = FDT_PROP_STR(fdt32_to_cpu(prop->tag));
 			nameoff += fdt_size_dt_strings(fdt);
-			prop->nameoff = cpu_to_fdt32(nameoff);
+			prop->tag = FDT_PROP_SET_STR(prop->tag, cpu_to_fdt32(nameoff));
 		}
 		offset = nextoffset;
 	}

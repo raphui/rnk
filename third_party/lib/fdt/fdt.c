@@ -116,12 +116,8 @@ uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
 		break;
 
 	case FDT_PROP:
-		lenp = fdt_offset_ptr(fdt, offset, sizeof(*lenp));
-		if (!lenp)
-			return FDT_END; /* premature end */
-		/* skip-name offset, length and value */
-		offset += sizeof(struct fdt_property) - FDT_TAGSIZE
-			+ fdt32_to_cpu(*lenp);
+prop:
+		offset += FDT_PROP_LEN(tag);
 		break;
 
 	case FDT_END:
@@ -130,6 +126,8 @@ uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
 		break;
 
 	default:
+		if (FDT_IS_PROP(tag))
+			goto prop;
 		return FDT_END;
 	}
 
@@ -151,8 +149,14 @@ int _fdt_check_node_offset(const void *fdt, int offset)
 
 int _fdt_check_prop_offset(const void *fdt, int offset)
 {
-	if ((offset < 0) || (offset % FDT_TAGSIZE)
-	    || (fdt_next_tag(fdt, offset, &offset) != FDT_PROP))
+	uint32_t tag;
+
+	if ((offset < 0) || (offset % FDT_TAGSIZE))
+		return -FDT_ERR_BADOFFSET;
+
+	tag = fdt_next_tag(fdt, offset, &offset);
+
+	if ((tag != FDT_PROP) && (!FDT_IS_PROP(tag)))
 		return -FDT_ERR_BADOFFSET;
 
 	return offset;
@@ -192,6 +196,8 @@ int fdt_next_node(const void *fdt, int offset, int *depth)
 				return -FDT_ERR_NOTFOUND;
 			else
 				return nextoffset;
+		default:
+			break;
 		}
 	} while (tag != FDT_BEGIN_NODE);
 

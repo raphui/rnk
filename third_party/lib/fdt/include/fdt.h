@@ -85,8 +85,6 @@ struct fdt_node_header {
 
 struct fdt_property {
 	fdt32_t tag;
-	fdt32_t len;
-	fdt32_t nameoff;
 	char data[0];
 };
 
@@ -107,5 +105,18 @@ struct fdt_property {
 #define FDT_V3_SIZE	(FDT_V2_SIZE + sizeof(fdt32_t))
 #define FDT_V16_SIZE	FDT_V3_SIZE
 #define FDT_V17_SIZE	(FDT_V16_SIZE + sizeof(fdt32_t))
+
+#define FDT_IS_PROP(x) (x & 0x1)
+#define FDT_PROP_TYPE(x) ((x & 0xE) >> 1)
+#define FDT_PROP_LIST(x) ((x & 0x10) >> 4)
+#define FDT_PROP_PRIV(x) ((x & 0x20) >> 5)
+#define FDT_PROP_COMMENT(x) ((x & 0x40) >> 6)
+#define FDT_PROP_DEC(x) ((x & 0x80) >> 7)
+#define FDT_PROP_LEN(x) ((x & 0xFF00) >> 8)
+#define FDT_PROP_STR(x) ((x & 0xFFFF0000) >> 16)
+
+#define FDT_PROP_SET_PROP(x, t) (x | (!!t))
+#define FDT_PROP_SET_LEN(x, l) ((l << 8) | x)
+#define FDT_PROP_SET_STR(x, s) ((s << 16) | x)
 
 #endif /* _FDT_H */
