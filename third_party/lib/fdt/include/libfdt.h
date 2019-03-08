@@ -465,6 +465,10 @@ const struct fdt_property *fdt_get_property_namelen(const void *fdt,
 						    const char *name,
 						    int namelen, int *lenp);
 
+const struct fdt_property *fdt_get_property_nameoffset(const void *fdt,
+						    int offset,
+						    int nameoffset, int *lenp);
+
 /**
  * fdt_get_property - find a given property in a given node
  * @fdt: pointer to the device tree blob

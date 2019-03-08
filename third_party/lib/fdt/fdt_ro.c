@@ -297,6 +297,28 @@ const struct fdt_property *fdt_get_property_namelen(const void *fdt,
 	return NULL;
 }
 
+const struct fdt_property *fdt_get_property_nameoffset(const void *fdt,
+						    int offset,
+						    int nameoffset, int *lenp)
+{
+	for (offset = fdt_first_property_offset(fdt, offset);
+	     (offset >= 0);
+	     (offset = fdt_next_property_offset(fdt, offset))) {
+		const struct fdt_property *prop;
+
+		if (!(prop = fdt_get_property_by_offset(fdt, offset, lenp))) {
+			offset = -FDT_ERR_INTERNAL;
+			break;
+		}
+		if (FDT_PROP_STR(fdt32_to_cpu(prop->tag)) == nameoffset)
+			return prop;
+	}
+
+	if (lenp)
+		*lenp = offset;
+	return NULL;
+}
+
 const struct fdt_property *fdt_get_property(const void *fdt,
 					    int nodeoffset,
 					    const char *name, int *lenp)
