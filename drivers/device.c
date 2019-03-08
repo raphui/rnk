@@ -113,40 +113,34 @@ int device_of_probe(void)
 	const struct fdt_property *prop;
 	const char *compat;
 	char *path;
-	int listlen, compatlen;
 	struct device *dev = NULL;
 
 	do {
 		offset = fdt_next_node(blob, offset, NULL);
 
-		prop = fdt_get_property(blob, offset, "compatible", &listlen);
+		prop = fdt_get_property(blob, offset, "compatible", NULL);
 		if (!prop)
 			continue;
 
 		compat = (const char *)prop->data;
 
-		while (listlen > 0) {
-			list_for_every_entry(&device_of_list, dev, struct device, next) {
-				if (!strcmp(compat, dev->of_compat)) {
-					path = fdtparse_get_path(offset);
-					if (!path) {
-						error_printk("cannot find fdt path for of compat: %s\n", dev->of_compat);
-						continue;
-					}
-
-					memset(dev->of_path, 0, sizeof(dev->of_path));
-					memcpy(dev->of_path, path, strlen(path));
-
-					dev->probe(dev);
-
+		list_for_every_entry(&device_of_list, dev, struct device, next) {
+			if (!strcmp(compat, dev->of_compat)) {
+				path = fdtparse_get_path(offset);
+				if (!path) {
+					error_printk("cannot find fdt path for of compat: %s\n", dev->of_compat);
 					continue;
 				}
-			}
 
-			compatlen = strlen(compat);
-			compat += compatlen + 1;
-			listlen -= compatlen + 1;
+				memset(dev->of_path, 0, sizeof(dev->of_path));
+				memcpy(dev->of_path, path, strlen(path));
+
+				dev->probe(dev);
+
+				continue;
+			}
 		}
+
 	} while (offset >= 0);
 
 	return ret;
