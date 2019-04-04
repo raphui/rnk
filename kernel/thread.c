@@ -192,7 +192,8 @@ int thread_destroy(struct thread *thread)
 	if (!thread)
 		return -EINVAL;
 
-#ifndef CONFIG_MAX_THREADS
+//#ifndef CONFIG_MAX_THREADS
+#if 0
 	kfree(thread->arch);
 	kfree(thread);
 #endif
