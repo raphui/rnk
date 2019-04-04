@@ -54,7 +54,7 @@ void schedule_thread(struct thread *thread)
 		switch_thread(t);
 	}
 #elif defined(CONFIG_SCHEDULE_PRIORITY) || defined (CONFIG_SCHEDULE_RR_PRIO)
-	if (t)
+	if (t && is_thread_runnable(t))
 		insert_runnable_thread(t);
 
 	if (!thread)
