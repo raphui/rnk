@@ -3,23 +3,27 @@ rnk
 
 rnk is a RTOS targeting ARM architecture.
 
-For now, only the Cortex-M4 is supported.
-
 Features
 --------
 
+  * Targeting Cortex-M
   * Premptive scheduling
-  * Dynamic user application loading using custom file format - RFLAT
-  * Isolation using MPU
-  * Device tree utilisation
+  * Support static and dynamic application (using custom file format - RFLAT)
+  * Isolation using MPU and privileged/unprivileged modes
+  * Device tree support
   * POSIX API
   * SEGGER SystemView support
+  
+Cortex-M MCU supported
+----------------------
+
+  * STM32F4 family (actually developed and tested on a STM32F401)
+  * STM32L4 family (actually developed and tested on a STM32L443)
 
 Dependencies
 ------------
   * arm-none-eabi toolchain (https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads)
   * kconfig-frontends (http://ymorin.is-a-geek.org/projects/kconfig-frontends)
-  * python3 with pyfdt module
 
 Building
 --------
@@ -33,6 +37,11 @@ then
   * make the boards config you wanted (take a look at: arch/arm/configs), for example: make stm32f429_disco_defconfig
   * and then: make clean && make
   * flash the kernel on the board & enjoy
+  
+Configuration
+-------------
+
+Build configurations are powered by Kconfig, and can be used by typing: make menuconfig (or nconfig)
 
 Current known bugs
 ------------------
