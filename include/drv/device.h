@@ -16,6 +16,7 @@ struct device {
 	int (*read)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*write)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*lseek)(struct device *device, int offset, int whence);
+	void *priv;
 };
 
 struct device_operations {
