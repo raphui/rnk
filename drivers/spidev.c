@@ -19,8 +19,12 @@ static int spidev_of_init(struct spi_device *spi, int offset)
 	}
 
 	ret = pio_of_configure_name(offset, "cs-gpio");
-	if (ret < 0)
+	if (ret < 0) {
+		error_printk("failed to init cs gpio, skipping error\n");
+		spi->use_cs = 0;
+		ret = 0;
 		goto out;
+	}
 
 	ret = pio_of_get(offset, "cs-gpio", &spi->cs_port, &spi->cs_pin);
 	if (ret < 0) {
