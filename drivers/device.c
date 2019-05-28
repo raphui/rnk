@@ -114,6 +114,7 @@ int device_of_probe(void)
 	const char *compat;
 	char *path;
 	struct device *dev = NULL;
+	struct device *tmp = NULL;
 
 	do {
 		offset = fdt_next_node(blob, offset, NULL);
@@ -124,7 +125,7 @@ int device_of_probe(void)
 
 		compat = (const char *)prop->data;
 
-		list_for_every_entry(&device_of_list, dev, struct device, next) {
+		list_for_every_entry_safe(&device_of_list, dev, tmp, struct device, next) {
 			if (!strcmp(compat, dev->of_compat)) {
 				path = fdtparse_get_path(offset);
 				if (!path) {
