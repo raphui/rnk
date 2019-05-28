@@ -137,7 +137,6 @@ static int stm32_flash_program(unsigned int addr, unsigned char *data, int size)
 int stm32_flash_write(struct mtd *mtd, unsigned char *buff, unsigned int size, struct mtd_page *page)
 {
 	int ret = 0;
-	int n = 0;
 	int erase = 0;
 	int aligned_size;
 	int pad_size;
