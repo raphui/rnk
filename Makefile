@@ -38,50 +38,54 @@ RFLAT := $(KERNEL_BASE)/tools/rflat/rflat
 
 DT_PARSER=$(KERNEL_BASE)/tools/dt_parser/dt_parser.py
 
+ifdef DEBUGMAKE
+else
+PREFIX=@
+endif
 
 .PHONY: apps all clean
 
 all: config.h
-	rm -f objects.lst
-	rm -f extra_objects.lst
-	$(MAKE) -C tools -f Makefile.kernel dir=. all
+	$(PREFIX)rm -f objects.lst
+	$(PREFIX)rm -f extra_objects.lst
+	$(PREFIX)$(MAKE) --no-print-directory -C tools -f Makefile.kernel dir=. all
  
 clean:
-	$(MAKE) -C tools -f Makefile.kernel dir=. $@
-	$(MAKE) -C tools -f Makefile.apps dir=. $@
+	$(PREFIX)$(MAKE) --no-print-directory -C tools -f Makefile.kernel dir=. $@
+	$(PREFIX)$(MAKE) --no-print-directory -C tools -f Makefile.apps dir=. $@
  
 dist-clean: clean
-	$(RM) `find . -name *.d`
-	$(RM) `find . -name *.tmp`
+	$(PREFIX)$(RM) `find . -name *.d`
+	$(PREFIX)$(RM) `find . -name *.tmp`
 
 %_defconfig:
-	cp arch/${ARCH}/configs/$@ .config
+	$(PREFIX)cp arch/${ARCH}/configs/$@ .config
 	echo "Loading $@..."
 
 config.h: .config
-	@bash tools/generate_config.sh
+	$(PREFIX)bash tools/generate_config.sh
 
 menuconfig: $(KCONFIG)/kconfig-mconf
-	$(KCONFIG)/kconfig-mconf Kconfig
+	$(PREFIX)$(KCONFIG)/kconfig-mconf Kconfig
 
 nconfig: $(KCONFIG)/kconfig-nconf
-	$(KCONFIG)/kconfig-nconf Kconfig
+	$(PREFIX)$(KCONFIG)/kconfig-nconf Kconfig
 
 config: tools/kconfig-frontends/frontends/conf/conf
-	tools/kconfig-frontends/frontends/conf/conf Kconfig
+	$(PREFIX)tools/kconfig-frontends/frontends/conf/conf Kconfig
 
 tools/kconfig-frontends/bin/kconfig-%:
-	$(MAKE) -C ./tools/ $(subst tools/kconfig-frontends/bin/,,$@)
+	$(PREFIX)$(MAKE) -C ./tools/ $(subst tools/kconfig-frontends/bin/,,$@)
 
 cscope:
-	@@echo "GEN " $@
-	@cd $(KERNEL_BASE); cscope -b -q -k -R
+	$(PREFIX)echo "GEN " $@
+	$(PREFIX)cd $(KERNEL_BASE); cscope -b -q -k -R
 
 %_tests:
-	$(MAKE) -C tools -f Makefile.apps dir=$(APPS_BASE)/tests/$@ app=$@ all
+	$(PREFIX)$(MAKE) --no-print-directory -C tools -f Makefile.apps dir=$(APPS_BASE)/tests/$@ app=$@ all
 
 %:
-	$(MAKE) -C tools -f Makefile.apps dir=$(APPS_BASE)/$@ app=$@ all
+	$(PREFIX)$(MAKE) --no-print-directory -C tools -f Makefile.apps dir=$(APPS_BASE)/$@ app=$@ all
 
 endif
 

@@ -74,6 +74,11 @@ OBJS_DIR := $(KERNEL_BASE)/tools/objs
 
 endif
 
+ifdef DEBUGMAKE
+else
+PREFIX=@
+endif
+
 ifeq (${MAKELEVEL}, 1)
 
 .PHONY: all clean
@@ -82,36 +87,36 @@ all: conf kernel.img
 	$(MKDIR) $(OBJS_DIR)
 
 conf:
-	@ln -f -s $(KERNEL_BASE)/boards/mach-$(MACH)/board-$(FAMILY).h $(KERNEL_BASE)/boards/board.h
-	@ln -f -s $(KERNEL_BASE)/boards/mach-$(MACH)/include $(KERNEL_BASE)/include/mach
-	@ln -f -s $(KERNEL_BASE)/arch/arm/include $(KERNEL_BASE)/include/arch
-	@ln -f -s $(KERNEL_BASE)/arch/arm/$(ARMV)/include $(KERNEL_BASE)/include/$(ARMV)
-	@cd $(KERNEL_BASE)/tools/rflat; make
+	$(PREFIX)ln -f -s $(KERNEL_BASE)/boards/mach-$(MACH)/board-$(FAMILY).h $(KERNEL_BASE)/boards/board.h
+	$(PREFIX)ln -f -s $(KERNEL_BASE)/boards/mach-$(MACH)/include $(KERNEL_BASE)/include/mach
+	$(PREFIX)ln -f -s $(KERNEL_BASE)/arch/arm/include $(KERNEL_BASE)/include/arch
+	$(PREFIX)ln -f -s $(KERNEL_BASE)/arch/arm/$(ARMV)/include $(KERNEL_BASE)/include/$(ARMV)
+	$(PREFIX)cd $(KERNEL_BASE)/tools/rflat; make
 
 
 kernel.elf: conf
-	rm -f objects.lst
-	$(MAKE) -f Makefile.common dir=$(KERNEL_BASE) all
-	$(CC) -T$(LINKER_SCRIPT) -o $(KERNEL_BASE)/$@ \
+	$(PREFIX)rm -f objects.lst
+	$(PREFIX)$(MAKE) --no-print-directory -f Makefile.common dir=$(KERNEL_BASE) all
+	$(PREFIX)$(CC) -T$(LINKER_SCRIPT) -o $(KERNEL_BASE)/$@ \
 		`cat objects.lst | tr '\n' ' '` $(LDFLAGS)
  
 include $(wildcard *.d)
  
 kernel.img: kernel.elf 
-	@@echo "OBJCOPY " $<
-	@$(OBJCOPY) $(KERNEL_BASE)/kernel.elf -O binary $(KERNEL_BASE)/kernel.bin
+	$(PREFIX)echo "OBJCOPY " $<
+	$(PREFIX)$(OBJCOPY) $(KERNEL_BASE)/kernel.elf -O binary $(KERNEL_BASE)/kernel.bin
 
 clean:
-	$(MAKE) -f Makefile.common dir=$(KERNEL_BASE) $@
-	$(RM) $(OBJS) $(KERNEL_BASE)/kernel.elf $(KERNEL_BASE)/kernel.img
-	$(RM) $(KERNEL_BASE)/boards/board.h
-	$(RM) $(KERNEL_BASE)/include/arch
-	$(RM) $(KERNEL_BASE)/include/$(ARMV)
-	$(RM) $(KERNEL_BASE)/include/mach
+	$(PREFIX)$(MAKE) --no-print-directory -f Makefile.common dir=$(KERNEL_BASE) $@
+	$(PREFIX)$(RM) $(OBJS) $(KERNEL_BASE)/kernel.elf $(KERNEL_BASE)/kernel.img
+	$(PREFIX)$(RM) $(KERNEL_BASE)/boards/board.h
+	$(PREFIX)$(RM) $(KERNEL_BASE)/include/arch
+	$(PREFIX)$(RM) $(KERNEL_BASE)/include/$(ARMV)
+	$(PREFIX)$(RM) $(KERNEL_BASE)/include/mach
  
 dist-clean: clean
-	$(RM) `find . -name *.d`
-	$(RM) `find . -name *.tmp`
+	$(PREFIX)$(RM) `find . -name *.d`
+	$(PREFIX)$(RM) `find . -name *.tmp`
 
 endif
 

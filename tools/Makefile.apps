@@ -35,25 +35,31 @@ endif
 LD_SCRIPT = $(APPS_BASE)/apps.ld
 OBJS_DIR := $(KERNEL_BASE)/tools/objs
 
+ifdef DEBUGMAKE
+else
+PREFIX=@
+endif
+
+
 ifeq (${MAKELEVEL}, 1)
 
 .PHONY: all clean
 
 all:
-	@-rm -f objects.lst
-	@-rm -f extra_objects.lst
-	$(MAKE) -f Makefile.common dir=$(dir) all
-	$(CC) -T$(LD_SCRIPT) -o $(dir)/$(app) \
+	$(PREFIX)-rm -f objects.lst
+	$(PREFIX)-rm -f extra_objects.lst
+	$(PREFIX)$(MAKE) --no-print-directory -f Makefile.common dir=$(dir) all
+	$(PREFIX)$(CC) -T$(LD_SCRIPT) -o $(dir)/$(app) \
 		`cat objects.lst | tr '\n' ' '` $(LDFLAGS)
 ifeq ($(CONFIG_RFLAT_LOADER), y)
-	@-rm $(dir)/$(app).bin
-	$(RFLAT) $(dir)/$(app) $(dir)/$(app).bin
+	$(PREFIX)-rm $(dir)/$(app).bin
+	$(PREFIX)$(RFLAT) $(dir)/$(app) $(dir)/$(app).bin
 endif
  
 include $(wildcard *.d)
  
 clean:
-	$(MAKE) -f Makefile.common dir=$(APPS_BASE) $@
+	$(PREFIX)$(MAKE) --no-print-directory -f Makefile.common dir=$(APPS_BASE) $@
  
 endif
 
