@@ -32,6 +32,10 @@ choice
         bool "STM32L443"
 	select STM32L4XX
 
+    config STM32L476
+        bool "STM32L476"
+	select STM32L4XX
+
 endchoice
 
 config NUM_IRQS

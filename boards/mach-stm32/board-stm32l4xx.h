@@ -3,6 +3,8 @@
 
 #ifdef CONFIG_STM32L443
 #include <platform/stm32l443.h>
+#elif defined(CONFIG_STM32L476)
+#include <platform/stm32l476.h>
 #endif
 
 #include <drv/pio.h>
