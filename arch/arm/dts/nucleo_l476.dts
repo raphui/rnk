@@ -1,0 +1,23 @@
+/dts-v1/;
+#include "stm32l476.dtsi"
+
+/ {
+	aliases {
+		console = &usart1;
+	};
+
+	clocks {
+		clk_normal: clk_normal {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <32000000>;
+
+			assigned-clock = <&clk_msi>;
+		};
+
+		sysclk {
+			clocks = <&clk_normal 1 CLK_MSI>;
+			prescaler = <1 2 2>;		// ahb div1, apb1&apb2 div=2
+		};
+	};
+};

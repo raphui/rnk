@@ -1,0 +1,220 @@
+#include <dt-bindings/stm32lx-clock.h>
+#include <dt-bindings/stm32l4-rcc.h>
+
+/ {
+    compatible = "st,stm32l4";
+
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+	clocks {
+
+		clk_hse: clk-hse {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <0>;
+		};
+
+		clk-lse {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <32768>;
+			clocks = <&rcc 1 CLK_LSE>;
+		};
+
+		clk_lsi: clk-lsi {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <32000>;
+			clocks = <&rcc 1 CLK_LSI>;
+		};
+
+		clk_hsi: clk_hsi {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <16000000>;
+			clocks = <&rcc 1 CLK_HSI>;
+		};
+
+		clk_hsi48: clk_hsi48 {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <48000000>;
+			clocks = <&rcc 1 CLK_HSI48>;
+		};
+
+		clk_msi: clk_msi {
+			#clock-cells = <0>;
+			compatible = "variable-clock";
+			clock-frequency = <100000>;
+			clocks = <&rcc 1 CLK_MSI>;
+		};
+
+		clk_pll: clk_pll {
+			#clock-cells = <0>;
+			compatible = "variable-clock";
+			clock-frequency = <0>;
+
+			assigned-clock = <&clk_msi>;
+
+			settings = <16 336 4 7>;
+		};
+	};
+
+	ahb1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flash {
+			clocks = <&rcc 0 STM32L4_AHB1_CLOCK(FLASH)>;
+			compatible = "st,stm32-flash";
+			reg = <0x40022000 0x400>;
+			base = <0x08000000>;
+                        status = "okay";
+		};
+
+		rcc: rcc@40021000 {
+			#clock-cells = <2>;
+			reg = <0x40021000 0x400>;
+			compatible = "st,stm32-rcc";
+                        status = "okay";
+		};
+
+		dma1: dma@40020000 {
+			reg = <0x40020000 0x400>;
+			clocks = <&rcc 0 STM32L4_AHB1_CLOCK(DMA1)>;
+			compatible = "st,stm32-dma";
+			interrupts = <11>,
+				     <12>,
+				     <13>,
+				     <14>,
+				     <15>,
+				     <16>,
+				     <17>;
+			st,mem2mem;
+			dma-requests = <7>;
+                        status = "okay";
+		};
+
+		dma2: dma@40020400 {
+			reg = <0x40020400 0x400>;
+			clocks = <&rcc 0 STM32L4_AHB1_CLOCK(DMA2)>;
+			compatible = "st,stm32-dma";
+			interrupts = <56>,
+				     <57>,
+				     <58>,
+				     <59>,
+				     <60>,
+				     <68>,
+				     <69>;
+			st,mem2mem;
+			dma-requests = <7>;
+                        status = "okay";
+		};
+	};
+
+	ahb2 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		gpioa: gpio@48000000 {
+			reg = <0x48000000 0x400>;
+			clocks = <&rcc 0 STM32L4_AHB2_CLOCK(GPIOA)>;
+			compatible = "st,stm32-pio";
+                        status = "okay";
+		};
+
+		gpiob: gpio@48000400 {
+			reg = <0x48000400 0x400>;
+			clocks = <&rcc 0 STM32L4_AHB2_CLOCK(GPIOB)>;
+			compatible = "st,stm32-pio";
+                        status = "okay";
+		};
+
+		gpioc: gpio@48000800 {
+			reg = <0x48000800 0x400>;
+			clocks = <&rcc 0 STM32L4_AHB2_CLOCK(GPIOC)>;
+			compatible = "st,stm32-pio";
+                        status = "okay";
+		};
+
+		gpiod: gpio@48000C00 {
+			reg = <0x48000C00 0x400>;
+			clocks = <&rcc 0 STM32L4_AHB2_CLOCK(GPIOD)>;
+			compatible = "st,stm32-pio";
+                        status = "okay";
+		};
+
+		gpioe: gpio@48001000 {
+			reg = <0x48001000 0x400>;
+			clocks = <&rcc 0 STM32L4_AHB2_CLOCK(GPIOE)>;
+			compatible = "st,stm32-pio";
+                        status = "okay";
+		};
+	};
+
+	apb1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		
+		spi2: spi@40003800 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32-spi";
+			clocks = <&rcc 0 STM32L4_APB1_CLOCK(SPI2)>;
+			reg = <0x40003800 0x400>;
+                        interrupts = <36>;
+			gpios =	<&gpiob 0x50D 0x0A>,     /* SCK, PB13 */
+					<&gpiob 0x50E 0x08>,     /* MISO PB14 */
+					<&gpiob 0x50F 0x0A>;     /* MOSI PB15 */
+			dmas = <&dma1 4 1 0x10400 0x3>,
+				<&dma1 5 1 0x10400 0x3>;
+			dma-names = "rx", "tx";
+
+			master = <1>;
+			mode = <3>;
+			speed = <1000000>;
+
+			status = "okay";
+
+			spidev@0 {
+				compatible = "spi,spidev";
+				status = "disabled";
+				speed = <8000000>;
+				cs-gpio = <&gpioa 0x004 0x3>;
+			};
+
+			bmcu@1 {
+				compatible = "spi,bmcu";
+				status = "okay";
+				hsi-gpio = <&gpiob 0x00A 0x20>;
+				hso-gpio = <&gpiob 0x00C 0x3>;
+			};
+		};
+	};
+
+	apb2 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		usart1: usart1@40013800 {
+			compatible = "st,stm32-usart";
+			clocks = <&rcc 0 STM32L4_APB2_CLOCK(USART1)>;
+			reg = <0x40013800 0x400>;
+			gpios = <&gpioa 0x709 0>,     /* TX PA9 */
+				<&gpioa 0x70A 0>;     /* RX PA10 */
+			baudrate = <115200>;
+			mode = <3>;
+                        status = "okay";
+		};
+
+		syscfg: syscfg@40010000 {
+			reg = <0x40010000 0x400>;
+			clocks = <&rcc 0 STM32L4_APB2_CLOCK(SYSCFG)>;
+		};
+
+		exti: exti@40010400 {
+			reg = <0x40010400 0x400>;
+		};
+	};
+};
