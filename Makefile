@@ -24,6 +24,10 @@ dtb = rnk.dtb
 
 ifeq (${MAKELEVEL}, 0)
 
+KERNEL_BASE=$(shell pwd)
+APPS_BASE=$(KERNEL_BASE)/apps
+ARCH=arm
+
 CC := $(CROSS_COMPILE)gcc
 AS := $(CROSS_COMPILE)as
 AR := $(CROSS_COMPILE)ar
