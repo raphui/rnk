@@ -20,6 +20,10 @@ config BME280
 	depends on SPI_SUBSYS
 	bool "BME280 humidity driver"
 
+config LR1110
+	depends on SPI_SUBSYS
+	bool "LR1110 driver"
+
 config SPIDEV
 	depends on SPI_SUBSYS
 	bool "SPIDEV driver"
