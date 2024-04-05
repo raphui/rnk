@@ -156,6 +156,18 @@
 	apb1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
+
+		usart3: usart3@40004800 {
+			compatible = "st,stm32-usart";
+			clocks = <&rcc 0 STM32L4_APB1_CLOCK(UART3)>;
+			reg = <0x40004800 0x400>;
+			gpios = <&gpioc 0x704 0>,     /* TX PC4 */
+				<&gpioc 0x705 0>;     /* RX PC5 */
+			baudrate = <115200>;
+			mode = <2>;
+                        status = "okay";
+		};
+
 		
 		spi2: spi@40003800 {
 			#address-cells = <1>;
@@ -175,7 +187,7 @@
 			mode = <3>;
 			speed = <1000000>;
 
-			status = "okay";
+			status = "disabled";
 
 			spidev@0 {
 				compatible = "spi,spidev";
@@ -186,7 +198,7 @@
 
 			bmcu@1 {
 				compatible = "spi,bmcu";
-				status = "okay";
+				status = "disabled";
 				hsi-gpio = <&gpiob 0x00A 0x20>;
 				hso-gpio = <&gpiob 0x00C 0x3>;
 			};
@@ -204,9 +216,39 @@
 			gpios = <&gpioa 0x709 0>,     /* TX PA9 */
 				<&gpioa 0x70A 0>;     /* RX PA10 */
 			baudrate = <115200>;
-			mode = <3>;
-                        status = "okay";
+			mode = <2>;
+                        status = "disabled";
 		};
+
+		spi1: spi@40013000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32-spi";
+			clocks = <&rcc 0 STM32L4_APB2_CLOCK(SPI1)>;
+			reg = <0x40013000 0x400>;
+                        interrupts = <35>;
+			gpios =	<&gpioa 0x505 0x0A>,     /* SCK, PA5 */
+					<&gpioa 0x506 0x08>,     /* MISO PA6 */
+					<&gpioa 0x507 0x0A>;     /* MOSI PA7 */
+			dmas = <&dma1 2 1 0x10400 0x3>,
+				<&dma1 3 1 0x10400 0x3>;
+			dma-names = "rx", "tx";
+
+			master = <1>;
+			mode = <0>;
+			speed = <1000000>;
+
+			status = "okay";
+
+			lr1110@0 {
+				compatible = "spi,lr1110";
+				status = "okay";
+				speed = <8000000>;
+				nss-gpio = <&gpioa 0x008 0x3>;
+				reset-gpio = <&gpioa 0x000 0x3>;
+			};
+		};
+
 
 		syscfg: syscfg@40010000 {
 			reg = <0x40010000 0x400>;

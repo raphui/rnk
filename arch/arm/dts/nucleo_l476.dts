@@ -3,7 +3,7 @@
 
 / {
 	aliases {
-		console = &usart1;
+		console = &usart3;
 	};
 
 	clocks {
