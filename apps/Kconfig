@@ -3,6 +3,9 @@ choice
     config SENSOR_APP
         bool "Sensor BME280 application"
 
+    config TRACKER_APP
+        bool "Tracker application"
+
     config TEST_MTD
 	bool "MTD test"	
 
