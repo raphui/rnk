@@ -167,6 +167,7 @@ int spi_register_device(struct spi_device *spi, struct device_operations *dev_op
 		spi->dev.open = dev_ops->open;
 		spi->dev.read = dev_ops->read;
 		spi->dev.write = dev_ops->write;
+		spi->dev.ioctl = dev_ops->ioctl;
 	} else {
 		spi->dev.read = spi_read;
 		spi->dev.write = spi_write;

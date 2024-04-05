@@ -17,6 +17,7 @@ int close(int fd);
 int write(int fd, const void *buf, size_t size);
 int read(int fd, void *buf, size_t size);
 int lseek(int fd, int offset, int whence);
+int ioctl(int fd, int request, char *arg);
 
 int syscall(int number, ...);
 

@@ -16,6 +16,7 @@ struct device {
 	int (*read)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*write)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*lseek)(struct device *device, int offset, int whence);
+	int (*ioctl)(struct device *device, int request, char *arg);
 	void *priv;
 };
 
@@ -23,6 +24,7 @@ struct device_operations {
 	int (*open)(struct device *device);
 	int (*read)(struct device *device, unsigned char *buff, unsigned int size);
 	int (*write)(struct device *device, unsigned char *buff, unsigned int size);
+	int (*ioctl)(struct device *device, int request, char *arg);
 };
 
 int device_register(struct device *dev);

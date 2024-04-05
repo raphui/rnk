@@ -13,5 +13,6 @@ int svc_close(int fd);
 int svc_write(int fd, const void *buf, size_t size);
 int svc_read(int fd, void *buf, size_t size);
 int svc_lseek(int fd, int offset, int whence);
+int svc_ioctl(int fd, int request, char *arg);
 
 #endif /* IO_OPS_H */

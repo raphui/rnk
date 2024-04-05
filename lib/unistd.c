@@ -71,6 +71,12 @@ int lseek(int fd, int offset, int whence)
 }
 EXPORT_SYMBOL(lseek);
 
+int ioctl(int fd, int request, char *arg)
+{
+	return syscall(SYSCALL_FD_IOCTL, fd, request, arg);
+}
+EXPORT_SYMBOL(ioctl);
+
 int syscall(int number, ...)
 {
 	va_list va;

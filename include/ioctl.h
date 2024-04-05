@@ -1,0 +1,11 @@
+#ifndef IOCTL_H
+#define IOCTL_H
+
+#define IOCTL_PROCESS		1240
+#define IOCTL_RESET		1241
+#define IOCTL_WAKEUP		1242
+#define IOCTL_WRITE_CHAR	1243
+#define IOCTL_SPI_SET_NSS	1244
+#define IOCTL_SPI_CLEAR_NSS	1245
+
+#endif /* IOCTL_H */
