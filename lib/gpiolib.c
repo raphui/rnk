@@ -71,3 +71,20 @@ int gpiolib_output_set_value(struct pio_desc *desc, int gpio_value)
 	return ret;
 }
 EXPORT_SYMBOL(gpiolib_output_set_value);
+
+int gpiolib_request_irq(struct pio_desc *desc, void (*handler)(void *), int flags, void *arg)
+{
+	int ret = 0;
+
+	if (!desc)
+		return -EINVAL;
+
+	desc->irq.handler = handler;
+	desc->irq.arg = arg;
+	desc->irq.flags = flags;
+
+	ret = syscall(SYSCALL_PIO_REQUEST_IRQ, desc->port, desc->pin, &desc->irq);
+
+	return ret;
+}
+EXPORT_SYMBOL(gpiolib_request_irq);

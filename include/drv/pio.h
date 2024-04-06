@@ -31,11 +31,18 @@ struct pio {
 	struct device dev;
 };
 
+struct pio_irq {
+	void (*handler)(void *);
+	void *arg;
+	int flags;
+};
+
 struct pio_desc {
 	unsigned int pin;
 	unsigned int port;
 	unsigned int mode;
 	unsigned int state;
+	struct pio_irq irq;
 };
 
 int pio_init(struct pio *pio);
@@ -45,7 +52,7 @@ void pio_set_alternate(unsigned int port, unsigned int mask, unsigned int num);
 void pio_set_value(unsigned int port, unsigned int mask);
 void pio_clear_value(unsigned int port, unsigned int mask);
 void pio_toggle_value(unsigned int port, unsigned int mask);
-int pio_request_interrupt(unsigned int port, unsigned int mask, void (*handler)(void *), int flags, void *arg);
+int pio_request_interrupt(unsigned int port, unsigned int mask, struct pio_irq *irq);
 void pio_enable_interrupt(unsigned int port, unsigned int mask);
 void pio_disable_interrupt(unsigned int port, unsigned int mask);
 int pio_of_configure(int fdt_offset);
