@@ -17,6 +17,7 @@ int time_init(void);
 void ktime_usleep(unsigned int usec);
 void ktime_oneshot(struct ktimer *timer);
 int ktime_oneshot_cancel(struct ktimer *timer);
+int ktime_get_ticks(void);
 void ktime_wakeup_next_delay(void);
 void decrease_thread_delay(void);
 void decrease_timer_delay(void);

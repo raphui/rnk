@@ -10,5 +10,6 @@ typedef struct timer_user {
 void time_usleep(unsigned int usec);
 void time_oneshot(timer_t *timer, int delay, void (*handler)(void *), void *arg);
 void time_oneshot_cancel(timer_t *timer);
+int time_get_ticks(void);
 
 #endif /* TIME_H */

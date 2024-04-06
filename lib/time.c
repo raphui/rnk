@@ -24,3 +24,9 @@ void time_oneshot_cancel(timer_t *timer)
 	syscall(SYSCALL_TIME_ONESHOT_CANCEL, &timer->timer);
 }
 EXPORT_SYMBOL(time_oneshot_cancel);
+
+int time_get_ticks(void)
+{
+	return syscall(SYSCALL_TIME_GET_TICKS);
+}
+EXPORT_SYMBOL(time_get_ticks);

@@ -32,6 +32,7 @@ struct syscall syscall_table[] = {
 	{SYSCALL_TIME_USLEEP,	(unsigned int *)&ktime_usleep,		SYSCALL_PRIVILEGE_ELEVATION},
 	{SYSCALL_TIME_ONESHOT,	(unsigned int *)&ktime_oneshot,		SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_TIME_ONESHOT_CANCEL, (unsigned int *)&ktime_oneshot_cancel, SYSCALL_PRIVILEGE_OPERATION},
+	{SYSCALL_TIME_GET_TICKS, (unsigned int *)&ktime_get_ticks,	SYSCALL_PRIVILEGE_OPERATION},
 #ifdef CONFIG_QUEUE
 	{SYSCALL_QUEUE_CREATE,	(unsigned int *)&kqueue_init,		SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_QUEUE_POST,	(unsigned int *)&kqueue_post,		SYSCALL_PRIVILEGE_ELEVATION},

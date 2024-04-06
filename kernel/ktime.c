@@ -126,6 +126,11 @@ int ktime_oneshot_cancel(struct ktimer *timer)
 	return 0;
 }
 
+int ktime_get_ticks(void)
+{
+	return system_tick;
+}
+
 #ifdef CONFIG_TICKLESS
 void ktime_wakeup_next_delay(void)
 {
