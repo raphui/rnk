@@ -72,6 +72,19 @@ int gpiolib_output_set_value(struct pio_desc *desc, int gpio_value)
 }
 EXPORT_SYMBOL(gpiolib_output_set_value);
 
+int gpiolib_get_value(struct pio_desc *desc)
+{
+	int ret = 0;
+
+	if (!desc)
+		return -EINVAL;
+
+	ret = syscall(SYSCALL_PIO_GET_STATE, desc);
+
+	return ret;
+}
+EXPORT_SYMBOL(gpiolib_get_value);
+
 int gpiolib_request_irq(struct pio_desc *desc, void (*handler)(void *), int flags, void *arg)
 {
 	int ret = 0;

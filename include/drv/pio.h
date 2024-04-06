@@ -17,6 +17,8 @@ struct pio_operations
 	void (*set_value)(unsigned int port, unsigned int mask);
 	void (*clear_value)(unsigned int port, unsigned int mask);
 	void (*toggle_value)(unsigned int port, unsigned int mask);
+	int (*get_input_value)(unsigned int port, unsigned int mask);
+	int (*get_output_value)(unsigned int port, unsigned int mask);
 	int (*request_interrupt)(unsigned int port, unsigned int mask, void (*handler)(void *), int flags, void *arg);
 	void (*enable_interrupt)(unsigned int port, unsigned int mask);
 	void (*disable_interrupt)(unsigned int port, unsigned int mask);
@@ -60,5 +62,6 @@ int pio_of_configure_name(int fdt_offset, char *name);
 int pio_of_get(int fdt_offset, char *name, unsigned int *port, unsigned int *pin);
 int pio_export(unsigned int pin, struct pio_desc *desc);
 int pio_set_state(struct pio_desc *desc);
+int pio_get_state(struct pio_desc *desc);
 
 #endif /* PIO_H */

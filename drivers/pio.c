@@ -96,6 +96,24 @@ int pio_set_state(struct pio_desc *desc)
 	return ret;
 }
 
+int pio_get_state(struct pio_desc *desc)
+{
+	int ret = 0;
+
+	if (!desc)
+		return -EINVAL;
+
+	if (desc->mode == GPIO_MODE_OUTPUT)
+		ret = pio_ops.get_output_value(desc->port, desc->pin);
+	else if (desc->mode == GPIO_MODE_INPUT)
+		ret = pio_ops.get_input_value(desc->port, desc->pin);
+	else
+		ret = -EINVAL;
+
+	return ret;
+}
+
+
 int pio_export(unsigned int pin, struct pio_desc *desc)
 {
 	int ret;

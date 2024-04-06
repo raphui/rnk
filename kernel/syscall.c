@@ -49,6 +49,7 @@ struct syscall syscall_table[] = {
 	{SYSCALL_FREE,		(unsigned int *)ufree,			SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_PIO_EXPORT,	(unsigned int *)pio_export,		SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_PIO_SET_STATE, (unsigned int *)pio_set_state,		SYSCALL_PRIVILEGE_ELEVATION},
+	{SYSCALL_PIO_GET_STATE, (unsigned int *)pio_get_state,		SYSCALL_PRIVILEGE_ELEVATION},
 	{SYSCALL_PIO_REQUEST_IRQ, (unsigned int *)pio_request_interrupt, SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_PRINT,		(unsigned int *)__printk,		SYSCALL_PRIVILEGE_OPERATION},
 };
