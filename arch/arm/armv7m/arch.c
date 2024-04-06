@@ -2,11 +2,13 @@
 #include <armv7m/system.h>
 #include <armv7m/vector.h>
 #include <armv7m/nvic.h>
+#include <drv/clk.h>
 #include <stddef.h>
 
 extern void __svc(void);
 extern void __pendsv(void);
 extern void systick_handler(void);
+extern void lowlevel_delay(int delay);
 
 void arch_init(void)
 {
@@ -44,4 +46,11 @@ void arch_idle(void)
 	__enable_it();
 	__dsb();
 	__isb();
+}
+
+void arch_lowlevel_delay(int delay)
+{
+        int cycles = delay * (clk_get_sysfreq() / 1000000);
+        if (cycles > 60)
+                lowlevel_delay((cycles - 60) / 4);
 }

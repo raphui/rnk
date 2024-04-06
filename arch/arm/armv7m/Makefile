@@ -6,4 +6,5 @@ obj-$(CONFIG_USER) += mpu.o
 obj-$(CONFIG_SWO_DEBUG) += swo.o
 obj-y += systick.o
 obj-y += handlers.o
+obj-y += lib.o
 obj-y += vector.o
