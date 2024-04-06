@@ -1,1 +1,17 @@
 obj-y := tracker.o
+obj-y += gnss_scan.o
+obj-y += wifi_scan.o
+obj-y += tracker_utility.o
+obj-y += qfplib.o
+obj-y += cmath.o
+#obj-y += lis2de12.o
+obj-y += modem/lr1110_modem.o
+obj-y += modem/lr1110_modem_board.o
+obj-y += modem/lr1110_bootloader.o
+obj-y += modem/lr1110_modem_driver_version.o
+obj-y += modem/lr1110_modem_gnss.o
+obj-y += modem/lr1110_modem_helper.o
+obj-y += modem/lr1110_modem_lorawan.o
+obj-y += modem/lr1110_modem_system.o
+obj-y += modem/lr1110_modem_wifi.o
+obj-y += modem/lr1110_modem_hal.o
