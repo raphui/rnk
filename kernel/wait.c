@@ -176,7 +176,11 @@ int wait_queue_block_timed(struct wait_queue *wait, int timeout, unsigned long *
 	thread->err_wait = 0;
 
 	if (timeout) {
-		ktime_oneshot(&timer, timeout, wait_queue_timeout, thread);
+		timer.delay = timeout;
+		timer.handler = wait_queue_timeout;
+		timer.arg = thread;
+
+		ktime_oneshot(&timer);
 
 		__wait_queue_block(wait, irqstate, thread);
 

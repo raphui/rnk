@@ -92,13 +92,13 @@ void ktime_usleep(unsigned int usec)
 #endif /* CONFIG_BW_DELAY */
 }
 
-void ktime_oneshot(struct ktimer *timer, int delay, void (*handler)(void *), void *arg)
+void ktime_oneshot(struct ktimer *timer)
 {
 	struct ktimer *t = NULL;
 
-	timer->delay = delay / 1000;
-	timer->handler = handler;
-	timer->arg = arg;
+	thread_lock(state);
+
+	timer->delay = timer->delay / 1000;
 
 	list_for_every_entry(&timer_soft_list, t, struct ktimer, node) {
 		if (t->delay > timer->delay) {
@@ -108,6 +108,8 @@ void ktime_oneshot(struct ktimer *timer, int delay, void (*handler)(void *), voi
 	}
 
 	list_add_tail(&timer_soft_list, &timer->node);
+
+	thread_unlock(state);
 }
 
 int ktime_oneshot_cancel(struct ktimer *timer)

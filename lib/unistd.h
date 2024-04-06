@@ -2,6 +2,7 @@
 #define UNISTD_H
 
 #include <stddef.h>
+#include <ioctl.h>
 
 #define O_RDONLY        1
 #define O_WRONLY        2

@@ -11,6 +11,16 @@ EXPORT_SYMBOL(time_usleep);
 
 void time_oneshot(timer_t *timer, int delay, void (*handler)(void *), void *arg)
 {
-	syscall(SYSCALL_TIME_ONESHOT, timer->timer, delay, handler, arg);
+	timer->timer.delay = delay;
+	timer->timer.handler = handler;
+	timer->timer.arg = arg;
+
+	syscall(SYSCALL_TIME_ONESHOT, &timer->timer);
 }
 EXPORT_SYMBOL(time_oneshot);
+
+void time_oneshot_cancel(timer_t *timer)
+{
+	syscall(SYSCALL_TIME_ONESHOT_CANCEL, &timer->timer);
+}
+EXPORT_SYMBOL(time_oneshot_cancel);
