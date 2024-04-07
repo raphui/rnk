@@ -13,7 +13,6 @@
 #include <kernel/ksem.h>
 #include <drv/irq.h>
 #include <drv/lr1110.h>
-#include <arch/system.h>
 
 enum {
 	NSS_GPIO,
@@ -135,12 +134,12 @@ static int lr1110_ioctl(struct device *dev, int request, char *arg)
 	switch (request) {
 	case IOCTL_RESET:
 		pio_clear_value(priv->gpios[RESET_GPIO].port, priv->gpios[RESET_GPIO].pin);
-		arch_lowlevel_delay(1000);
+		ktime_usleep(1000);
 		pio_set_value(priv->gpios[RESET_GPIO].port, priv->gpios[RESET_GPIO].pin);
 		break;
 	case IOCTL_WAKEUP:
 		pio_clear_value(priv->gpios[NSS_GPIO].port, priv->gpios[NSS_GPIO].pin);
-		arch_lowlevel_delay(100);
+		ktime_usleep(100);
 		pio_set_value(priv->gpios[NSS_GPIO].port, priv->gpios[NSS_GPIO].pin);
 		break;
 	case IOCTL_WRITE_CHAR:
