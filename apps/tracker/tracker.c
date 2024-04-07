@@ -62,8 +62,6 @@ static void lr1110_init(struct tracker *tracker)
 	tracker->lr1110_modem_event_callback.adr_mobile_to_static = lr1110_modem_adr_mobile_to_static;
 	tracker->lr1110_modem_event_callback.new_link_adr = lr1110_modem_new_link_adr;
 	tracker->lr1110_modem_event_callback.no_event = lr1110_modem_no_event;
-
-
 }
 
 void radio_event_callback(void* obj)
@@ -73,7 +71,7 @@ void radio_event_callback(void* obj)
 
 void radio_event_init(struct tracker *tracker, lr1110_modem_event_callback_t* event)
 {
-	memcpy(&tracker->lr1110_modem_event_callback, event, sizeof(lr1110_modem_event_callback_t));
+	return;
 }
 
 void lr1110_modem_event_process(struct tracker *tracker, const void* context)
@@ -236,7 +234,7 @@ int main(void)
 	HAL_DBG_TRACE_PRINTF("BOOTLOADER  : %#02X\r\n", tracker->tracker_ctx.modem_version.bootloader);
 
 	/* Store or restore the Tracker context */
-	if ((tracker_restore_app_ctx() != 1) || (FORCE_NEW_TRACKER_CONTEXT == 1))
+	if ((tracker_restore_app_ctx(tracker) != 1) || (FORCE_NEW_TRACKER_CONTEXT == 1))
 	{
 		HAL_DBG_TRACE_INFO("###### ===== CREATE CONTEXT ==== ######\r\n\r\n");
 
@@ -247,17 +245,17 @@ int main(void)
 #endif
 		/* Init the LoRaWAN keys set in Commissioning_tracker->tracker_ctx.h or using the production keys and init the global
 		 * context */
-		tracker_init_app_ctx(dev_eui, join_eui, app_key, true);
+		tracker_init_app_ctx(tracker, dev_eui, join_eui, app_key, true);
 
 		/* Init the tracker internal log context */
-		tracker_reset_internal_log();
+		tracker_reset_internal_log(tracker);
 	}
 	else
 	{
 		/* Restore the tracker internal log context */
-		if (tracker_restore_internal_log_ctx() != 1)
+		if (tracker_restore_internal_log_ctx(tracker) != 1)
 		{
-			tracker_init_internal_log_ctx();
+			tracker_init_internal_log_ctx(tracker);
 		}
 
 		/* Set the restored LoRaWAN Keys */
@@ -420,9 +418,9 @@ int main(void)
 
 				if (tracker->tracker_ctx.internal_log_enable) {
 					HAL_DBG_TRACE_PRINTF("Log results in the Internal Log memory\r\n", tracker->tracker_ctx.voltage);
-					tracker_store_internal_log();
+					tracker_store_internal_log(tracker);
 					HAL_DBG_TRACE_PRINTF("Internal Log memory space remaining: %d %%\r\n",
-							tracker_get_remaining_memory_space());
+							tracker_get_remaining_memory_space(tracker));
 				}
 
 				/* Build the payload and stream it if we have enough time */
@@ -635,7 +633,7 @@ void tracker_gnss_store_new_assistance_position(struct tracker *tracker)
 		tracker->tracker_ctx.gnss_settings.assistance_position.latitude  = assistance_position.latitude;
 		tracker->tracker_ctx.gnss_settings.assistance_position.longitude = assistance_position.longitude;
 
-		tracker_store_app_ctx();
+		tracker_store_app_ctx(tracker);
 	}
 }
 
@@ -993,7 +991,7 @@ void tracker_app_store_new_acculated_charge(struct tracker *tracker, uint32_t mo
 	if (modem_charge != previous_modem_charge) {
 		tracker->tracker_ctx.accumulated_charge += modem_charge - previous_modem_charge;
 		HAL_DBG_TRACE_MSG("New acculated charge stored\r\n");
-		tracker_store_app_ctx();
+		tracker_store_app_ctx(tracker);
 
 		previous_modem_charge = modem_charge;
 	}
@@ -1119,12 +1117,12 @@ void tracker_app_parse_downlink_frame(struct tracker *tracker, uint8_t port, con
 						"###### ===== TRACKER CONFIGURATION SETTINGS PAYLOAD RECEIVED ==== ######\r\n\r\n");
 
 				tracker->tracker_ctx.tracker_settings_payload_len =
-					tracker_parse_cmd(settings_buffer, tracker->tracker_ctx.tracker_settings_payload, false);
+					tracker_parse_cmd(tracker, settings_buffer, tracker->tracker_ctx.tracker_settings_payload, false);
 
 				/* Store the new values here if it's asked */
 				if ((tracker->tracker_ctx.new_value_to_set) == true) {
 					tracker->tracker_ctx.new_value_to_set = false;
-					tracker_store_app_ctx();
+					tracker_store_app_ctx(tracker);
 				}
 
 				break;

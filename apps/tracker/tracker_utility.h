@@ -42,6 +42,7 @@ extern "C" {
  */
 #include <stdint.h>
 #include <stdbool.h>
+#include "tracker.h"
 #include "wifi_scan.h"
 #include "gnss_scan.h"
 #include "modem/lr1110_modem_lorawan.h"
@@ -382,12 +383,12 @@ typedef struct
  *
  * @param [out] SMTC_SUCESS/SMTC_FAIL
  */
-uint8_t tracker_init_internal_log_ctx( void );
+uint8_t tracker_init_internal_log_ctx(struct tracker *tracker);
 
 /*!
  * @brief Store the internal log context in the flash memory in the dedicated memory zone
  */
-void tracker_store_internal_log_ctx( void );
+void tracker_store_internal_log_ctx(struct tracker *tracker);
 
 /*!
  * @brief Restore the internal log context from the flash memory and set in /ref FieldTest_t structure
@@ -396,13 +397,13 @@ void tracker_store_internal_log_ctx( void );
  *
  * @returns SMTC_SUCESS/SMTC_FAIL
  */
-uint8_t tracker_restore_internal_log_ctx( void );
+uint8_t tracker_restore_internal_log_ctx(struct tracker *tracker);
 
 /*!
  * @brief Store the Tracker context in the flash memory in the dedicated memory zone
  *
  */
-void tracker_store_app_ctx( void );
+void tracker_store_app_ctx(struct tracker *tracker);
 
 /*!
  * @brief Init the Tracker context
@@ -412,41 +413,41 @@ void tracker_store_app_ctx( void );
  * @param [in] app_key LoRaWAN Application Key
  * @param [in] store_in_flash store the context in flash
  */
-void tracker_init_app_ctx( uint8_t* dev_eui, uint8_t* join_eui, uint8_t* app_key, bool store_in_flash );
+void tracker_init_app_ctx(struct tracker *tracker, uint8_t* dev_eui, uint8_t* join_eui, uint8_t* app_key, bool store_in_flash);
 
 /*!
  * @brief Restore the Tracker context from the flash memory and set in /ref Tracker_t structure
  *
  * @param [out] SMTC_SUCESS/SMTC_FAIL
  */
-uint8_t tracker_restore_app_ctx( void );
+uint8_t tracker_restore_app_ctx(struct tracker *tracker);
 
 /*!
  * @brief Store the scan result in the flash memory in the dedicated user memory zone
  */
-void tracker_store_internal_log( void );
+void tracker_store_internal_log(struct tracker *tracker);
 
 /*!
  * @brief Restore the logs results from the flash memory, parse and display it
  */
-void tracker_restore_internal_log( void );
+void tracker_restore_internal_log(struct tracker *tracker);
 
 /*!
  * @brief Erase the scan results and the internal log context from the flash memory
  */
-void tracker_erase_internal_log( void );
+void tracker_erase_internal_log(struct tracker *tracker);
 
 /*!
  * @brief Erase the internal log et create a new internal log context.
  */
-void tracker_reset_internal_log( void );
+void tracker_reset_internal_log(struct tracker *tracker);
 
 /*!
  * @brief return the user memory flash remaning space.
  *
  * @returns the user memory flash remaning space in percentage
  */
-uint8_t tracker_get_remaining_memory_space( void );
+uint8_t tracker_get_remaining_memory_space(struct tracker *tracker);
 
 /*!
  * @brief Parse the commands coming from outside.
@@ -457,14 +458,14 @@ uint8_t tracker_get_remaining_memory_space( void );
  *
  * @returns size of buffer_out
  */
-uint8_t tracker_parse_cmd( uint8_t* payload, uint8_t* buffer_out, bool all_commands_enable );
+uint8_t tracker_parse_cmd(struct tracker *tracker, uint8_t* payload, uint8_t* buffer_out, bool all_commands_enable);
 
 /*!
  * @brief store reset counters and reset the tracker
  *
  * @param [in] host_reset_cnt_to_add value to add to host_reset_cnt_to_add paramater
  */
-void tracker_store_and_reset( uint8_t host_reset_cnt_to_add );
+void tracker_store_and_reset(struct tracker *tracker, uint8_t host_reset_cnt_to_add);
 
 #ifdef __cplusplus
 }

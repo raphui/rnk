@@ -101,7 +101,7 @@ void lr1110_modem_reset_event(struct tracker *tracker, uint16_t reset_count)
 
     if (lr1110_modem_board_is_ready() == true) {
         tracker->tracker_ctx.modem_reset_by_itself_cnt++;
-        tracker_store_and_reset(1 + lr1110_modem_board_read_event_line(&tracker->lr1110));
+        tracker_store_and_reset(tracker, 1 + lr1110_modem_board_read_event_line(&tracker->lr1110));
     } else {
         lr1110_modem_board_set_ready(true);
     }
