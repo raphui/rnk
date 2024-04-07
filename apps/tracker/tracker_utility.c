@@ -35,8 +35,9 @@
  */
 
 #include <string.h>
+#include <unistd.h>
 #include <time.h>
-//#include <drv/lr1110/modem/lr1110_modem_board.h>
+#include "modem/lr1110_modem_board.h"
 #include "tracker.h"
 #include "tracker_utility.h"
 //#include "main_tracker.h"
@@ -61,14 +62,6 @@
  * -----------------------------------------------------------------------------
  * --- PRIVATE VARIABLES -------------------------------------------------------
  */
-
-/*!
- * @brief Radio hardware and global parameters
- */
-//FIXME
-#if O
-extern lr1110_t lr1110;
-#endif
 
 /*!
  * @brief Tracker context structure
@@ -105,23 +98,20 @@ uint32_t get_uint32_from_array_at_index_and_inc(const uint8_t* array, uint16_t* 
 
 uint8_t tracker_init_internal_log_ctx(struct tracker *tracker)
 {
-//FIXME
-#if O
     if(tracker->tracker_ctx.internal_log_empty == FLASH_BYTE_EMPTY_CONTENT)
     {
         tracker->tracker_ctx.nb_scan               = 0;
-        tracker->tracker_ctx.flash_addr_start      = flash_get_user_start_addr();
+        tracker->tracker_ctx.flash_addr_start      = tracker->stored_ctx_start_addr;
         tracker->tracker_ctx.flash_addr_current    = tracker_ctx.flash_addr_start;
-        tracker->tracker_ctx.flash_addr_end        = FLASH_USER_END_ADDR;
+        tracker->tracker_ctx.flash_addr_end        = TRACKER_CTX_MTD_OFFSET_END;
         tracker->tracker_ctx.flash_remaining_space = tracker_ctx.flash_addr_end - tracker_ctx.flash_addr_current;
         tracker_store_internal_log_ctx(tracker);
     }
     else
     {
-        return SMTC_FAIL;
+        return 0;
     }
-    return SMTC_SUCCESS;
-#endif
+
     return 1;
 }
 
@@ -130,20 +120,14 @@ uint8_t tracker_restore_internal_log_ctx(struct tracker *tracker)
     uint8_t ctx_buf[32];
     uint8_t index = 0;
 
-//FIXME
-#if O
-    flash_read_buffer(FLASH_USER_INTERNAL_LOG_CTX_START_ADDR, ctx_buf, 32);
-#endif
+    lseek(tracker->lr1110.mtd_id, TRACKER_CTX_INTERNAL_LOG_MTD_OFFSET_START, SEEK_SET);
+    read(tracker->lr1110.mtd_id, ctx_buf, 32);
 
     tracker->tracker_ctx.internal_log_flush_request = false;
-    tracker->tracker_ctx.internal_log_empty         = ctx_buf[0];
-    index                                  = 1;
+    tracker->tracker_ctx.internal_log_empty = ctx_buf[0];
+    index = 1;
 
-//FIXME
-#if O
     if(tracker->tracker_ctx.internal_log_empty == FLASH_BYTE_EMPTY_CONTENT)
-#endif
-    if (0)
     {
         return 0;
     }
@@ -156,10 +140,8 @@ uint8_t tracker_restore_internal_log_ctx(struct tracker *tracker)
         tracker->tracker_ctx.flash_addr_start += (uint32_t) ctx_buf[index++] << 8;
         tracker->tracker_ctx.flash_addr_start += (uint32_t) ctx_buf[index++] << 16;
         tracker->tracker_ctx.flash_addr_start += (uint32_t) ctx_buf[index++] << 24;
-//FIXME
-#if O
-        flash_set_user_start_addr(tracker->tracker_ctx.flash_addr_start);
-#endif
+
+        tracker->stored_ctx_start_addr = tracker->tracker_ctx.flash_addr_start;
 
         tracker->tracker_ctx.flash_addr_end = ctx_buf[index++];
         tracker->tracker_ctx.flash_addr_end += (uint32_t) ctx_buf[index++] << 8;
@@ -176,6 +158,7 @@ uint8_t tracker_restore_internal_log_ctx(struct tracker *tracker)
         tracker->tracker_ctx.flash_remaining_space += (uint32_t) ctx_buf[index++] << 16;
         tracker->tracker_ctx.flash_remaining_space += (uint32_t) ctx_buf[index++] << 24;
     }
+
     return 1;
 }
 
@@ -184,16 +167,9 @@ void tracker_store_internal_log_ctx(struct tracker *tracker)
     uint8_t ctx_buf[32];
     uint8_t index = 0;
 
-//FIXME
-#if O
     if(tracker->tracker_ctx.internal_log_empty != FLASH_BYTE_EMPTY_CONTENT)
     {
-        flash_erase_page(FLASH_USER_INTERNAL_LOG_CTX_START_ADDR, 1);
-    }
-#endif
-    if (0)
-    {
-    
+	ioctl(tracker->lr1110.mtd_id, IOCTL_ERASE, (char *)TRACKER_CTX_INTERNAL_LOG_MTD_OFFSET_START);
     }
     else
     {
@@ -227,41 +203,37 @@ void tracker_store_internal_log_ctx(struct tracker *tracker)
     ctx_buf[index++] = tracker->tracker_ctx.flash_remaining_space >> 16;
     ctx_buf[index++] = tracker->tracker_ctx.flash_remaining_space >> 24;
 
-//FIXME
-#if O
-    flash_write_buffer(FLASH_USER_INTERNAL_LOG_CTX_START_ADDR, ctx_buf, index);
-#endif
+    lseek(tracker->lr1110.mtd_id, TRACKER_CTX_INTERNAL_LOG_MTD_OFFSET_START, SEEK_SET);
+    write(tracker->lr1110.mtd_id, ctx_buf, index);
 }
 
 void tracker_erase_internal_log(struct tracker *tracker)
 {
     uint8_t nb_page_to_erase = 0;
 
-//FIXME
-#if O
     if(tracker->tracker_ctx.nb_scan > 0)
     {
         nb_page_to_erase =
-            ((tracker->tracker_ctx.flash_addr_current - tracker->tracker_ctx.flash_addr_start) / ADDR_FLASH_PAGE_SIZE) + 1;
+            ((tracker->tracker_ctx.flash_addr_current - tracker->tracker_ctx.flash_addr_start) / PAGE_SIZE) + 1;
         /* Erase scan results */
-        flash_erase_page(tracker->tracker_ctx.flash_addr_start, nb_page_to_erase);
+
+	for (int i = 0; i < nb_page_to_erase; i++) {
+  	    ioctl(tracker->lr1110.mtd_id, IOCTL_ERASE,
+		(char *)(tracker->stored_ctx_start_addr + i * PAGE_SIZE));
+	}
     }
     /* Erase ctx */
-    flash_erase_page(FLASH_USER_INTERNAL_LOG_CTX_START_ADDR, 1);
-#endif
+    ioctl(tracker->lr1110.mtd_id, IOCTL_ERASE, (char *)TRACKER_CTX_INTERNAL_LOG_MTD_OFFSET_START);
 }
 
 void tracker_reset_internal_log(struct tracker *tracker)
 {
-//FIXME
-#if O
     if(tracker->tracker_ctx.internal_log_empty != FLASH_BYTE_EMPTY_CONTENT)
     {
         tracker_erase_internal_log(tracker);
 
         tracker->tracker_ctx.internal_log_empty = FLASH_BYTE_EMPTY_CONTENT;
     }
-#endif
 
     /* Reinit the internal log context */
     tracker_init_internal_log_ctx(tracker);
@@ -274,40 +246,28 @@ uint8_t tracker_get_remaining_memory_space(struct tracker *tracker)
 
 uint8_t tracker_restore_app_ctx(struct tracker *tracker)
 {
-	printf("%s\n", __func__);
     uint8_t tracker_ctx_buf[255];
 
-//FIXME
-#if O
-    flash_read_buffer(FLASH_USER_TRACKER_CTX_START_ADDR, tracker_ctx_buf, 255);
-#endif
+    lseek(tracker->lr1110.mtd_id, TRACKER_CTX_MTD_OFFSET_START, SEEK_SET);
+    read(tracker->lr1110.mtd_id, tracker_ctx_buf, 255);
 
     tracker->tracker_ctx.tracker_context_empty = tracker_ctx_buf[0];
 
-//FIXME
-#if O
     if(tracker->tracker_ctx.tracker_context_empty == FLASH_BYTE_EMPTY_CONTENT)
     {
         return 0;
-    }
-#endif
-    if (0)
-    {
-
     }
     else
     {
         uint8_t tracker_ctx_buf_idx = 1;
         int32_t latitude = 0, longitude = 0;
 
-	printf("a\n");
         memcpy(tracker->tracker_ctx.dev_eui, tracker_ctx_buf + tracker_ctx_buf_idx, SET_LORAWAN_DEVEUI_LEN);
         tracker_ctx_buf_idx += SET_LORAWAN_DEVEUI_LEN;
         memcpy(tracker->tracker_ctx.join_eui, tracker_ctx_buf + tracker_ctx_buf_idx, SET_LORAWAN_JOINEUI_LEN);
         tracker_ctx_buf_idx += SET_LORAWAN_JOINEUI_LEN;
         memcpy(tracker->tracker_ctx.app_key, tracker_ctx_buf + tracker_ctx_buf_idx, SET_LORAWAN_APPKEY_LEN);
         tracker_ctx_buf_idx += SET_LORAWAN_APPKEY_LEN;
-	printf("b\n");
 
         /* GNSS Parameters */
         tracker->tracker_ctx.gnss_settings.enabled              = tracker_ctx_buf[tracker_ctx_buf_idx++];
@@ -315,23 +275,17 @@ uint8_t tracker_restore_app_ctx(struct tracker *tracker)
         tracker->tracker_ctx.gnss_settings.scan_type            = tracker_ctx_buf[tracker_ctx_buf_idx++];
         tracker->tracker_ctx.gnss_settings.search_mode =
             (lr1110_modem_gnss_search_mode_t) tracker_ctx_buf[tracker_ctx_buf_idx++];
-	printf("c\n");
 
         latitude = tracker_ctx_buf[tracker_ctx_buf_idx++];
         latitude += tracker_ctx_buf[tracker_ctx_buf_idx++] << 8;
         latitude += tracker_ctx_buf[tracker_ctx_buf_idx++] << 16;
         latitude += tracker_ctx_buf[tracker_ctx_buf_idx++] << 24;
-	printf("%s: latitude = %d\n", __func__, latitude);
-	float lat = (float) latitude / 10000000;
-	printf("d: lat = %f\n", lat);
-        tracker->tracker_ctx.gnss_settings.assistance_position.latitude = lat;
-	printf("e\n");
+        tracker->tracker_ctx.gnss_settings.assistance_position.latitude = (float) latitude / 10000000;
 
         longitude = tracker_ctx_buf[tracker_ctx_buf_idx++];
         longitude += tracker_ctx_buf[tracker_ctx_buf_idx++] << 8;
         longitude += tracker_ctx_buf[tracker_ctx_buf_idx++] << 16;
         longitude += tracker_ctx_buf[tracker_ctx_buf_idx++] << 24;
-	printf("%s: longitude = %d\n", __func__, longitude);
         tracker->tracker_ctx.gnss_settings.assistance_position.longitude = (float) longitude / 10000000;
 
         tracker->tracker_ctx.last_almanac_update = tracker_ctx_buf[tracker_ctx_buf_idx++];
@@ -391,13 +345,10 @@ void tracker_store_app_ctx(struct tracker *tracker)
     uint8_t tracker_ctx_buf_idx = 0;
     int32_t latitude = 0, longitude = 0;
 
-//FIXME
-#if 0
     if(tracker->tracker_ctx.tracker_context_empty != FLASH_BYTE_EMPTY_CONTENT)
     {
-        flash_erase_page(FLASH_USER_TRACKER_CTX_START_ADDR, 1);
+	ioctl(tracker->lr1110.mtd_id, IOCTL_ERASE, (char *)TRACKER_CTX_MTD_OFFSET_START);
     }
-#endif
 
     /* Context exists */
     tracker_ctx_buf[tracker_ctx_buf_idx++] = tracker->tracker_ctx.tracker_context_empty;
@@ -473,10 +424,8 @@ void tracker_store_app_ctx(struct tracker *tracker)
     tracker_ctx_buf[tracker_ctx_buf_idx++] = tracker->tracker_ctx.modem_reset_by_itself_cnt;
     tracker_ctx_buf[tracker_ctx_buf_idx++] = tracker->tracker_ctx.modem_reset_by_itself_cnt >> 8;
 
-//FIXME
-#if 0
-    flash_write_buffer(FLASH_USER_TRACKER_CTX_START_ADDR, tracker_ctx_buf, tracker_ctx_buf_idx);
-#endif
+    lseek(tracker->lr1110.mtd_id, TRACKER_CTX_MTD_OFFSET_START, SEEK_SET);
+    write(tracker->lr1110.mtd_id, tracker_ctx_buf, tracker_ctx_buf_idx);
 }
 
 void tracker_init_app_ctx(struct tracker *tracker, uint8_t* dev_eui, uint8_t* join_eui, uint8_t* app_key, bool store_in_flash)
@@ -650,10 +599,9 @@ void tracker_store_internal_log(struct tracker *tracker)
 
         /* nb elements */
         scan_buf[2] = nb_variable_elements + 1;  // +1 because of the next address scan
-//FIXME
-#if 0
-        flash_write_buffer(tracker->tracker_ctx.flash_addr_current, scan_buf, index);
-#endif
+
+	lseek(tracker->lr1110.mtd_id, tracker->tracker_ctx.flash_addr_start, SEEK_SET);
+	write(tracker->lr1110.mtd_id, scan_buf, index);
 
         tracker->tracker_ctx.flash_addr_current = next_scan_addr;
         tracker_store_internal_log_ctx(tracker);
@@ -685,18 +633,14 @@ void tracker_restore_internal_log(struct tracker *tracker)
     while(nb_scan_index <= tracker->tracker_ctx.nb_scan)
     {
         /* read the scan lentgh */
-//FIXME
-#if 0
-        flash_read_buffer(next_scan_addr, scan_buf, 2);
-#endif
+	lseek(tracker->lr1110.mtd_id, next_scan_addr, SEEK_SET);
+	read(tracker->lr1110.mtd_id, scan_buf, 2);
+
         scan_len = scan_buf[0];
         scan_len += (uint32_t) scan_buf[1] << 8;
 
         /* read the rest of the scan */
-//FIXME
-#if 0
-        flash_read_buffer(next_scan_addr + 2, scan_buf, scan_len - 2);
-#endif
+	read(tracker->lr1110.mtd_id, scan_buf, scan_len - 2);
 
         nb_elements = scan_buf[scan_buf_index++];
 
@@ -972,10 +916,8 @@ uint8_t tracker_parse_cmd(struct tracker *tracker, uint8_t* payload, uint8_t* bu
             case GET_MODEM_STATUS_CMD:
             {
                 lr1110_modem_status_t modem_status;
-//FIXME
-#if 0
-                lr1110_modem_get_status(&lr1110, &modem_status);
-#endif
+
+                lr1110_modem_get_status(&tracker->lr1110, &modem_status);
 
                 buffer_out[0] += 1;  // Add the element in the output buffer
                 buffer_out[output_buffer_index++] = GET_MODEM_STATUS_CMD;
@@ -989,11 +931,7 @@ uint8_t tracker_parse_cmd(struct tracker *tracker, uint8_t* payload, uint8_t* bu
 
             case GET_MODEM_DATE_CMD:
             {
-//FIXME
-#if 0
-                uint32_t date = lr1110_modem_board_get_systime_from_gps(&lr1110);
-#endif
-		uint32_t date;
+                uint32_t date = lr1110_modem_board_get_systime_from_gps(&tracker->lr1110);
 
                 buffer_out[0] += 1;  // Add the element in the output buffer
                 buffer_out[output_buffer_index++] = GET_MODEM_DATE_CMD;
@@ -1034,13 +972,10 @@ uint8_t tracker_parse_cmd(struct tracker *tracker, uint8_t* payload, uint8_t* bu
                 memcpy(buffer_out + output_buffer_index, tracker->tracker_ctx.dev_eui, SET_LORAWAN_DEVEUI_LEN);
                 output_buffer_index += SET_LORAWAN_DEVEUI_LEN;
 
-//FIXME
-#if 0
-                lr1110_modem_set_dev_eui(&lr1110, tracker->tracker_ctx.dev_eui);
+                lr1110_modem_set_dev_eui(&tracker->lr1110, tracker->tracker_ctx.dev_eui);
                 /* do a derive key to have the new pin code */
-                lr1110_modem_derive_keys(&lr1110);
-                lr1110_modem_get_pin(&lr1110, &tracker->tracker_ctx.lorawan_pin);
-#endif
+                lr1110_modem_derive_keys(&tracker->lr1110);
+                lr1110_modem_get_pin(&tracker->lr1110, &tracker->tracker_ctx.lorawan_pin);
 
                 payload_index += SET_LORAWAN_DEVEUI_LEN;
                 break;
@@ -1084,12 +1019,9 @@ uint8_t tracker_parse_cmd(struct tracker *tracker, uint8_t* payload, uint8_t* bu
                 output_buffer_index += SET_LORAWAN_JOINEUI_LEN;
 
                 /* do a derive key to have the new pin code */
-//FIXME
-#if 0
-                lr1110_modem_set_join_eui(&lr1110, tracker->tracker_ctx.join_eui);
-                lr1110_modem_derive_keys(&lr1110);
-                lr1110_modem_get_pin(&lr1110, &tracker->tracker_ctx.lorawan_pin);
-#endif
+                lr1110_modem_set_join_eui(&tracker->lr1110, tracker->tracker_ctx.join_eui);
+                lr1110_modem_derive_keys(&tracker->lr1110);
+                lr1110_modem_get_pin(&tracker->lr1110, &tracker->tracker_ctx.lorawan_pin);
 
                 payload_index += SET_LORAWAN_JOINEUI_LEN;
                 break;
@@ -1140,10 +1072,8 @@ uint8_t tracker_parse_cmd(struct tracker *tracker, uint8_t* payload, uint8_t* bu
             {
                 uint16_t nb_uplink_mobile_static;
                 uint16_t nb_uplink_reset;
-//FIXME
-#if 0
-                lr1110_modem_get_connection_timeout_status(&lr1110, &nb_uplink_mobile_static, &nb_uplink_reset);
-#endif
+
+                lr1110_modem_get_connection_timeout_status(&tracker->lr1110, &nb_uplink_mobile_static, &nb_uplink_reset);
 
                 buffer_out[0] += 1;  // Add the element in the output buffer
                 buffer_out[output_buffer_index++] = GET_LORAWAN_NB_UPLINK_SINCE_LAST_DOWNLINK_CMD;
@@ -1320,10 +1250,7 @@ uint8_t tracker_parse_cmd(struct tracker *tracker, uint8_t* payload, uint8_t* bu
                 uint32_t newest_almanac_date = 0;
 
                 /* get the dates form the Modem-E */
-//FIXME
-#if 0
-                lr1110_modem_get_almanac_dates(&lr1110, &oldest_almanac_date, &newest_almanac_date);
-#endif
+                lr1110_modem_get_almanac_dates(&tracker->lr1110, &oldest_almanac_date, &newest_almanac_date);
 
                 if(oldest_almanac_date > tracker->tracker_ctx.last_almanac_update)
                 {
@@ -1897,11 +1824,8 @@ uint8_t tracker_parse_cmd(struct tracker *tracker, uint8_t* payload, uint8_t* bu
                 if(payload[payload_index] <= 1)
                 {
                     tracker->tracker_ctx.duty_cycle_enable = payload[payload_index];
-//FIXME
-#if 0
-                    lr1110_modem_activate_duty_cycle(&lr1110,
-                                                      (lr1110_modem_duty_cycle_t) tracker->tracker_ctx.duty_cycle_enable);
-#endif
+
+                    lr1110_modem_activate_duty_cycle(&tracker->lr1110, (lr1110_modem_duty_cycle_t) tracker->tracker_ctx.duty_cycle_enable);
 
                     /* Ack the CMD */
                     buffer_out[0] += 1;  // Add the element in the output buffer
@@ -2151,11 +2075,8 @@ uint8_t tracker_parse_cmd(struct tracker *tracker, uint8_t* payload, uint8_t* bu
                 uint16_t nb_uplink_reset;
 
                 /* get the dates form the Modem-E */
-//FIXME
-#if 0
-                lr1110_modem_get_almanac_dates(&lr1110, &oldest_almanac_date, &newest_almanac_date);
-                lr1110_modem_get_connection_timeout_status(&lr1110, &nb_uplink_mobile_static, &nb_uplink_reset);
-#endif
+                lr1110_modem_get_almanac_dates(&tracker->lr1110, &oldest_almanac_date, &newest_almanac_date);
+                lr1110_modem_get_connection_timeout_status(&tracker->lr1110, &nb_uplink_mobile_static, &nb_uplink_reset);
 
                 buffer_out[0] += 1;  // Add the element in the output buffer
                 buffer_out[output_buffer_index++] = GET_APP_TRACKER_SETTINGS_CMD;
@@ -2360,10 +2281,9 @@ static void tracker_print_device_settings(struct tracker *tracker)
 
     /* LoRaWAN settings */
     HAL_DBG_TRACE_PRINTF("#\tADR profile : %d\r\n", tracker->tracker_ctx.lorawan_adr_profile);
-//FIXME
-#if 0
-    lr1110_modem_get_nb_trans(&lr1110, &nb_trans);
-#endif
+
+    lr1110_modem_get_nb_trans(&tracker->lr1110, &nb_trans);
+
     HAL_DBG_TRACE_PRINTF("#\tlorawan nb trans : %d\r\n", nb_trans);
     HAL_DBG_TRACE_PRINTF("#\tlorawan_region : %d\r\n", tracker->tracker_ctx.lorawan_region);
 

@@ -208,6 +208,18 @@
 
 #define FORCE_NEW_TRACKER_CONTEXT 0
 
+/* XXX: tracker ctx data log start at page 120 and finish at page 126 */
+#define TRACKER_CTX_MTD_OFFSET_START	0x3C000
+#define TRACKER_CTX_MTD_OFFSET_END	0x3F7FF
+
+/* XXX: tracker ctx internal log start and end at page 127 */
+#define TRACKER_CTX_INTERNAL_LOG_MTD_OFFSET_START	0x3F800
+#define TRACKER_CTX_INTERNAL_LOG_MTD_OFFSET_END		0x3FFFF
+
+#define PAGE_SIZE 0x800
+
+#define FLASH_BYTE_EMPTY_CONTENT 0xFF
+
 #define HAL_DBG_TRACE_INFO(...) do{ printf(__VA_ARGS__); }while(0)
 #define HAL_DBG_TRACE_PRINTF(...) do{ printf(__VA_ARGS__); }while(0)
 #define HAL_DBG_TRACE_MSG(...) do{ printf(__VA_ARGS__); }while(0)
@@ -249,6 +261,7 @@ struct tracker {
 	lr1110_t lr1110;
 	lr1110_modem_event_callback_t lr1110_modem_event_callback;
 	tracker_ctx_t tracker_ctx;
+	unsigned int stored_ctx_start_addr;
 };
 
 #endif /* TRACKER_H */

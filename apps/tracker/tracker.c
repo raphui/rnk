@@ -20,6 +20,7 @@
 #define BUSY_PIN	20
 
 #define SPI_DEVICE	"/dev/spi1"
+#define MTD_DEVICE	"/dev/mtd1"
 
 extern uint16_t hal_mcu_get_vref_level(void);
 extern int16_t hal_mcu_get_temperature(void);
@@ -212,6 +213,12 @@ int main(void)
 	if (tracker->lr1110.spi_id < 0) {
 		printf("failed to open: %s\n", SPI_DEVICE);
 		goto err;
+	}
+
+	tracker->lr1110.mtd_id = open(MTD_DEVICE, O_RDWR);
+	if (tracker->lr1110.mtd_id < 0) {
+		printf("failed to open: %s\n", MTD_DEVICE);
+		goto err_close;
 	}
 
 	lr1110_modem_board_init_io_context(&tracker->lr1110);
