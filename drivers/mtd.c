@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <string.h>
 #include <init.h>
+#include <ioctl.h>
 #include <kernel/printk.h>
 
 static int dev_count = 0;
@@ -205,6 +206,31 @@ static int mtd_lseek(struct device *dev, int offset, int whence)
 	return ret;
 }
 
+static int mtd_ioctl(struct device *dev, int request, char *arg)
+{
+	struct mtd *mtd = container_of(dev, struct mtd, dev);
+	struct mtd_page page;
+	int ret = 0;
+
+	switch (request) {
+	case IOCTL_ERASE:
+		ret = mtd_get_page(dev, (unsigned int)arg, &page);
+		if (ret < 0)
+			goto err;
+
+		ret = mtd_check_addr(dev, (unsigned int)(mtd->base_addr + arg));
+		if (ret < 0)
+			goto err;
+		
+		ret = mtd->mtd_ops->erase(mtd, page.index);
+		break;
+	}
+
+err:
+	return ret;
+}
+
+
 struct mtd *mtd_new_controller(void)
 {
 	struct mtd *mtd = NULL;
@@ -271,6 +297,7 @@ int mtd_register_controller(struct mtd *mtd)
 	mtd->dev.read = mtd_read;
 	mtd->dev.write = mtd_page_write;
 	mtd->dev.lseek = mtd_lseek;
+	mtd->dev.ioctl = mtd_ioctl;
 
 	list_add_tail(&mtd_controller_list, &mtd->node);
 

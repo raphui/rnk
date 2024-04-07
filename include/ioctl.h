@@ -7,5 +7,6 @@
 #define IOCTL_WRITE_CHAR	1243
 #define IOCTL_SPI_SET_NSS	1244
 #define IOCTL_SPI_CLEAR_NSS	1245
+#define IOCTL_ERASE		1246
 
 #endif /* IOCTL_H */
