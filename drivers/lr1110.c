@@ -74,13 +74,14 @@ static int lr1110_read(struct device *dev, unsigned char *buff, unsigned int siz
 	/* NSS low */
 	pio_clear_value(priv->gpios[NSS_GPIO].port, priv->gpios[NSS_GPIO].pin);
 
+	/* Compute */
+	/* XXX: sending the cmd will modify the content of the command buffer */
+	crc = lr1110_compute_crc(0xFF, transfer->command, transfer->command_length);
+
 	/* Send CMD */
 	for (int i = 0; i < transfer->command_length; i++) {
 		spi_transfer(spi, (unsigned char *)&transfer->command[i], sizeof(unsigned char));
 	}
-
-	/* Compute and send CRC */
-	crc = lr1110_compute_crc(0xFF, transfer->command, transfer->command_length);
 
 	/* Send CRC */
 	spi_transfer(spi, (unsigned char *)&crc, sizeof(unsigned char));
@@ -102,6 +103,11 @@ static int lr1110_write(struct device *dev, unsigned char *buff, unsigned int si
 	/* NSS low */
 	pio_clear_value(priv->gpios[NSS_GPIO].port, priv->gpios[NSS_GPIO].pin);
 
+	/* Compute CRC */
+	/* XXX: sending the cmd and data will modify the content of the buffers */
+	crc = lr1110_compute_crc(0xFF, transfer->command, transfer->command_length);
+	crc = lr1110_compute_crc(crc, transfer->data, transfer->data_length);
+
 	/* Send CMD */
 	for (int i = 0; i < transfer->command_length; i++) {
 		spi_transfer(spi, (unsigned char *)&transfer->command[i], sizeof(unsigned char));
@@ -111,10 +117,6 @@ static int lr1110_write(struct device *dev, unsigned char *buff, unsigned int si
 	for (int i = 0; i < transfer->data_length; i++) {
 		spi_transfer(spi, (unsigned char *)&transfer->data[i], sizeof(unsigned char));
 	}
-
-	/* Compute and send CRC */
-	crc = lr1110_compute_crc(0xFF, transfer->command, transfer->command_length);
-	crc = lr1110_compute_crc(crc, transfer->data, transfer->data_length);
 
 	/* Send CRC */
 	spi_transfer(spi, (unsigned char *)&crc, sizeof(unsigned char));
