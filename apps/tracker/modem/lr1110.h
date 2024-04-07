@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdint.h>
 #include <gpiolib.h>
+#include <drv/mtd.h>
 
 #include "lr1110_modem_lorawan.h"
 
@@ -120,7 +121,8 @@ typedef struct lr1110_s
     struct pio_desc *led_scan;
     struct pio_desc *radio_event;
     struct pio_desc *busy;
-    uint32_t       spi_id;
+    uint32_t spi_id;
+    uint32_t mtd_id;
 } lr1110_t;
 
 /*!
