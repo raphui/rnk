@@ -45,7 +45,7 @@ struct syscall syscall_table[] = {
 	{SYSCALL_FD_WRITE,	(unsigned int *)&svc_write,		SYSCALL_PRIVILEGE_ELEVATION},
 	{SYSCALL_FD_READ,	(unsigned int *)&svc_read,		SYSCALL_PRIVILEGE_ELEVATION},
 	{SYSCALL_FD_LSEEK,	(unsigned int *)&svc_lseek,		SYSCALL_PRIVILEGE_OPERATION},
-	{SYSCALL_FD_IOCTL,	(unsigned int *)&svc_ioctl,		SYSCALL_PRIVILEGE_OPERATION},
+	{SYSCALL_FD_IOCTL,	(unsigned int *)&svc_ioctl,		SYSCALL_PRIVILEGE_ELEVATION},
 	{SYSCALL_ALLOC,		(unsigned int *)umalloc,		SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_FREE,		(unsigned int *)ufree,			SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_PIO_EXPORT,	(unsigned int *)pio_export,		SYSCALL_PRIVILEGE_OPERATION},
