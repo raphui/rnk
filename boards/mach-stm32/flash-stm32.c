@@ -110,7 +110,7 @@ struct mtd_layout stm32_flash_layout[] = {
 };
 #else
 struct mtd_layout stm32_flash_layout[] = {
-	{.pages_count = 127, .pages_size = SZ_2K},
+	{.pages_count = 128, .pages_size = SZ_2K},
 };
 #endif
 

@@ -145,6 +145,11 @@ int stm32_flash_write(struct mtd *mtd, unsigned char *buff, unsigned int size, s
 	int page_offset = mtd->curr_off & (page_size - 1);
 	unsigned char *page_cache = kmalloc(page_size);
 
+	if (!page_cache) {
+		error_printk("failed to allocate page_cache\n");
+		goto err;
+	}
+
 	memcpy(page_cache, (void *)(mtd->base_addr + page->start), page_size);
 
 	if (!memcmp(page_cache + page_offset, buff, size)) {
