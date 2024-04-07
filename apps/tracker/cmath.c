@@ -84,7 +84,7 @@ float __aeabi_fdiv(float x, float y)
 
 float __aeabi_i2f(int x)
 {
-	return qfp_float2int(x);
+	return qfp_int2float(x);
 }
 
 float __aeabi_ui2f(unsigned int x)
