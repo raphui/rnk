@@ -416,8 +416,6 @@ static void on_lr1110_modem_reset_timeout_event(void* context)
 
 static lr1110_hal_status_t lr1110_hal_wait_on_busy(const void* context, uint32_t timeout_ms)
 {
-//FIXME
-#if 1
 #if 0
     while(gpiolib_get_value(((lr1110_t*)context)->busy) == 1)
     {
@@ -433,14 +431,11 @@ static lr1110_hal_status_t lr1110_hal_wait_on_busy(const void* context, uint32_t
         }
     }
 #endif
-#endif
     return LR1110_HAL_STATUS_OK;
 }
 
 static lr1110_modem_hal_status_t lr1110_modem_hal_wait_on_busy(const void* context, uint32_t timeout_ms)
 {
-//FIXME
-#if 1
 #if 0
     while(gpiolib_get_value(((lr1110_t*)context)->busy) == 0)
     {
@@ -455,15 +450,12 @@ static lr1110_modem_hal_status_t lr1110_modem_hal_wait_on_busy(const void* conte
             return LR1110_MODEM_HAL_STATUS_ERROR;
         }
     }
-#endif
 #endif
     return LR1110_MODEM_HAL_STATUS_OK;
 }
 
 static lr1110_modem_hal_status_t lr1110_modem_hal_wait_on_unbusy(const void* context, uint32_t timeout_ms)
 {
-//FIXME
-#if 1
 #if 0
     while(gpiolib_get_value(((lr1110_t*)context)->busy) == 1)
     {
@@ -478,7 +470,6 @@ static lr1110_modem_hal_status_t lr1110_modem_hal_wait_on_unbusy(const void* con
             return LR1110_MODEM_HAL_STATUS_ERROR;
         }
     }
-#endif
 #endif
     return LR1110_MODEM_HAL_STATUS_OK;
 }

@@ -146,44 +146,18 @@ void lna_off(void)
 
 void lr1110_modem_board_init_io_context(void* context)
 {
-//FIXME
-#if 0
-    ((lr1110_t*) context)->event.pin      = RADIO_EVENT;
-    ((lr1110_t*) context)->event.callback = radio_event_callback;
-    ((lr1110_t*) context)->event.context  = ((lr1110_t*) context);
-#endif
 }
 
 void lr1110_modem_board_init_io(const void* context)
 {
-//FIXME
-#if 0
-    hal_gpio_init_out(((lr1110_t*) context)->reset.pin, 1);
-    hal_gpio_init_out(((lr1110_t*) context)->nss.pin, 1);
-    hal_gpio_init_in(((lr1110_t*) context)->busy.pin, HAL_GPIO_PULL_MODE_NONE, HAL_GPIO_IRQ_MODE_OFF, NULL);
-    hal_gpio_init_in(((lr1110_t*) context)->event.pin, HAL_GPIO_PULL_MODE_NONE, HAL_GPIO_IRQ_MODE_RISING,
-                      &((lr1110_t*) context)->event);
-#endif
 }
 
 void lr1110_modem_board_deinit_io(const void* context)
 {
-//FIXME
-#if 0
-    hal_gpio_init_out(((lr1110_t*) context)->nss.pin, 1);
-    hal_gpio_init_out(((lr1110_t*) context)->reset.pin, 1);
-    hal_gpio_init_in(((lr1110_t*) context)->busy.pin, HAL_GPIO_PULL_MODE_NONE, HAL_GPIO_IRQ_MODE_OFF, NULL);
-    hal_gpio_init_in(((lr1110_t*) context)->event.pin, HAL_GPIO_PULL_MODE_NONE, HAL_GPIO_IRQ_MODE_RISING, NULL);
-#endif
 }
 
 void lr1110_modem_board_analog_deinit_io(const void* context)
 {
-//FIXME
-#if 0
-    hal_gpio_deinit(((lr1110_t*) context)->event.pin);
-    hal_gpio_deinit(((lr1110_t*) context)->busy.pin);
-#endif
 }
 
 uint32_t lr1110_modem_board_get_tcxo_wakeup_time(void)
