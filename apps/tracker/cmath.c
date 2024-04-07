@@ -26,11 +26,13 @@ int __aeabi_dcmpgt(double x, double y);
 int __aeabi_dcmple(double x, double y);
 int __aeabi_dcmpgt(double x, double y);
 int __aeabi_dcmpeq(double x, double y);
-int __aeabi_dcmpe(double x, double y);
+int __aeabi_dcmpge(double x, double y);
+double __aeabi_dadd(double x, double y);
 double __aeabi_dsub(double x, double y);
+double __aeabi_dmul(double x, double y);
+double __aeabi_ddiv(double x, double y);
 int __aeabi_d2iz(double x);
 double __aeabi_i2d(int x);
-double __aeabi_dmul(double x, double y);
 unsigned int __aeabi_d2uiz(double x);
 double __aeabi_ui2d(unsigned int);
 
@@ -155,6 +157,21 @@ int __aeabi_dcmple(double x, double y)
 int __aeabi_dcmpeq(double x, double y)
 {
 	return (qfp_dcmp(x, y) == 0);
+}
+
+int __aeabi_dcmpge(double x, double y)
+{
+	return (qfp_dcmp(x, y) >= 0);
+}
+
+double __aeabi_ddiv(double x, double y)
+{
+	return qfp_ddiv(x, y);
+}
+
+double __aeabi_dadd(double x, double y)
+{
+	return qfp_dadd(x, y);
 }
 
 double __aeabi_dsub(double x, double y)
