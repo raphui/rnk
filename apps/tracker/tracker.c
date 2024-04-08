@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include "tracker.h"
-//#include "lis2de12.h"
+#include "lis2de12.h"
 #include "modem/lr1110.h"
 #include "modem/lr1110_modem.h"
 #include "modem/lr1110_modem_board.h"
@@ -18,9 +18,11 @@
 #define LED_SCAN_PIN	22
 #define RADIO_EVENT_PIN	21
 #define BUSY_PIN	20
+#define ACC_IRQ_PIN	10
 
 #define SPI_DEVICE	"/dev/spi1"
 #define MTD_DEVICE	"/dev/mtd1"
+#define I2C_DEVICE	"/dev/i2c1"
 
 extern uint16_t hal_mcu_get_vref_level(void);
 extern int16_t hal_mcu_get_temperature(void);
@@ -63,14 +65,17 @@ static void lr1110_init(struct tracker *tracker)
 	tracker->lr1110.led_scan = gpiolib_export(LED_SCAN_PIN);
 	tracker->lr1110.radio_event = gpiolib_export(RADIO_EVENT_PIN);
 	tracker->lr1110.busy = gpiolib_export(BUSY_PIN);
+	tracker->lr1110.acc_irq = gpiolib_export(ACC_IRQ_PIN);
 
 	gpiolib_set_output(tracker->lr1110.led_rx, 0);
 	gpiolib_set_output(tracker->lr1110.led_tx, 0);
 	gpiolib_set_output(tracker->lr1110.led_scan, 0);
 	gpiolib_set_input(tracker->lr1110.radio_event);
 	gpiolib_set_input(tracker->lr1110.busy);
+	gpiolib_set_input(tracker->lr1110.acc_irq);
 
 	gpiolib_request_irq(tracker->lr1110.radio_event, radio_event_callback, IRQF_RISING, &tracker->lr1110);
+	gpiolib_request_irq(tracker->lr1110.acc_irq, lis2de12_int1_irq_handler, IRQF_RISING, &tracker->lr1110);
 
 	/* Init LR1110 modem-e event */
 	memset(&tracker->lr1110_modem_event_callback, 0, sizeof(lr1110_modem_event_callback_t));
@@ -88,6 +93,8 @@ static void lr1110_init(struct tracker *tracker)
 	tracker->lr1110_modem_event_callback.adr_mobile_to_static = lr1110_modem_adr_mobile_to_static;
 	tracker->lr1110_modem_event_callback.new_link_adr = lr1110_modem_new_link_adr;
 	tracker->lr1110_modem_event_callback.no_event = lr1110_modem_no_event;
+
+	accelerometer_init(tracker, 1);
 }
 
 void radio_event_callback(void* obj)
@@ -245,6 +252,12 @@ int main(void)
 		printf("failed to open: %s\n", MTD_DEVICE);
 		goto err_close;
 	}
+	
+	tracker->lr1110.i2c_id = open(I2C_DEVICE, O_RDWR);
+	if (tracker->lr1110.mtd_id < 0) {
+		printf("failed to open: %s\n", I2C_DEVICE);
+		goto err_close;
+	}
 
 	lr1110_modem_board_init_io_context(&tracker->lr1110);
 
@@ -367,11 +380,8 @@ int main(void)
 		case DEVICE_COLLECT_DATA:
 			/* Create a movevment history on 8 bits and update this value only if the stream is done */
 			if (tracker->tracker_ctx.stream_done == true) {
-//FIXME
-#if 0
 				tracker->tracker_ctx.accelerometer_move_history =
-					(tracker->tracker_ctx.accelerometer_move_history << 1) + is_accelerometer_detected_moved();
-#endif
+					(tracker->tracker_ctx.accelerometer_move_history << 1) + is_accelerometer_detected_moved(tracker);
 			}
 
 			/* Check if scan can be launched */
@@ -414,17 +424,14 @@ int main(void)
 				/*  SENSORS DATA */
 				HAL_DBG_TRACE_INFO("*** sensors collect ***\n\r\n\r");
 
-//FIXME
-#if 0
 				/* Acceleration */
-				acc_read_raw_data();
-				tracker->tracker_ctx.accelerometer_x = acc_get_raw_x();
-				tracker->tracker_ctx.accelerometer_y = acc_get_raw_y();
-				tracker->tracker_ctx.accelerometer_z = acc_get_raw_z();
+				acc_read_raw_data(tracker);
+				tracker->tracker_ctx.accelerometer_x = acc_get_raw_x(tracker);
+				tracker->tracker_ctx.accelerometer_y = acc_get_raw_y(tracker);
+				tracker->tracker_ctx.accelerometer_z = acc_get_raw_z(tracker);
 				HAL_DBG_TRACE_PRINTF("Acceleration [mg]: X=%4.2f mg | Y=%4.2f mg | Z=%4.2f mg \r\n",
 						(double) tracker->tracker_ctx.accelerometer_x, (double) tracker->tracker_ctx.accelerometer_y,
 						(double) tracker->tracker_ctx.accelerometer_z);
-#endif
 
 				/* Move history */
 				HAL_DBG_TRACE_PRINTF("Move history : %d\r\n", tracker->tracker_ctx.accelerometer_move_history);
@@ -538,10 +545,8 @@ int main(void)
 #endif
 			}
 
-//FIXME
-#if 0
 			/* Wake up from static mode thanks the accelerometer ? */
-			if ((get_accelerometer_irq1_state() == true) && (tracker_app_is_tracker_in_static_mode(tracker) == true)) {
+			if ((get_accelerometer_irq1_state(tracker) == true) && (tracker_app_is_tracker_in_static_mode(tracker) == true)) {
 				/* Stop the LR1110 current modem alarm */
 				do
 				{
@@ -550,7 +555,6 @@ int main(void)
 
 				tracker->device_state = DEVICE_COLLECT_DATA;
 			}
-#endif
 			break;
 		default:
 			tracker->device_state = DEVICE_STATE_INIT;

@@ -621,9 +621,9 @@ void tracker_restore_internal_log(struct tracker *tracker)
     int16_t   acc_x, acc_y, acc_z;
     int16_t   temperature    = 0;
     uint32_t  next_scan_addr = tracker->tracker_ctx.flash_addr_start;
+    time_t    scan_timestamp = 0;
 //FIXME
 #if 0
-    time_t    scan_timestamp = 0;
     struct tm epoch_time;
 #endif
     uint32_t  job_counter = 0;
@@ -648,10 +648,10 @@ void tracker_restore_internal_log(struct tracker *tracker)
         scan_number = scan_buf[scan_buf_index++];
         scan_number += (uint16_t) scan_buf[scan_buf_index++] << 8;
 
-//FIXME
-#if 0
         /* Scan Timestamp */
         scan_timestamp = get_uint32_from_array_at_index_and_inc(scan_buf, &scan_buf_index);
+//FIXME
+#if 0
         memcpy(&epoch_time, localtime(&scan_timestamp), sizeof(struct tm));
 #endif
 
