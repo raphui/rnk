@@ -31,6 +31,16 @@ struct gpio_options
 	unsigned char edge:2;
 };
 
+static void stm32_pio_set_pull_up(unsigned int port, unsigned int mask, int pull_up)
+{
+	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
+
+	if (pull_up)
+		base->PUPDR |= GPIO_PUPDR_PULLUP(mask);
+	else
+		base->PUPDR &= ~(GPIO_PUPDR_PULLUP(mask));
+}
+
 void stm32_pio_set_output(unsigned int port, unsigned int mask, int pull_up)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
@@ -175,6 +185,10 @@ int stm32_pio_of_configure_name(int fdt_offset, char *name)
 
 			if (gpio & 0xF00) {
 				alt_func = (gpio >> 8) & 0xF;
+
+				stm32_pio_set_output_type(base, gpio_num, options->output);
+				stm32_pio_set_pull_up(base, gpio_num, options->pull);
+
 				stm32_pio_set_alternate(base, gpio_num, alt_func);
 			} else {
 				if (options->mode) {
