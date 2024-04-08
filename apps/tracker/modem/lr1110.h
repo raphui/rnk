@@ -6,6 +6,7 @@
 #include <gpiolib.h>
 #include <drv/mtd.h>
 
+#include "../lis2de12.h"
 #include "lr1110_modem_lorawan.h"
 
 struct tracker;
@@ -121,8 +122,14 @@ typedef struct lr1110_s
     struct pio_desc *led_scan;
     struct pio_desc *radio_event;
     struct pio_desc *busy;
+    struct pio_desc *acc_irq;
+    bool accelerometer_irq1_state;
+    uint8_t who_am_i;
+    axis3bit16_t data_raw_acceleration;
+    float acceleration_mg[3];
     uint32_t spi_id;
     uint32_t mtd_id;
+    uint32_t i2c_id;
 } lr1110_t;
 
 /*!

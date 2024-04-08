@@ -47,6 +47,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
 #define INT_NONE    0x00
 #define INT_1       0x01
 
@@ -447,31 +448,33 @@ typedef union{
   uint8_t                   byte;
 } lis2de12_reg_t;
 
+#include "tracker.h"
+
 /**
   * @}
   *
   */
-uint8_t accelerometer_init( uint8_t irq_active );
+uint8_t accelerometer_init( struct tracker *tracker, uint8_t irq_active );
 
-uint8_t is_accelerometer_detected_moved( void );
+uint8_t is_accelerometer_detected_moved( struct tracker *tracker );
 
-bool get_accelerometer_irq1_state ( void );
+bool get_accelerometer_irq1_state ( struct tracker *tracker );
 
-uint8_t is_accelerometer_double_tap_detected( void );
+uint8_t is_accelerometer_double_tap_detected( struct tracker *tracker );
 
-void acc_read_raw_data( void );
+void acc_read_raw_data( struct tracker *tracker );
 
-int16_t acc_get_raw_x( void );
+int16_t acc_get_raw_x( struct tracker *tracker );
 
-int16_t acc_get_raw_y( void );
+int16_t acc_get_raw_y( struct tracker *tracker );
 
-int16_t acc_get_raw_z( void );
+int16_t acc_get_raw_z( struct tracker *tracker );
 
-int16_t acc_get_temperature( void );
+int16_t acc_get_temperature( struct tracker *tracker );
 
-int32_t lis2de12_read_reg(uint8_t reg, uint8_t* data,
+int32_t lis2de12_read_reg(struct tracker *tracker, uint8_t reg, uint8_t* data,
                           uint16_t len);
-int32_t lis2de12_write_reg(uint8_t reg, uint8_t* data,
+int32_t lis2de12_write_reg(struct tracker *tracker, uint8_t reg, uint8_t* data,
                            uint16_t len);
 
 extern float lis2de12_from_fs2_to_mg(int16_t lsb);
@@ -480,19 +483,21 @@ extern float lis2de12_from_fs8_to_mg(int16_t lsb);
 extern float lis2de12_from_fs16_to_mg(int16_t lsb);
 extern float lis2de12_from_lsb_to_celsius(int16_t lsb);
 
-int32_t lis2de12_temp_status_reg_get(uint8_t *buff);
-int32_t lis2de12_temp_data_ready_get(uint8_t *val);
+void lis2de12_int1_irq_handler( void* obj );
 
-int32_t lis2de12_temp_data_ovr_get(uint8_t *val);
+int32_t lis2de12_temp_status_reg_get(struct tracker *tracker, uint8_t *buff);
+int32_t lis2de12_temp_data_ready_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_temperature_raw_get(uint16_t *raw_temp);
+int32_t lis2de12_temp_data_ovr_get(struct tracker *tracker, uint8_t *val);
+
+int32_t lis2de12_temperature_raw_get(struct tracker *tracker, uint16_t *raw_temp);
 
 typedef enum {
   LIS2DE12_TEMP_DISABLE  = 0,
   LIS2DE12_TEMP_ENABLE   = 3,
 } lis2de12_temp_en_t;
-int32_t lis2de12_temperature_meas_set(lis2de12_temp_en_t val);
-int32_t lis2de12_temperature_meas_get(lis2de12_temp_en_t *val);
+int32_t lis2de12_temperature_meas_set(struct tracker *tracker, lis2de12_temp_en_t val);
+int32_t lis2de12_temperature_meas_get(struct tracker *tracker, lis2de12_temp_en_t *val);
 
 typedef enum {
   LIS2DE12_POWER_DOWN                      = 0x00,
@@ -506,11 +511,11 @@ typedef enum {
   LIS2DE12_ODR_1kHz620_LP                  = 0x08,
   LIS2DE12_ODR_5kHz376_LP_1kHz344_NM_HP    = 0x09,
 } lis2de12_odr_t;
-int32_t lis2de12_data_rate_set(lis2de12_odr_t val);
-int32_t lis2de12_data_rate_get(lis2de12_odr_t *val);
+int32_t lis2de12_data_rate_set(struct tracker *tracker, lis2de12_odr_t val);
+int32_t lis2de12_data_rate_get(struct tracker *tracker, lis2de12_odr_t *val);
 
-int32_t lis2de12_high_pass_on_outputs_set(uint8_t val);
-int32_t lis2de12_high_pass_on_outputs_get(uint8_t *val);
+int32_t lis2de12_high_pass_on_outputs_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_high_pass_on_outputs_get(struct tracker *tracker, uint8_t *val);
 
 typedef enum {
   LIS2DE12_AGGRESSIVE  = 0,
@@ -518,8 +523,8 @@ typedef enum {
   LIS2DE12_MEDIUM      = 2,
   LIS2DE12_LIGHT       = 3,
 } lis2de12_hpcf_t;
-int32_t lis2de12_high_pass_bandwidth_set(lis2de12_hpcf_t val);
-int32_t lis2de12_high_pass_bandwidth_get(lis2de12_hpcf_t *val);
+int32_t lis2de12_high_pass_bandwidth_set(struct tracker *tracker, lis2de12_hpcf_t val);
+int32_t lis2de12_high_pass_bandwidth_get(struct tracker *tracker, lis2de12_hpcf_t *val);
 
 typedef enum {
   LIS2DE12_NORMAL_WITH_RST  = 0,
@@ -527,8 +532,8 @@ typedef enum {
   LIS2DE12_NORMAL           = 2,
   LIS2DE12_AUTORST_ON_INT   = 3,
 } lis2de12_hpm_t;
-int32_t lis2de12_high_pass_mode_set(lis2de12_hpm_t val);
-int32_t lis2de12_high_pass_mode_get(lis2de12_hpm_t *val);
+int32_t lis2de12_high_pass_mode_set(struct tracker *tracker, lis2de12_hpm_t val);
+int32_t lis2de12_high_pass_mode_get(struct tracker *tracker, lis2de12_hpm_t *val);
 
 typedef enum {
   LIS2DE12_2g   = 0,
@@ -536,61 +541,61 @@ typedef enum {
   LIS2DE12_8g   = 2,
   LIS2DE12_16g  = 3,
 } lis2de12_fs_t;
-int32_t lis2de12_full_scale_set(lis2de12_fs_t val);
-int32_t lis2de12_full_scale_get(lis2de12_fs_t *val);
+int32_t lis2de12_full_scale_set(struct tracker *tracker, lis2de12_fs_t val);
+int32_t lis2de12_full_scale_get(struct tracker *tracker, lis2de12_fs_t *val);
 
-int32_t lis2de12_block_data_update_set(uint8_t val);
-int32_t lis2de12_block_data_update_get(uint8_t *val);
+int32_t lis2de12_block_data_update_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_block_data_update_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_filter_reference_set(uint8_t *buff);
-int32_t lis2de12_filter_reference_get(uint8_t *buff);
+int32_t lis2de12_filter_reference_set(struct tracker *tracker, uint8_t *buff);
+int32_t lis2de12_filter_reference_get(struct tracker *tracker, uint8_t *buff);
 
-int32_t lis2de12_xl_data_ready_get(uint8_t *val);
+int32_t lis2de12_xl_data_ready_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_xl_data_ovr_get(uint8_t *val);
+int32_t lis2de12_xl_data_ovr_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_acceleration_raw_get(uint8_t *buff);
+int32_t lis2de12_acceleration_raw_get(struct tracker *tracker, uint8_t *buff);
 
-int32_t lis2de12_acceleration_raw_get_x(uint8_t *buff);
-int32_t lis2de12_acceleration_raw_get_y(uint8_t *buff);
-int32_t lis2de12_acceleration_raw_get_z(uint8_t *buff);
+int32_t lis2de12_acceleration_raw_get_x(struct tracker *tracker, uint8_t *buff);
+int32_t lis2de12_acceleration_raw_get_y(struct tracker *tracker, uint8_t *buff);
+int32_t lis2de12_acceleration_raw_get_z(struct tracker *tracker, uint8_t *buff);
 
-int32_t lis2de12_device_id_get(uint8_t *buff);
+int32_t lis2de12_device_id_get(struct tracker *tracker, uint8_t *buff);
 
 typedef enum {
   LIS2DE12_ST_DISABLE   = 0,
   LIS2DE12_ST_POSITIVE  = 1,
   LIS2DE12_ST_NEGATIVE  = 2,
 } lis2de12_st_t;
-int32_t lis2de12_self_test_set(lis2de12_st_t val);
-int32_t lis2de12_self_test_get(lis2de12_st_t *val);
+int32_t lis2de12_self_test_set(struct tracker *tracker, lis2de12_st_t val);
+int32_t lis2de12_self_test_get(struct tracker *tracker, lis2de12_st_t *val);
 
-int32_t lis2de12_boot_set(uint8_t val);
-int32_t lis2de12_boot_get(uint8_t *val);
+int32_t lis2de12_boot_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_boot_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_status_get(lis2de12_status_reg_t *val);
+int32_t lis2de12_status_get(struct tracker *tracker, lis2de12_status_reg_t *val);
 
-int32_t lis2de12_int1_gen_conf_set(lis2de12_int1_cfg_t *val);
-int32_t lis2de12_int1_gen_conf_get(lis2de12_int1_cfg_t *val);
+int32_t lis2de12_int1_gen_conf_set(struct tracker *tracker, lis2de12_int1_cfg_t *val);
+int32_t lis2de12_int1_gen_conf_get(struct tracker *tracker, lis2de12_int1_cfg_t *val);
 
-int32_t lis2de12_int1_gen_source_get(lis2de12_int1_src_t *val);
+int32_t lis2de12_int1_gen_source_get(struct tracker *tracker, lis2de12_int1_src_t *val);
 
-int32_t lis2de12_int1_gen_threshold_set(uint8_t val);
-int32_t lis2de12_int1_gen_threshold_get(uint8_t *val);
+int32_t lis2de12_int1_gen_threshold_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_int1_gen_threshold_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_int1_gen_duration_set(uint8_t val);
-int32_t lis2de12_int1_gen_duration_get(uint8_t *val);
+int32_t lis2de12_int1_gen_duration_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_int1_gen_duration_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_int2_gen_conf_set(lis2de12_int2_cfg_t *val);
-int32_t lis2de12_int2_gen_conf_get(lis2de12_int2_cfg_t *val);
+int32_t lis2de12_int2_gen_conf_set(struct tracker *tracker, lis2de12_int2_cfg_t *val);
+int32_t lis2de12_int2_gen_conf_get(struct tracker *tracker, lis2de12_int2_cfg_t *val);
 
-int32_t lis2de12_int2_gen_source_get(lis2de12_int2_src_t *val);
+int32_t lis2de12_int2_gen_source_get(struct tracker *tracker, lis2de12_int2_src_t *val);
 
-int32_t lis2de12_int2_gen_threshold_set(uint8_t val);
-int32_t lis2de12_int2_gen_threshold_get(uint8_t *val);
+int32_t lis2de12_int2_gen_threshold_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_int2_gen_threshold_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_int2_gen_duration_set(uint8_t val);
-int32_t lis2de12_int2_gen_duration_get(uint8_t *val);
+int32_t lis2de12_int2_gen_duration_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_int2_gen_duration_get(struct tracker *tracker, uint8_t *val);
 
 typedef enum {
   LIS2DE12_DISC_FROM_INT_GENERATOR  = 0,
@@ -602,47 +607,47 @@ typedef enum {
   LIS2DE12_ON_INT2_TAP_GEN          = 6,
   LIS2DE12_ON_INT1_INT2_TAP_GEN     = 7,
 } lis2de12_hp_t;
-int32_t lis2de12_high_pass_int_conf_set(lis2de12_hp_t val);
-int32_t lis2de12_high_pass_int_conf_get(lis2de12_hp_t *val);
+int32_t lis2de12_high_pass_int_conf_set(struct tracker *tracker, lis2de12_hp_t val);
+int32_t lis2de12_high_pass_int_conf_get(struct tracker *tracker, lis2de12_hp_t *val);
 
-int32_t lis2de12_pin_int1_config_set(lis2de12_ctrl_reg3_t *val);
-int32_t lis2de12_pin_int1_config_get(lis2de12_ctrl_reg3_t *val);
+int32_t lis2de12_pin_int1_config_set(struct tracker *tracker, lis2de12_ctrl_reg3_t *val);
+int32_t lis2de12_pin_int1_config_get(struct tracker *tracker, lis2de12_ctrl_reg3_t *val);
 
-int32_t lis2de12_int2_pin_detect_4d_set(uint8_t val);
-int32_t lis2de12_int2_pin_detect_4d_get(uint8_t *val);
+int32_t lis2de12_int2_pin_detect_4d_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_int2_pin_detect_4d_get(struct tracker *tracker, uint8_t *val);
 
 typedef enum {
   LIS2DE12_INT2_PULSED   = 0,
   LIS2DE12_INT2_LATCHED  = 1,
 } lis2de12_lir_int2_t;
-int32_t lis2de12_int2_pin_notification_mode_set(lis2de12_lir_int2_t val);
-int32_t lis2de12_int2_pin_notification_mode_get(lis2de12_lir_int2_t *val);
+int32_t lis2de12_int2_pin_notification_mode_set(struct tracker *tracker, lis2de12_lir_int2_t val);
+int32_t lis2de12_int2_pin_notification_mode_get(struct tracker *tracker, lis2de12_lir_int2_t *val);
 
-int32_t lis2de12_int1_pin_detect_4d_set(uint8_t val);
-int32_t lis2de12_int1_pin_detect_4d_get(uint8_t *val);
+int32_t lis2de12_int1_pin_detect_4d_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_int1_pin_detect_4d_get(struct tracker *tracker, uint8_t *val);
 
 typedef enum {
   LIS2DE12_INT1_PULSED   = 0,
   LIS2DE12_INT1_LATCHED  = 1,
 } lis2de12_lir_int1_t;
-int32_t lis2de12_int1_pin_notification_mode_set(lis2de12_lir_int1_t val);
-int32_t lis2de12_int1_pin_notification_mode_get(lis2de12_lir_int1_t *val);
+int32_t lis2de12_int1_pin_notification_mode_set(struct tracker *tracker, lis2de12_lir_int1_t val);
+int32_t lis2de12_int1_pin_notification_mode_get(struct tracker *tracker, lis2de12_lir_int1_t *val);
 
-int32_t lis2de12_pin_int2_config_set(lis2de12_ctrl_reg6_t *val);
-int32_t lis2de12_pin_int2_config_get(lis2de12_ctrl_reg6_t *val);
+int32_t lis2de12_pin_int2_config_set(struct tracker *tracker, lis2de12_ctrl_reg6_t *val);
+int32_t lis2de12_pin_int2_config_get(struct tracker *tracker, lis2de12_ctrl_reg6_t *val);
 
-int32_t lis2de12_fifo_set(uint8_t val);
-int32_t lis2de12_fifo_get(uint8_t *val);
+int32_t lis2de12_fifo_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_fifo_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_fifo_watermark_set(uint8_t val);
-int32_t lis2de12_fifo_watermark_get(uint8_t *val);
+int32_t lis2de12_fifo_watermark_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_fifo_watermark_get(struct tracker *tracker, uint8_t *val);
 
 typedef enum {
   LIS2DE12_INT1_GEN = 0,
   LIS2DE12_INT2_GEN = 1,
 } lis2de12_tr_t;
-int32_t lis2de12_fifo_trigger_event_set(lis2de12_tr_t val);
-int32_t lis2de12_fifo_trigger_event_get(lis2de12_tr_t *val);
+int32_t lis2de12_fifo_trigger_event_set(struct tracker *tracker, lis2de12_tr_t val);
+int32_t lis2de12_fifo_trigger_event_get(struct tracker *tracker, lis2de12_tr_t *val);
 
 typedef enum {
   LIS2DE12_BYPASS_MODE           = 0,
@@ -650,62 +655,62 @@ typedef enum {
   LIS2DE12_DYNAMIC_STREAM_MODE   = 2,
   LIS2DE12_STREAM_TO_FIFO_MODE   = 3,
 } lis2de12_fm_t;
-int32_t lis2de12_fifo_mode_set(lis2de12_fm_t val);
-int32_t lis2de12_fifo_mode_get(lis2de12_fm_t *val);
+int32_t lis2de12_fifo_mode_set(struct tracker *tracker, lis2de12_fm_t val);
+int32_t lis2de12_fifo_mode_get(struct tracker *tracker, lis2de12_fm_t *val);
 
-int32_t lis2de12_fifo_status_get(lis2de12_fifo_src_reg_t *val);
+int32_t lis2de12_fifo_status_get(struct tracker *tracker, lis2de12_fifo_src_reg_t *val);
 
-int32_t lis2de12_fifo_data_level_get(uint8_t *val);
+int32_t lis2de12_fifo_data_level_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_fifo_empty_flag_get(uint8_t *val);
+int32_t lis2de12_fifo_empty_flag_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_fifo_ovr_flag_get(uint8_t *val);
+int32_t lis2de12_fifo_ovr_flag_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_fifo_fth_flag_get(uint8_t *val);
+int32_t lis2de12_fifo_fth_flag_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_tap_conf_set(lis2de12_click_cfg_t *val);
-int32_t lis2de12_tap_conf_get(lis2de12_click_cfg_t *val);
+int32_t lis2de12_tap_conf_set(struct tracker *tracker, lis2de12_click_cfg_t *val);
+int32_t lis2de12_tap_conf_get(struct tracker *tracker, lis2de12_click_cfg_t *val);
 
-int32_t lis2de12_tap_source_get(lis2de12_click_src_t *val);
+int32_t lis2de12_tap_source_get(struct tracker *tracker, lis2de12_click_src_t *val);
 
-int32_t lis2de12_tap_threshold_set(uint8_t val);
-int32_t lis2de12_tap_threshold_get(uint8_t *val);
+int32_t lis2de12_tap_threshold_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_tap_threshold_get(struct tracker *tracker, uint8_t *val);
 
 typedef enum {
   LIS2DE12_TAP_PULSED   = 0,
   LIS2DE12_TAP_LATCHED  = 1,
 } lis2de12_lir_click_t;
-int32_t lis2de12_tap_notification_mode_set(lis2de12_lir_click_t val);
-int32_t lis2de12_tap_notification_mode_get(lis2de12_lir_click_t *val);
+int32_t lis2de12_tap_notification_mode_set(struct tracker *tracker, lis2de12_lir_click_t val);
+int32_t lis2de12_tap_notification_mode_get(struct tracker *tracker, lis2de12_lir_click_t *val);
 
-int32_t lis2de12_shock_dur_set(uint8_t val);
-int32_t lis2de12_shock_dur_get(uint8_t *val);
+int32_t lis2de12_shock_dur_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_shock_dur_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_quiet_dur_set(uint8_t val);
-int32_t lis2de12_quiet_dur_get(uint8_t *val);
+int32_t lis2de12_quiet_dur_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_quiet_dur_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_double_tap_timeout_set(uint8_t val);
-int32_t lis2de12_double_tap_timeout_get(uint8_t *val);
+int32_t lis2de12_double_tap_timeout_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_double_tap_timeout_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_act_threshold_set(uint8_t val);
-int32_t lis2de12_act_threshold_get(uint8_t *val);
+int32_t lis2de12_act_threshold_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_act_threshold_get(struct tracker *tracker, uint8_t *val);
 
-int32_t lis2de12_act_timeout_set(uint8_t val);
-int32_t lis2de12_act_timeout_get(uint8_t *val);
+int32_t lis2de12_act_timeout_set(struct tracker *tracker, uint8_t val);
+int32_t lis2de12_act_timeout_get(struct tracker *tracker, uint8_t *val);
 
 typedef enum {
   LIS2DE12_PULL_UP_DISCONNECT  = 0,
   LIS2DE12_PULL_UP_CONNECT     = 1,
 } lis2de12_sdo_pu_disc_t;
-int32_t lis2de12_pin_sdo_sa0_mode_set(lis2de12_sdo_pu_disc_t val);
-int32_t lis2de12_pin_sdo_sa0_mode_get(lis2de12_sdo_pu_disc_t *val);
+int32_t lis2de12_pin_sdo_sa0_mode_set(struct tracker *tracker, lis2de12_sdo_pu_disc_t val);
+int32_t lis2de12_pin_sdo_sa0_mode_get(struct tracker *tracker, lis2de12_sdo_pu_disc_t *val);
 
 typedef enum {
   LIS2DE12_SPI_4_WIRE = 0,
   LIS2DE12_SPI_3_WIRE = 1,
 } lis2de12_sim_t;
-int32_t lis2de12_spi_mode_set(lis2de12_sim_t val);
-int32_t lis2de12_spi_mode_get(lis2de12_sim_t *val);
+int32_t lis2de12_spi_mode_set(struct tracker *tracker, lis2de12_sim_t val);
+int32_t lis2de12_spi_mode_get(struct tracker *tracker, lis2de12_sim_t *val);
 
 /**
   * @}
