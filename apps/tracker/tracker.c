@@ -241,6 +241,8 @@ int main(void)
 		goto err;
 	}
 
+	memset(tracker, 0, sizeof(*tracker));
+
 	tracker->lr1110.spi_id = open(SPI_DEVICE, O_RDWR);
 	if (tracker->lr1110.spi_id < 0) {
 		printf("failed to open: %s\n", SPI_DEVICE);
