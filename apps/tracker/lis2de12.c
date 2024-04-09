@@ -236,6 +236,7 @@ int32_t lis2de12_read_reg( struct tracker *tracker, uint8_t reg, uint8_t* data, 
     int32_t ret;
 
     ret = ioctl(tracker->lr1110.i2c_id, IOCTL_SET_ADDRESS, (char *)LIS2DE12_I2C_ADD_H);
+    ret = ioctl(tracker->lr1110.i2c_id, IOCTL_I2C_REG, (char *)reg);
     ret = read(tracker->lr1110.i2c_id, data, len);
 
     return ret;
@@ -255,7 +256,10 @@ int32_t lis2de12_write_reg( struct tracker *tracker, uint8_t reg, uint8_t* data,
     int32_t ret;
 
     ret = ioctl(tracker->lr1110.i2c_id, IOCTL_SET_ADDRESS, (char *)LIS2DE12_I2C_ADD_H);
-    ret = read(tracker->lr1110.i2c_id, data, len);
+    ret = ioctl(tracker->lr1110.i2c_id, IOCTL_I2C_REG, (char *)reg);
+    ret = write(tracker->lr1110.i2c_id, data, len);
+
+
 
     return ret;
 }
