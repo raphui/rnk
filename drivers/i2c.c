@@ -20,7 +20,11 @@ static int i2c_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("writing from i2c !\n");
 
+	kmutex_lock(&i2c->master->i2c_mutex);
+
 	ret = i2c->master->i2c_ops->write(i2c, buff, size);
+
+	kmutex_unlock(&i2c->master->i2c_mutex);
 
 	return ret;
 }
@@ -32,7 +36,11 @@ static int i2c_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("reading from i2c !\n");
 
+	kmutex_lock(&i2c->master->i2c_mutex);
+
 	ret = i2c->master->i2c_ops->read(i2c, buff, size);
+
+	kmutex_unlock(&i2c->master->i2c_mutex);
 
 	return ret;
 }
@@ -42,6 +50,8 @@ static int i2c_ioctl(struct device *dev, int request, char *arg)
 	int ret;
 	struct i2c_device *i2c = container_of(dev, struct i2c_device, dev);
 
+	kmutex_lock(&i2c->master->i2c_mutex);
+
 	switch (request) {
 	case IOCTL_SET_ADDRESS:
 		ret = i2c->master->i2c_ops->ioctl(i2c, request, arg);
@@ -50,6 +60,8 @@ static int i2c_ioctl(struct device *dev, int request, char *arg)
 	default:
 		ret = -EINVAL;
 	}
+	
+	kmutex_unlock(&i2c->master->i2c_mutex);
 
 	return ret;
 }
@@ -58,9 +70,13 @@ int i2c_transfer(struct i2c_device *i2c, struct i2c_msg *msg, int direction)
 {
 	int ret = 0;
 
+	kmutex_lock(&i2c->master->i2c_mutex);
+
 	verbose_printk("i2c %s transfer\n", (direction == I2C_TRANSFER_READ) ? "read" : "write");
 
 	ret = i2c->master->i2c_ops->transfer(i2c, msg, direction);
+
+	kmutex_unlock(&i2c->master->i2c_mutex);
 
 	return ret;
 }
