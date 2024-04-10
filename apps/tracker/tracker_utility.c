@@ -101,9 +101,9 @@ uint8_t tracker_init_internal_log_ctx(struct tracker *tracker)
     if(tracker->tracker_ctx.internal_log_empty == FLASH_BYTE_EMPTY_CONTENT)
     {
         tracker->tracker_ctx.nb_scan               = 0;
-        tracker->tracker_ctx.flash_addr_start      = tracker->stored_ctx_start_addr;
+        tracker->tracker_ctx.flash_addr_start      = tracker->internal_log_start_addr;
         tracker->tracker_ctx.flash_addr_current    = tracker_ctx.flash_addr_start;
-        tracker->tracker_ctx.flash_addr_end        = TRACKER_CTX_MTD_OFFSET_END;
+        tracker->tracker_ctx.flash_addr_end        = TRACKER_INTERNAL_LOG_END;
         tracker->tracker_ctx.flash_remaining_space = tracker_ctx.flash_addr_end - tracker_ctx.flash_addr_current;
         tracker_store_internal_log_ctx(tracker);
     }
@@ -120,7 +120,7 @@ uint8_t tracker_restore_internal_log_ctx(struct tracker *tracker)
     uint8_t ctx_buf[32];
     uint8_t index = 0;
 
-    lseek(tracker->lr1110.mtd_id, TRACKER_CTX_INTERNAL_LOG_MTD_OFFSET_START, SEEK_SET);
+    lseek(tracker->lr1110.mtd_id, TRACKER_INTERNAL_LOG_CTX_START, SEEK_SET);
     read(tracker->lr1110.mtd_id, ctx_buf, 32);
 
     tracker->tracker_ctx.internal_log_flush_request = false;
@@ -141,7 +141,7 @@ uint8_t tracker_restore_internal_log_ctx(struct tracker *tracker)
         tracker->tracker_ctx.flash_addr_start += (uint32_t) ctx_buf[index++] << 16;
         tracker->tracker_ctx.flash_addr_start += (uint32_t) ctx_buf[index++] << 24;
 
-        tracker->stored_ctx_start_addr = tracker->tracker_ctx.flash_addr_start;
+        tracker->internal_log_start_addr = tracker->tracker_ctx.flash_addr_start;
 
         tracker->tracker_ctx.flash_addr_end = ctx_buf[index++];
         tracker->tracker_ctx.flash_addr_end += (uint32_t) ctx_buf[index++] << 8;
@@ -169,7 +169,7 @@ void tracker_store_internal_log_ctx(struct tracker *tracker)
 
     if(tracker->tracker_ctx.internal_log_empty != FLASH_BYTE_EMPTY_CONTENT)
     {
-	ioctl(tracker->lr1110.mtd_id, IOCTL_ERASE, (char *)TRACKER_CTX_INTERNAL_LOG_MTD_OFFSET_START);
+	ioctl(tracker->lr1110.mtd_id, IOCTL_ERASE, (char *)TRACKER_INTERNAL_LOG_CTX_START);
     }
     else
     {
@@ -203,7 +203,7 @@ void tracker_store_internal_log_ctx(struct tracker *tracker)
     ctx_buf[index++] = tracker->tracker_ctx.flash_remaining_space >> 16;
     ctx_buf[index++] = tracker->tracker_ctx.flash_remaining_space >> 24;
 
-    lseek(tracker->lr1110.mtd_id, TRACKER_CTX_INTERNAL_LOG_MTD_OFFSET_START, SEEK_SET);
+    lseek(tracker->lr1110.mtd_id, TRACKER_INTERNAL_LOG_CTX_START, SEEK_SET);
     write(tracker->lr1110.mtd_id, ctx_buf, index);
 }
 
@@ -219,11 +219,11 @@ void tracker_erase_internal_log(struct tracker *tracker)
 
 	for (int i = 0; i < nb_page_to_erase; i++) {
   	    ioctl(tracker->lr1110.mtd_id, IOCTL_ERASE,
-		(char *)(tracker->stored_ctx_start_addr + i * PAGE_SIZE));
+		(char *)(tracker->internal_log_start_addr + i * PAGE_SIZE));
 	}
     }
     /* Erase ctx */
-    ioctl(tracker->lr1110.mtd_id, IOCTL_ERASE, (char *)TRACKER_CTX_INTERNAL_LOG_MTD_OFFSET_START);
+    ioctl(tracker->lr1110.mtd_id, IOCTL_ERASE, (char *)TRACKER_INTERNAL_LOG_CTX_START);
 }
 
 void tracker_reset_internal_log(struct tracker *tracker)
@@ -248,7 +248,7 @@ uint8_t tracker_restore_app_ctx(struct tracker *tracker)
 {
     uint8_t tracker_ctx_buf[255];
 
-    lseek(tracker->lr1110.mtd_id, TRACKER_CTX_MTD_OFFSET_START, SEEK_SET);
+    lseek(tracker->lr1110.mtd_id, TRACKER_APP_CTX_START, SEEK_SET);
     read(tracker->lr1110.mtd_id, tracker_ctx_buf, 255);
 
     tracker->tracker_ctx.tracker_context_empty = tracker_ctx_buf[0];
@@ -347,7 +347,7 @@ void tracker_store_app_ctx(struct tracker *tracker)
 
     if(tracker->tracker_ctx.tracker_context_empty != FLASH_BYTE_EMPTY_CONTENT)
     {
-	ioctl(tracker->lr1110.mtd_id, IOCTL_ERASE, (char *)TRACKER_CTX_MTD_OFFSET_START);
+	ioctl(tracker->lr1110.mtd_id, IOCTL_ERASE, (char *)TRACKER_APP_CTX_START);
     }
 
     /* Context exists */
@@ -424,7 +424,7 @@ void tracker_store_app_ctx(struct tracker *tracker)
     tracker_ctx_buf[tracker_ctx_buf_idx++] = tracker->tracker_ctx.modem_reset_by_itself_cnt;
     tracker_ctx_buf[tracker_ctx_buf_idx++] = tracker->tracker_ctx.modem_reset_by_itself_cnt >> 8;
 
-    lseek(tracker->lr1110.mtd_id, TRACKER_CTX_MTD_OFFSET_START, SEEK_SET);
+    lseek(tracker->lr1110.mtd_id, TRACKER_APP_CTX_START, SEEK_SET);
     write(tracker->lr1110.mtd_id, tracker_ctx_buf, tracker_ctx_buf_idx);
 }
 

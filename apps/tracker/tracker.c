@@ -13,11 +13,17 @@
 #include "modem/lr1110_modem_board.h"
 #include "modem/lr1110_modem_helper.h"
 
+/* PC0 */
 #define LED_RX_PIN	33
+/* PC1 */
 #define LED_TX_PIN	34
+/* PB5 */
 #define LED_SCAN_PIN	22
+/* PB4 */
 #define RADIO_EVENT_PIN	21
+/* PB3 */
 #define BUSY_PIN	20
+/* PA9 */
 #define ACC_IRQ_PIN	10
 
 #define SPI_DEVICE	"/dev/spi1"
@@ -34,8 +40,8 @@ uint8_t adr_custom_list[16] = { 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
 static void lr1110_init(struct tracker *tracker)
 {
 	unsigned char buffer[PAGE_SIZE / 0x10];
-	uint32_t start_addr = TRACKER_CTX_MTD_OFFSET_START;
-	uint32_t end_addr = TRACKER_CTX_MTD_OFFSET_END;
+	uint32_t start_addr = TRACKER_INTERNAL_LOG_START;
+	uint32_t end_addr = TRACKER_INTERNAL_LOG_END;
 	int nb_empty_bytes = 0;
 
 	lseek(tracker->lr1110.mtd_id, start_addr, SEEK_SET);
@@ -56,7 +62,7 @@ static void lr1110_init(struct tracker *tracker)
 	}
 
 	/* XXX: (- PAGE_SIZE) is because in any case we leave the while loop by adding PAGE_SIZE to start_addr */
-	tracker->stored_ctx_start_addr = start_addr - PAGE_SIZE;
+	tracker->internal_log_start_addr = start_addr - PAGE_SIZE;
 
 	tracker->adr_custom_list = adr_custom_list;
 	tracker->device_state = DEVICE_STATE_INIT;
