@@ -157,6 +157,20 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 
+		pwr: pwr@40007000 {
+			compatible = "st,stm32-pwr";
+			clocks = <&rcc 0 STM32L4_APB1_CLOCK(PWR)>;
+			reg = <0x40007000 0x400>;
+                        status = "okay";
+		};
+
+		lptim1: lptim@0x40007C00 {
+			compatible = "st,stm32-lptim";
+			clocks = <&rcc 0 STM32L4_APB1_CLOCK(LPTIM1)>;
+			reg = <0x40007C00 0x400>;
+                        status = "okay";
+		};
+
 		usart3: usart3@40004800 {
 			compatible = "st,stm32-usart";
 			clocks = <&rcc 0 STM32L4_APB1_CLOCK(UART3)>;

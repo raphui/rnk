@@ -2,6 +2,7 @@
 #include <utils.h>
 #include <init.h>
 #include <sizes.h>
+#include <mach/pwr-stm32.h>
 #include <armv7m/system.h>
 #include <armv7m/mpu.h>
 
@@ -31,6 +32,19 @@ void low_level_init(void)
 #else
 	writel(SCB_VTOR, FLASH_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal FLASH */
 #endif
+}
+
+void board_enter_low_power(void)
+{
+	/* XXX: Enable DBG under sleep mode */
+	*(volatile unsigned int *)0xE0042004 |= (1 << 1);
+
+	stm32_pwr_enter_lpsleep(STOP1_MODE);
+}
+
+void board_exit_low_power(void)
+{
+
 }
 
 int device_init(void)

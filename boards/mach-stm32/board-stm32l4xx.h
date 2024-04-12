@@ -19,4 +19,7 @@
  
 struct pio_operations pio_ops;
 
+void board_enter_low_power(void);
+void board_exit_low_power(void);
+
 #endif /* BOARD_STM32L4XX_H */

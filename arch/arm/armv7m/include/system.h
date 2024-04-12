@@ -4,6 +4,8 @@
 #include <utils.h>
 
 extern int systick_init(void);
+extern int systick_disable_it(void);
+extern int systick_enable_it(void);
 
 static inline void READ_AND_DISCARD(unsigned int*reg) {
     asm volatile ("" : "=m" (*reg) : "r" (*reg));
@@ -306,5 +308,22 @@ static inline void pendsv_request(void)
 	val |= SCB_ICSR_PENDSVSET;
 	writel(SCB_ICSR, val);
 }
+
+static inline void enable_deepsleep(void)
+{
+	unsigned int val = readl(SCB_SCR);
+
+	val |= SCB_SCR_SLEEPDEEP;
+	writel(SCB_SCR, val);
+}
+
+static inline void disable_deepsleep(void)
+{
+	unsigned int val = readl(SCB_SCR);
+
+	val &= ~SCB_SCR_SLEEPDEEP;
+	writel(SCB_SCR, val);
+}
+
 
 #endif /* ARMV7M_SYSTEM_H */

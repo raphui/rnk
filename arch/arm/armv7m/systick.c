@@ -14,3 +14,27 @@ int systick_init(void)
 
 	return ret;
 }
+
+int systick_disable_it(void)
+{
+	int ret = 0;
+	int val = readl(SYSTICK_CTL);
+
+	val &= ~(1 << 1);
+
+	writel(SYSTICK_CTL, val);
+
+	return ret;
+}
+
+int systick_enable_it(void)
+{
+	int ret = 0;
+	int val = readl(SYSTICK_CTL);
+
+	val &= ~(1 << 1);
+
+	writel(SYSTICK_CTL, val);
+
+	return ret;
+}
