@@ -87,6 +87,9 @@ static int stm32_i2c_write(struct i2c_device *i2cdev, unsigned char *buff, unsig
 	struct i2c_master *i2c = i2cdev->master;
 	I2C_TypeDef *I2C = (I2C_TypeDef *)i2c->base_reg;
 
+	while (I2C->ISR & I2C_ISR_BUSY)
+		;
+
 	I2C->CR2 &= ~I2C_CR2_RD_WRN;
 
 	if (size > 0xFF) {
@@ -126,6 +129,9 @@ static int stm32_i2c_write(struct i2c_device *i2cdev, unsigned char *buff, unsig
 		n_bytes_to_write--;
 	}
 
+	while (!(I2C->ISR & I2C_ISR_STOPF))
+		;
+
 	I2C->ISR |= I2C_ISR_STOPF;
 
 	return ret;
@@ -139,6 +145,9 @@ static int stm32_i2c_read(struct i2c_device *i2cdev, unsigned char *buff, unsign
 	unsigned char *p = buff;
 	struct i2c_master *i2c = i2cdev->master;
 	I2C_TypeDef *I2C = (I2C_TypeDef *)i2c->base_reg;
+
+	while (I2C->ISR & I2C_ISR_BUSY)
+		;
 
 	I2C->CR2 |= I2C_CR2_RD_WRN;
 
@@ -181,6 +190,9 @@ static int stm32_i2c_read(struct i2c_device *i2cdev, unsigned char *buff, unsign
 		n_bytes_to_read--;
 	}
 
+	while (!(I2C->ISR & I2C_ISR_STOPF))
+		;
+
 	I2C->ISR |= I2C_ISR_STOPF;
 
 	return ret;
@@ -195,9 +207,10 @@ static int stm32_i2c_transfer(struct i2c_device *i2cdev, struct i2c_msg *msg, in
 	struct i2c_master *i2c = i2cdev->master;
 	I2C_TypeDef *I2C = (I2C_TypeDef *)i2c->base_reg;
 
+	while (I2C->ISR & I2C_ISR_BUSY)
+		;
 
 	if (direction == I2C_TRANSFER_READ) {
-		I2C->CR2 &= ~(I2C_CR2_NBYTES | I2C_CR2_RD_WRN | I2C_CR2_AUTOEND);
 		stm32_i2c_set_transfer_size(i2cdev, 0x1);
 		I2C->CR2 |= I2C_CR2_START;
 
@@ -245,14 +258,13 @@ static int stm32_i2c_transfer(struct i2c_device *i2cdev, struct i2c_msg *msg, in
 		}
 
 	} else if (direction == I2C_TRANSFER_WRITE) {
-		I2C->CR2 &= ~(I2C_CR2_NBYTES | I2C_CR2_RD_WRN);
 		I2C->CR2 |= I2C_CR2_RELOAD;
 		stm32_i2c_set_transfer_size(i2cdev, 0x1);
 		I2C->CR2 |= I2C_CR2_START;
 
 		stm32_i2c_write_reg(i2cdev, msg->reg);
 
-		I2C->CR2 &= ~(I2C_CR2_START | I2C_CR2_STOP);
+		I2C->CR2 &= ~(I2C_CR2_START | I2C_CR2_STOP | I2C_CR2_RELOAD);
 
 		if (msg->size > 0xFF) {
 			stm32_i2c_set_transfer_size(i2cdev, 0xFF);
@@ -296,7 +308,12 @@ static int stm32_i2c_transfer(struct i2c_device *i2cdev, struct i2c_msg *msg, in
 		goto err;
 	}
 
+	while (!(I2C->ISR & I2C_ISR_STOPF))
+		;
+
 	I2C->ISR |= I2C_ISR_STOPF;
+
+	I2C->CR2 = 0x0;
 
 err:
 	return ret;

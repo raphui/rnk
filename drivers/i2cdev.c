@@ -37,7 +37,7 @@ static int i2cdev_write(struct device *dev, unsigned char *buff, unsigned int si
 	priv->curr_msg.buff = buff;
 	priv->curr_msg.size = size;
 
-	ret = i2c_transfer(i2c, &priv->curr_msg, I2C_TRANSFER_READ);
+	ret = i2c_transfer(i2c, &priv->curr_msg, I2C_TRANSFER_WRITE);
 
 	return ret;
 }
