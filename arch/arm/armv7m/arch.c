@@ -3,6 +3,7 @@
 #include <armv7m/vector.h>
 #include <armv7m/nvic.h>
 #include <drv/clk.h>
+#include <board.h>
 #include <stddef.h>
 
 extern void __svc(void);
@@ -28,6 +29,10 @@ void arch_init(void)
 
 	entry.isr = (void *)systick_handler;
 	vector_set_isr_entry(&entry, systick_irq);
+
+#ifdef CONFIG_LOW_POWER
+	enable_deepsleep();
+#endif
 }
 
 void arch_init_tick(void)
@@ -38,11 +43,17 @@ void arch_init_tick(void)
 void arch_idle(void)
 {
 	__disable_it();
-
+#ifdef CONFIG_LOW_POWER
+	systick_disable_it();
+	board_enter_low_power();
+#endif
 	__dsb();
 	wait_for_interrupt();
 	__isb();
-
+#ifdef CONFIG_LOW_POWER
+	systick_enable_it();
+	board_exit_low_power();
+#endif
 	__enable_it();
 	__dsb();
 	__isb();

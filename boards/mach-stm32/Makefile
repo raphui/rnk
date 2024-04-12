@@ -18,4 +18,6 @@ obj-$(CONFIG_IRQ_SUBSYS) += exti-stm32.o
 obj-y += flash-stm32.o
 obj-$(CONFIG_STM32F4XX) += flash-stm32f4xx.o
 obj-$(CONFIG_STM32L4XX) += flash-stm32l4xx.o
+obj-$(CONFIG_STM32L4XX) += pwr-stm32.o
+#obj-$(CONFIG_STM32L4XX) += lptim-stm32.o
 obj-$(CONFIG_USB_SUBSYS) += usb-stm32.o
