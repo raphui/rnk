@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <gpiolib.h>
 #include <drv/mtd.h>
+#include <semaphore.h>
 
 #include "../lis2de12.h"
 #include "lr1110_modem_lorawan.h"
@@ -113,6 +114,8 @@ typedef struct
  */
 typedef struct lr1110_s
 {
+    sem_t radio_event_sem;
+    sem_t event_processed_sem;
     timer_t reset_timeout_timer;
     timer_t gnss_scan_timeout_timer;
     timer_t wifi_scan_timeout_timer;
@@ -161,6 +164,6 @@ void radio_event_callback(void* obj);
  * @param [in] context Radio abstraction
  *
  */
-void lr1110_modem_event_process(struct tracker *tracker, const void* context);
+void lr1110_modem_event_process(void *arg);
 
 #endif /* LR1110_H */

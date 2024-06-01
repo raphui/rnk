@@ -216,12 +216,6 @@ wifi_scan_result_t wifi_execute_scan(struct tracker *tracker, const void* contex
 
     while((wifi_scan_done != true) && (wifi_scan_timeout != true))
     {
-        /* Process Event */
-        if(((lr1110_t*) context)->radio_event->irq.handler != NULL)
-        {
-            lr1110_modem_event_process(tracker, context);
-        }
-
         switch(wifi_state)
         {
         case WIFI_INIT:
@@ -319,14 +313,7 @@ wifi_scan_result_t wifi_execute_scan(struct tracker *tracker, const void* contex
 
         case WIFI_WAIT_FOR_SCAN:
         {
-            /* go in low power */
-            if(lr1110_modem_board_read_event_line(context) == false)
-            {
-//FIXME
-#if 0
-                hal_mcu_low_power_handler();
-#endif
-            }
+	    sem_wait(&tracker->lr1110.event_processed_sem);
             break;
         }
         }

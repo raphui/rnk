@@ -72,6 +72,9 @@ static void lr1110_init(struct tracker *tracker)
 	tracker->lr1110.radio_event = gpiolib_export(RADIO_EVENT_PIN);
 	tracker->lr1110.busy = gpiolib_export(BUSY_PIN);
 	tracker->lr1110.acc_irq = gpiolib_export(ACC_IRQ_PIN);
+	sem_init(&tracker->lr1110.radio_event_sem, 1);
+	sem_init(&tracker->lr1110.event_processed_sem, 1);
+	sem_init(&tracker->timer_sem, 1);
 
 	gpiolib_set_output(tracker->lr1110.led_rx, 0);
 	gpiolib_set_output(tracker->lr1110.led_tx, 0);
@@ -100,12 +103,16 @@ static void lr1110_init(struct tracker *tracker)
 	tracker->lr1110_modem_event_callback.new_link_adr = lr1110_modem_new_link_adr;
 	tracker->lr1110_modem_event_callback.no_event = lr1110_modem_no_event;
 
+	pthread_create(&tracker->event_thread, lr1110_modem_event_process, tracker, 1);
+
 	accelerometer_init(tracker, 1);
 }
 
 void radio_event_callback(void* obj)
 {
-	return;
+	struct tracker *tracker = (struct tracker *)obj;
+
+	sem_post(&tracker->lr1110.radio_event_sem);
 }
 
 void radio_event_init(struct tracker *tracker, lr1110_modem_event_callback_t* event)
@@ -113,13 +120,17 @@ void radio_event_init(struct tracker *tracker, lr1110_modem_event_callback_t* ev
 	return;
 }
 
-void lr1110_modem_event_process(struct tracker *tracker, const void* context)
+void lr1110_modem_event_process(void *arg)
 {
+	struct tracker *tracker = (struct tracker *)arg;
+	void *context = (void *)&tracker->lr1110;
 	lr1110_modem_helper_status_t modem_response_code = LR1110_MODEM_HELPER_STATUS_OK;
         lr1110_modem_event_t modem_event;
 	lr1110_modem_event_callback_t *lr1110_modem_event_callback = &tracker->lr1110_modem_event_callback;
 
-	if (lr1110_modem_board_read_event_line(context) == 1) {
+	while (1) {
+		sem_wait(&tracker->lr1110.radio_event_sem);
+
 		do {
 			modem_response_code = lr1110_modem_helper_get_event_data(context, &modem_event);
 
@@ -215,10 +226,13 @@ void lr1110_modem_event_process(struct tracker *tracker, const void* context)
 				default:
 					break;
 				}
+
 			} else {
 				HAL_DBG_TRACE_ERROR("lr1110_modem_helper_get_event_data RC = %d\r\n\r\n", modem_response_code);
 			}
 		} while ((lr1110_modem_board_read_event_line(context) == 1) && (modem_response_code == LR1110_MODEM_HELPER_STATUS_OK));
+
+		sem_post(&tracker->lr1110.event_processed_sem);
 	}
 }
 
@@ -273,7 +287,6 @@ int main(void)
 
 	lr1110_init(tracker);
 
-#if 1
 	if (lr1110_modem_board_init(tracker, &tracker->lr1110, &lr1110_modem_event_callback) != LR1110_MODEM_RESPONSE_CODE_OK)
 	{
 		HAL_DBG_TRACE_ERROR("###### ===== LR1110 BOARD INIT FAIL ==== ######\r\n\r\n");
@@ -357,11 +370,9 @@ int main(void)
 	tracker->tracker_ctx.reset_cnt_sent             = false;
 	tracker->tracker_ctx.system_sanity_check        = (tracker_system_sanity_check_mask_t) 0;
 
-	while(1) {
+	while (1) {
 		/* Process Event */
-		if (tracker->lr1110.radio_event->irq.handler != NULL) {
-			lr1110_modem_event_process(tracker, &tracker->lr1110);
-		}
+		//sem_wait(&tracker->lr1110.event_processed_sem);
 
 		switch (tracker->device_state)
 		{
@@ -545,13 +556,7 @@ int main(void)
 
 			break;
 		case DEVICE_STATE_SLEEP:
-			/* go in low power */
-			if (lr1110_modem_board_read_event_line(&tracker->lr1110) == false) {
-//FIXME
-#if 0
-				hal_mcu_low_power_handler();
-#endif
-			}
+			sem_wait(&tracker->lr1110.event_processed_sem);
 
 			/* Wake up from static mode thanks the accelerometer ? */
 			if ((get_accelerometer_irq1_state(tracker) == true) && (tracker_app_is_tracker_in_static_mode(tracker) == true)) {
@@ -569,19 +574,6 @@ int main(void)
 			break;
 		}
 	}
-
-
-#else
-	while (1) {
-		time_usleep(1000000);
-
-		gpiolib_output_set_value(tracker->lr1110.led_rx, 1);
-
-		time_usleep(1000000);
-
-		gpiolib_output_set_value(tracker->lr1110.led_rx, 0);
-	}
-#endif
 
 err_close:
 	close(tracker->lr1110.spi_id);

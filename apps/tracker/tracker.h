@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <semaphore.h>
+#include <pthread.h>
 
 #include "cmath.h"
 #include "tracker_utility.h"
@@ -266,6 +268,8 @@ struct tracker {
 	lr1110_modem_event_callback_t lr1110_modem_event_callback;
 	tracker_ctx_t tracker_ctx;
 	unsigned int internal_log_start_addr;
+	sem_t timer_sem;
+	pthread_t event_thread;
 };
 
 #endif /* TRACKER_H */

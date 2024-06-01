@@ -267,6 +267,7 @@ lr1110_modem_hal_status_t lr1110_modem_hal_read(const void* context, const uint8
 
 lr1110_modem_hal_status_t lr1110_modem_hal_reset(struct tracker *tracker, const void* context)
 {
+    int ret = 0;
     lr1110_modem_board_set_ready(false);
     
 
@@ -275,13 +276,9 @@ lr1110_modem_hal_status_t lr1110_modem_hal_reset(struct tracker *tracker, const 
 
     ioctl(((lr1110_t *)context)->spi_id, IOCTL_RESET, NULL);
 
-    /* wait for reset event */
-    while((lr1110_modem_board_is_ready() == false) && (lr1110_modem_reset_timeout == false))
-    {
-        lr1110_modem_event_process(tracker, context);
-    }
+    ret = sem_timedwait(&tracker->lr1110.event_processed_sem, LR1110_MODEM_RESET_TIMEOUT);;
 
-    if(lr1110_modem_reset_timeout == true)
+    if(ret < 0)
     {
         return LR1110_MODEM_HAL_STATUS_ERROR;
     }

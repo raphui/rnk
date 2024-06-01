@@ -216,12 +216,6 @@ gnss_scan_result_t gnss_scan_execute(struct tracker *tracker, const void* contex
 
     while((gnss_scan_done != true) && (gnss_scan_timeout != true))
     {
-        /* Process Event */
-        if(((lr1110_t*) context)->radio_event->irq.handler != NULL)
-        {
-            lr1110_modem_event_process(tracker, context);
-        }
-
         switch(gnss_state)
         {
         case GNSS_START_SCAN:
@@ -292,14 +286,8 @@ gnss_scan_result_t gnss_scan_execute(struct tracker *tracker, const void* contex
 
         case GNSS_LOW_POWER:
         {
-            /* go in low power */
-            if(lr1110_modem_board_read_event_line(context) == false)
-            {
-// FIXME
-#if 0
-                hal_mcu_low_power_handler();
-#endif
-            }
+	    sem_wait(&tracker->lr1110.event_processed_sem);
+
             break;
         }
         }
