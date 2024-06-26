@@ -9,3 +9,5 @@ obj-$(CONFIG_QUEUE) += mqueue.o
 obj-y += gpiolib.o
 obj-$(CONFIG_CPU_ARM) += syscall_arm.o
 obj-y += time.o
+obj-y += qfplib.o
+obj-y += cmath.o

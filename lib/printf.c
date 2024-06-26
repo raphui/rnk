@@ -52,7 +52,7 @@
 #define PRINTF_FTOA_BUFFER_SIZE    32U
 
 // define this to support floating point (%f)
-//#define PRINTF_SUPPORT_FLOAT
+#define PRINTF_SUPPORT_FLOAT
 
 // define this to support long long types (%llu or %p)
 //#define PRINTF_SUPPORT_LONG_LONG
