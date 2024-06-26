@@ -36,6 +36,7 @@
 
 #include <time.h>
 #include <string.h>
+#include <gpiolib.h>
 
 #include "tracker.h"
 #include "gnss_scan.h"
@@ -118,7 +119,7 @@ static uint16_t gnss_scan_result_buffer_size;
 /*!
  * @brief GNSS scan type parameter
  */
-static uint8_t scan_type = ASSISTED_MODE;
+static uint8_t scan_type = AUTONOMOUS_MODE;
 
 /*!
  * @brief GNSS scan timeout flag
@@ -224,10 +225,10 @@ gnss_scan_result_t gnss_scan_execute(struct tracker *tracker, const void* contex
 #if 0
             /* Turn on the scan led during the scan */
             leds_on(LED_SCAN_MASK);
+#endif
 
             /* Switch on the LNA */
-            lr1110_modem_board_lna_on();
-#endif
+	    //gpiolib_output_set_value(tracker->lr1110.lna, 1);
 
             if(scan_type == AUTONOMOUS_MODE)
             {
@@ -293,11 +294,11 @@ gnss_scan_result_t gnss_scan_execute(struct tracker *tracker, const void* contex
         }
     }
 
+    /* Switch off the LNA */
+    //gpiolib_output_set_value(tracker->lr1110.lna, 0);
+
 // FIXME
 #if 0
-    /* Switch off the LNA */
-    lr1110_modem_board_lna_off();
-
     /* Turn off the scan led at the end of the scan */
     leds_off(LED_SCAN_MASK);
 #endif

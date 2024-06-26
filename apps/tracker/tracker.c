@@ -25,6 +25,11 @@
 #define BUSY_PIN	20
 /* PA9 */
 #define ACC_IRQ_PIN	10
+/* PB0 */
+#define LNA_PIN		17
+
+/* PC13 */
+#define USER_BUTTON_PIN	46
 
 #define SPI_DEVICE	"/dev/spi1"
 #define MTD_DEVICE	"/dev/mtd1"
@@ -37,7 +42,7 @@ extern void print_lorawan_keys(const uint8_t* dev_eui, const uint8_t* join_eui, 
 uint8_t adr_custom_list[16] = { 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x01, 0x01, 0x01 };
 
-static void lr1110_init(struct tracker *tracker)
+static void lr1110_modem_init(struct tracker *tracker)
 {
 	unsigned char buffer[PAGE_SIZE / 0x10];
 	uint32_t start_addr = TRACKER_INTERNAL_LOG_START;
@@ -72,6 +77,8 @@ static void lr1110_init(struct tracker *tracker)
 	tracker->lr1110.radio_event = gpiolib_export(RADIO_EVENT_PIN);
 	tracker->lr1110.busy = gpiolib_export(BUSY_PIN);
 	tracker->lr1110.acc_irq = gpiolib_export(ACC_IRQ_PIN);
+	//tracker->lr1110.lna = gpiolib_export(LNA_PIN);
+
 	sem_init(&tracker->lr1110.radio_event_sem, 1);
 	sem_init(&tracker->lr1110.event_processed_sem, 1);
 	sem_init(&tracker->timer_sem, 1);
@@ -79,12 +86,13 @@ static void lr1110_init(struct tracker *tracker)
 	gpiolib_set_output(tracker->lr1110.led_rx, 0);
 	gpiolib_set_output(tracker->lr1110.led_tx, 0);
 	gpiolib_set_output(tracker->lr1110.led_scan, 0);
+	//gpiolib_set_output(tracker->lr1110.lna, 0);
 	gpiolib_set_input(tracker->lr1110.radio_event);
 	gpiolib_set_input(tracker->lr1110.busy);
 	gpiolib_set_input(tracker->lr1110.acc_irq);
 
-	gpiolib_request_irq(tracker->lr1110.radio_event, radio_event_callback, IRQF_RISING, &tracker->lr1110);
-	gpiolib_request_irq(tracker->lr1110.acc_irq, lis2de12_int1_irq_handler, IRQF_RISING, &tracker->lr1110);
+	gpiolib_request_irq(tracker->lr1110.radio_event, radio_event_callback, IRQF_RISING, tracker);
+	gpiolib_request_irq(tracker->lr1110.acc_irq, lis2de12_int1_irq_handler, IRQF_RISING, tracker);
 
 	/* Init LR1110 modem-e event */
 	memset(&tracker->lr1110_modem_event_callback, 0, sizeof(lr1110_modem_event_callback_t));
@@ -106,6 +114,12 @@ static void lr1110_init(struct tracker *tracker)
 	pthread_create(&tracker->event_thread, lr1110_modem_event_process, tracker, 1);
 
 	accelerometer_init(tracker, 1);
+
+#if 0
+	while (1) {
+		printf("accelerometer: %d\n", is_accelerometer_detected_moved(tracker) ? 1 : 0);
+	}
+#endif
 }
 
 void radio_event_callback(void* obj)
@@ -136,6 +150,7 @@ void lr1110_modem_event_process(void *arg)
 
 			if (modem_response_code == LR1110_MODEM_HELPER_STATUS_OK) {
 				
+				printf("%s: modem_event.event_type = %d\n", __func__, modem_event.event_type);
 				switch(modem_event.event_type)
 				{
 				case LR1110_MODEM_LORAWAN_EVENT_RESET:
@@ -285,7 +300,7 @@ int main(void)
 
 	lr1110_modem_board_init_io(&tracker->lr1110);
 
-	lr1110_init(tracker);
+	lr1110_modem_init(tracker);
 
 	if (lr1110_modem_board_init(tracker, &tracker->lr1110, &lr1110_modem_event_callback) != LR1110_MODEM_RESPONSE_CODE_OK)
 	{
@@ -401,6 +416,7 @@ int main(void)
 			if (tracker->tracker_ctx.stream_done == true) {
 				tracker->tracker_ctx.accelerometer_move_history =
 					(tracker->tracker_ctx.accelerometer_move_history << 1) + is_accelerometer_detected_moved(tracker);
+				printf("tracker->tracker_ctx.accelerometer_move_history: 0x%x\n", tracker->tracker_ctx.accelerometer_move_history);
 			}
 
 			/* Check if scan can be launched */
@@ -456,7 +472,8 @@ int main(void)
 				HAL_DBG_TRACE_PRINTF("Move history : %d\r\n", tracker->tracker_ctx.accelerometer_move_history);
 
 				/* Temperature */
-				tracker->tracker_ctx.temperature = hal_mcu_get_temperature() * 100;
+				//tracker->tracker_ctx.temperature = hal_mcu_get_temperature() * 100;
+				tracker->tracker_ctx.temperature = acc_get_temperature(tracker) * 100;
 				HAL_DBG_TRACE_PRINTF("Temperature : %d *C\r\n", tracker->tracker_ctx.temperature / 100);
 
 				/* Modem charge */
@@ -806,6 +823,7 @@ bool tracker_app_start_scan(struct tracker *tracker, const tracker_scan_priority
 
 				tracker->tracker_ctx.last_nb_detected_mac_address = tracker->tracker_ctx.wifi_result.nbr_results;
 			} else {
+				gpiolib_set_output(tracker->lr1110.led_tx, 1);
 				HAL_DBG_TRACE_PRINTF("GNSS scan good enough, drop Wi-Fi scan\r\n");
 			}
 		}
@@ -1177,20 +1195,18 @@ void tracker_app_parse_downlink_frame(struct tracker *tracker, uint8_t port, con
 
 				break;
 			case SET_RX_LED_CMD:
+				HAL_DBG_TRACE_INFO("###### ===== SET RX LED MSG ==== ######\r\n\r\n");
 				/* Wait the end of the rx led timer */
 				time_usleep(30 * 1000);
 
-//FIXME
-#if 0
 				if (payload[payload_index] == 1)
 				{
-					leds_on(LED_RX_MASK);
+					gpiolib_set_output(tracker->lr1110.led_rx, 1);
 				}
 				if (payload[payload_index] == 2)
 				{
-					leds_off(LED_RX_MASK);
+					gpiolib_set_output(tracker->lr1110.led_rx, 0);
 				}
-#endif
 
 				payload_index += len;
 				break;

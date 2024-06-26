@@ -135,6 +135,8 @@ uint8_t accelerometer_init( struct tracker *tracker, uint8_t irq_active )
 
     lis2de12_int1_gen_duration_set( tracker, 3 );
 
+    lis2de12_temperature_meas_set(tracker, LIS2DE12_TEMP_ENABLE);
+
     if( irq_active & 0x01 )
     {
         accelerometer_irq1_init( tracker );
@@ -2459,5 +2461,7 @@ void lis2de12_int1_irq_handler( void* obj )
 {
 	struct tracker *tracker = (struct tracker *)obj;
 
+	printf("!");
 	tracker->lr1110.accelerometer_irq1_state = true;
+	sem_post(&tracker->lr1110.event_processed_sem);
 }

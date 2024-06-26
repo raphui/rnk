@@ -454,15 +454,15 @@ void tracker_init_app_ctx(struct tracker *tracker, uint8_t* dev_eui, uint8_t* jo
     tracker->tracker_ctx.gnss_settings.constellation_to_use = LR1110_MODEM_GNSS_GPS_MASK | LR1110_MODEM_GNSS_BEIDOU_MASK;
     tracker->tracker_ctx.gnss_settings.scan_type            = ASSISTED_MODE;
     tracker->tracker_ctx.gnss_settings.search_mode          = LR1110_MODEM_GNSS_OPTION_BEST_EFFORT;
-    /* Set default position to Semtech France */
-    tracker->tracker_ctx.gnss_settings.assistance_position.latitude  = 45.208;
-    tracker->tracker_ctx.gnss_settings.assistance_position.longitude = 5.781;
+    /* Set default position to Camberley UK */
+    tracker->tracker_ctx.gnss_settings.assistance_position.latitude  = 51.335;
+    tracker->tracker_ctx.gnss_settings.assistance_position.longitude = 0.74;
     tracker->tracker_ctx.scan_priority                               = TRACKER_GNSS_PRIORITY;
 
     /* Wi-Fi Parameters */
     tracker->tracker_ctx.wifi_settings.enabled       = true;
-    tracker->tracker_ctx.wifi_settings.channels      = 0x421;  // by default enable 1/6/1 channels
-    tracker->tracker_ctx.wifi_settings.types         = LR1110_MODEM_WIFI_TYPE_SCAN_B;
+    tracker->tracker_ctx.wifi_settings.channels      = 0x1FFF;//0x421;  // by default enable 1/6/1 channels
+    tracker->tracker_ctx.wifi_settings.types         = LR1110_MODEM_WIFI_TYPE_SCAN_B_G_N;//LR1110_MODEM_WIFI_TYPE_SCAN_B;
     tracker->tracker_ctx.wifi_settings.scan_mode     = LR1110_MODEM_WIFI_SCAN_MODE_BEACON_AND_PKT;
     tracker->tracker_ctx.wifi_settings.nbr_retrials  = WIFI_NBR_RETRIALS_DEFAULT;
     tracker->tracker_ctx.wifi_settings.max_results   = WIFI_MAX_RESULTS_DEFAULT;

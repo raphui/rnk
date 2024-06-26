@@ -14,7 +14,7 @@
 /*!
  * @brief Use or not the Semtech join server
  */
-#define USE_SEMTECH_JOIN_SERVER 1
+#define USE_SEMTECH_JOIN_SERVER 0
 
 /*!
  * @brief Use or not the LoRaWAN production Keys. If not, keys are described below
@@ -53,7 +53,7 @@
  */
 #define LORAWAN_APP_KEY                                                                                \
     {                                                                                                  \
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
+        0x6D, 0x48, 0x36, 0x15, 0x03, 0x7B, 0xCF, 0xD4, 0x54, 0x9B, 0x3C, 0x36, 0xD9, 0xDB, 0x8A, 0x97 \
     }
 #define LORAWAN_APP_KEY_LEN 16
 
