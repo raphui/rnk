@@ -46,6 +46,7 @@ ifeq (${MAKELEVEL}, 1)
 .PHONY: all clean
 
 all:
+	$(PREFIX)ln -f -s $(KERNEL_BASE)/arch/arm/include $(KERNEL_BASE)/include/arch
 	$(PREFIX)-rm -f objects.lst
 	$(PREFIX)-rm -f extra_objects.lst
 	$(PREFIX)$(MAKE) --no-print-directory -f Makefile.common dir=$(dir) all
@@ -59,6 +60,7 @@ endif
 include $(wildcard *.d)
  
 clean:
+	$(PREFIX)$(RM) -rf $(KERNEL_BASE)/include/arch
 	$(PREFIX)$(MAKE) --no-print-directory -f Makefile.common dir=$(APPS_BASE) $@
  
 endif
