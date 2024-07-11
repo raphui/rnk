@@ -9,6 +9,10 @@
 #define GPIO_MODE_OUTPUT	0
 #define GPIO_MODE_INPUT		1
 
+#define GPIO_NO_PULL	0
+#define GPIO_PULL_UP	1
+#define GPIO_PULL_DOWN	2
+
 struct pio_operations
 {
 	void (*set_output)(unsigned int port, unsigned int mask, int pull_up);
@@ -44,6 +48,7 @@ struct pio_desc {
 	unsigned int port;
 	unsigned int mode;
 	unsigned int state;
+	unsigned int pull_up;
 	struct pio_irq irq;
 };
 
