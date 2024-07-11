@@ -12,7 +12,7 @@
 #define GPIO_MODER_OUTPUT(pin)		(1 << (pin * 2))
 #define GPIO_MODER_ALTERNATE(pin)	(2 << (pin * 2))
 #define GPIO_OSPEEDR(pin)		(3 << (pin * 2))
-#define GPIO_PUPDR_PULLUP(pin)		(1 << (pin * 2))
+#define GPIO_PUPDR_PULLUP(pin, x)	(x << (pin * 2))
 
 #define GPIO_OUTPUT_TYPE_PP	0
 #define GPIO_OUTPUT_TYPE_OD	1
@@ -35,24 +35,19 @@ static void stm32_pio_set_pull_up(unsigned int port, unsigned int mask, int pull
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 
-	if (pull_up)
-		base->PUPDR |= GPIO_PUPDR_PULLUP(mask);
-	else
-		base->PUPDR &= ~(GPIO_PUPDR_PULLUP(mask));
+	base->PUPDR &= ~(GPIO_PUPDR_PULLUP(mask, 3));
+	base->PUPDR |= GPIO_PUPDR_PULLUP(mask, pull_up);
 }
 
 void stm32_pio_set_output(unsigned int port, unsigned int mask, int pull_up)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
 
+	stm32_pio_set_pull_up(port, mask, pull_up);
+
 	base->MODER &= ~GPIO_MODER(mask);
 	base->MODER |= GPIO_MODER_OUTPUT(mask);
 	base->OSPEEDR |= GPIO_OSPEEDR(mask);
-
-	if (pull_up)
-		base->PUPDR |= GPIO_PUPDR_PULLUP(mask);
-	else
-		base->PUPDR &= ~(GPIO_PUPDR_PULLUP(mask));
 }
 
 static void stm32_pio_set_output_type(unsigned int port, unsigned int mask, int type)
@@ -69,13 +64,10 @@ static void stm32_pio_set_output_type(unsigned int port, unsigned int mask, int 
 void stm32_pio_set_input(unsigned int port, unsigned int mask, int pull_up, int filter)
 {
 	GPIO_TypeDef *base = (GPIO_TypeDef *)port;
+
+	stm32_pio_set_pull_up(port, mask, pull_up);
+
 	base->MODER &= ~(GPIO_MODER(mask));
-
-	if (pull_up)
-		base->PUPDR |= GPIO_PUPDR_PULLUP(mask);
-	else
-		base->PUPDR &= ~(GPIO_PUPDR_PULLUP(mask));
-
 }
 
 void stm32_pio_set_analog(unsigned int port, unsigned int mask)
@@ -257,6 +249,14 @@ int stm32_pio_export(unsigned int pin_num, unsigned int *port, unsigned int *pin
 
 	*port = pin_num / PIN_PER_PORT;
 
+	/* XXX: If pin_num is the last pin on the port, we need to substract 1 to the result
+	 * Example: PIN_PER_PORT = 16  and pin_num = 16 on port GPIOA
+	 * pin_num / PIN_PER_PORT = 16 / 16 = 1 but 1 means GPIOB not GPIOA !
+	 */
+	if (pin_num == PIN_PER_PORT) {
+		*port -= 1;
+	}
+
 	if (*port > PORT_NUM)
 		return -EINVAL;
 
@@ -268,7 +268,7 @@ int stm32_pio_export(unsigned int pin_num, unsigned int *port, unsigned int *pin
 	if (v)
 		*pin = v - 1;
 	else
-		*pin = PIN_PER_PORT;
+		*pin = PIN_PER_PORT - 1;
 
 	return 0;
 }
