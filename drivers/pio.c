@@ -81,7 +81,7 @@ int pio_set_state(struct pio_desc *desc)
 		return -EINVAL;
 
 	if (desc->mode == GPIO_MODE_OUTPUT) {
-		pio_set_output(desc->port, desc->pin, 0);
+		pio_set_output(desc->port, desc->pin, desc->pull_up);
 
 		if (desc->state)
 			pio_set_value(desc->port, desc->pin);
@@ -89,7 +89,7 @@ int pio_set_state(struct pio_desc *desc)
 			pio_clear_value(desc->port, desc->pin);
 	}
 	else if (desc->mode == GPIO_MODE_INPUT)
-		pio_set_input(desc->port, desc->pin, 0, 0);
+		pio_set_input(desc->port, desc->pin, desc->pull_up, 0);
 	else
 		ret = -EINVAL;
 
@@ -128,6 +128,7 @@ int pio_export(unsigned int pin, struct pio_desc *desc)
 
 	desc->pin = gpio;
 	desc->port = port;
+	desc->pull_up = GPIO_NO_PULL;
 
 	return 0;
 }
