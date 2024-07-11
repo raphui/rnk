@@ -23,6 +23,21 @@ struct pio_desc *gpiolib_export(unsigned int gpio_num)
 }
 EXPORT_SYMBOL(gpiolib_export);
 
+int gpiolib_set_pull_up(struct pio_desc *desc, int value)
+{
+	int ret = 0;
+
+	if (!desc)
+		return -EINVAL;
+
+	desc->pull_up = value;
+
+	ret = syscall(SYSCALL_PIO_SET_STATE, desc);
+
+	return ret;
+}
+EXPORT_SYMBOL(gpiolib_set_pull_up);
+
 int gpiolib_set_output(struct pio_desc *desc, int gpio_value)
 {
 	int ret = 0;
