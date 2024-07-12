@@ -7,6 +7,8 @@
 #ifdef CONFIG_TLSF
 tlsf_t tlsf_mem_kernel_pool;
 tlsf_t tlsf_mem_user_pool;
+int k_mem_alloc = 0;
+int mem_alloc = 0;
 #endif /* CONFIG_TLSF */
 
 #ifdef CONFIG_CUSTOM_MALLOC
@@ -112,6 +114,12 @@ static void alloc(size_t size, unsigned int *m)
 		mem_alloc += size;
 #elif defined(CONFIG_TLSF)
 	mem = tlsf_malloc(pool, size);
+	if (mem) {
+		if (pool == tlsf_mem_kernel_pool)
+			k_mem_alloc += size;
+		else if (pool == tlsf_mem_user_pool)
+			mem_alloc += size;
+	}
 #endif
 	*m = (unsigned int)mem;
 }
