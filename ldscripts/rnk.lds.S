@@ -2,6 +2,9 @@
 
 MEMORY
 {
+#ifdef CONFIG_LR1110_UPDATE_APP
+    flash(rx)  : ORIGIN = 0x08000000, LENGTH = 0x00040000
+#endif
     rom (rx)  : ORIGIN = CONFIG_TEXT_BASE, LENGTH = CONFIG_TEXT_SIZE
     ram (rwx) : ORIGIN = CONFIG_RAM_BASE + CONFIG_STACK_SIZE, LENGTH = CONFIG_RAM_SIZE - CONFIG_STACK_SIZE
 }
@@ -11,6 +14,12 @@ _eram = CONFIG_RAM_BASE + CONFIG_RAM_SIZE;
 /* Section Definitions */
 SECTIONS
 {
+#ifdef CONFIG_LR1110_UPDATE_APP
+    .blob :
+    {
+        *(.blob)
+    } > flash
+#endif
     .text :
     {
         _text = .;
