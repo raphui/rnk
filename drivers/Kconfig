@@ -9,6 +9,10 @@ config LCD_SUBSYS
 config I2C_SUBSYS
 	bool "I2C subsystem driver"
 
+config I2CDEV
+	depends on I2C_SUBSYS
+	bool "I2CDEV driver"
+
 config SPI_SUBSYS
 	bool "SPI subsystem driver"
 

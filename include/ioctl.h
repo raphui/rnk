@@ -9,5 +9,6 @@
 #define IOCTL_SPI_CLEAR_NSS	1245
 #define IOCTL_ERASE		1246
 #define IOCTL_SET_ADDRESS	1247
+#define IOCTL_I2C_REG		1248
 
 #endif /* IOCTL_H */

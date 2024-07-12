@@ -3,6 +3,7 @@
 #include <mm/mm.h>
 #include <errno.h>
 #include <string.h>
+#include <ioctl.h>
 #include <utils.h>
 #include <init.h>
 #include <fdtparse.h>
@@ -19,11 +20,7 @@ static int i2c_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("writing from i2c !\n");
 
-	kmutex_lock(&i2c->master->i2c_mutex);
-
 	ret = i2c->master->i2c_ops->write(i2c, buff, size);
-
-	kmutex_unlock(&i2c->master->i2c_mutex);
 
 	return ret;
 }
@@ -35,33 +32,35 @@ static int i2c_read(struct device *dev, unsigned char *buff, unsigned int size)
 
 	verbose_printk("reading from i2c !\n");
 
-	kmutex_lock(&i2c->master->i2c_mutex);
-
 	ret = i2c->master->i2c_ops->read(i2c, buff, size);
-
-	kmutex_unlock(&i2c->master->i2c_mutex);
 
 	return ret;
 }
 
-int i2c_transfer(struct i2c_device *i2c, unsigned char *buff, unsigned int size, int direction)
+static int i2c_ioctl(struct device *dev, int request, char *arg)
+{
+	int ret;
+	struct i2c_device *i2c = container_of(dev, struct i2c_device, dev);
+
+	switch (request) {
+	case IOCTL_SET_ADDRESS:
+		ret = i2c->master->i2c_ops->ioctl(i2c, request, arg);
+		break;
+	
+	default:
+		ret = -EINVAL;
+	}
+
+	return ret;
+}
+
+int i2c_transfer(struct i2c_device *i2c, struct i2c_msg *msg, int direction)
 {
 	int ret = 0;
 
 	verbose_printk("i2c %s transfer\n", (direction == I2C_TRANSFER_READ) ? "read" : "write");
 
-	kmutex_lock(&i2c->master->i2c_mutex);
-
-	if (direction == I2C_TRANSFER_READ)
-		ret = i2c_read(&i2c->dev, buff, size);
-	else if (direction == I2C_TRANSFER_WRITE)
-		ret = i2c_write(&i2c->dev, buff, size);
-	else {
-		error_printk("invalid i2c transfer direction\n");
-		ret = -EINVAL;
-	}
-
-	kmutex_unlock(&i2c->master->i2c_mutex);
+	ret = i2c->master->i2c_ops->transfer(i2c, msg, direction);
 
 	return ret;
 }
@@ -85,21 +84,18 @@ struct i2c_device *i2c_new_device(void)
 
 struct i2c_device *i2c_new_device_with_master(int fdt_offset)
 {
-	int ret;
 	int parent_offset;
-	char fdt_path[64];
+	char *fdt_path;
 	struct device *dev;
 	struct i2c_master *i2c;
 	struct i2c_device *i2cdev = NULL;
 	const void *fdt_blob = fdtparse_get_blob();
 
-	i2cdev = (struct i2c_device *)kmalloc(sizeof(struct i2c_device));
+	i2cdev = i2c_new_device();
 	if (!i2cdev) {
 		error_printk("cannot allocate i2c device\n");
 		goto err;
 	}
-
-	memset(i2cdev, 0, sizeof(struct i2c_device));
 
 	parent_offset = fdt_parent_offset(fdt_blob, fdt_offset);
 	if (parent_offset < 0) {
@@ -107,10 +103,8 @@ struct i2c_device *i2c_new_device_with_master(int fdt_offset)
 		goto err;
 	}
 
-	memset(fdt_path, 0, 64 * sizeof(char));
-
-	ret = fdt_get_path(fdt_blob, parent_offset, fdt_path, 64);
-	if (ret < 0) {
+	fdt_path = fdtparse_get_path(parent_offset);
+	if (!fdt_path) {
 		error_printk("failed to fdt path of i2c device parent node\n");
 		goto err;
 	}
@@ -124,8 +118,6 @@ struct i2c_device *i2c_new_device_with_master(int fdt_offset)
 	i2c = container_of(dev, struct i2c_master, dev);
 
 	i2cdev->master = i2c;
-
-	dev_count++;
 
 	return i2cdev;
 
@@ -161,14 +153,22 @@ int i2c_remove_device(struct i2c_device *i2c)
 	return ret;
 }
 
-int i2c_register_device(struct i2c_device *i2c)
+int i2c_register_device(struct i2c_device *i2c, struct device_operations *dev_ops)
 {
 	int ret = 0;
 
 	snprintf(i2c->dev.name, sizeof(i2c->dev.name), "/dev/i2c%d", dev_count);
 
-	i2c->dev.read = i2c_read;
-	i2c->dev.write = i2c_write;
+	if (dev_ops) {
+		i2c->dev.open = dev_ops->open;
+		i2c->dev.read = dev_ops->read;
+		i2c->dev.write = dev_ops->write;
+		i2c->dev.ioctl = dev_ops->ioctl;
+	} else {
+		i2c->dev.read = i2c_read;
+		i2c->dev.write = i2c_write;
+		i2c->dev.ioctl = i2c_ioctl;
+	}
 
 	list_add_tail(&i2c_device_list, &i2c->node);
 
@@ -227,16 +227,10 @@ int i2c_remove_master(struct i2c_master *i2c)
 int i2c_register_master(struct i2c_master *i2c)
 {
 	int ret = 0;
-	char tmp[10] = {0};
-
-	memcpy(tmp, dev_prefix, sizeof(dev_prefix));
-
-	/* XXX: ascii 0 start at 0x30 */
-	tmp[8] = 0x30 + master_count;
-
-	memcpy(i2c->dev.name, tmp, sizeof(tmp));
 
 	kmutex_init(&i2c->i2c_mutex);
+
+	ksem_init(&i2c->sem, 1);
 
 	list_add_tail(&i2c_master_list, &i2c->node);
 

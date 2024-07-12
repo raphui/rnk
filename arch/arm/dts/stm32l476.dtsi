@@ -168,6 +168,31 @@
                         status = "okay";
 		};
 
+		i2c1: i2c@40005400 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32-i2c";
+			clocks = <&rcc 0 STM32L4_APB1_CLOCK(I2C1)>;
+			reg = <0x40005400 0x400>;
+			interrupts = <31>;
+			gpios = <&gpiob 0x408 0x3C>,    /* SCL PB8 */
+				<&gpiob 0x409 0x3C>;    /* SDA PB9 */
+
+			dmas = <&dma1 7 3 0x10400 0x3>,
+				<&dma1 6 3 0x10400 0x3>;
+			dma-names = "rx", "tx";
+
+			master = <1>;
+			addressing-mode = <7>;
+			timing = <0x00303D5B>;
+
+			status = "okay";
+
+			i2cdev@0 {
+				compatible = "i2c,i2cdev";
+				status = "okay";
+			};
+		};
 		
 		spi2: spi@40003800 {
 			#address-cells = <1>;
