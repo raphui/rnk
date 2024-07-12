@@ -6,6 +6,9 @@ choice
     config TRACKER_APP
         bool "Tracker application"
 
+    config LR1110_UPDATE_APP
+        bool "LR1110 Update application"
+
     config TEST_MTD
 	bool "MTD test"	
 
