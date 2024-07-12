@@ -48,12 +48,14 @@ static unsigned char stm32_exti_base_mask(unsigned int gpio_base)
 		case GPIOC_BASE:
 			mask = 0x2;
 			break;
+#ifndef CONFIG_STM32L442
 		case GPIOD_BASE:
 			mask = 0x3;
 			break;
 		case GPIOE_BASE:
 			mask = 0x4;
 			break;
+#endif
 #ifdef CONFIG_STM32F4XX
 		case GPIOF_BASE:
 			mask = 0x5;

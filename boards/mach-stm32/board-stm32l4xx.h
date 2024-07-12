@@ -5,6 +5,8 @@
 #include <platform/stm32l443.h>
 #elif defined(CONFIG_STM32L476)
 #include <platform/stm32l476.h>
+#elif defined(CONFIG_STM32L442)
+#include <platform/stm32l442.h>
 #endif
 
 #include <drv/pio.h>
