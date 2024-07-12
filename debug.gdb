@@ -29,6 +29,15 @@ define enable_semihosting
 	monitor semihosting enable
 end
 
+define load_kernel_ram
+	load kernel.elf
+	moni reset 0
+	set $pc = *(0x20000004)
+	set $sp = *(0x20000000)
+	c
+end
+
+
 define load_kernel
 	load kernel.elf
 	moni reset 0
