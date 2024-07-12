@@ -13,6 +13,7 @@
 #include "modem/lr1110_modem_board.h"
 #include "modem/lr1110_modem_helper.h"
 
+#ifdef CONFIG_STM32L476
 /* PC0 */
 #define LED_RX_PIN	33
 /* PC1 */
@@ -30,6 +31,18 @@
 
 /* PC13 */
 #define USER_BUTTON_PIN	46
+#else
+/* PA8 */
+#define LED_PIN		9
+/* PB4 */
+#define RADIO_EVENT_PIN	21
+/* PA15 */
+#define BUSY_PIN	16
+/* PA2 */
+#define ACC_IRQ_PIN	3
+/* PB5 */
+#define LNA_PIN		22
+#endif
 
 #define SPI_DEVICE	"/dev/spi1"
 #define MTD_DEVICE	"/dev/mtd1"
@@ -71,13 +84,19 @@ static void lr1110_modem_init(struct tracker *tracker)
 
 	tracker->adr_custom_list = adr_custom_list;
 	tracker->device_state = DEVICE_STATE_INIT;
+#ifdef CONFIG_STM32L476
 	tracker->lr1110.led_rx = gpiolib_export(LED_RX_PIN);
 	tracker->lr1110.led_tx = gpiolib_export(LED_TX_PIN);
 	tracker->lr1110.led_scan = gpiolib_export(LED_SCAN_PIN);
+#else
+	tracker->lr1110.led_rx = gpiolib_export(LED_PIN);
+	tracker->lr1110.led_tx = tracker->lr1110.led_rx;
+	tracker->lr1110.led_scan = tracker->lr1110.led_rx;
+#endif
 	tracker->lr1110.radio_event = gpiolib_export(RADIO_EVENT_PIN);
 	tracker->lr1110.busy = gpiolib_export(BUSY_PIN);
 	tracker->lr1110.acc_irq = gpiolib_export(ACC_IRQ_PIN);
-	//tracker->lr1110.lna = gpiolib_export(LNA_PIN);
+	tracker->lr1110.lna = gpiolib_export(LNA_PIN);
 
 	sem_init(&tracker->lr1110.radio_event_sem, 1);
 	sem_init(&tracker->lr1110.event_processed_sem, 1);
@@ -86,7 +105,7 @@ static void lr1110_modem_init(struct tracker *tracker)
 	gpiolib_set_output(tracker->lr1110.led_rx, 0);
 	gpiolib_set_output(tracker->lr1110.led_tx, 0);
 	gpiolib_set_output(tracker->lr1110.led_scan, 0);
-	//gpiolib_set_output(tracker->lr1110.lna, 0);
+	gpiolib_set_output(tracker->lr1110.lna, 0);
 	gpiolib_set_input(tracker->lr1110.radio_event);
 	gpiolib_set_input(tracker->lr1110.busy);
 	gpiolib_set_input(tracker->lr1110.acc_irq);

@@ -228,7 +228,7 @@ gnss_scan_result_t gnss_scan_execute(struct tracker *tracker, const void* contex
 #endif
 
             /* Switch on the LNA */
-	    //gpiolib_output_set_value(tracker->lr1110.lna, 1);
+	    gpiolib_output_set_value(tracker->lr1110.lna, 1);
 
             if(scan_type == AUTONOMOUS_MODE)
             {
@@ -295,7 +295,7 @@ gnss_scan_result_t gnss_scan_execute(struct tracker *tracker, const void* contex
     }
 
     /* Switch off the LNA */
-    //gpiolib_output_set_value(tracker->lr1110.lna, 0);
+    gpiolib_output_set_value(tracker->lr1110.lna, 0);
 
 // FIXME
 #if 0
