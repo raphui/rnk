@@ -33,7 +33,9 @@ void arch_init(void)
 
 void arch_init_tick(void)
 {
+#ifndef CONFIG_TICKLESS
 	systick_init();
+#endif
 }
 
 void arch_idle(void)
