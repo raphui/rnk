@@ -78,6 +78,7 @@ uint8_t accelerometer_init( struct tracker *tracker, uint8_t irq_active )
     lis2de12_ctrl_reg1_t ctrl_reg1;
     lis2de12_ctrl_reg3_t ctrl_reg3;
 
+    printf("Accelerometer...");
     /* Check device ID */
     while( ( i <= 5 ) && ( tracker->lr1110.who_am_i != LIS2DE12_ID ) )
     {
@@ -86,11 +87,14 @@ uint8_t accelerometer_init( struct tracker *tracker, uint8_t irq_active )
         {
             if( i == 5 )
             {
+		printf("NOT found !\n");
                 return 0;
             }
         }
         i++;
     }
+
+    printf("found !\n");
 
     /* Set Output Data Rate to 10Hz */
     lis2de12_data_rate_set( tracker, LIS2DE12_ODR_10Hz );
@@ -126,14 +130,19 @@ uint8_t accelerometer_init( struct tracker *tracker, uint8_t irq_active )
 
     lis2de12_int1_pin_notification_mode_set( tracker, LIS2DE12_INT1_LATCHED );
 
+    lis2de12_int1_cfg.xlie = 0;
     lis2de12_int1_cfg.xhie = 1;
+    lis2de12_int1_cfg.ylie = 0;
     lis2de12_int1_cfg.yhie = 1;
+    lis2de12_int1_cfg.zlie = 0;
     lis2de12_int1_cfg.zhie = 1;
+    lis2de12_int1_cfg._6d = 0;
+    lis2de12_int1_cfg.aoi = 0;
     lis2de12_int1_gen_conf_set( tracker, &lis2de12_int1_cfg );
 
-    lis2de12_int1_gen_threshold_set( tracker, 4 );
+    lis2de12_int1_gen_threshold_set( tracker, 6 );
 
-    lis2de12_int1_gen_duration_set( tracker, 3 );
+    lis2de12_int1_gen_duration_set( tracker, 2 );
 
     lis2de12_temperature_meas_set(tracker, LIS2DE12_TEMP_ENABLE);
 
@@ -150,6 +159,12 @@ uint8_t is_accelerometer_detected_moved( struct tracker *tracker )
     lis2de12_int1_src_t int1_gen_source;
 
     lis2de12_int1_gen_source_get( tracker, &int1_gen_source );
+
+#if 0
+    printf("INT1_SRC register values:\n");
+    printf("IA: %d, XH: %d, YH: %d, ZH: %d\n", int1_gen_source.ia, int1_gen_source.xh, int1_gen_source.yh, int1_gen_source.zh);
+    printf("XL: %d, YL: %d, ZL: %d\n", int1_gen_source.xl, int1_gen_source.yl, int1_gen_source.zl);
+#endif
 
     if( ( int1_gen_source.xh == 1 ) || ( int1_gen_source.yh == 1 ) || ( int1_gen_source.zh == 1 ) )
     {
