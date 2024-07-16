@@ -113,11 +113,22 @@ static int stm32_rcc_enable_internal_clk(unsigned int clk)
 		while (!(RCC->CSR & RCC_CSR_LSIRDY))
 			;
 		break;
+	case CLK_HSI:
+		RCC->CR |= RCC_CR_HSION;
+
+		while (!(RCC->CR & RCC_CR_HSIRDY))
+			;
+		break;
 #ifdef CONFIG_STM32F4XX
 	case CLK_RTC:
 		RCC->BDCR |= RCC_BDCR_RTCEN | RCC_BDCR_RTCSEL_1;
 		break;
 #endif
+	case CLK_LPTIMER:
+		/* FIXME: Hard set to LSI clock, it would be nice to make it more clever */
+		RCC->CCIPR |= (1 << RCC_CCIPR_LPTIM1SEL_Pos);
+		RCC->APB1ENR1 |= RCC_APB1ENR1_LPTIM1EN;
+		break;
 	default:
 		ret = -EINVAL;
 		break;
@@ -135,11 +146,17 @@ static int stm32_rcc_disable_internal_clk(unsigned int clk)
 	case CLK_LSI:
 		RCC->CSR &= ~RCC_CSR_LSION;
 		break;
+	case CLK_HSI:
+		RCC->CR &= ~RCC_CR_HSION;
+		break;
 #ifdef CONFIG_STM32F4XX
 	case CLK_RTC:
 		RCC->BDCR &= ~RCC_BDCR_RTCEN;
 		break;
 #endif
+	case CLK_LPTIMER:
+		RCC->CCIPR &= ~RCC_CCIPR_LPTIM1SEL_Msk;
+		break;
 	default:
 		ret = -EINVAL;
 		break;
@@ -409,6 +426,15 @@ int stm32_rcc_of_enable_clk(int offset, struct clk *clk)
 		} else {
 			clk->source_clk = ret;
 		}
+
+		/* XXX: Some APB peripheral can have another clock than PCLK */
+		switch (clk->id) {
+		case CLK_LPTIMER:
+			RCC->APB1ENR1 |= RCC_APB1ENR1_LPTIM1EN;
+			break;
+		
+		}
+
 	}
 
 out:

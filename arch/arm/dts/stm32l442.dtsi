@@ -166,8 +166,9 @@
 
 		lptim1: lptim@0x40007C00 {
 			compatible = "st,stm32-lptim";
-			clocks = <&rcc 0 STM32L4_APB1_CLOCK(LPTIM1)>;
+			clocks = <&clk_lsi 1 CLK_LPTIMER>;
 			reg = <0x40007C00 0x400>;
+                        interrupts = <65>;
                         status = "okay";
 		};
 
