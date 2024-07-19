@@ -98,7 +98,11 @@ void ktime_oneshot(struct ktimer *timer)
 
 	thread_lock(state);
 
+#ifdef CONFIG_TICKLESS
+	timer->delay = timer->delay + system_tick;
+#else
 	timer->delay = timer->delay / 1000;
+#endif
 
 	list_for_every_entry(&timer_soft_list, t, struct ktimer, node) {
 		if (t->delay > timer->delay) {
@@ -134,10 +138,15 @@ int ktime_get_ticks(void)
 #ifdef CONFIG_TICKLESS
 void ktime_wakeup_next_delay(void)
 {
+	struct ktimer *t = NULL;
+	struct ktimer *tt = NULL;
 	struct thread *thread;
 	struct thread *next;
 	struct thread *tmp;
 	struct thread *curr = get_current_thread();
+	unsigned int shortest_delay = 0xFFFFFFFF;
+
+	/* XXX: Find the shortest next delay between thread sleeping and software timers */
 
 	list_for_every_entry_safe(&sleeping_threads, thread, tmp, struct thread, node) {
 		if (thread->delay <= system_tick) {
@@ -149,10 +158,19 @@ void ktime_wakeup_next_delay(void)
 		}
 	}
 
-
 	next = list_peek_head_type(&sleeping_threads, struct thread, node);
 	if (next)
-		timer_wakeup(next->delay - system_tick, (void (*)(void *))ktime_wakeup_next_delay, NULL);
+		shortest_delay = next->delay - system_tick;
+
+	list_for_every_entry_safe(&timer_soft_list, t, tt, struct ktimer, node) {
+		if (t->delay < shortest_delay) {
+			shortest_delay = t->delay - system_tick;
+		}
+	}
+
+	if (shortest_delay != 0xFFFFFFFF)
+		timer_wakeup(shortest_delay, (void (*)(void *))decrease_timer_delay, NULL);
+
 }
 #endif /* CONFIG_TICKLESS */
 
@@ -186,12 +204,15 @@ void decrease_timer_delay(void)
 	struct ktimer *tmp = NULL;
 
 	list_for_every_entry_safe(&timer_soft_list, t, tmp, struct ktimer, node) {
+#ifdef CONFIG_TICKLESS
+		t->delay -= system_tick;
+#else
+		t->delay--;
+#endif
 		if (!t->delay) {
 			t->handler(t->arg);
 			list_delete(&t->node);
 			continue;
 		}
-
-		t->delay--;
 	}
 }
