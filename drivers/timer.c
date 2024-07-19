@@ -18,7 +18,7 @@ void timer_set_rate(struct timer *timer, unsigned long rate)
 	timer->tim_ops->set_rate(timer, rate);
 }
 
-void timer_set_counter(struct timer *timer, unsigned short counter)
+void timer_set_counter(struct timer *timer, unsigned int counter)
 {
 	timer->tim_ops->set_counter(timer, counter);
 }

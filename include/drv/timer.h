@@ -40,7 +40,7 @@ struct timer
 struct timer_operations
 {
 	void (*set_rate)(struct timer *timer, unsigned long rate);
-	void (*set_counter)(struct timer *timer, unsigned short counter);
+	void (*set_counter)(struct timer *timer, unsigned int counter);
 	void (*enable)(struct timer *timer);
 	void (*disable)(struct timer *timer);
 	void (*clear_it_flags)(struct timer *timer, unsigned int flags);
@@ -50,8 +50,9 @@ struct timer_operations
 
 int timer_init(void);
 int timer_wakeup(unsigned int delay, void (*handler)(void *), void *arg);
+int timer_oneshot(unsigned int delay, void (*handler)(void *), void *arg);
 void timer_set_rate(struct timer *timer, unsigned long rate);
-void timer_set_counter(struct timer *timer, unsigned short counter);
+void timer_set_counter(struct timer *timer, unsigned int counter);
 void timer_enable(struct timer *timer);
 void timer_disable(struct timer *timer);
 void timer_clear_it_flags(struct timer *timer, unsigned int flags);
