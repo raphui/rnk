@@ -127,6 +127,7 @@ typedef struct lr1110_s
     struct pio_desc *busy;
     struct pio_desc *acc_irq;
     struct pio_desc *lna;
+    struct pio_desc *bq_chg;
     bool accelerometer_irq1_state;
     uint8_t who_am_i;
     axis3bit16_t data_raw_acceleration;

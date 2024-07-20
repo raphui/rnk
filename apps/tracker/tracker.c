@@ -42,6 +42,8 @@
 #define ACC_IRQ_PIN	3
 /* PB5 */
 #define LNA_PIN		22
+/* PA4 */
+#define BQ_CHG_PIN	5
 #endif
 
 #define SPI_DEVICE	"/dev/spi1"
@@ -97,6 +99,7 @@ static void lr1110_modem_init(struct tracker *tracker)
 	tracker->lr1110.busy = gpiolib_export(BUSY_PIN);
 	tracker->lr1110.acc_irq = gpiolib_export(ACC_IRQ_PIN);
 	tracker->lr1110.lna = gpiolib_export(LNA_PIN);
+	tracker->lr1110.bq_chg = gpiolib_export(BQ_CHG_PIN);
 
 	sem_init(&tracker->lr1110.radio_event_sem, 1);
 	sem_init(&tracker->lr1110.event_processed_sem, 1);
@@ -109,6 +112,7 @@ static void lr1110_modem_init(struct tracker *tracker)
 	gpiolib_set_input(tracker->lr1110.radio_event);
 	gpiolib_set_input(tracker->lr1110.busy);
 	gpiolib_set_input(tracker->lr1110.acc_irq);
+	gpiolib_set_input(tracker->lr1110.bq_chg);
 
 	gpiolib_request_irq(tracker->lr1110.radio_event, radio_event_callback, IRQF_RISING, tracker);
 	gpiolib_request_irq(tracker->lr1110.acc_irq, lis2de12_int1_irq_handler, IRQF_RISING, tracker);
