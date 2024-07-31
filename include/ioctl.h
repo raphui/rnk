@@ -10,5 +10,7 @@
 #define IOCTL_ERASE		1246
 #define IOCTL_SET_ADDRESS	1247
 #define IOCTL_I2C_REG		1248
+#define IOCTL_PM		1249
+#define IOCTL_USB_ENUMERATE	1250
 
 #endif /* IOCTL_H */
