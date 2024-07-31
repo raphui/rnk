@@ -10,7 +10,7 @@
 static int dev_count = 0;
 static struct list_node usb_device_list;
 
-int usb_read(struct device *dev, unsigned char *buff, unsigned int size)
+static int usb_read(struct device *dev, unsigned char *buff, unsigned int size)
 {
 	int ret;
 	struct usb_device *usb = container_of(dev, struct usb_device, dev);
@@ -20,7 +20,7 @@ int usb_read(struct device *dev, unsigned char *buff, unsigned int size)
 	return ret;
 }
 
-int usb_write(struct device *dev, unsigned char *buff, unsigned int size)
+static int usb_write(struct device *dev, unsigned char *buff, unsigned int size)
 {
 	int ret;
 	struct usb_device *usb = container_of(dev, struct usb_device, dev);
@@ -29,6 +29,17 @@ int usb_write(struct device *dev, unsigned char *buff, unsigned int size)
 
 	return ret;
 }
+
+static int usb_ioctl(struct device *dev, int request, char *arg)
+{
+	int ret;
+	struct usb_device *usb = container_of(dev, struct usb_device, dev);
+
+	ret = usb->usb_ops->ioctl(usb, request, arg);
+
+	return ret;
+}
+
 
 struct usb_device *usb_new_device(void)
 {
@@ -83,6 +94,7 @@ int usb_register_device(struct usb_device *usb)
 
 	usb->dev.read = usb_read;
 	usb->dev.write = usb_write;
+	usb->dev.ioctl = usb_ioctl;
 
 	list_add_tail(&usb_device_list, &usb->node);
 
