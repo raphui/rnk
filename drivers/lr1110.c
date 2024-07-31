@@ -153,6 +153,12 @@ static int lr1110_ioctl(struct device *dev, int request, char *arg)
 	case IOCTL_SPI_CLEAR_NSS:
 		pio_set_value(priv->gpios[NSS_GPIO].port, priv->gpios[NSS_GPIO].pin);
 		break;
+	case IOCTL_PM:
+		if (arg)
+			pio_clear_value(priv->gpios[RESET_GPIO].port, priv->gpios[RESET_GPIO].pin);
+		else
+			pio_set_value(priv->gpios[RESET_GPIO].port, priv->gpios[RESET_GPIO].pin);
+		break;
 	default:
 		error_printk("IOCTL %d not supported\n", request);
 	}
