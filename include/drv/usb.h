@@ -10,6 +10,7 @@ struct usb_operations
 {
 	int (*write)(struct usb_device *usb, unsigned char *buff, unsigned int size);
 	int (*read)(struct usb_device *usb, unsigned char *buff, unsigned int size);
+	int (*ioctl)(struct usb_device *usb, int request, char *arg);
 };
 
 struct usb_device {

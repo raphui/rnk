@@ -3,6 +3,7 @@
 #include <mach/rcc-stm32.h>
 #include <mach/pio-stm32.h>
 #include <mach/usb-stm32.h>
+#include <mach/pwr-stm32.h>
 #include <errno.h>
 #include <fdtparse.h>
 #include <drv/device.h>
@@ -13,67 +14,492 @@
 #include <drv/irq.h>
 #include <mm/mm.h>
 #include <drv/usb.h>
+#include <ioctl.h>
 
-extern uint32_t USBD_OTG_ISR_Handler(USB_OTG_CORE_HANDLE *pdev);
+#if defined(USBD_STM32L433)
 
-static int stm32_usb_write(struct usb_device *usbdev, unsigned char *buff, unsigned int len)
-{
-	int ret = len;
+#ifndef USB_PMASIZE
+    #pragma message "PMA memory size is not defined. Use 1k by default"
+    #define USB_PMASIZE 0x400
+#endif
 
-	struct usb_pdata *pdata = usbdev->priv;
+#if !defined(RCC_APB1ENR1_USBFSEN)
+    #define RCC_APB1ENR1_USBFSEN RCC_APB1ENR1_USBEN
+    #define RCC_APB1RSTR1_USBFSRST RCC_APB1RSTR1_USBRST
+#endif
 
-	DCD_EP_Tx(&pdata->USB_OTG_dev, CDC_IN_EP, buff, len);
+#define USB_EP_SWBUF_TX     USB_EP_DTOG_RX
+#define USB_EP_SWBUF_RX     USB_EP_DTOG_TX
 
-	return ret;
+#define EP_TOGGLE_SET(epr, bits, mask) *(epr) = (*(epr) ^ (bits)) & (USB_EPREG_MASK | (mask))
+
+#define EP_TX_STALL(epr)    EP_TOGGLE_SET((epr), USB_EP_TX_STALL,                   USB_EPTX_STAT)
+#define EP_RX_STALL(epr)    EP_TOGGLE_SET((epr), USB_EP_RX_STALL,                   USB_EPRX_STAT)
+#define EP_TX_UNSTALL(epr)  EP_TOGGLE_SET((epr), USB_EP_TX_NAK,                     USB_EPTX_STAT | USB_EP_DTOG_TX)
+#define EP_RX_UNSTALL(epr)  EP_TOGGLE_SET((epr), USB_EP_RX_VALID,                   USB_EPRX_STAT | USB_EP_DTOG_RX)
+#define EP_DTX_UNSTALL(epr) EP_TOGGLE_SET((epr), USB_EP_TX_VALID,                   USB_EPTX_STAT | USB_EP_DTOG_TX | USB_EP_SWBUF_TX)
+#define EP_DRX_UNSTALL(epr) EP_TOGGLE_SET((epr), USB_EP_RX_VALID | USB_EP_SWBUF_RX, USB_EPRX_STAT | USB_EP_DTOG_RX | USB_EP_SWBUF_RX)
+#define EP_TX_VALID(epr)    EP_TOGGLE_SET((epr), USB_EP_TX_VALID,                   USB_EPTX_STAT)
+#define EP_RX_VALID(epr)    EP_TOGGLE_SET((epr), USB_EP_RX_VALID,                   USB_EPRX_STAT)
+
+#define STATUS_VAL(x)   (USBD_HW_BC | (x))
+
+typedef struct {
+    uint16_t    addr;
+    uint16_t    cnt;
+} pma_rec;
+
+typedef union pma_table {
+    struct {
+    pma_rec     tx;
+    pma_rec     rx;
+    };
+    struct {
+    pma_rec     tx0;
+    pma_rec     tx1;
+    };
+    struct {
+    pma_rec     rx0;
+    pma_rec     rx1;
+    };
+} pma_table;
+
+
+/** \brief Helper function. Returns pointer to the buffer descriptor table.
+ */
+inline static pma_table *EPT(uint8_t ep) {
+    return (pma_table*)((ep & 0x07) * 8 + USB_PMAADDR);
+
 }
 
-static int stm32_usb_read(struct usb_device *usbdev, unsigned char *buff, unsigned int len)
-{
-	int ret = 0;
-	struct usb_pdata *pdata = usbdev->priv;
-
-	pdata->user_buffer = buff;
-
-	DCD_EP_PrepareRx(&pdata->USB_OTG_dev, CDC_OUT_EP, pdata->user_buffer, len);
-
-	ksem_wait(&pdata->acknoledge);
-		
-	if(pdata->abort)
-	{
-		ret = 0;
-	}
-	else
-	{
-		ret = pdata->len;
-		pdata->len = 0;
-	}
-	
-	pdata->abort = 0;
-
-	return ret;
+/** \brief Helper function. Returns pointer to the endpoint control register.
+ */
+inline static volatile uint16_t *EPR(uint8_t ep) {
+    return (uint16_t*)((ep & 0x07) * 4 + USB_BASE);
 }
+
+
+/** \brief Helper function. Returns next available PMA buffer.
+ *
+ * \param sz uint16_t Requested buffer size.
+ * \return uint16_t Buffer address for PMA table.
+ * \note PMA buffers grown from top to bottom like stack.
+ */
+static uint16_t get_next_pma(uint16_t sz) {
+    unsigned _result = USB_PMASIZE;
+    for (int i = 0; i < 8; i++) {
+        pma_table *tbl = EPT(i);
+        if ((tbl->rx.addr) && (tbl->rx.addr < _result)) _result = tbl->rx.addr;
+        if ((tbl->tx.addr) && (tbl->tx.addr < _result)) _result = tbl->tx.addr;
+    }
+    return (_result < (0x020U + sz)) ? 0 : (_result - sz);
+}
+
+static uint32_t getinfo(void) {
+    if (!(RCC->APB1ENR1 & RCC_APB1ENR1_USBFSEN)) return STATUS_VAL(0);
+    if (USB->BCDR & USB_BCDR_DPPU) return STATUS_VAL(USBD_HW_ENABLED | USBD_HW_SPEED_FS);
+    return STATUS_VAL(USBD_HW_ENABLED);
+}
+
+static void ep_setstall(uint8_t ep, bool stall) {
+    volatile uint16_t *reg = EPR(ep);
+    /* ISOCHRONOUS endpoint can't be stalled or unstalled */
+    if (USB_EP_ISOCHRONOUS == (*reg & USB_EP_T_FIELD)) return;
+    /* If it's an IN endpoint */
+    if (ep & 0x80) {
+        /* DISABLED endpoint can't be stalled or unstalled */
+        if (USB_EP_TX_DIS == (*reg & USB_EPTX_STAT)) return;
+        if (stall) {
+            EP_TX_STALL(reg);
+        } else {
+            /* if it's a doublebuffered endpoint */
+            if ((USB_EP_KIND | USB_EP_BULK) == (*reg & (USB_EP_T_FIELD | USB_EP_KIND))) {
+                /* set endpoint to VALID and clear DTOG_TX & SWBUF_TX */
+                EP_DTX_UNSTALL(reg);
+            } else {
+                /* set endpoint to NAKED and clear DTOG_TX */
+                EP_TX_UNSTALL(reg);
+            }
+        }
+    } else {
+        if (USB_EP_RX_DIS == (*reg & USB_EPRX_STAT)) return;
+        if (stall) {
+            EP_RX_STALL(reg);
+        } else {
+            /* if it's a doublebuffered endpoint */
+            if ((USB_EP_KIND | USB_EP_BULK) == (*reg & (USB_EP_T_FIELD | USB_EP_KIND))) {
+                /* set endpoint to VALID, clear DTOG_RX, set SWBUF_RX */
+                EP_DRX_UNSTALL(reg);
+            } else {
+                /* set endpoint to VALID and clear DTOG_RX */
+                EP_RX_UNSTALL(reg);
+            }
+        }
+    }
+}
+
+static bool ep_isstalled(uint8_t ep) {
+    if (ep & 0x80) {
+        return (USB_EP_TX_STALL == (USB_EPTX_STAT & *EPR(ep)));
+    } else {
+        return (USB_EP_RX_STALL == (USB_EPRX_STAT & *EPR(ep)));
+    }
+}
+
+static void enable(bool enable) {
+    if (enable) {
+        RCC->APB1ENR1  |=  RCC_APB1ENR1_USBFSEN;
+        RCC->APB1RSTR1 |= RCC_APB1RSTR1_USBFSRST;
+        RCC->APB1RSTR1 &= ~RCC_APB1RSTR1_USBFSRST;
+        USB->CNTR = USB_CNTR_CTRM | USB_CNTR_RESETM | USB_CNTR_ERRM |
+#if !defined(USBD_SOF_DISABLED)
+        USB_CNTR_SOFM |
+#endif
+        USB_CNTR_SUSPM | USB_CNTR_WKUPM;
+    } else if (RCC->APB1ENR1 & RCC_APB1ENR1_USBFSEN) {
+        USB->BCDR = 0;
+        RCC->APB1RSTR1 |= RCC_APB1RSTR1_USBFSRST;
+        RCC->APB1ENR1 &= ~RCC_APB1ENR1_USBFSEN;
+    }
+}
+
+static uint8_t connect(bool connect) {
+    uint8_t res;
+    USB->BCDR = USB_BCDR_BCDEN | USB_BCDR_DCDEN;
+    if (USB->BCDR & USB_BCDR_DCDET) {
+        USB->BCDR = USB_BCDR_BCDEN | USB_BCDR_PDEN;
+        if (USB->BCDR & USB_BCDR_PS2DET) {
+            res = usbd_lane_unk;
+        } else if (USB->BCDR & USB_BCDR_PDET) {
+            USB->BCDR = USB_BCDR_BCDEN | USB_BCDR_SDEN;
+            if (USB->BCDR & USB_BCDR_SDET) {
+                res = usbd_lane_dcp;
+            } else {
+                res = usbd_lane_cdp;
+            }
+        } else {
+            res = usbd_lane_sdp;
+        }
+    } else {
+        res = usbd_lane_dsc;
+    }
+    USB->BCDR = (connect) ? USB_BCDR_DPPU : 0;
+    return res;
+}
+
+static void setaddr (uint8_t addr) {
+    USB->DADDR = USB_DADDR_EF | addr;
+}
+
+static bool ep_config(uint8_t ep, uint8_t eptype, uint16_t epsize) {
+    volatile uint16_t *reg = EPR(ep);
+    pma_table *tbl = EPT(ep);
+    /* epsize must be 2-byte aligned */
+    epsize = (~0x01U) & (epsize + 1);
+
+    switch (eptype) {
+    case USB_EPTYPE_CONTROL:
+        *reg = USB_EP_CONTROL | (ep & 0x07);
+        break;
+    case USB_EPTYPE_ISOCHRONUS:
+        *reg = USB_EP_ISOCHRONOUS | (ep & 0x07);
+        break;
+    case USB_EPTYPE_BULK:
+        *reg = USB_EP_BULK | (ep & 0x07);
+        break;
+    case USB_EPTYPE_BULK | USB_EPTYPE_DBLBUF:
+        *reg = USB_EP_BULK | USB_EP_KIND | (ep & 0x07);
+        break;
+    default:
+        *reg = USB_EP_INTERRUPT | (ep & 0x07);
+        break;
+    }
+    /* if it TX or CONTROL endpoint */
+    if ((ep & 0x80) || (eptype == USB_EPTYPE_CONTROL)) {
+        uint16_t _pma;
+        _pma = get_next_pma(epsize);
+        if (_pma == 0) return false;
+        tbl->tx.addr = _pma;
+        tbl->tx.cnt  = 0;
+        if ((eptype == USB_EPTYPE_ISOCHRONUS) ||
+            (eptype == (USB_EPTYPE_BULK | USB_EPTYPE_DBLBUF))) {
+            _pma = get_next_pma(epsize);
+            if (_pma == 0) return false;
+            tbl->tx1.addr = _pma;
+            tbl->tx1.cnt  = 0;
+            EP_DTX_UNSTALL(reg);
+        } else {
+            EP_TX_UNSTALL(reg);
+        }
+    }
+    if (!(ep & 0x80)) {
+        uint16_t _rxcnt;
+        uint16_t _pma;
+        if (epsize > 62) {
+            /* using 32-byte blocks. epsize must be 32-byte aligned */
+            epsize = (~0x1FU) & (epsize + 0x1FU);
+            _rxcnt = 0x8000 - 0x400 + (epsize << 5);
+        } else {
+            _rxcnt = epsize << 9;
+        }
+        _pma = get_next_pma(epsize);
+        if (_pma == 0) return false;
+        tbl->rx.addr = _pma;
+        tbl->rx.cnt = _rxcnt;
+        if ((eptype == USB_EPTYPE_ISOCHRONUS) ||
+            (eptype == (USB_EPTYPE_BULK | USB_EPTYPE_DBLBUF))) {
+            _pma = get_next_pma(epsize);
+            if (_pma == 0) return false;
+            tbl->rx0.addr = _pma;
+            tbl->rx0.cnt  = _rxcnt;
+            EP_DRX_UNSTALL(reg);
+        } else {
+            EP_RX_UNSTALL(reg);
+        }
+    }
+    return true;
+}
+
+static void ep_deconfig(uint8_t ep) {
+    pma_table *ept = EPT(ep);
+    *EPR(ep) &= ~USB_EPREG_MASK;
+    ept->rx.addr = 0;
+    ept->rx.cnt  = 0;
+    ept->tx.addr = 0;
+    ept->tx.cnt  = 0;
+}
+
+static uint16_t pma_read (uint8_t *buf, uint16_t blen, pma_rec *rx) {
+    uint16_t *pma = (void*)(USB_PMAADDR + rx->addr);
+    uint16_t rxcnt = rx->cnt & 0x03FF;
+    rx->cnt &= ~0x3FF;
+
+    if (blen > rxcnt) {
+        blen = rxcnt;
+    }
+    rxcnt = blen;
+    while (blen) {
+        uint16_t _t = *pma;
+        *buf++ = _t & 0xFF;
+        if (--blen) {
+            *buf++ = _t >> 8;
+            pma++;
+            blen--;
+        } else break;
+    }
+    return rxcnt;
+}
+
+static int32_t ep_read(uint8_t ep, void *buf, uint16_t blen) {
+    pma_table *tbl = EPT(ep);
+    volatile uint16_t *reg = EPR(ep);
+    switch (*reg & (USB_EPRX_STAT | USB_EP_T_FIELD | USB_EP_KIND)) {
+    /* doublebuffered bulk endpoint */
+    case (USB_EP_RX_VALID | USB_EP_BULK | USB_EP_KIND):
+        /* switching SWBUF if EP is NAKED */
+        switch (*reg & (USB_EP_DTOG_RX | USB_EP_SWBUF_RX)) {
+        case 0:
+        case (USB_EP_DTOG_RX | USB_EP_SWBUF_RX):
+            *reg = (*reg & USB_EPREG_MASK) | USB_EP_SWBUF_RX;
+        	break;
+        default:
+            break;
+        }
+        if (*reg & USB_EP_SWBUF_RX) {
+            return pma_read(buf, blen, &(tbl->rx1));
+        } else {
+            return pma_read(buf, blen, &(tbl->rx0));
+        }
+    /* isochronous endpoint */
+    case (USB_EP_RX_VALID | USB_EP_ISOCHRONOUS):
+        if (*reg & USB_EP_DTOG_RX) {
+            return pma_read(buf, blen, &(tbl->rx1));
+        } else {
+            return pma_read(buf, blen, &(tbl->rx0));
+        }
+    /* regular endpoint */
+    case (USB_EP_RX_NAK | USB_EP_BULK):
+    case (USB_EP_RX_NAK | USB_EP_CONTROL):
+    case (USB_EP_RX_NAK | USB_EP_INTERRUPT):
+        {
+        int32_t res = pma_read(buf, blen, &(tbl->rx));
+        /* setting endpoint to VALID state */
+        EP_RX_VALID(reg);
+        return res;
+        }
+    /* invalid or not ready */
+    default:
+        return -1;
+    }
+}
+
+static void pma_write(const uint8_t *buf, uint16_t blen, pma_rec *tx) {
+    uint16_t *pma = (void*)(USB_PMAADDR + tx->addr);
+    tx->cnt = blen;
+    while (blen > 1) {
+        *pma++ = buf[1] << 8 | buf[0];
+        buf += 2;
+        blen -= 2;
+    }
+    if (blen) *pma = *buf;
+}
+
+static int32_t ep_write(uint8_t ep, const void *buf, uint16_t blen) {
+    pma_table *tbl = EPT(ep);
+    volatile uint16_t *reg = EPR(ep);
+    switch (*reg & (USB_EPTX_STAT | USB_EP_T_FIELD | USB_EP_KIND)) {
+    /* doublebuffered bulk endpoint */
+    case (USB_EP_TX_NAK   | USB_EP_BULK | USB_EP_KIND):
+        if (*reg & USB_EP_SWBUF_TX) {
+            pma_write(buf, blen, &(tbl->tx1));
+        } else {
+            pma_write(buf, blen, &(tbl->tx0));
+        }
+        *reg = (*reg & USB_EPREG_MASK) | USB_EP_SWBUF_TX;
+        break;
+    /* isochronous endpoint */
+    case (USB_EP_TX_VALID | USB_EP_ISOCHRONOUS):
+        if (!(*reg & USB_EP_DTOG_TX)) {
+            pma_write(buf, blen, &(tbl->tx1));
+        } else {
+            pma_write(buf, blen, &(tbl->tx0));
+        }
+        break;
+    /* regular endpoint */
+    case (USB_EP_TX_NAK | USB_EP_BULK):
+    case (USB_EP_TX_NAK | USB_EP_CONTROL):
+    case (USB_EP_TX_NAK | USB_EP_INTERRUPT):
+        pma_write(buf, blen, &(tbl->tx));
+        EP_TX_VALID(reg);
+        break;
+    /* invalid or not ready */
+    default:
+        return -1;
+    }
+    return blen;
+}
+
+static uint16_t get_frame (void) {
+    return USB->FNR & USB_FNR_FN;
+}
+
+static void evt_poll(usbd_device *dev, usbd_evt_callback callback) {
+    uint8_t _ev, _ep;
+    uint16_t _istr = USB->ISTR;
+    _ep = _istr & USB_ISTR_EP_ID;
+    if (_istr & USB_ISTR_CTR) {
+        volatile uint16_t *reg = EPR(_ep);
+        if (*reg & USB_EP_CTR_TX) {
+            *reg &= (USB_EPREG_MASK ^ USB_EP_CTR_TX);
+            _ep |= 0x80;
+            _ev = usbd_evt_eptx;
+        } else {
+            *reg &= (USB_EPREG_MASK ^ USB_EP_CTR_RX);
+            _ev = (*reg & USB_EP_SETUP) ? usbd_evt_epsetup : usbd_evt_eprx;
+        }
+    } else if (_istr & USB_ISTR_RESET) {
+        USB->ISTR &= ~USB_ISTR_RESET;
+        USB->BTABLE = 0;
+        for (int i = 0; i < 8; i++) {
+            ep_deconfig(i);
+        }
+        _ev = usbd_evt_reset;
+#if !defined(USBD_SOF_DISABLED)
+    } else if (_istr & USB_ISTR_SOF) {
+        _ev = usbd_evt_sof;
+        USB->ISTR &= ~USB_ISTR_SOF;
+#endif
+    } else if (_istr & USB_ISTR_WKUP) {
+        _ev = usbd_evt_wkup;
+        USB->CNTR &= ~USB_CNTR_FSUSP;
+        USB->ISTR &= ~USB_ISTR_WKUP;
+    } else if (_istr & USB_ISTR_SUSP) {
+        _ev = usbd_evt_susp;
+        USB->CNTR |= USB_CNTR_FSUSP;
+        USB->ISTR &= ~USB_ISTR_SUSP;
+    } else if (_istr & USB_ISTR_ERR) {
+        USB->ISTR &= ~USB_ISTR_ERR;
+        _ev = usbd_evt_error;
+    } else {
+        return;
+    }
+    callback(dev, _ev, _ep);
+}
+
+static uint32_t fnv1a32_turn (uint32_t fnv, uint32_t data ) {
+    for (int i = 0; i < 4 ; i++) {
+        fnv ^= (data & 0xFF);
+        fnv *= 16777619;
+        data >>= 8;
+    }
+    return fnv;
+}
+
+static uint16_t get_serialno_desc(void *buffer) {
+    struct  usb_string_descriptor *dsc = buffer;
+    uint16_t *str = dsc->wString;
+    uint32_t fnv = 2166136261;
+    fnv = fnv1a32_turn(fnv, *(uint32_t*)(UID_BASE + 0x00));
+    fnv = fnv1a32_turn(fnv, *(uint32_t*)(UID_BASE + 0x04));
+    fnv = fnv1a32_turn(fnv, *(uint32_t*)(UID_BASE + 0x14));
+    for (int i = 28; i >= 0; i -= 4 ) {
+        uint16_t c = (fnv >> i) & 0x0F;
+        c += (c < 10) ? '0' : ('A' - 10);
+        *str++ = c;
+    }
+    dsc->bDescriptorType = USB_DTYPE_STRING;
+    dsc->bLength = 18;
+    return 18;
+}
+
+ __attribute__((externally_visible)) const struct usbd_driver usbd_devfs = {
+    getinfo,
+    enable,
+    connect,
+    setaddr,
+    ep_config,
+    ep_deconfig,
+    ep_read,
+    ep_write,
+    ep_setstall,
+    ep_isstalled,
+    evt_poll,
+    get_frame,
+    get_serialno_desc,
+};
+
+#endif //USBD_STM32L052
+
+#define usbd_hw usbd_devfs
 
 static void stm32_usb_isr(void *arg)
 {
 	struct usb_pdata *pdata = (struct usb_pdata *)arg;
 
-	USBD_OTG_ISR_Handler(&pdata->USB_OTG_dev);
+	usbd_poll(&pdata->usbd);
 }
 
-unsigned short VCP_DataRx(struct usb_pdata *pdata, unsigned char *buff, unsigned int len)
+static int stm32_usb_ioctl(struct usb_device *usbdev, int request, char *arg)
 {
-	if(pdata->user_buffer) {
-		pdata->user_buffer = NULL;
-		pdata->len = len;
-		ksem_post_isr(&pdata->acknoledge);
+	int ret = 0;
+	struct usb_pdata *pdata = usbdev->priv;
+
+	switch (request) {
+	case IOCTL_INIT:
+		usbd_init(&pdata->usbd, &usbd_hw, (int)arg, pdata->ubuf, sizeof(pdata->ubuf));
+		nvic_enable_interrupt(usbdev->irq);
+		ret = (int)&pdata->usbd;
+		break;
+	default :
+		ret = -EINVAL ;
+		break ;
 	}
 
-	return USBD_OK;
+	return ret ;
 }
 
 struct usb_operations usb_ops = {
-	.write = stm32_usb_write,
-	.read = stm32_usb_read,
+	.ioctl = stm32_usb_ioctl,
 };
 
 static int stm32_usb_of_init(struct usb_device *usb)
@@ -126,7 +552,7 @@ out:
 static int stm32_usb_init(struct device *device)
 {
 	int ret = 0;
-	struct usb_device *usb = NULL;
+	struct usb_device *usb_dev = NULL;
 	struct usb_pdata *pdata = NULL;
 
 	pdata = (struct usb_pdata *)kmalloc(sizeof(struct usb_pdata));
@@ -136,16 +562,16 @@ static int stm32_usb_init(struct device *device)
 		goto err;
 	}
 
-	usb = usb_new_device();
-	if (!usb) {
+	usb_dev = usb_new_device();
+	if (!usb_dev) {
 		error_printk("failed to retrieve new usb device\n");
 		ret = -EIO;
 		goto err;
 	}
 
-	memcpy(&usb->dev, device, sizeof(struct device));
+	memcpy(&usb_dev->dev, device, sizeof(struct device));
 
-	ret = stm32_usb_of_init(usb);
+	ret = stm32_usb_of_init(usb_dev);
 	if (ret < 0) {
 		error_printk("failed to init usb with fdt data\n");
 		goto err;
@@ -153,25 +579,20 @@ static int stm32_usb_init(struct device *device)
 
 	memset(pdata, 0, sizeof(struct usb_pdata));
 
-	pdata->cdcCmd = 0xFF;
-	pdata->USB_OTG_dev.priv = pdata;
+	usb_dev->usb_ops = &usb_ops;
+	usb_dev->priv = pdata;
 
-	ksem_init(&pdata->acknoledge, 1);
-
-	usb->usb_ops = &usb_ops;
-	usb->priv = pdata;
-
-	USBD_Init(&pdata->USB_OTG_dev, USB_OTG_FS_CORE_ID, (USBD_DEVICE *)&USR_desc, 0, 0);
-
-	ret = irq_request(usb->irq, stm32_usb_isr, pdata);
+	ret = irq_request(usb_dev->irq, stm32_usb_isr, pdata);
 	if (ret < 0) {
 		error_printk("failed to request usb irq\n");
 		goto disable_clk;
 	}
 
-	nvic_enable_interrupt(usb->irq);
+	nvic_enable_interrupt(usb_dev->irq);
 
-	ret = usb_register_device(usb);
+	stm32_pwr_enable_vusb();
+
+	ret = usb_register_device(usb_dev);
 	if (ret < 0) {
 		error_printk("failed to register usb device\n");
 		goto disable_clk;
@@ -180,13 +601,13 @@ static int stm32_usb_init(struct device *device)
 	return 0;
 
 disable_clk:
-	stm32_rcc_disable_clk(usb->clock.gated, usb->clock.id);
+	stm32_rcc_disable_clk(usb_dev->clock.gated, usb_dev->clock.id);
 err:
 	return ret;
 }
 
 struct device stm32_usb_driver = {
-	.of_compat = "st,stm32f4xx-usb",
+	.of_compat = "st,stm32-usb",
 	.probe = stm32_usb_init,
 };
 
