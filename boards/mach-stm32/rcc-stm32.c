@@ -1,5 +1,6 @@
 #include <board.h>
 #include <mach/rcc-stm32.h>
+#include <mach/pwr-stm32.h>
 #include <errno.h>
 #include <fdtparse.h>
 #include <kernel/printk.h>
@@ -44,6 +45,7 @@ static const int clk_msi_range[] = {
 };
 #endif
 
+static int sysclk;
 static int sysclk_freq;
 static int ahb_freq;
 static int apb1_freq;
@@ -237,6 +239,8 @@ static void stm32_rcc_set_sysclk(int source)
 			;
 		break;
 	}
+
+	sysclk = source;
 }
 
 static void stm32_rcc_adjust_flash_ws(int freq)
@@ -441,6 +445,53 @@ out:
 	return ret;
 }
 
+int stm32_rcc_set_sysclk_freq(int freq)
+{
+	int ret = 0;
+	int reg;
+	int msi_range;
+
+	switch (sysclk) {
+	case CLK_HSI:
+		break;
+#ifdef CONFIG_STM32L4XX
+	case CLK_MSI:
+		msi_range = stm32_rcc_find_msi_range(freq);
+
+		sysclk_freq = freq;
+		ahb_freq = sysclk_freq / ahb_pres;
+		apb1_freq = (sysclk_freq / ahb_pres) / apb1_pres;
+		apb2_freq = (sysclk_freq / ahb_pres) / apb2_pres;
+
+		RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+
+		/* Configure Flash prefetch, Instruction cache, Data cache and wait state */
+		stm32_rcc_adjust_flash_ws(sysclk_freq);
+
+		reg = RCC->CR;
+		reg &= ~RCC_CR_MSIRANGE_Msk;
+		reg |= (msi_range << RCC_CR_MSIRANGE_Pos);
+
+		RCC->CR = reg;
+
+		while (!(RCC->CR & RCC_CR_MSIRDY))
+			;
+
+		/* Select regulator voltage output Scale 1 mode */
+		stm32_pwr_set_regulator(freq);
+#endif
+	case CLK_LSI:
+	case CLK_LSE:
+	case CLK_PLL:
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+
+	return ret;
+}
+
 int stm32_rcc_enable_sys_clk(void)
 {
 	int ret = 0;
@@ -557,6 +608,9 @@ int stm32_rcc_enable_sys_clk(void)
 		RCC->CR |= RCC_CR_MSIRGSEL;
 		RCC->CR = (RCC->CR & ~RCC_CR_MSIRANGE_Msk) | (msi_range << RCC_CR_MSIRANGE_Pos);
 
+		while (!(RCC->CR & RCC_CR_MSIRDY))
+			;
+
 		sysclk_freq = source_freq;
 		break;
 #endif
@@ -631,6 +685,7 @@ int stm32_rcc_enable_sys_clk(void)
 	PWR->CR |= PWR_CR_DBP;
 #else
 	RCC->APB1ENR1 |= RCC_APB1ENR1_PWREN;
+	stm32_pwr_set_regulator(sysclk_freq);
 #endif
 
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
@@ -639,7 +694,6 @@ int stm32_rcc_enable_sys_clk(void)
 	stm32_rcc_adjust_flash_ws(sysclk_freq);
 
 	FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN;
-
 
 	stm32_rcc_set_sysclk(sysclk_source);
 
