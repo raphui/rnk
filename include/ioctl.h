@@ -12,5 +12,6 @@
 #define IOCTL_I2C_REG		1248
 #define IOCTL_PM		1249
 #define IOCTL_USB_ENUMERATE	1250
+#define IOCTL_INIT		1251
 
 #endif /* IOCTL_H */
