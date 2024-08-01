@@ -32,7 +32,8 @@
 #define CLK_I2C3		28
 #define CLK_I2C4		29
 #define CLK_LPTIMER		30
+#define CLK_USB			31
 
-#define END_PRIMARY_CLK_F7	31
+#define END_PRIMARY_CLK_F7	32
 
 #endif

@@ -131,6 +131,16 @@ static int stm32_rcc_enable_internal_clk(unsigned int clk)
 		RCC->CCIPR |= (1 << RCC_CCIPR_LPTIM1SEL_Pos);
 		RCC->APB1ENR1 |= RCC_APB1ENR1_LPTIM1EN;
 		break;
+	case CLK_USB:
+		RCC->CCIPR &= ~RCC_CCIPR_CLK48SEL;
+		RCC->APB1ENR1 |= RCC_APB1ENR1_USBFSEN;
+		break;
+	case CLK_HSI48:
+		RCC->CRRCR |= RCC_CRRCR_HSI48ON;
+
+		while (!(RCC->CRRCR & RCC_CRRCR_HSI48RDY))
+			;
+		break;
 	default:
 		ret = -EINVAL;
 		break;
@@ -157,7 +167,13 @@ static int stm32_rcc_disable_internal_clk(unsigned int clk)
 		break;
 #endif
 	case CLK_LPTIMER:
-		RCC->CCIPR &= ~RCC_CCIPR_LPTIM1SEL_Msk;
+		RCC->CCIPR &= ~RCC_CCIPR_LPTIM1SEL;
+		break;
+	case CLK_USB:
+		RCC->CCIPR &= ~RCC_CCIPR_CLK48SEL;
+		break;
+	case CLK_HSI48:
+		RCC->CRRCR &= ~RCC_CRRCR_HSI48ON;
 		break;
 	default:
 		ret = -EINVAL;
@@ -437,6 +453,9 @@ int stm32_rcc_of_enable_clk(int offset, struct clk *clk)
 			RCC->APB1ENR1 |= RCC_APB1ENR1_LPTIM1EN;
 			break;
 		
+		case CLK_USB:
+			RCC->APB1ENR1 |= RCC_APB1ENR1_USBFSEN;
+			break;
 		}
 
 	}
