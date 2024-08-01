@@ -10,5 +10,6 @@ enum {
 void stm32_pwr_set_regulator(int freq);
 void stm32_pwr_enter_lpsleep(int mode);
 void stm32_pwr_exit_lpsleep(int mode);
+void stm32_pwr_enable_vusb(void);
 
 #endif /* PWR_STM32_H */

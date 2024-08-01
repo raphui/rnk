@@ -111,6 +111,11 @@ void stm32_pwr_exit_lpsleep(int mode)
 	RCC->APB2ENR = pwr->enabled_clock_apb2;
 }
 
+void stm32_pwr_enable_vusb(void)
+{
+	PWR->CR2 |= PWR_CR2_USV;
+}
+
 static int stm32_pwr_of_init(struct pwr *pwr)
 {
 	int offset;
