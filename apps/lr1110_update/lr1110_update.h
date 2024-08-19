@@ -151,6 +151,8 @@ struct lr1110_update {
 };
 
 
+int lr11xx_update_init(void *context);
+int lr11xx_update_finalize(void *context, uint32_t fw_expected);
 lr11xx_fw_update_status_t lr11xx_update_firmware(void* context, lr11xx_fw_update_t fw_update_direction, uint32_t fw_expected, const uint32_t* buffer, uint32_t length);
 lr11xx_status_t lr11xx_bootloader_get_status(const void* context, lr11xx_bootloader_stat1_t* stat1, lr11xx_bootloader_stat2_t* stat2, lr11xx_bootloader_irq_mask_t* irq_status);
 lr11xx_status_t lr11xx_bootloader_clear_reset_status_info(const void* context);

@@ -28,11 +28,7 @@ void low_level_init(void)
 	RCC->CIER = 0x00000000;
 
 	/* Configure the Vector Table location add offset address ------------------*/
-#ifdef CONFIG_LR1110_UPDATE_APP
-	writel(SCB_VTOR, SRAM_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal SRAM */
-#else
 	writel(SCB_VTOR, FLASH_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal FLASH */
-#endif
 }
 
 void board_enter_low_power(void)

@@ -6,7 +6,8 @@
 /*!
  * \brief Firmware version
  */
-#define LR11XX_FIRMWARE_VERSION 0x04010107
+//#define LR11XX_FIRMWARE_VERSION 0x04010108
+#define LR11XX_FIRMWARE_VERSION 0x04010107 //FIXME: this should come from the upd_details
 
 /*!
  * \brief Firmware type
@@ -18,6 +19,10 @@
  */
 #define LR11XX_FIRMWARE_IMAGE_SIZE 61320
 
+#if 1
+const uint32_t lr11xx_firmware_image[1] = {
+};
+#else
 /*!
  * \brief Array containing the firmware image
  */
@@ -6837,5 +6842,6 @@ const uint32_t __attribute__((section (".blob"))) lr11xx_firmware_image[LR11XX_F
     0xcc28f405, 0xb7523104, 0xba8259b2, 0x01f30de6, 0xe5a4203a, 0x83d017c9, 0x5a6a3663, 0x395093b3, 0x5a735fd1,
     0xafbf4387, 0xeec043e1, 0x5afc4f02,
 };
+#endif
 
 #endif
