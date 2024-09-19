@@ -128,7 +128,7 @@ uint8_t accelerometer_init( struct tracker *tracker, uint8_t irq_active )
     ctrl_reg3.not_used_02 = 0;
     lis2de12_pin_int1_config_set( tracker, &ctrl_reg3 );
 
-    lis2de12_int1_pin_notification_mode_set( tracker, LIS2DE12_INT1_LATCHED );
+    //lis2de12_int1_pin_notification_mode_set( tracker, LIS2DE12_INT1_LATCHED );
 
     lis2de12_int1_cfg.xlie = 0;
     lis2de12_int1_cfg.xhie = 1;
@@ -140,7 +140,7 @@ uint8_t accelerometer_init( struct tracker *tracker, uint8_t irq_active )
     lis2de12_int1_cfg.aoi = 0;
     lis2de12_int1_gen_conf_set( tracker, &lis2de12_int1_cfg );
 
-    lis2de12_int1_gen_threshold_set( tracker, 6 );
+    lis2de12_int1_gen_threshold_set( tracker, 4 );
 
     lis2de12_int1_gen_duration_set( tracker, 2 );
 
@@ -2476,7 +2476,7 @@ void lis2de12_int1_irq_handler( void* obj )
 {
 	struct tracker *tracker = (struct tracker *)obj;
 
-	printf("!");
+	printf("!\n");
 	tracker->lr1110.accelerometer_irq1_state = true;
 	sem_post(&tracker->lr1110.event_processed_sem);
 }

@@ -181,7 +181,7 @@ lr1110_modem_response_code_t lr1110_modem_board_init(struct tracker *tracker, co
     }
 
     /* Initialize TCXO control */
-    modem_response_code |= lr1110_modem_board_init_tcxo_io(context);
+    //modem_response_code |= lr1110_modem_board_init_tcxo_io(context);
 
     /* Initialize RF switch control */
     lr1110_modem_system_rf_switch_cfg_t rf_switch_cfg;
@@ -201,6 +201,9 @@ lr1110_modem_response_code_t lr1110_modem_board_init(struct tracker *tracker, co
     modem_response_code |= lr1110_modem_set_rf_output(context, LR1110_MODEM_RADIO_PA_SEL_LP_HP_LF);
 
     modem_response_code |= lr1110_modem_system_set_reg_mode(context, LR1110_MODEM_SYSTEM_REG_MODE_LDO);
+
+    /* XXX: Add low clock speed to use 32kHz */
+    modem_response_code |= lr1110_modem_system_cfg_lfclk(&tracker->lr1110, LR1110_MODEM_SYSTEM_LFCLK_RC, 1);
 
     return modem_response_code;
 }

@@ -63,6 +63,7 @@ static void lr1110_modem_init(struct tracker *tracker)
 	uint32_t start_addr = TRACKER_INTERNAL_LOG_START;
 	uint32_t end_addr = TRACKER_INTERNAL_LOG_END;
 	int nb_empty_bytes = 0;
+	lis2de12_int1_src_t int1_gen_source;
 
 	lseek(tracker->lr1110.mtd_id, start_addr, SEEK_SET);
 
@@ -137,10 +138,33 @@ static void lr1110_modem_init(struct tracker *tracker)
 	pthread_create(&tracker->event_thread, lr1110_modem_event_process, tracker, 1);
 
 	accelerometer_init(tracker, 1);
-
 #if 0
+	gpiolib_set_output(tracker->lr1110.radio_event, 0);
 	while (1) {
-		printf("accelerometer: %d\n", is_accelerometer_detected_moved(tracker) ? 1 : 0);
+		//lis2de12_int1_gen_source_get( tracker, &int1_gen_source );
+		//gpiolib_output_set_value(tracker->lr1110.radio_event, 1);
+		//printf("Going to sleep...");
+		time_usleep(80);
+		//sem_timedwait(&tracker->lr1110.event_processed_sem, 2 * 1000 * 1000);
+		//sem_timedwait(&tracker->lr1110.event_processed_sem, 10);
+		//printf("OK\n");
+		//gpiolib_output_set_value(tracker->lr1110.radio_event, 0);
+		//time_usleep(1);// * 1000);
+	}
+#endif
+#if 0
+	ioctl(tracker->lr1110.spi_id, IOCTL_PM, (char *)1);
+	while (1) {
+		lis2de12_int1_gen_source_get(tracker, &int1_gen_source);
+		sem_wait(&tracker->lr1110.event_processed_sem);
+	}
+#endif
+#if 1
+	while (1) {
+		printf(".");
+		gpiolib_output_set_value(tracker->lr1110.led_rx, 1);
+		time_usleep(10 * 1000);
+		gpiolib_output_set_value(tracker->lr1110.led_rx, 0);
 	}
 #endif
 }
@@ -324,6 +348,14 @@ int main(void)
 	lr1110_modem_board_init_io(&tracker->lr1110);
 
 	lr1110_modem_init(tracker);
+
+#ifdef LED_TEST
+	while (1) {
+		gpiolib_output_set_value(tracker->lr1110.led_rx, 1);
+		time_usleep(1000 * 10);
+		gpiolib_output_set_value(tracker->lr1110.led_rx, 0);
+	}
+#endif
 
 	if (lr1110_modem_board_init(tracker, &tracker->lr1110, &lr1110_modem_event_callback) != LR1110_MODEM_RESPONSE_CODE_OK)
 	{

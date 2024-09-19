@@ -66,5 +66,6 @@ define bfar
 	x/x 0xE000ED38
 end
 
-tar rem 127.0.0.1:4242#1234#2331
+#tar rem 127.0.0.1:4242#1234#2331
+tar rem 192.168.1.138:2331
 file kernel.elf

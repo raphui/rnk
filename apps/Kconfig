@@ -9,6 +9,9 @@ choice
     config LR1110_UPDATE_APP
         bool "LR1110 Update application"
 
+    config BOOTLOADER_APP
+        bool "Bootloader application"
+
     config TEST_MTD
 	bool "MTD test"	
 

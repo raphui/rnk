@@ -276,7 +276,10 @@ lr1110_modem_hal_status_t lr1110_modem_hal_reset(struct tracker *tracker, const 
 
     ioctl(((lr1110_t *)context)->spi_id, IOCTL_RESET, NULL);
 
-    ret = sem_timedwait(&tracker->lr1110.event_processed_sem, LR1110_MODEM_RESET_TIMEOUT);;
+//	gpiolib_output_set_value(tracker->lr1110.acc_irq, 0);
+//    ret = sem_timedwait(&tracker->lr1110.event_processed_sem, LR1110_MODEM_RESET_TIMEOUT);
+//	gpiolib_output_set_value(tracker->lr1110.acc_irq, 1);
+    ret = sem_wait(&tracker->lr1110.event_processed_sem);
 
     if(ret < 0)
     {
