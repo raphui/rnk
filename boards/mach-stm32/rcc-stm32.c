@@ -126,6 +126,7 @@ static int stm32_rcc_enable_internal_clk(unsigned int clk)
 		RCC->BDCR |= RCC_BDCR_RTCEN | RCC_BDCR_RTCSEL_1;
 		break;
 #endif
+#ifdef CONFIG_STM32L4XX
 	case CLK_LPTIMER:
 		/* FIXME: Hard set to LSI clock, it would be nice to make it more clever */
 		RCC->CCIPR |= (1 << RCC_CCIPR_LPTIM1SEL_Pos);
@@ -141,6 +142,7 @@ static int stm32_rcc_enable_internal_clk(unsigned int clk)
 		while (!(RCC->CRRCR & RCC_CRRCR_HSI48RDY))
 			;
 		break;
+#endif
 	default:
 		ret = -EINVAL;
 		break;
@@ -166,6 +168,7 @@ static int stm32_rcc_disable_internal_clk(unsigned int clk)
 		RCC->BDCR &= ~RCC_BDCR_RTCEN;
 		break;
 #endif
+#ifdef CONFIG_STM32L4XX
 	case CLK_LPTIMER:
 		RCC->CCIPR &= ~RCC_CCIPR_LPTIM1SEL;
 		break;
@@ -175,6 +178,7 @@ static int stm32_rcc_disable_internal_clk(unsigned int clk)
 	case CLK_HSI48:
 		RCC->CRRCR &= ~RCC_CRRCR_HSI48ON;
 		break;
+#endif
 	default:
 		ret = -EINVAL;
 		break;
@@ -449,6 +453,7 @@ int stm32_rcc_of_enable_clk(int offset, struct clk *clk)
 
 		/* XXX: Some APB peripheral can have another clock than PCLK */
 		switch (clk->id) {
+#ifdef CONFIG_STM32L4XX
 		case CLK_LPTIMER:
 			RCC->APB1ENR1 |= RCC_APB1ENR1_LPTIM1EN;
 			break;
@@ -456,6 +461,7 @@ int stm32_rcc_of_enable_clk(int offset, struct clk *clk)
 		case CLK_USB:
 			RCC->APB1ENR1 |= RCC_APB1ENR1_USBFSEN;
 			break;
+#endif
 		}
 
 	}
