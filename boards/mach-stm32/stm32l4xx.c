@@ -7,6 +7,8 @@
 #include <armv7m/system.h>
 #include <armv7m/mpu.h>
 
+extern unsigned int g_pfnVectors[];
+
 void low_level_init(void)
 {
 	/* Set MSION bit */
@@ -28,11 +30,7 @@ void low_level_init(void)
 	RCC->CIER = 0x00000000;
 
 	/* Configure the Vector Table location add offset address ------------------*/
-#ifdef VECT_TAB_SRAM
-	writel(SCB_VTOR, SRAM_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal SRAM */
-#else
-	writel(SCB_VTOR, FLASH_BASE | VECT_TAB_OFFSET); /* Vector Table Relocation in Internal FLASH */
-#endif
+	writel(SCB_VTOR, (unsigned int)g_pfnVectors); /* Vector Table Relocation in Internal FLASH */
 }
 
 void board_enter_low_power(void)
