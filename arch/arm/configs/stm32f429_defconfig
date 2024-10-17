@@ -2,6 +2,17 @@
 # Automatically generated file; DO NOT EDIT.
 # rnk kernel configuration
 #
+CONFIG_SENSOR_APP=y
+# CONFIG_TRACKER_APP is not set
+# CONFIG_LR1110_UPDATE_APP is not set
+# CONFIG_BOOTLOADER_APP is not set
+# CONFIG_TEST_MTD is not set
+# CONFIG_TEST_MUTEX is not set
+# CONFIG_TEST_QUEUE is not set
+# CONFIG_TEST_SEM is not set
+# CONFIG_TEST_SYSCALL is not set
+# CONFIG_TEST_THREAD is not set
+# CONFIG_TEST_TIMER is not set
 
 #
 # Architecture configuration
@@ -15,12 +26,19 @@ CONFIG_CPU_ARM_CORTEX_M4=y
 # CONFIG_CPU_ARM_CORTEX_M7 is not set
 # CONFIG_BIG_ENDIAN is not set
 CONFIG_LITTLE_ENDIAN=y
+CONFIG_STACK_SIZE=0x800
+# CONFIG_LOW_POWER is not set
+
+#
+# ARM library configuration
+#
+# CONFIG_SEMIHOSTING is not set
 
 #
 # Board configuration
 #
-# CONFIG_MACH_AT91 is not set
 CONFIG_MACH_STM32=y
+CONFIG_STM32F4XX=y
 
 #
 # STM32 configuration
@@ -29,33 +47,88 @@ CONFIG_MACH_STM32=y
 # CONFIG_STM32F407 is not set
 CONFIG_STM32F429=y
 # CONFIG_STM32F746 is not set
+# CONFIG_STM32L443 is not set
+# CONFIG_STM32L442 is not set
+# CONFIG_STM32L476 is not set
 CONFIG_NUM_IRQS=81
+CONFIG_GPIO_PER_PORT=16
+CONFIG_GPIO_PORT_NUM=11
+CONFIG_EXTI_LINES=40
+CONFIG_DMA_REQUEST_LINES=8
 
 #
 # Kernel configuration
 #
-CONFIG_TASK_STACK_START=0x10008000
-CONFIG_INITCALL=y
+CONFIG_STATIC_APPS=y
+CONFIG_THREAD_STACK_START=0x10008000
+CONFIG_THREAD_STACK_SIZE=0x800
+# CONFIG_SCHEDULE_RR_PRIO is not set
 # CONFIG_SCHEDULE_ROUND_ROBIN is not set
 CONFIG_SCHEDULE_PRIORITY=y
+# CONFIG_HR_TIMER is not set
+# CONFIG_BW_DELAY is not set
+# CONFIG_TICKLESS is not set
+CONFIG_SEMAPHORE=y
+CONFIG_MUTEX=y
+# CONFIG_QUEUE is not set
+CONFIG_PRIORITY_INHERITANCE=y
+
+#
+# Memory map configuration
+#
+CONFIG_TEXT_BASE=0x08000000
+CONFIG_TEXT_SIZE=0x001FFFFF
+CONFIG_RAM_BASE=0x20000000
+CONFIG_RAM_SIZE=0x00002FFF
+
+#
+# Library configuration
+#
+
+#
+# Loader configuration
+#
 
 #
 # Drivers configuration
 #
 CONFIG_IRQ_SUBSYS=y
-# CONFIG_SPI_SPIDEV is not set
-# CONFIG_ILI9341 is not set
 # CONFIG_LCD_SUBSYS is not set
+# CONFIG_I2C_SUBSYS is not set
+# CONFIG_SPI_SUBSYS is not set
+# CONFIG_USARTDEV is not set
+# CONFIG_TIMER_SUBSYS is not set
+# CONFIG_USB_SUBSYS is not set
 
 #
 # Memory management configuration
 #
+CONFIG_MALLOC=y
 CONFIG_KERNEL_HEAP_START=0x20003000
 CONFIG_KERNEL_HEAP_END=0x20005000
+# CONFIG_CUSTOM_MALLOC is not set
+CONFIG_TLSF=y
+
+#
+# Third party configuration
+#
+
+#
+# Third party library configuration
+#
+CONFIG_LIBFDT=y
 
 #
 # Utility configuration
 #
 CONFIG_UNWIND=y
-# CONFIG_USART_DEBUG is not set
-CONFIG_SWO_DEBUG=y
+# CONFIG_TRACE is not set
+CONFIG_USART_DEBUG=y
+# CONFIG_SWO_DEBUG is not set
+
+#
+# Debug level
+#
+# CONFIG_DEBUG is not set
+# CONFIG_ERROR is not set
+# CONFIG_VERBOSE is not set
