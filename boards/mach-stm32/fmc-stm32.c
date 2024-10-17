@@ -1,7 +1,7 @@
 #include <board.h>
 #include <drv/fmc.h>
 #include <utils.h>
-#include <kernle/printk.h>
+#include <kernel/printk.h>
 #include <init.h>
 #include <mm/mm.h>
 #include <errno.h>
