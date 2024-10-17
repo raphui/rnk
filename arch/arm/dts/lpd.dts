@@ -1,5 +1,5 @@
 /dts-v1/;
-/include/ "stm32f429.dtsi"
+#include "stm32f429.dtsi"
 
 / {
 	aliases
