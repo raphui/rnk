@@ -135,21 +135,21 @@
 			reg = <0x48000800 0x400>;
 			clocks = <&rcc 0 STM32L4_AHB2_CLOCK(GPIOC)>;
 			compatible = "st,stm32-pio";
-                        status = "okay";
+                        status = "disabled";
 		};
 
 		gpiod: gpio@48000C00 {
 			reg = <0x48000C00 0x400>;
 			clocks = <&rcc 0 STM32L4_AHB2_CLOCK(GPIOD)>;
 			compatible = "st,stm32-pio";
-                        status = "okay";
+                        status = "disabled";
 		};
 
 		gpioe: gpio@48001000 {
 			reg = <0x48001000 0x400>;
 			clocks = <&rcc 0 STM32L4_AHB2_CLOCK(GPIOE)>;
 			compatible = "st,stm32-pio";
-                        status = "okay";
+                        status = "disabled";
 		};
 	};
 
@@ -241,6 +241,22 @@
 				status = "disabled";
 				hsi-gpio = <&gpiob 0x00A 0x20>;
 				hso-gpio = <&gpiob 0x00C 0x3>;
+			};
+		};
+
+		usbfs: usb@0x40006800 {
+			reg = <0x40006800 0x400>;
+			clocks = <&clk_hsi48 1 CLK_USB>;
+			compatible = "st,stm32-usb";
+			interrupts = <67>;
+
+			gpios = <&gpioa 0xA0B 0x18>,
+				<&gpioa 0xA0C 0x18>;
+			status = "okay";
+
+			usb_cdc@0 {
+				compatible = "usb,usb_cdc";
+				status = "okay";
 			};
 		};
 	};
