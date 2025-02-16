@@ -154,3 +154,16 @@ void *kmalloc(size_t size)
 
 	return (void *)mem;
 }
+
+void *kmalloc_align(size_t align, size_t size)
+{
+	void *mem;
+
+#ifdef CONFIG_TLSF
+	mem = tlsf_memalign(tlsf_mem_kernel_pool, align, size);
+
+	return mem;
+#else
+	return NULL;
+#endif
+}
