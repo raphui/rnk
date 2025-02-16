@@ -13,8 +13,6 @@ int *current_thread_mode;
 
 void arch_create_context(struct arch_thread *arch, unsigned int func, unsigned int return_func, unsigned int *stack, unsigned int param1, int privileged, int platform_register)
 {
-	stack = (unsigned int *)ALIGN((unsigned int)stack, 8);
-
 	stack -= sizeof(struct arch_short_context_frame) / sizeof(unsigned int);
 
 	arch->mpu.top_sp = (unsigned int)stack;
