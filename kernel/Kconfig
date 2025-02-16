@@ -12,9 +12,6 @@ config MAX_THREADS
 	depends on !MALLOC
 	int "Max number of threads"
 
-config THREAD_STACK_START
-	hex "Start address of kernel THREAD stack"
-
 config THREAD_STACK_SIZE
 	hex "Size of kernel THREAD stack"
 

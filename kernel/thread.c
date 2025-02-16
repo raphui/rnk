@@ -133,7 +133,12 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 	thread->quantum = CONFIG_THREAD_QUANTUM;
 #endif
 
-	thread->start_stack = THREAD_STACK_START + ((thread_count + 1) * THREAD_STACK_OFFSET);
+	thread->start_stack = (unsigned int)kmalloc_align(8, CONFIG_THREAD_STACK_SIZE) + CONFIG_THREAD_STACK_SIZE;
+	if (!thread->start_stack) {
+		error_printk("failed to allocate thread stack\n");
+		return NULL;
+	}
+
 	thread->delay = 0;
 	thread->func = func;
 	thread->arch = (struct arch_thread *)kmalloc(sizeof(struct arch_thread));
