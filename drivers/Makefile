@@ -18,3 +18,4 @@ obj-$(CONFIG_USB_SUBSYS) += usb.o
 obj-$(CONFIG_USB_SUBSYS) += usb_cdc.o
 obj-$(CONFIG_BME280) += bme280.o
 obj-$(CONFIG_LR1110) += lr1110.o
+obj-$(CONFIG_STC3115) += stc3115.o
