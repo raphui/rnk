@@ -32,9 +32,6 @@ static int stm32_i2c_write_reg(struct i2c_device *i2cdev, unsigned short reg)
 
 	I2C->TXDR = (reg & 0xFF);
 
-	while (!(I2C->ISR & I2C_ISR_TCR))
-		;
-
 	return ret;
 }
 
@@ -258,14 +255,8 @@ static int stm32_i2c_transfer(struct i2c_device *i2cdev, struct i2c_msg *msg, in
 		}
 
 	} else if (direction == I2C_TRANSFER_WRITE) {
-		I2C->CR2 |= I2C_CR2_RELOAD;
-		stm32_i2c_set_transfer_size(i2cdev, 0x1);
-		I2C->CR2 |= I2C_CR2_START;
-
-		stm32_i2c_write_reg(i2cdev, msg->reg);
-
-		I2C->CR2 &= ~(I2C_CR2_START | I2C_CR2_STOP | I2C_CR2_RELOAD);
-
+		/* XXX: + 1 bytes to count the register byte */
+		msg->size += 1;
 		if (msg->size > 0xFF) {
 			stm32_i2c_set_transfer_size(i2cdev, 0xFF);
 			I2C->CR2 |= I2C_CR2_RELOAD;
@@ -275,6 +266,12 @@ static int stm32_i2c_transfer(struct i2c_device *i2cdev, struct i2c_msg *msg, in
 			I2C->CR2 |= I2C_CR2_AUTOEND;
 			n_bytes_to_write = msg->size;
 		}
+
+		I2C->CR2 |= I2C_CR2_START;
+
+		stm32_i2c_write_reg(i2cdev, msg->reg);
+		msg->size--;
+		n_bytes_to_write--;
 
 		while (msg->size) {
 			if (msg->size && !n_bytes_to_write) {
@@ -301,7 +298,6 @@ static int stm32_i2c_transfer(struct i2c_device *i2cdev, struct i2c_msg *msg, in
 			msg->size--;
 			n_bytes_to_write--;
 		}
-
 	} else {
 		error_printk("invalid direction\n");
 		ret = -EINVAL;
@@ -311,7 +307,7 @@ static int stm32_i2c_transfer(struct i2c_device *i2cdev, struct i2c_msg *msg, in
 	while (!(I2C->ISR & I2C_ISR_STOPF))
 		;
 
-	I2C->ISR |= I2C_ISR_STOPF;
+	I2C->ICR |= I2C_ICR_STOPCF;
 
 	I2C->CR2 = 0x0;
 
