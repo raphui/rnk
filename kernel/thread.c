@@ -116,7 +116,7 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 #endif
 	if (!thread) {
 		error_printk("failed to allocate thread: %p\n", func);
-		return NULL;
+		goto err;
 	}
 
 	memset(thread, 0, sizeof(struct thread));
@@ -133,19 +133,20 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 	thread->quantum = CONFIG_THREAD_QUANTUM;
 #endif
 
-	thread->start_stack = (unsigned int)kmalloc_align(8, CONFIG_THREAD_STACK_SIZE) + CONFIG_THREAD_STACK_SIZE;
+	thread->start_stack = (unsigned int)kmalloc_align(8, CONFIG_THREAD_STACK_SIZE);
 	if (!thread->start_stack) {
 		error_printk("failed to allocate thread stack\n");
-		return NULL;
+		goto err_alloc_stack;
 	}
+
+	thread->start_stack += CONFIG_THREAD_STACK_SIZE;
 
 	thread->delay = 0;
 	thread->func = func;
 	thread->arch = (struct arch_thread *)kmalloc(sizeof(struct arch_thread));
 	if (!thread->arch) {
 		error_printk("failed to allocate arch thread for: %p\n", func);
-		kfree(thread);
-		return NULL;
+		goto err_alloc_arch;
 	}
 
 	memset(thread->arch, 0, sizeof(struct arch_thread));
@@ -169,6 +170,14 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 	thread_count++;
 
 	return thread;
+
+err_alloc_arch:
+	thread->start_stack -= CONFIG_THREAD_STACK_SIZE;
+	kfree((void *)thread->start_stack);
+err_alloc_stack:
+	kfree(thread);
+err:
+	return NULL;
 }
 
 void thread_init(void)
