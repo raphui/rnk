@@ -207,6 +207,18 @@
 				compatible = "i2c,i2cdev";
 				status = "okay";
 			};
+
+			stc3115@0 {
+				compatible = "i2c,stc3115";
+				mode = <0>;
+				rsense = <40>;
+				battery-capacity = <550>;
+				battery-impedance = <0>;
+				alarm-enable = <1>;
+				alarm-soc = <30>;
+				alarm-mv = <3600>;
+				status = "okay";
+			};
 		};
 		
 		spi2: spi@40003800 {
