@@ -78,10 +78,8 @@ static int lr1110_read(struct device *dev, unsigned char *buff, unsigned int siz
 	/* XXX: sending the cmd will modify the content of the command buffer */
 	crc = lr1110_compute_crc(0xFF, transfer->command, transfer->command_length);
 
-	/* Send CMD */
-	for (int i = 0; i < transfer->command_length; i++) {
-		spi_transfer(spi, (unsigned char *)&transfer->command[i], sizeof(unsigned char));
-	}
+	if (transfer->command_length)
+		spi_transfer(spi, (unsigned char *)transfer->command, transfer->command_length);
 
 	/* Send CRC */
 	spi_transfer(spi, (unsigned char *)&crc, sizeof(unsigned char));
@@ -108,15 +106,11 @@ static int lr1110_write(struct device *dev, unsigned char *buff, unsigned int si
 	crc = lr1110_compute_crc(0xFF, transfer->command, transfer->command_length);
 	crc = lr1110_compute_crc(crc, transfer->data, transfer->data_length);
 
-	/* Send CMD */
-	for (int i = 0; i < transfer->command_length; i++) {
-		spi_transfer(spi, (unsigned char *)&transfer->command[i], sizeof(unsigned char));
-	}
+	if (transfer->command_length)
+		spi_transfer(spi, (unsigned char *)transfer->command, transfer->command_length);
 
-	/* Send Data */
-	for (int i = 0; i < transfer->data_length; i++) {
-		spi_transfer(spi, (unsigned char *)&transfer->data[i], sizeof(unsigned char));
-	}
+	if (transfer->data_length)
+		spi_transfer(spi, (unsigned char *)transfer->data, transfer->data_length);
 
 	/* Send CRC */
 	spi_transfer(spi, (unsigned char *)&crc, sizeof(unsigned char));
