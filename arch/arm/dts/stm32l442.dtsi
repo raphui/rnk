@@ -91,7 +91,7 @@
 				     <15>,
 				     <16>,
 				     <17>;
-			st,mem2mem;
+			//st,mem2mem;
 			dma-requests = <7>;
                         status = "okay";
 		};
@@ -107,7 +107,7 @@
 				     <60>,
 				     <68>,
 				     <69>;
-			st,mem2mem;
+			//st,mem2mem;
 			dma-requests = <7>;
                         status = "okay";
 		};
