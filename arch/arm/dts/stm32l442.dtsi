@@ -295,9 +295,9 @@
 			clocks = <&rcc 0 STM32L4_APB2_CLOCK(SPI1)>;
 			reg = <0x40013000 0x400>;
                         interrupts = <35>;
-			gpios =	<&gpiob 0x503 0x0A>,     /* SCK, PB3 */
-					<&gpioa 0x50B 0x08>,     /* MISO PA11 */
-					<&gpioa 0x50C 0x0A>;     /* MOSI PA12 */
+			gpios =	<&gpioa 0x505 0x0A>,     /* SCK, PA5 */
+					<&gpioa 0x506 0x08>,     /* MISO PA6 */
+					<&gpioa 0x507 0x0A>;     /* MOSI PA7 */
 			dmas = <&dma1 2 1 0x10400 0x3>,
 				<&dma1 3 1 0x10400 0x3>;
 			dma-names = "rx", "tx";
