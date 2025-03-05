@@ -19,7 +19,7 @@
 #define USE_USB_OTG_FS
 #endif /* CONFIG_USB_STACK */
  
-struct pio_operations pio_ops;
+extern struct pio_operations pio_ops;
 
 void board_enter_low_power(void);
 void board_exit_low_power(void);

@@ -19,6 +19,6 @@
 #define USE_USB_OTG_FS
 #endif /* CONFIG_USB_STACK */
  
-struct pio_operations pio_ops;
+extern struct pio_operations pio_ops;
 
 #endif /* BOARD_STM32F4XX_H */
