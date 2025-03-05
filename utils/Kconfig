@@ -13,6 +13,10 @@ choice
 config USART_DEBUG
     bool "USART"
 
+config USB_DEBUG
+    depends on USB_SUBSYS
+    bool "USB"
+
 config SWO_DEBUG
     bool "SWO"
 

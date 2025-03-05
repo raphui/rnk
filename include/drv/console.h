@@ -5,9 +5,11 @@
 
 #ifdef CONFIG_USART_DEBUG
 #include <drv/usart.h>
+#elif defined(CONFIG_USB_DEBUG)
+#include <drv/usb_cdc.h>
 #endif
 
-#ifndef CONFIG_USART_DEBUG
+#if !defined(CONFIG_USART_DEBUG) && !defined(CONFIG_USB_DEBUG)
 struct io_operations
 {
 	int (*write)(struct device *dev, unsigned char *buff, unsigned int len);
@@ -20,9 +22,13 @@ struct console
 {
 #ifdef CONFIG_USART_DEBUG
 	struct usart_device *usart;
+#elif defined(CONFIG_USB_DEBUG)
+	struct usb_cdc *usb;
+	uint8_t buf[256];
+	int idx;
 #endif
 	void *pdata;
-#ifndef CONFIG_USART_DEBUG
+#if !defined(CONFIG_USART_DEBUG) && !defined(CONFIG_USB_DEBUG)
 	struct io_operations *io_ops;
 #endif
 };
