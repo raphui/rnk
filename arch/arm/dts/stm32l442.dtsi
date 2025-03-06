@@ -266,7 +266,7 @@
 				<&gpioa 0xA0C 0x18>;
 			status = "okay";
 
-			usb_cdc@0 {
+			usb_cdc: usb_cdc@0 {
 				compatible = "usb,usb_cdc";
 				status = "okay";
 			};

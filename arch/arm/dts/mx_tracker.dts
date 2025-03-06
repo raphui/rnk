@@ -3,7 +3,11 @@
 
 / {
 	aliases {
+#ifdef CONFIG_USART_DEBUG
 		console = &usart1;
+#elif defined(CONFIG_USB_DEBUG)
+		console = &usb_cdc;
+#endif
 	};
 
 	clocks {
