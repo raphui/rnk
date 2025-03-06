@@ -61,6 +61,7 @@ clean:
 dist-clean: clean
 	$(PREFIX)$(RM) `find . -name *.d`
 	$(PREFIX)$(RM) `find . -name *.tmp`
+	$(PREFIX)$(RM) `find . -name *.o`
 
 %_defconfig:
 	$(PREFIX)cp arch/${ARCH}/configs/$@ .config
