@@ -66,7 +66,7 @@ endif
 LDFLAGS	:= -g $(INCLUDES) -nostartfiles -nostdlib -Wl,-Map=kernel.map -Wl,--gc-sections
 
 LDSFLAGS := $(INCLUDES)
-DTCPPFLAGS := -nostdinc -I$(KERNEL_BASE)/include -undef -D__DTS__ -x assembler-with-cpp
+DTCPPFLAGS := -nostdinc $(INCLUDES) -undef -D__DTS__ -x assembler-with-cpp
 
 LINKER_SCRIPT := $(KERNEL_BASE)/$(linker_files)
 
