@@ -215,7 +215,7 @@ static int stm32_lptim_init(struct device *dev)
 
 	timer->rate = timer->clock.source_clk;
 
-	stm32_lptim_set_rate(timer, 125000);//1000000);//32000);
+	stm32_lptim_set_rate(timer, 32000);
 
 	lptim->IER |= LPTIM_IER_CMPMIE;
 
