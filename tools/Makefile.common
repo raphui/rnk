@@ -14,7 +14,7 @@ CUR_OBJS_DIR := $(addsuffix $(subst $(KERNEL_BASE),,$(dir))/, $(OBJS_DIR))
 $(call prepend-dir,subdirs-y):
 	$(PREFIX)$(MAKE) --no-print-directory -f Makefile.common dir=$@ file=Makefile $(MAKECMDGOALS)
 
-all: $(call prepend-dir,subdirs-y) $(call prepend-objs,obj-y) $(call prepend-objs,extra-y)
+all: $(call prepend-dir,subdirs-y) $(call prepend-objs,obj-y) $(call prepend-objs,extra-y) $(call prepend-objs,dtb-y)
 	$(PREFIX)echo $(call prepend-objs,obj-y) >> objects.lst
 
 clean: $(call prepend-dir,subdirs-y)
@@ -45,8 +45,6 @@ $(CUR_OBJS_DIR)%.o: $(dir)/%.dts
 	$(PREFIX)$(CPP) -MMD -MF $(patsubst %.o,%.d,$@) $(DTCPPFLAGS) $< > $@.tmp
 	$(PREFIX)$(DTC) -q -Idts -Odtb $@.tmp > $(dtb)
 	$(PREFIX)$(DTC) -q -Idts -Oasm $@.tmp > $(dtb).asm
-	$(PREFIX)$(OBJCOPY) -I binary -O elf32-littlearm -B arm --rename-section .data=.text,contents,readonly $(dtb) $@
-
 
 -include $(addprefix $(CUR_OBJS_DIR),$(dep))
 
