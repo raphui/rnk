@@ -151,6 +151,25 @@
 			compatible = "st,stm32-pio";
                         status = "okay";
 		};
+
+#if 0
+		otgfs: otgfs@50000000 {
+			reg = <0x50000000 0x40000>;
+			clocks = <&rcc 0 STM32L4_AHB2_CLOCK(OTGFS)>;
+			compatible = "st,stm32-usb";
+			interrupts = <67>;
+
+			gpios = <&gpioa 0xA0B 0x18>,
+				<&gpioa 0xA0C 0x18>;
+			status = "okay";
+
+			usb_cdc@0 {
+				compatible = "usb,usb_cdc";
+				status = "okay";
+			};
+		};
+#endif
+
 	};
 
 	apb1 {
