@@ -54,7 +54,7 @@ endif
 
 INCLUDES	+= -include $(KERNEL_BASE)/config.h
 ASFLAGS	:= -g $(INCLUDES) -D__ASSEMBLY__ -mcpu=$(MCPU) -mthumb
-CFLAGS  :=  -Wall -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -nostdlib -nostdinc -g $(INCLUDES)
+CFLAGS  :=  -Wall -Wno-incompatible-pointer-types -fno-builtin -ffunction-sections -mcpu=$(MCPU) -mthumb -mfloat-abi=soft -nostdlib -nostdinc -g $(INCLUDES)
 CFLAGS += -Os
 
 ifeq ($(CONFIG_UNWIND),y)
