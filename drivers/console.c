@@ -7,6 +7,12 @@
 
 static struct console *cons;
 
+#ifdef CONFIG_BUFFER_DEBUG
+#define DEBUG_BUFF_SIZE	8192
+static char __attribute__((used)) debug_buff[DEBUG_BUFF_SIZE];
+static int idx = 0;
+#endif
+
 int console_write(unsigned char *buff, unsigned int len)
 {
 	int ret = 0;
@@ -16,6 +22,13 @@ int console_write(unsigned char *buff, unsigned int len)
 		return -ENOTTY;
 
 	ret = cons->io_ops->write(cons->pdata, buff, len);
+#elif defined(CONFIG_BUFFER_DEBUG)
+	int i = 0;
+	while (len--) {
+		debug_buff[idx]	 = buff[i];
+		idx = (idx + 1)	% DEBUG_BUFF_SIZE;
+		i++;
+	}
 #else
 	if (!cons)
 		return -ENOTTY;
@@ -115,7 +128,7 @@ static int console_init(void)
 #endif
 	cons->pdata = dev;
 
-#if !defined(CONFIG_USART_DEBUG) && !defined(CONFIG_USB_DEBUG)
+#if !defined(CONFIG_USART_DEBUG) && !defined(CONFIG_USB_DEBUG) && !defined(CONFIG_BUFFER_DEBUG)
 	cons->io_ops = &io_op;
 #endif
 

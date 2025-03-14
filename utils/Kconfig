@@ -20,6 +20,9 @@ config USB_DEBUG
 config SWO_DEBUG
     bool "SWO"
 
+config BUFFER_DEBUG
+    bool "Internal buffer"
+
 config SEMIHOSTING_DEBUG
     depends on SEMIHOSTING
     bool "Semihosting"
