@@ -99,6 +99,7 @@ kernel.elf: conf
 	$(PREFIX)$(MAKE) --no-print-directory -f Makefile.common dir=$(KERNEL_BASE) all
 	$(PREFIX)$(CC) -T$(LINKER_SCRIPT) -o $(KERNEL_BASE)/$@ \
 		`cat objects.lst | tr '\n' ' '` $(LDFLAGS)
+	$(PREFIX)$(SIZE) $(KERNEL_BASE)/$@
  
 include $(wildcard *.d)
  

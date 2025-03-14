@@ -32,6 +32,7 @@ CC := $(CROSS_COMPILE)gcc
 AS := $(CROSS_COMPILE)as
 AR := $(CROSS_COMPILE)ar
 LD := $(CROSS_COMPILE)ld
+SIZE := $(CROSS_COMPILE)size
 OBJCOPY := $(CROSS_COMPILE)objcopy
 LDS := $(CROSS_COMPILE)gcc -E -P -C
 DTC := $(KERNEL_BASE)/tools/dtc
