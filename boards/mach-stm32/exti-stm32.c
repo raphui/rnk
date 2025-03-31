@@ -16,7 +16,7 @@ struct action {
 
 static struct action exti_callbacks[CONFIG_EXTI_LINES];
 
-static int nvic_array[15] = {
+static int nvic_array[16] = {
 	EXTI0_IRQn,
 	EXTI1_IRQn,
 	EXTI2_IRQn,
@@ -27,6 +27,7 @@ static int nvic_array[15] = {
 	EXTI9_5_IRQn,
 	EXTI9_5_IRQn,
 	EXTI9_5_IRQn,
+	EXTI15_10_IRQn,
 	EXTI15_10_IRQn,
 	EXTI15_10_IRQn,
 	EXTI15_10_IRQn,
