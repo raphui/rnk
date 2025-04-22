@@ -103,7 +103,11 @@ static void _cbSendSystemDesc(void) {
   SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick");
   SEGGER_SYSVIEW_SendSysDesc("I#19=EXTI22/RTC WKUP");
   SEGGER_SYSVIEW_SendSysDesc("I#24=EXTI2");
-  SEGGER_SYSVIEW_SendSysDesc("I#72=DMA2_Stream0");
+  SEGGER_SYSVIEW_SendSysDesc("I#26=EXTI4");
+  SEGGER_SYSVIEW_SendSysDesc("I#28=DMA1_CH2");
+  SEGGER_SYSVIEW_SendSysDesc("I#56=EXTI9_15");
+  SEGGER_SYSVIEW_SendSysDesc("I#72=DMA2_CH1");
+  SEGGER_SYSVIEW_SendSysDesc("I#81=LPTIM1");
   SEGGER_SYSVIEW_SendSysDesc("I#83=OTG_FS");
 }
 
