@@ -12,6 +12,7 @@
 #include <drv/clk.h>
 #include <drv/timer.h>
 #include <drv/irq.h>
+#include <trace.h>
 
 struct irq_callback {
 	void (*callback)(void *arg);
@@ -29,34 +30,23 @@ static void stm32_lptim_isr(void *arg)
 
 	lptim->ICR = 0x7F;
 
-	system_tick += timer->counter;// * timer->rate);
+	system_tick += timer->counter;
  
 	irq_callback_infos.callback(irq_callback_infos.arg);
 }
 
-static short stm32_lptim_find_best_pres(unsigned long parent_rate, unsigned long rate, unsigned int *prescaler)
+static short stm32_lptim_find_best_pres(unsigned long parent_rate, unsigned long delay_us, unsigned int *prescaler)
 {
 	unsigned int i;
 	unsigned short pres[] = {1, 2, 4, 8, 16, 32, 64, 128};
-	unsigned int diff;
-	unsigned int best_diff;
-	unsigned long curr_rate;
-
-	best_diff = parent_rate - rate;
+	unsigned int tick_us;
+	unsigned int tick_needed;
 
 	for (i = 0; i < sizeof(pres) / sizeof(unsigned short); i++) {
-		curr_rate = parent_rate / pres[i];
+		tick_us = (1000000UL * pres[i]) / parent_rate;
+		tick_needed = delay_us / tick_us;
 
-		if (curr_rate < rate)
-			diff = rate - curr_rate;
-		else
-			diff = curr_rate - rate;
-
-		if (diff < best_diff) {
-			best_diff = diff;
-		}
-
-		if (!best_diff || curr_rate < rate)
+		if (tick_needed <= 0xFFFF)
 			break;
 	}
 
@@ -66,22 +56,30 @@ static short stm32_lptim_find_best_pres(unsigned long parent_rate, unsigned long
 }
 
 
-static void stm32_lptim_set_rate(struct timer *timer, unsigned long rate)
+static void stm32_lptim_set_rate(struct timer *timer, unsigned long delay_us)
 {
 	LPTIM_TypeDef *lptim = (LPTIM_TypeDef *)timer->base_reg;
 	unsigned short pres;
 
-	pres = stm32_lptim_find_best_pres(timer->rate, rate, &timer->prescaler);
+	pres = stm32_lptim_find_best_pres(timer->clock.source_clk, delay_us, &timer->prescaler);
 
-	timer->rate = 1000000 * timer->prescaler / timer->clock.source_clk;
+	timer->rate = 1000000UL * timer->prescaler / timer->clock.source_clk;
 
 	lptim->CFGR &= ~LPTIM_CFGR_PRESC_Msk;
 	lptim->CFGR |= (pres << LPTIM_CFGR_PRESC_Pos);
 }
 
-static void stm32_lptim_set_counter(struct timer *timer, unsigned int counter)
+static void stm32_lptim_set_counter(struct timer *timer, unsigned int delay_us)
 {
+	int counter = delay_us;
 	LPTIM_TypeDef *lptim = (LPTIM_TypeDef *)timer->base_reg;
+
+	/* XXX: avoid reconfiguring if current timer is still running and new delay is longer */
+	if (timer->counter && counter > timer->counter) {
+		return;
+	}
+
+	stm32_lptim_set_rate(timer, delay_us);
 
 	counter /= timer->rate;
 
@@ -109,7 +107,9 @@ static void stm32_lptim_enable(struct timer *timer)
 
 	nvic_enable_interrupt(nvic);
 
+	trace_entry_custom(__func__);
 	lptim->CR = LPTIM_CR_ENABLE | LPTIM_CR_SNGSTRT | LPTIM_CR_CNTSTRT;
+	trace_exit_custom();
 }
 
 static void stm32_lptim_disable(struct timer *timer)
@@ -212,10 +212,6 @@ static int stm32_lptim_init(struct device *dev)
 	}
 
 	lptim = (LPTIM_TypeDef *)timer->base_reg;
-
-	timer->rate = timer->clock.source_clk;
-
-	stm32_lptim_set_rate(timer, 32000);
 
 	lptim->IER |= LPTIM_IER_CMPMIE;
 
