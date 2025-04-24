@@ -12,7 +12,6 @@
 #include <drv/clk.h>
 #include <drv/timer.h>
 #include <drv/irq.h>
-#include <trace.h>
 
 struct irq_callback {
 	void (*callback)(void *arg);
@@ -55,6 +54,25 @@ static short stm32_lptim_find_best_pres(unsigned long parent_rate, unsigned long
 	return i;
 }
 
+static int stm32_lptim_read_usec_elapsed(struct timer *timer)
+{
+	LPTIM_TypeDef *lptim = (LPTIM_TypeDef *)timer->base_reg;
+	int cnt1;
+	int cnt2;
+
+	/*
+	 * XXX: When timer is runnning, reference manual recommands to 
+	 * perform two consecutives read and check that both value are the same.
+	 *
+	 */
+	do {
+		cnt1 = lptim->CNT;
+		cnt2 = lptim->CNT;
+	} while (cnt1 != cnt2);
+
+
+	return timer->rate * cnt1;
+}
 
 static void stm32_lptim_set_rate(struct timer *timer, unsigned long delay_us)
 {
@@ -71,11 +89,14 @@ static void stm32_lptim_set_rate(struct timer *timer, unsigned long delay_us)
 
 static void stm32_lptim_set_counter(struct timer *timer, unsigned int delay_us)
 {
+	int elapsed_time;
 	int counter = delay_us;
 	LPTIM_TypeDef *lptim = (LPTIM_TypeDef *)timer->base_reg;
 
+	elapsed_time = stm32_lptim_read_usec_elapsed(timer);
+
 	/* XXX: avoid reconfiguring if current timer is still running and new delay is longer */
-	if (timer->counter && counter > timer->counter) {
+	if (timer->counter && counter > (timer->counter - elapsed_time)) {
 		return;
 	}
 
@@ -107,9 +128,7 @@ static void stm32_lptim_enable(struct timer *timer)
 
 	nvic_enable_interrupt(nvic);
 
-	trace_entry_custom(__func__);
 	lptim->CR = LPTIM_CR_ENABLE | LPTIM_CR_SNGSTRT | LPTIM_CR_CNTSTRT;
-	trace_exit_custom();
 }
 
 static void stm32_lptim_disable(struct timer *timer)
