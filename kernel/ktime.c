@@ -132,7 +132,11 @@ int ktime_oneshot_cancel(struct ktimer *timer)
 
 int ktime_get_ticks(void)
 {
+#ifdef CONFIG_TICKLESS
+	return system_tick / 1000;
+#else
 	return system_tick;
+#endif
 }
 
 #ifdef CONFIG_TICKLESS
