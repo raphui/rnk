@@ -64,6 +64,10 @@ void schedule_thread(struct thread *thread)
 
 	switch_thread(t);
 #endif
+
+#ifdef CONFIG_TICKLESS
+	ktime_wakeup_next_delay();
+#endif
 }
 
 void schedule_thread_stop(struct thread *thread)
