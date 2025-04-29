@@ -32,14 +32,26 @@ unsigned long thread_lock = SPIN_LOCK_INITIAL_VALUE;
 
 static void idle_thread(void)
 {
+	int low_power = 0;
 	unsigned long irqstate;
+	struct thread *thread;
 
 	while(1) {
 		arch_interrupt_save(&irqstate, SPIN_LOCK_FLAG_IRQ);
 #ifdef CONFIG_TICKLESS
 		ktime_wakeup_next_delay();
 #endif
-		arch_idle();
+#ifdef CONFIG_LOW_POWER
+		low_power = 1;
+
+		list_for_every_entry(&threads, thread, struct thread, node) {
+			if (thread->wait_reason != THREAD_WAIT_TIMEOUT) {
+				low_power = 0;
+				break;
+			}
+		}
+#endif
+		arch_idle(low_power);
 
 		arch_interrupt_restore(irqstate, SPIN_LOCK_FLAG_IRQ);
 	}
