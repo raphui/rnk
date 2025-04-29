@@ -13,6 +13,12 @@
 #define THREAD_BLOCKED		4
 #define THREAD_SUSPEND		5
 
+#define THREAD_WAIT_NONE	0
+#define THREAD_WAIT_SEM		1
+#define THREAD_WAIT_MUTEX	2
+#define THREAD_WAIT_QUEUE	3
+#define THREAD_WAIT_TIMEOUT	4
+
 #define NUM_PRIORITIES		32
 #define MAX_PRIORITIES		32
 #define LOWEST_PRIORITY		0
@@ -52,6 +58,7 @@ struct thread
 	struct wait_queue wait_exit;
 	struct wait_queue *wait_queue;
 	int err_wait;
+	int wait_reason;
 };
 
 void thread_init(void);

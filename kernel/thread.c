@@ -163,6 +163,8 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 	snprintf(thread->name, sizeof(thread->name), "thread %d\n", thread->pid);
 #endif /* CONFIG_TRACE */
 
+	thread->wait_reason = THREAD_WAIT_NONE;
+
 	trace_thread_create(thread);
 
 	insert_thread(thread);

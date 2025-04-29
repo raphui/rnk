@@ -151,6 +151,8 @@ err:
 
 static void _kqueue_receive(struct queue *queue, void *item)
 {
+	struct thread *current_thread = get_current_thread();
+
 	thread_lock(state);
 
 	if (queue->item_queued) {
@@ -158,6 +160,8 @@ static void _kqueue_receive(struct queue *queue, void *item)
 			memcpy(item, queue->curr, queue->item_size);
 			queue->curr += queue->item_size;
 			queue->item_queued--;
+
+			current_thread->wait_reason = THREAD_WAIT_QUEUE;
 
 			wait_queue_wake_irqstate(&queue->wait_post, &state);
 		}

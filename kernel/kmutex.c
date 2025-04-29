@@ -57,6 +57,8 @@ int kmutex_lock(struct mutex *mutex)
 		}
 #endif /* CONFIG_PRIORITY_INHERITANCE */
 
+		current_thread->wait_reason = THREAD_WAIT_MUTEX;
+
 		ret = wait_queue_block_irqstate(&mutex->wait, &state);
 	}
 

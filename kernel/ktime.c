@@ -83,6 +83,7 @@ void ktime_usleep(unsigned int usec)
 
 	remove_runnable_thread(thread);
 	thread->state = THREAD_BLOCKED;
+	thread->wait_reason = THREAD_WAIT_TIMEOUT;
 
 	insert_sleeping_thread(thread);
 

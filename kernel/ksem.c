@@ -33,6 +33,7 @@ err:
 int ksem_wait(struct semaphore *sem)
 {
 	int ret = 0;
+	struct thread *current_thread = get_current_thread();
 
 	thread_lock(state);
 
@@ -47,6 +48,8 @@ int ksem_wait(struct semaphore *sem)
 
 	if (sem->count < 0) {
 		debug_printk("unable to got sem (%p)(%d)\r\n", sem, sem->count);
+
+		current_thread->wait_reason = THREAD_WAIT_SEM;
 
 		ret = wait_queue_block_irqstate(&sem->wait, &state);
 	}
@@ -59,6 +62,7 @@ err:
 int ksem_timedwait(struct semaphore *sem, int timeout)
 {
 	int ret = 0;
+	struct thread *current_thread = get_current_thread();
 
 	thread_lock(state);
 
@@ -73,6 +77,8 @@ int ksem_timedwait(struct semaphore *sem, int timeout)
 
 	if (sem->count < 0) {
 		debug_printk("unable to got sem (%p)(%d)\r\n", sem, sem->count);
+
+		current_thread->wait_reason = THREAD_WAIT_SEM;
 
 		ret = wait_queue_block_timed(&sem->wait, timeout, &state);
 	}
