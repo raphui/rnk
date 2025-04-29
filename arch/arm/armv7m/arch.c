@@ -38,21 +38,25 @@ void arch_init_tick(void)
 #endif
 }
 
-void arch_idle(void)
+void arch_idle(int low_power)
 {
 	__disable_it();
 #ifdef CONFIG_LOW_POWER
-	systick_disable_it();
-	board_enter_low_power();
-	enable_deepsleep();
+	if (low_power) {
+		systick_disable_it();
+		board_enter_low_power();
+		enable_deepsleep();
+	}
 #endif
 	__dsb();
 	wait_for_interrupt();
 	__isb();
 #ifdef CONFIG_LOW_POWER
-	disable_deepsleep();
-	board_exit_low_power();
-	systick_enable_it();
+	if (low_power) {
+		disable_deepsleep();
+		board_exit_low_power();
+		systick_enable_it();
+	}
 #endif
 	__enable_it();
 	__dsb();
