@@ -14,6 +14,8 @@
 
 #ifdef CONFIG_MAX_THREADS
 static struct thread threads[CONFIG_MAX_THREADS];
+#else
+static struct list_node threads;
 #endif
 
 static struct thread *current_thread = NULL;
@@ -46,13 +48,13 @@ static void idle_thread(void)
 #if defined(CONFIG_SCHEDULE_RR_PRIO) || defined(CONFIG_SCHEDULE_ROUND_ROBIN)
 static void insert_in_run_queue_head(struct thread *t)
 {
-	list_add_head(&run_queue[t->priority], &t->node);
+	list_add_head(&run_queue[t->priority], &t->state_node);
 	run_queue_bitmap |= (1 << t->priority);
 }
 
 static void insert_in_run_queue_tail(struct thread *t)
 {
-	list_add_tail(&run_queue[t->priority], &t->node);
+	list_add_tail(&run_queue[t->priority], &t->state_node);
 	run_queue_bitmap |= (1 << t->priority);
 }
 #endif
@@ -69,22 +71,22 @@ static void insert_thread(struct thread *t)
 	verbose_printk("inserting thread %d\r\n", t->pid);
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
 	if (list_is_empty(&run_queue[0])) {
-		list_add_head(&run_queue[0], &t->node);
+		list_add_head(&run_queue[0], &t->state_node);
 	} else {
-		list_for_every_entry(&run_queue[0], thread, struct thread, node) {
+		list_for_every_entry(&run_queue[0], thread, struct thread, state_node) {
 			verbose_printk("t->priority: %d, thread->priority; %d\r\n", t->priority, thread->priority);
 			if (t->priority > thread->priority) {
 				verbose_printk("inserting thread %d\r\n", t->pid);
-				list_add_before(&thread->node, &t->node);
+				list_add_before(&thread->state_node, &t->state_node);
 				inserted = 1;
 				break;
 			}
-			else if (thread->node.next == &run_queue[0])
+			else if (thread->state_node.next == &run_queue[0])
 				break;
 		}
 
 		if (!inserted)
-			list_add_after(&thread->node, &t->node);
+			list_add_after(&thread->state_node, &t->state_node);
 	}
 #elif defined(CONFIG_SCHEDULE_RR_PRIO)
 	if (t->quantum > 0)
@@ -169,6 +171,8 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 
 	insert_thread(thread);
 
+	list_add_tail(&threads, &thread->node);
+
 	thread_count++;
 
 	return thread;
@@ -190,6 +194,7 @@ void thread_init(void)
 		list_initialize(&run_queue[i]);
 
 	list_initialize(&suspend_queue);
+	list_initialize(&threads);
 
 	add_thread(&idle_thread, NULL, IDLE_PRIORITY, PRIVILEGED_THREAD);
 }
@@ -261,7 +266,7 @@ struct thread *find_next_thread(void)
 
 		debug_printk("next_queue: %d\n", next_queue);
 
-		list_for_every_entry(&run_queue[next_queue], thread, struct thread, node) {
+		list_for_every_entry(&run_queue[next_queue], thread, struct thread, state_node) {
 
 			debug_printk("next thread: %d\n", thread->pid);
 			if (list_is_empty(&run_queue[next_queue]))
@@ -273,9 +278,9 @@ struct thread *find_next_thread(void)
 		bitmap &= ~(1 << next_queue);
 	}
 #elif defined(CONFIG_SCHEDULE_PRIORITY)
-	thread = list_peek_head_type(&run_queue[0], struct thread, node);
+	thread = list_peek_head_type(&run_queue[0], struct thread, state_node);
 #elif defined(CONFIG_SCHEDULE_ROUND_ROBIN)
-	list_for_every_entry(&run_queue[0], thread, struct thread, node) {
+	list_for_every_entry(&run_queue[0], thread, struct thread, state_node) {
 		if ((thread->quantum > 0) && (thread->pid != 0)) {
 			found = 1;
 			break;
@@ -287,7 +292,7 @@ struct thread *find_next_thread(void)
 
 	/* Only idle thread is eligible */
 	if (!found) {
-		thread = list_peek_head_type(&run_queue[0], struct thread, node);
+		thread = list_peek_head_type(&run_queue[0], struct thread, state_node);
 	}
 #endif
 
@@ -304,7 +309,7 @@ void insert_runnable_thread(struct thread *thread)
 
 	assert(thread != NULL);
 
-	if (!list_in_list(&thread->event_node) && !list_in_list(&thread->node)) {
+	if (!list_in_list(&thread->event_node) && !list_in_list(&thread->state_node)) {
 		trace_thread_runnable(thread);
 
 		insert_thread(thread);
@@ -325,7 +330,7 @@ void remove_runnable_thread(struct thread *thread)
 #endif
 
 	if (thread->state != THREAD_RUNNING && thread->state != THREAD_STOPPED)
-		list_delete(&thread->node);
+		list_delete(&thread->state_node);
 
 	thread_unlock(state);
 }
@@ -344,7 +349,7 @@ int thread_suspend(struct thread *t)
 	if (t->state != THREAD_SUSPEND) {
 		remove_runnable_thread(t);
 		t->state = THREAD_SUSPEND;
-		list_add_tail(&suspend_queue, &t->node);
+		list_add_tail(&suspend_queue, &t->state_node);
 		schedule_thread(NULL);
 	}
 
@@ -357,7 +362,7 @@ int thread_resume(struct thread *t)
 
 	if (t->state == THREAD_SUSPEND) {
 		t->state = THREAD_RUNNABLE;
-		list_delete(&t->node);
+		list_delete(&t->state_node);
 		insert_runnable_thread(t);
 		schedule_thread(NULL);
 	}

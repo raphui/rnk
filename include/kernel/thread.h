@@ -54,6 +54,7 @@ struct thread
 	void (*func)(void);
 	struct arch_thread *arch;
 	struct list_node node;
+	struct list_node state_node;
 	struct list_node event_node;
 	struct wait_queue wait_exit;
 	struct wait_queue *wait_queue;

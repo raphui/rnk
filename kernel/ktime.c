@@ -18,11 +18,11 @@ static void insert_sleeping_thread(struct thread *thread)
 
 	thread_lock(state);
 
-	list_for_every_entry(&sleeping_threads, t, struct thread, node)
+	list_for_every_entry(&sleeping_threads, t, struct thread, state_node)
 		if (thread->delay < t->delay)
 			break;
 
-	list_add_before(&t->node, &thread->node);
+	list_add_before(&t->state_node, &thread->state_node);
 
 	thread_unlock(state);
 }
@@ -31,7 +31,7 @@ static void remove_sleeping_thread(struct thread *thread)
 {
 	thread_lock(state);
 
-	list_delete(&thread->node);
+	list_delete(&thread->state_node);
 
 	thread_unlock(state);
 }
@@ -153,7 +153,7 @@ void ktime_wakeup_next_delay(void)
 
 	/* XXX: Find the shortest next delay between thread sleeping and software timers */
 
-	list_for_every_entry_safe(&sleeping_threads, thread, tmp, struct thread, node) {
+	list_for_every_entry_safe(&sleeping_threads, thread, tmp, struct thread, state_node) {
 		if (thread->delay <= system_tick) {
 			remove_sleeping_thread(thread);
 			insert_runnable_thread(thread);
@@ -163,7 +163,7 @@ void ktime_wakeup_next_delay(void)
 		}
 	}
 
-	next = list_peek_head_type(&sleeping_threads, struct thread, node);
+	next = list_peek_head_type(&sleeping_threads, struct thread, state_node);
 	if (next)
 		shortest_delay = next->delay - system_tick;
 
@@ -185,7 +185,7 @@ void decrease_thread_delay(void)
 	struct thread *tmp;
 	struct thread *curr = get_current_thread();
 
-	list_for_every_entry_safe(&sleeping_threads, thread, tmp, struct thread, node) {
+	list_for_every_entry_safe(&sleeping_threads, thread, tmp, struct thread, state_node) {
 		if (thread->delay <= system_tick) {
 			remove_sleeping_thread(thread);
 			insert_runnable_thread(thread);
