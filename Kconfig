@@ -16,5 +16,6 @@ source lib/Kconfig
 source loader/Kconfig
 source drivers/Kconfig
 source mm/Kconfig
+source pm/Kconfig
 source third_party/Kconfig
 source utils/Kconfig

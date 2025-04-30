@@ -16,6 +16,7 @@ subdirs-y += ldscripts
 subdirs-y += lib
 subdirs-y += loader
 subdirs-y += mm
+subdirs-y += pm
 subdirs-y += third_party
 subdirs-y += utils
 

@@ -49,6 +49,7 @@ config STACK_SIZE
 	hex "Size of stack"
 
 config LOW_POWER
+     depends on PM 
      bool "Enter low power during idle"
 
 source arch/arm/lib/Kconfig
