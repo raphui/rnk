@@ -11,6 +11,7 @@
 #include <drv/device.h>
 #include <drv/spi.h>
 #include <kernel/kmutex.h>
+#include <pm/pm.h>
 
 static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long rate)
 {
@@ -206,10 +207,6 @@ static int stm32_spi_write(struct spi_device *spidev, unsigned char *buff, unsig
 	if (!spi->master)
 		SPI->CR1 &= ~SPI_CR1_SSI;
 
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 1;
-	kmutex_unlock(&spi->transaction_mutex);
-
 	for (i = 0; i < size; i++) {
 		while (!(SPI->SR & SPI_SR_TXE))
 			;
@@ -231,10 +228,6 @@ static int stm32_spi_write(struct spi_device *spidev, unsigned char *buff, unsig
 	if (!spi->master)
 		SPI->CR1 |= SPI_CR1_SSI;
 
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 0;
-	kmutex_unlock(&spi->transaction_mutex);
-
 	return i;
 }
 
@@ -246,10 +239,6 @@ static int stm32_spi_read(struct spi_device *spidev, unsigned char *buff, unsign
 
 	if (!spi->master)
 		SPI->CR1 &= ~SPI_CR1_SSI;
-
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 1;
-	kmutex_unlock(&spi->transaction_mutex);
 
 	for (i = 0; i < size; i++) {
 		while (!(SPI->SR & SPI_SR_TXE))
@@ -273,10 +262,6 @@ static int stm32_spi_read(struct spi_device *spidev, unsigned char *buff, unsign
 	if (!spi->master)
 		SPI->CR1 |= SPI_CR1_SSI;
 
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 0;
-	kmutex_unlock(&spi->transaction_mutex);
-
 	return i;
 }
 
@@ -285,10 +270,6 @@ static int stm32_spi_exchange(struct spi_device *spidev, unsigned char *in, unsi
 	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 	int i;
-
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 1;
-	kmutex_unlock(&spi->transaction_mutex);
 
 	for (i = 0; i < size; i++) {
 		while (!(SPI->SR & SPI_SR_TXE))
@@ -316,10 +297,6 @@ static int stm32_spi_exchange(struct spi_device *spidev, unsigned char *in, unsi
 #endif
 	}
 
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 0;
-	kmutex_unlock(&spi->transaction_mutex);
-
 	return i;
 }
 
@@ -335,6 +312,43 @@ struct spi_operations spi_ops = {
 	.read = stm32_spi_read,
 	.exchange = stm32_spi_exchange,
 };
+
+#ifdef CONFIG_PM
+int stm32_spi_pm_state_entry(int state, void *pdata)
+{
+	int ret = 0;
+	struct spi_master *spi = (struct spi_master *)pdata;
+
+	switch (state) {
+	case POWER_STATE_IDLE:
+	case POWER_STATE_SLEEP:
+		break;
+	case POWER_STATE_DEEPSLEEP:
+		kmutex_lock(&spi->transaction_mutex);
+
+		if (spi->transaction_ongoing)
+			ret = -EBUSY;
+
+		kmutex_unlock(&spi->transaction_mutex);
+		break;
+	}
+
+	return ret;
+}
+
+int stm32_spi_pm_state_exit(int state, void *pdata)
+{
+	int ret = 0;
+	struct spi_master *spi = (struct spi_master *)spi;
+
+	return ret;
+}
+
+struct pm_notifier stm32_spi_pm_notifier = {
+	.state_entry = stm32_spi_pm_state_entry,
+	.state_exit = stm32_spi_pm_state_exit,
+};
+#endif
 
 int stm32_spi_of_init(struct spi_master *spi)
 {
@@ -489,6 +503,12 @@ int stm32_spi_init(struct device *device)
 		error_printk("failed to register spi master\n");
 		goto disable_clk;
 	}
+
+#ifdef CONFIG_PM
+	stm32_spi_pm_notifier.pdata = spi;
+
+	pm_notifier_register(&stm32_spi_pm_notifier);
+#endif
 
 	return ret;
 
