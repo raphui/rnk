@@ -10,6 +10,7 @@
 #include <init.h>
 #include <drv/device.h>
 #include <drv/spi.h>
+#include <kernel/kmutex.h>
 
 static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long rate)
 {
@@ -64,6 +65,10 @@ static int stm32_spi_dma_write(struct spi_device *spidev, unsigned char *buff, u
 	SPI->CR2 |= SPI_CR2_TXDMAEN;
 	SPI->CR2 |= SPI_CR2_RXDMAEN;
 
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 1;
+	kmutex_unlock(&spi->transaction_mutex);
+
 	SPI->CR1 |= SPI_CR1_SPE;
 
 	dma->enable_interrupt = 1;
@@ -73,6 +78,10 @@ static int stm32_spi_dma_write(struct spi_device *spidev, unsigned char *buff, u
 	ksem_wait(&spidev->master->sem);
 
 	stm32_dma_disable(dma);
+
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 0;
+	kmutex_unlock(&spi->transaction_mutex);
 
 	return ret;
 }
@@ -100,6 +109,10 @@ static int stm32_spi_dma_read(struct spi_device *spidev, unsigned char *buff, un
 	SPI->CR2 |= SPI_CR2_TXDMAEN;
 	SPI->CR2 |= SPI_CR2_RXDMAEN;
 
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 1;
+	kmutex_unlock(&spi->transaction_mutex);
+
 	SPI->CR1 |= SPI_CR1_SPE;
 
 	dma->enable_interrupt = 1;
@@ -115,6 +128,10 @@ static int stm32_spi_dma_read(struct spi_device *spidev, unsigned char *buff, un
 		SPI->CR1 |= SPI_CR1_SSI;
 
 	stm32_dma_disable(dma);
+
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 0;
+	kmutex_unlock(&spi->transaction_mutex);
 
 	return ret;
 }
@@ -159,6 +176,10 @@ static int stm32_spi_dma_exchange(struct spi_device *spidev, unsigned char *in, 
 	stm32_dma_enable(dma_w);
 	stm32_dma_enable(dma_r);
 
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 1;
+	kmutex_unlock(&spi->transaction_mutex);
+
 	SPI->CR1 |= SPI_CR1_SPE;
 
 	ksem_wait(&spidev->master->sem);
@@ -168,6 +189,10 @@ static int stm32_spi_dma_exchange(struct spi_device *spidev, unsigned char *in, 
 
 	stm32_dma_disable(dma_w);
 	stm32_dma_disable(dma_r);
+
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 0;
+	kmutex_unlock(&spi->transaction_mutex);
 
 	return ret;
 }
@@ -180,6 +205,10 @@ static int stm32_spi_write(struct spi_device *spidev, unsigned char *buff, unsig
 
 	if (!spi->master)
 		SPI->CR1 &= ~SPI_CR1_SSI;
+
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 1;
+	kmutex_unlock(&spi->transaction_mutex);
 
 	for (i = 0; i < size; i++) {
 		while (!(SPI->SR & SPI_SR_TXE))
@@ -202,6 +231,10 @@ static int stm32_spi_write(struct spi_device *spidev, unsigned char *buff, unsig
 	if (!spi->master)
 		SPI->CR1 |= SPI_CR1_SSI;
 
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 0;
+	kmutex_unlock(&spi->transaction_mutex);
+
 	return i;
 }
 
@@ -213,6 +246,10 @@ static int stm32_spi_read(struct spi_device *spidev, unsigned char *buff, unsign
 
 	if (!spi->master)
 		SPI->CR1 &= ~SPI_CR1_SSI;
+
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 1;
+	kmutex_unlock(&spi->transaction_mutex);
 
 	for (i = 0; i < size; i++) {
 		while (!(SPI->SR & SPI_SR_TXE))
@@ -236,6 +273,10 @@ static int stm32_spi_read(struct spi_device *spidev, unsigned char *buff, unsign
 	if (!spi->master)
 		SPI->CR1 |= SPI_CR1_SSI;
 
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 0;
+	kmutex_unlock(&spi->transaction_mutex);
+
 	return i;
 }
 
@@ -244,6 +285,10 @@ static int stm32_spi_exchange(struct spi_device *spidev, unsigned char *in, unsi
 	struct spi_master *spi = spidev->master;
 	SPI_TypeDef *SPI = (SPI_TypeDef *)spi->base_reg;
 	int i;
+
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 1;
+	kmutex_unlock(&spi->transaction_mutex);
 
 	for (i = 0; i < size; i++) {
 		while (!(SPI->SR & SPI_SR_TXE))
@@ -270,6 +315,10 @@ static int stm32_spi_exchange(struct spi_device *spidev, unsigned char *in, unsi
 		in[i] = *((volatile unsigned char *)&SPI->DR);
 #endif
 	}
+
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 0;
+	kmutex_unlock(&spi->transaction_mutex);
 
 	return i;
 }
@@ -405,6 +454,9 @@ int stm32_spi_init(struct device *device)
 	spi->rate = stm32_spi_find_best_pres(spi->rate, spi->speed);
 
 	spi->spi_ops = &spi_ops;
+	spi->transaction_ongoing = 0;
+
+	kmutex_init(&spi->transaction_mutex);
 
 	if (spi->use_dma) {
 		spi->spi_ops->write = stm32_spi_dma_write;
