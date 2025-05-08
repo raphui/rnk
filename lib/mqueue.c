@@ -227,8 +227,10 @@ int mq_receive(mqd_t fd, char *msg, size_t msg_len, unsigned int msg_prio)
 	struct mq_priv *mq = NULL;
 
 	mq = mq_get(fd);
-	if (!mq)
+	if (!mq) {
+		ret = -ENOENT;
 		goto err;
+	}
 
 	if (!(mq->attr.mq_flags & (O_RDWR | O_RDONLY))) {
 		ret = -EBADF;
