@@ -24,4 +24,6 @@ choice
     config TEST_TIMER
 	bool "Timer test"	
 
+    config TEST_TICKLESS
+	bool "Tickless test"
 endchoice
