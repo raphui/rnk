@@ -190,7 +190,6 @@ int kqueue_receive(struct queue *queue, void *item, unsigned int timeout)
 			_kqueue_receive(queue, item);
 			break;
 		} else if (timeout) {
-			return -ENOTSUP;
 			ktime_usleep(timeout);
 			back_from_sleep = 1;
 		} else if (back_from_sleep || !timeout) {
