@@ -13,5 +13,7 @@ int gpiolib_set_output(struct pio_desc *desc, int gpio_value);
 int gpiolib_set_input(struct pio_desc *desc);
 int gpiolib_output_set_value(struct pio_desc *desc, int gpio_value);
 int gpiolib_get_value(struct pio_desc *desc);
+int gpiolib_enable_irq(struct pio_desc *desc);
+int gpiolib_disable_irq(struct pio_desc *desc);
 
 #endif /* GPIOLIB_H */

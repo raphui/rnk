@@ -116,3 +116,23 @@ int gpiolib_request_irq(struct pio_desc *desc, void (*handler)(void *), int flag
 	return ret;
 }
 EXPORT_SYMBOL(gpiolib_request_irq);
+
+int gpiolib_enable_irq(struct pio_desc *desc)
+{
+	int ret = 0;
+
+	ret = syscall(SYSCALL_PIO_ENABLE_IRQ, desc->port, desc->pin);
+
+	return ret;
+}
+EXPORT_SYMBOL(gpiolib_enable_irq);
+
+int gpiolib_disable_irq(struct pio_desc *desc)
+{
+	int ret = 0;
+
+	ret = syscall(SYSCALL_PIO_DISABLE_IRQ, desc->port, desc->pin);
+
+	return ret;
+}
+EXPORT_SYMBOL(gpiolib_disable_irq);
