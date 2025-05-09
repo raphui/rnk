@@ -129,11 +129,12 @@ static int stm32_pio_request_interrupt(unsigned int port, unsigned int mask, voi
 
 static void stm32_pio_enable_interrupt(unsigned int port, unsigned int mask)
 {
-	
+	stm32_exti_enable_interrupt(port, mask);
 }
 
 static void stm32_pio_disable_interrupt(unsigned int port, unsigned int mask)
 {
+	stm32_exti_disable_interrupt(port, mask);
 }
 
 int stm32_pio_of_configure_name(int fdt_offset, char *name)
