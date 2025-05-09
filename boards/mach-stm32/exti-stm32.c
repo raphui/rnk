@@ -301,6 +301,16 @@ int stm32_exti_disable_rising(unsigned int gpio_base, unsigned int gpio_num)
 	return ret;
 }
 
+void stm32_exti_disable_interrupt(unsigned int gpio_base, unsigned int gpio_num)
+{
+	EXTI->IMR1 &= ~(1 << gpio_num);
+}
+
+void stm32_exti_enable_interrupt(unsigned int gpio_base, unsigned int gpio_num)
+{
+	EXTI->IMR1 |= (1 << gpio_num);
+}
+
 int stm32_exti_request_irq(unsigned int gpio_base, unsigned int gpio_num, void (*handler)(void *), int flags, void *arg)
 {
 	int ret = 0;
