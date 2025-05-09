@@ -249,6 +249,35 @@ err:
 }
 EXPORT_SYMBOL(mq_receive);
 
+int mq_timedreceive(mqd_t fd, char *msg, size_t msg_len, unsigned int msg_prio, int timeout)
+{
+	int ret = 0;
+	struct mq_priv *mq = NULL;
+
+	mq = mq_get(fd);
+	if (!mq) {
+		ret = -ENOENT;
+		goto err;
+	}
+
+	if (!(mq->attr.mq_flags & (O_RDWR | O_RDONLY))) {
+		ret = -EBADF;
+		goto err;
+	}
+
+	if (msg_len < mq->attr.mq_msgsize) {
+		ret = -EMSGSIZE;
+		goto err;
+	}
+
+	ret = syscall(SYSCALL_QUEUE_RECEIVE, &mq->q, msg, timeout);
+
+err:
+	return ret;
+}
+EXPORT_SYMBOL(mq_timedreceive);
+
+
 int mq_send(mqd_t fd, const char *msg, size_t msg_len, unsigned int msg_prio)
 {
 	int ret = 0;
