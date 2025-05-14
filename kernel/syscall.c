@@ -28,6 +28,8 @@ struct syscall syscall_table[] = {
 	{SYSCALL_SEM_WAIT,	(unsigned int *)&ksem_wait,		SYSCALL_PRIVILEGE_ELEVATION},
 	{SYSCALL_SEM_POST,	(unsigned int *)&ksem_post,		SYSCALL_PRIVILEGE_ELEVATION},
 	{SYSCALL_SEM_TIMEDWAIT,	(unsigned int *)&ksem_timedwait,	SYSCALL_PRIVILEGE_ELEVATION},
+	{SYSCALL_SEM_GET_COUNT,	(unsigned int *)&ksem_get_count,	SYSCALL_PRIVILEGE_OPERATION},
+	{SYSCALL_SEM_RESET,	(unsigned int *)&ksem_reset,		SYSCALL_PRIVILEGE_OPERATION},
 #endif /* CONFIG_SEMAPHORE */
 	{SYSCALL_TIME_USLEEP,	(unsigned int *)&ktime_usleep,		SYSCALL_PRIVILEGE_ELEVATION},
 	{SYSCALL_TIME_ONESHOT,	(unsigned int *)&ktime_oneshot,		SYSCALL_PRIVILEGE_OPERATION},
