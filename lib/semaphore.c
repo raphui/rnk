@@ -27,3 +27,15 @@ int sem_post(sem_t *sem)
 	return syscall(SYSCALL_SEM_POST, &sem->ksem);
 }
 EXPORT_SYMBOL(sem_post);
+
+int sem_get_count(sem_t *sem)
+{
+	return syscall(SYSCALL_SEM_GET_COUNT, &sem->ksem);
+}
+EXPORT_SYMBOL(sem_get_count);
+
+int sem_reset(sem_t *sem)
+{
+	return syscall(SYSCALL_SEM_RESET, &sem->ksem);
+}
+EXPORT_SYMBOL(sem_reset);
