@@ -13,6 +13,20 @@
 #include <kernel/kmutex.h>
 #include <pm/pm.h>
 
+static inline void stm32_spi_set_transaction_ongoing(struct spi_master *spi)
+{
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 1;
+	kmutex_unlock(&spi->transaction_mutex);
+}
+
+static inline void stm32_spi_unset_transaction_ongoing(struct spi_master *spi)
+{
+	kmutex_lock(&spi->transaction_mutex);
+	spi->transaction_ongoing = 1;
+	kmutex_unlock(&spi->transaction_mutex);
+}
+
 static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long rate)
 {
 	unsigned int i;
@@ -66,9 +80,7 @@ static int stm32_spi_dma_write(struct spi_device *spidev, unsigned char *buff, u
 	SPI->CR2 |= SPI_CR2_TXDMAEN;
 	SPI->CR2 |= SPI_CR2_RXDMAEN;
 
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 1;
-	kmutex_unlock(&spi->transaction_mutex);
+	stm32_spi_set_transaction_ongoing(spi);
 
 	SPI->CR1 |= SPI_CR1_SPE;
 
@@ -80,9 +92,7 @@ static int stm32_spi_dma_write(struct spi_device *spidev, unsigned char *buff, u
 
 	stm32_dma_disable(dma);
 
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 0;
-	kmutex_unlock(&spi->transaction_mutex);
+	stm32_spi_unset_transaction_ongoing(spi);
 
 	return ret;
 }
@@ -110,9 +120,7 @@ static int stm32_spi_dma_read(struct spi_device *spidev, unsigned char *buff, un
 	SPI->CR2 |= SPI_CR2_TXDMAEN;
 	SPI->CR2 |= SPI_CR2_RXDMAEN;
 
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 1;
-	kmutex_unlock(&spi->transaction_mutex);
+	stm32_spi_set_transaction_ongoing(spi);
 
 	SPI->CR1 |= SPI_CR1_SPE;
 
@@ -130,9 +138,7 @@ static int stm32_spi_dma_read(struct spi_device *spidev, unsigned char *buff, un
 
 	stm32_dma_disable(dma);
 
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 0;
-	kmutex_unlock(&spi->transaction_mutex);
+	stm32_spi_unset_transaction_ongoing(spi);
 
 	return ret;
 }
@@ -177,9 +183,7 @@ static int stm32_spi_dma_exchange(struct spi_device *spidev, unsigned char *in, 
 	stm32_dma_enable(dma_w);
 	stm32_dma_enable(dma_r);
 
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 1;
-	kmutex_unlock(&spi->transaction_mutex);
+	stm32_spi_set_transaction_ongoing(spi);
 
 	SPI->CR1 |= SPI_CR1_SPE;
 
@@ -191,9 +195,7 @@ static int stm32_spi_dma_exchange(struct spi_device *spidev, unsigned char *in, 
 	stm32_dma_disable(dma_w);
 	stm32_dma_disable(dma_r);
 
-	kmutex_lock(&spi->transaction_mutex);
-	spi->transaction_ongoing = 0;
-	kmutex_unlock(&spi->transaction_mutex);
+	stm32_spi_unset_transaction_ongoing(spi);
 
 	return ret;
 }
