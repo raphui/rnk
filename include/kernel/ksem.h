@@ -14,5 +14,7 @@ int ksem_wait(struct semaphore *sem);
 int ksem_timedwait(struct semaphore *sem, int timeout);
 int ksem_post(struct semaphore *sem);
 int ksem_post_isr(struct semaphore *sem);
+int ksem_get_count(struct semaphore *sem);
+int ksem_reset(struct semaphore *sem);
 
 #endif /* KSEM_H */

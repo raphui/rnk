@@ -136,3 +136,32 @@ int ksem_post_isr(struct semaphore *sem)
 err:
 	return ret;
 }
+
+int ksem_get_count(struct semaphore *sem)
+{
+	int ret = 0;
+
+	if (!sem) {
+		ret = -EINVAL;
+		goto err;
+	}
+
+	ret = sem->count;
+err:
+	return ret;
+}
+
+int ksem_reset(struct semaphore *sem)
+{
+	int ret = 0;
+
+	if (!sem) {
+		ret = -EINVAL;
+		goto err;
+	}
+
+	sem->count = 0;
+err:
+	return ret;
+
+}
