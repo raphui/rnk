@@ -119,6 +119,7 @@ mqd_t mq_open(const char *name, int flags, ...)
 	memcpy(&mq->attr, attr, sizeof(struct mq_attr));
 
 	mq->name = malloc(strlen(name) + 1);
+	mq->attr.mq_flags = flags;
 
 	if(!mq->name)
 		goto err;
@@ -242,7 +243,7 @@ int mq_receive(mqd_t fd, char *msg, size_t msg_len, unsigned int msg_prio)
 		goto err;
 	}
 
-	ret = syscall(SYSCALL_QUEUE_RECEIVE, &mq->q, msg, 0);
+	ret = syscall(SYSCALL_QUEUE_RECEIVE, &mq->q, msg, -1);
 
 err:
 	return ret;
