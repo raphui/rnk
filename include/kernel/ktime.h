@@ -2,7 +2,6 @@
 #define KTIME_H
 
 #include <list.h>
-#include <kernel/thread.h>
 #include <drv/timer.h>
 
 struct ktimer {

@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <arch/thread.h>
 #include <kernel/wait.h>
+#include <kernel/ktime.h>
 
 #define THREAD_RUNNING		0
 #define THREAD_RUNNABLE		1
@@ -58,6 +59,7 @@ struct thread
 	struct list_node event_node;
 	struct wait_queue wait_exit;
 	struct wait_queue *wait_queue;
+	struct ktimer wait_timer;
 	int err_wait;
 	int wait_reason;
 };
