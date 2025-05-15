@@ -190,8 +190,12 @@ int kqueue_receive(struct queue *queue, void *item, unsigned int timeout)
 			_kqueue_receive(queue, item);
 			break;
 		} else if (timeout) {
-			ktime_usleep(timeout);
+			thread_lock(state);
+
+			wait_queue_block_timed(&queue->wait_receive, -1, &state);
 			back_from_sleep = 1;
+
+			thread_unlock(state);
 		} else if (back_from_sleep || !timeout) {
 			ret = -EAGAIN;
 			break;
