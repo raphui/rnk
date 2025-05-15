@@ -163,7 +163,7 @@ int wait_queue_block_timed(struct wait_queue *wait, int timeout, unsigned long *
 {
 	unsigned long _irqstate;
 	struct thread *thread = get_current_thread();
-	struct ktimer timer;
+	struct ktimer *timer = &thread->wait_timer;
 
 	if (!wait)
 		return -EINVAL;
@@ -176,15 +176,16 @@ int wait_queue_block_timed(struct wait_queue *wait, int timeout, unsigned long *
 	thread->err_wait = 0;
 
 	if (timeout) {
-		timer.delay = timeout;
-		timer.handler = wait_queue_timeout;
-		timer.arg = thread;
+		timer->delay = timeout;
+		timer->handler = wait_queue_timeout;
+		timer->arg = thread;
 
-		ktime_oneshot(&timer);
+		ktime_oneshot(timer);
 
 		__wait_queue_block(wait, irqstate, thread);
 
-		ktime_oneshot_cancel(&timer);
+		if (timer->delay)
+			ktime_oneshot_cancel(timer);
 	}
 	else
 		__wait_queue_block(wait, irqstate, thread);
