@@ -72,17 +72,11 @@ dist-clean: clean
 config.h: .config
 	$(PREFIX)bash tools/generate_config.sh
 
-menuconfig: $(KCONFIG)/kconfig-mconf
-	$(PREFIX)$(KCONFIG)/kconfig-mconf Kconfig
+menuconfig:
+	$(PREFIX)menuconfig Kconfig
 
-nconfig: $(KCONFIG)/kconfig-nconf
-	$(PREFIX)$(KCONFIG)/kconfig-nconf Kconfig
-
-config: tools/kconfig-frontends/frontends/conf/conf
-	$(PREFIX)tools/kconfig-frontends/frontends/conf/conf Kconfig
-
-tools/kconfig-frontends/bin/kconfig-%:
-	$(PREFIX)$(MAKE) -C ./tools/ $(subst tools/kconfig-frontends/bin/,,$@)
+nconfig:
+	$(PREFIX)menuconfig Kconfig
 
 cscope:
 	$(PREFIX)echo "GEN " $@

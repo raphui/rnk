@@ -23,7 +23,7 @@ Cortex-M MCU supported
 Dependencies
 ------------
   * arm-none-eabi toolchain (https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads)
-  * kconfig-frontends (http://ymorin.is-a-geek.org/projects/kconfig-frontends)
+  * kconfiglib (https://github.com/ulfalizer/Kconfiglib)
 
 Building
 --------
