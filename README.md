@@ -9,7 +9,7 @@ Features
   * Targeting Cortex-M
   * Premptive scheduling
   * Support static and dynamic application (using custom file format - RFLAT)
-  * Isolation using MPU and privileged/unprivileged modes
+  * Support isolation using MPU and privileged/unprivileged modes
   * Device tree support
   * POSIX API
   * SEGGER SystemView support
@@ -18,11 +18,11 @@ Cortex-M MCU supported
 ----------------------
 
   * STM32F4 family (actually developed and tested on a STM32F401)
-  * STM32L4 family (actually developed and tested on a STM32L443)
+  * STM32L4 family (actually developed and tested on a STM32L44X)
 
 Dependencies
 ------------
-  * arm-none-eabi toolchain (https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads)
+  * arm-none-eabi toolchain (https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
   * kconfiglib (https://github.com/ulfalizer/Kconfiglib)
 
 Building
