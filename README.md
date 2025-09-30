@@ -43,5 +43,10 @@ Configuration
 
 Build configurations are powered by Kconfig, and can be used by typing: make menuconfig (or nconfig)
 
+Documentation
+-------------
+
+Please check the wiki entries: https://github.com/raphui/rnk/wiki/Overview
+
 Current known bugs
 ------------------
