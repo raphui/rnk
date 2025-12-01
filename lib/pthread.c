@@ -4,12 +4,22 @@
 #include <errno.h>
 #include <export.h>
 
-int pthread_create(pthread_t *thread, void (*start_routine)(void *), void *arg, unsigned int priority)
+int pthread_create(pthread_t *thread, pthread_attr_t *attr, void (*start_routine)(void *), void *arg, unsigned int priority)
 {
+	struct thread_attr thr_attr;
+
 	if (!thread)
 		return -EINVAL;
 
-	thread->thr = (struct thread *)syscall(SYSCALL_THREAD_CREATE, start_routine, arg, priority);
+	if (attr) {
+		thr_attr.stack_size = attr->stack_size;
+	} else {
+		thr_attr.stack_size = CONFIG_THREAD_STACK_SIZE;
+	}
+	
+	thr_attr.priority = priority;
+
+	thread->thr = (struct thread *)syscall(SYSCALL_THREAD_CREATE, &thr_attr, start_routine, arg);
 	if (!thread->thr)
 		return -EAGAIN;
 
