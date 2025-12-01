@@ -115,8 +115,10 @@ static void end_thread(void)
 	syscall(SYSCALL_THREAD_STOP, NULL);
 }
 
-struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged)
+struct thread *add_thread(void (*func)(void), void *arg, struct thread_attr *attr,
+		unsigned int priority, int privileged)
 {
+	unsigned int stack_size;
 	struct thread *thread;
 	int platform_register = 0;
 
@@ -147,13 +149,18 @@ struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, 
 	thread->quantum = CONFIG_THREAD_QUANTUM;
 #endif
 
-	thread->start_stack = (unsigned int)kmalloc_align(8, CONFIG_THREAD_STACK_SIZE);
+	if (attr)
+		stack_size = attr->stack_size;
+	else
+		stack_size = CONFIG_THREAD_STACK_SIZE;
+
+	thread->start_stack = (unsigned int)kmalloc_align(8, stack_size);
 	if (!thread->start_stack) {
 		error_printk("failed to allocate thread stack\n");
 		goto err_alloc_stack;
 	}
 
-	thread->start_stack += CONFIG_THREAD_STACK_SIZE;
+	thread->start_stack += stack_size;
 
 	thread->delay = 0;
 	thread->func = func;
@@ -208,15 +215,15 @@ void thread_init(void)
 	list_initialize(&suspend_queue);
 	list_initialize(&threads);
 
-	add_thread(&idle_thread, NULL, IDLE_PRIORITY, PRIVILEGED_THREAD);
+	add_thread(&idle_thread, NULL, NULL, IDLE_PRIORITY, PRIVILEGED_THREAD);
 }
 
-struct thread *thread_create(void (*func)(void), void *arg, unsigned int priority)
+struct thread *thread_create(struct thread_attr *attr, void (*func)(void), void *arg)
 {
 #ifdef CONFIG_USER
-	return add_thread(func, arg, priority, USER_THREAD);
+	return add_thread(func, arg, attr, attr->priority, USER_THREAD);
 #else
-	return add_thread(func, arg, priority, PRIVILEGED_THREAD);
+	return add_thread(func, arg, attr, attr->priority, PRIVILEGED_THREAD);
 #endif
 }
 

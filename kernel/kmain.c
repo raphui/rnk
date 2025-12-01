@@ -52,7 +52,7 @@ int kmain(void)
 #endif /* CONFIG_UNWIND */
 
 #ifdef CONFIG_STATIC_APPS
-	add_thread((void *)main, NULL, LOW_PRIORITY, PRIVILEGED_THREAD);
+	add_thread((void *)main, NULL, NULL, LOW_PRIORITY, PRIVILEGED_THREAD);
 #else
 	printk("- Loading app\n");
 

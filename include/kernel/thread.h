@@ -41,6 +41,11 @@
 
 extern unsigned long thread_lock;
 
+struct thread_attr {
+	unsigned int stack_size;
+	unsigned int priority;
+};
+
 struct thread
 {
 	unsigned int state;
@@ -65,12 +70,13 @@ struct thread
 };
 
 void thread_init(void);
-struct thread *thread_create(void (*func)(void), void *arg, unsigned int priority);
+struct thread *thread_create(struct thread_attr *attr, void (*func)(void), void *arg);
 int thread_destroy(struct thread *thread);
 int thread_suspend(struct thread *t);
 int thread_resume(struct thread *t);
 int thread_join(struct thread *t);
-struct thread *add_thread(void (*func)(void), void *arg, unsigned int priority, int privileged);
+struct thread *add_thread(void (*func)(void), void *arg, struct thread_attr *attr,
+		unsigned int priority, int privileged);
 void switch_thread(struct thread *thread);
 struct thread *get_current_thread(void);
 struct thread *find_next_thread(void);
