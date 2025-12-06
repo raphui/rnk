@@ -150,8 +150,11 @@ void ktime_wakeup_next_delay(void)
 	struct thread *tmp;
 	struct thread *curr = get_current_thread();
 	unsigned int shortest_delay = 0xFFFFFFFF;
+	void (*callback)(void);
 
 	/* XXX: Find the shortest next delay between thread sleeping and software timers */
+
+	system_tick += timer_get_elapsed_time();
 
 	list_for_every_entry_safe(&sleeping_threads, thread, tmp, struct thread, state_node) {
 		if (thread->delay <= system_tick) {
@@ -167,14 +170,17 @@ void ktime_wakeup_next_delay(void)
 	if (next)
 		shortest_delay = next->delay - system_tick;
 
+	callback = decrease_thread_delay;
+
 	list_for_every_entry_safe(&timer_soft_list, t, tt, struct ktimer, node) {
 		if (t->delay < shortest_delay) {
 			shortest_delay = t->delay - system_tick;
+			callback = decrease_timer_delay;
 		}
 	}
 
 	if (shortest_delay != 0xFFFFFFFF)
-		timer_wakeup(shortest_delay, (void (*)(void *))decrease_timer_delay, NULL);
+		timer_wakeup(shortest_delay, (void (*)(void *))callback, NULL);
 
 }
 #endif /* CONFIG_TICKLESS */
