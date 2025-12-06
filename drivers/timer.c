@@ -23,6 +23,11 @@ void timer_set_counter(struct timer *timer, unsigned int counter)
 	timer->tim_ops->set_counter(timer, counter);
 }
 
+int timer_get_counter(struct timer *timer)
+{
+	return timer->tim_ops->get_counter(timer);
+}
+
 void timer_enable(struct timer *timer)
 {
 	timer->tim_ops->enable(timer);
@@ -96,6 +101,11 @@ static void timer_isr(void *arg)
 int timer_wakeup(unsigned int delay, void (*handler)(void *), void *arg)
 {
 	return timer_oneshot(delay, handler, arg);
+}
+
+int timer_get_elapsed_time(void)
+{
+	return timer_get_counter(timer_lp_request());
 }
 #endif /* CONFIG_TICKLESS */
 
