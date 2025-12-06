@@ -161,6 +161,7 @@ static int stm32_lptim_release_irq(struct timer *timer)
 
 struct timer_operations lptim_ops = {
 	.set_counter = stm32_lptim_set_counter,
+	.get_counter = stm32_lptim_read_usec_elapsed,
 	.enable = stm32_lptim_enable,
 	.disable = stm32_lptim_disable,
 	.request_irq = stm32_lptim_request_irq,
