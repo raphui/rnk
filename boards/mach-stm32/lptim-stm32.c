@@ -96,7 +96,7 @@ static void stm32_lptim_set_counter(struct timer *timer, unsigned int delay_us)
 	elapsed_time = stm32_lptim_read_usec_elapsed(timer);
 
 	/* XXX: avoid reconfiguring if current timer is still running and new delay is longer */
-	if (timer->counter && counter > (timer->counter - elapsed_time)) {
+	if (timer->counter && (counter > (timer->counter - elapsed_time))) {
 		return;
 	}
 
