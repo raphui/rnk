@@ -104,9 +104,13 @@ static int mtd_read(struct device *dev, unsigned char *buff, unsigned int size)
 	if (ret < 0)
 		return ret;
 
+	kmutex_lock(&mtd->mtd_mutex);
+
 	ret = mtd->mtd_ops->read(mtd, buff, size);
 	if (ret < 0)
 		return ret;
+	
+	kmutex_unlock(&mtd->mtd_mutex);
 
 	mtd->curr_off += size;
 
@@ -124,9 +128,13 @@ static int mtd_write(struct device *dev, unsigned char *buff, unsigned int size,
 	if (ret < 0)
 		return ret;
 
+	kmutex_lock(&mtd->mtd_mutex);
+
 	ret = mtd->mtd_ops->write(mtd, buff, size, page);
 	if (ret < 0)
 		return ret;
+
+	kmutex_unlock(&mtd->mtd_mutex);
 
 	mtd->curr_off += size;
 
@@ -242,6 +250,8 @@ struct mtd *mtd_new_controller(void)
 	}
 
 	memset(mtd, 0, sizeof(struct mtd));
+
+	kmutex_init(&mtd->mtd_mutex);
 
 	dev_count++;
 

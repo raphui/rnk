@@ -3,6 +3,7 @@
 
 #include <drv/device.h>
 #include <list.h>
+#include <kernel/kmutex.h>
 
 #define MAX_SECTORS	32
 
@@ -26,6 +27,7 @@ struct mtd {
 	unsigned int total_size;
 	int layout_size;
 	int curr_off;
+	struct mutex mtd_mutex;
 	struct mtd_layout *mtd_map;
 	struct mtd_operations *mtd_ops;
 	struct device dev;
