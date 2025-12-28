@@ -121,11 +121,13 @@ static int stm32_rcc_enable_internal_clk(unsigned int clk)
 		while (!(RCC->CR & RCC_CR_HSIRDY))
 			;
 		break;
-#ifdef CONFIG_STM32F4XX
 	case CLK_RTC:
+#ifdef CONFIG_STM32L4XX
+		RCC->APB1ENR1 |= RCC_APB1ENR1_RTCAPBEN;
+		PWR->CR1 |= PWR_CR1_DBP;
+#endif
 		RCC->BDCR |= RCC_BDCR_RTCEN | RCC_BDCR_RTCSEL_1;
 		break;
-#endif
 #ifdef CONFIG_STM32L4XX
 	case CLK_LPTIMER:
 		/* FIXME: Hard set to LSI clock, it would be nice to make it more clever */
@@ -165,11 +167,9 @@ static int stm32_rcc_disable_internal_clk(unsigned int clk)
 	case CLK_HSI:
 		RCC->CR &= ~RCC_CR_HSION;
 		break;
-#ifdef CONFIG_STM32F4XX
 	case CLK_RTC:
 		RCC->BDCR &= ~RCC_BDCR_RTCEN;
 		break;
-#endif
 #ifdef CONFIG_STM32L4XX
 	case CLK_LPTIMER:
 		RCC->CCIPR &= ~RCC_CCIPR_LPTIM1SEL;
@@ -454,22 +454,6 @@ int stm32_rcc_of_enable_clk(int offset, struct clk *clk)
 		} else {
 			clk->source_clk = ret;
 		}
-
-		/* XXX: Some APB peripheral can have another clock than PCLK */
-		switch (clk->id) {
-#ifdef CONFIG_STM32L4XX
-		case CLK_LPTIMER:
-			RCC->APB1ENR1 |= RCC_APB1ENR1_LPTIM1EN;
-			break;
-		
-#ifndef CONFIG_STM32L476
-		case CLK_USB:
-			RCC->APB1ENR1 |= RCC_APB1ENR1_USBFSEN;
-			break;
-#endif
-#endif
-		}
-
 	}
 
 out:
