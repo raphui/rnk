@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <errno.h>
+#include <arch/system.h>
 #include <kernel/syscall.h>
 #include <kernel/scheduler.h>
 #include <kernel/kmutex.h>
@@ -57,4 +58,5 @@ struct syscall syscall_table[] = {
 	{SYSCALL_PIO_ENABLE_IRQ, (unsigned int *)pio_enable_interrupt, SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_PIO_DISABLE_IRQ, (unsigned int *)pio_disable_interrupt, SYSCALL_PRIVILEGE_OPERATION},
 	{SYSCALL_PRINT,		(unsigned int *)__printk,		SYSCALL_PRIVILEGE_ELEVATION},
+	{SYSCALL_REBOOT,	(unsigned int *)arch_sys_reboot,	SYSCALL_PRIVILEGE_OPERATION},
 };
