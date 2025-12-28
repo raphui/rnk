@@ -141,6 +141,40 @@ struct timer_operations rtc_ops = {
 	.release_irq = stm32_rtc_release_irq,
 };
 
+static int stm32_rtc_bkup_read(struct device *dev, unsigned char *buff, unsigned int size)
+{
+	unsigned int *data;
+	struct timer *timer = container_of(dev, struct timer, dev);
+	RTC_TypeDef *rtc = (RTC_TypeDef *)timer->base_reg;
+
+	if (size < sizeof(unsigned int)) {
+		return -EINVAL;
+	}
+
+	data = (unsigned int *)buff;
+
+	*data = rtc->BKP0R;
+
+	return 0;
+}
+
+static int stm32_rtc_bkup_write(struct device *dev, unsigned char *buff, unsigned int size)
+{
+	unsigned int *data;
+	struct timer *timer = container_of(dev, struct timer, dev);
+	RTC_TypeDef *rtc = (RTC_TypeDef *)timer->base_reg;
+
+	if (size < sizeof(unsigned int)) {
+		return -EINVAL;
+	}
+
+	data = (unsigned int *)buff;
+
+	rtc->BKP0R = *data;
+
+	return 0;
+}
+
 static int stm32_rtc_of_init(struct timer *timer)
 {
 	int offset;
@@ -235,6 +269,15 @@ static int stm32_rtc_init(struct device *dev)
 		goto clk_disable;
 	}
 
+	snprintf(timer->dev.name, sizeof(timer->dev.name), "/dev/rtc_bkup");
+
+	timer->dev.read = stm32_rtc_bkup_read;
+	timer->dev.write = stm32_rtc_bkup_write;
+
+	ret = device_register(&timer->dev);
+	if (ret < 0)
+		error_printk("failed to register rtc bkup device\n");
+
 	return ret;
 
 clk_disable:
@@ -246,7 +289,7 @@ err:
 }
 
 struct device stm32_rtc_driver = {
-	.of_compat = "st,stm32f4xx-rtc",
+	.of_compat = "st,stm32-rtc",
 	.probe = stm32_rtc_init,
 };
 
