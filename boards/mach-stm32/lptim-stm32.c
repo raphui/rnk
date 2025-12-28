@@ -29,8 +29,6 @@ static void stm32_lptim_isr(void *arg)
 
 	lptim->ICR = 0x7F;
 
-	system_tick += timer->counter;
- 
 	irq_callback_infos.callback(irq_callback_infos.arg);
 }
 
@@ -138,7 +136,7 @@ static void stm32_lptim_disable(struct timer *timer)
 
 	nvic_disable_interrupt(nvic);
 
-	lptim->CR = (1 << 3) | LPTIM_CR_CNTSTRT;
+	lptim->CR &= ~LPTIM_CR_ENABLE;
 }
 
 static int stm32_lptim_request_irq(struct timer *timer, void (*handler)(void *), void *arg)
