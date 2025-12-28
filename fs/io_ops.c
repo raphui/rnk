@@ -43,7 +43,7 @@ int svc_open(const char *path, int flags)
 			fd_num++;
 
 		} else {
-			error_printk("invalid open path\n");
+			error_printk("invalid open path: %s\n", path);
 			ret = -ENOENT;
 		}
 
