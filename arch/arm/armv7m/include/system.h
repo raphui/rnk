@@ -94,7 +94,6 @@ static inline void wait_for_interrupt(void)
 	asm volatile ("wfi");
 }
 
-
 /* Cortex M4 General Registers */
 
 #define CORTEX_M_PERIPH_BASE		(volatile unsigned int) (0xE0000000)
@@ -139,6 +138,7 @@ static inline void wait_for_interrupt(void)
 /* System Control Block (SCB) */
 #define SCB_ICSR                        (volatile unsigned int) (SCB_BASE + 0x004)                /* Interrupt Control and State Register */
 #define SCB_VTOR                        (volatile unsigned int) (SCB_BASE + 0x008)                /* Vector Table Offset Register */
+#define SCB_AIRCR                       (volatile unsigned int) (SCB_BASE + 0x00C)                /* Application Interrupt and Reset Control Register */
 #define SCB_SCR                         (volatile unsigned int) (SCB_BASE + 0x010)                /* System Control Register */
 #define SCB_SHPR(n)			(volatile unsigned int) (SCB_BASE + 0x18 + (n - 4))	 /* System Handler Priority Register */
 #define SCB_SHPR1			(volatile unsigned int) (SCB_BASE + 0x18)		  /* System Handler Priority Register 1 */
@@ -182,6 +182,11 @@ static inline void wait_for_interrupt(void)
 #define SCB_SHCSR_MEMFAULTENA           (unsigned int) (1 << 16)                                    /* Enables Memory Management Fault */
 #define SCB_SHCSR_BUSFAULTENA           (unsigned int) (1 << 17)                                    /* Enables Bus Fault */
 #define SCB_SHCSR_USEFAULTENA           (unsigned int) (1 << 18)                                    /* Enables Usage Fault */
+
+#define SCB_AIRCR_VECTKEY_SHIFT		(unsigned int) (16)					    /* Register key */
+#define SCB_AIRCR_PRIGROUP_MASK		(unsigned int) (0x7)					    /* Interrupt priority grouping */
+#define SCB_AIRCR_PRIGROUP_SHIFT	(unsigned int) (8)					    /* Interrupt priority grouping */
+#define SCB_AIRCR_SYSRESETREQ		(unsigned int) (1 << 2)					    /* System reset request */
 
 /* Hard Fault Status Register */
 #define SCB_HFSR_VECTTBL                (unsigned int) (1 << 1)                                     /* Vector table hard fault.  Bus fault on vector table read during exception handling. */
@@ -325,5 +330,20 @@ static inline void disable_deepsleep(void)
 	writel(SCB_SCR, val);
 }
 
+static inline void arch_sys_reboot(void)
+{
+	unsigned val = readl(SCB_AIRCR);
+
+	val = ((0x5FA << SCB_AIRCR_VECTKEY_SHIFT)
+			| (val & SCB_AIRCR_PRIGROUP_MASK)
+			| SCB_AIRCR_SYSRESETREQ); /*  Keep priority group unchanged */
+
+	writel(SCB_AIRCR, val);
+
+	__dsb();
+
+	while(1)
+		;
+}
 
 #endif /* ARMV7M_SYSTEM_H */
