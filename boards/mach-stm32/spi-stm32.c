@@ -15,16 +15,12 @@
 
 static inline void stm32_spi_set_transaction_ongoing(struct spi_master *spi)
 {
-	kmutex_lock(&spi->transaction_mutex);
 	spi->transaction_ongoing = 1;
-	kmutex_unlock(&spi->transaction_mutex);
 }
 
 static inline void stm32_spi_unset_transaction_ongoing(struct spi_master *spi)
 {
-	kmutex_lock(&spi->transaction_mutex);
 	spi->transaction_ongoing = 1;
-	kmutex_unlock(&spi->transaction_mutex);
 }
 
 static short stm32_spi_find_best_pres(unsigned long parent_rate, unsigned long rate)
@@ -326,12 +322,8 @@ int stm32_spi_pm_state_entry(int state, void *pdata)
 	case POWER_STATE_SLEEP:
 		break;
 	case POWER_STATE_DEEPSLEEP:
-		kmutex_lock(&spi->transaction_mutex);
-
 		if (spi->transaction_ongoing)
 			ret = -EBUSY;
-
-		kmutex_unlock(&spi->transaction_mutex);
 		break;
 	}
 
@@ -471,8 +463,6 @@ int stm32_spi_init(struct device *device)
 
 	spi->spi_ops = &spi_ops;
 	spi->transaction_ongoing = 0;
-
-	kmutex_init(&spi->transaction_mutex);
 
 	if (spi->use_dma) {
 		spi->spi_ops->write = stm32_spi_dma_write;

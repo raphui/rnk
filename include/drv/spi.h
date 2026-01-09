@@ -45,7 +45,6 @@ struct spi_master {
 	unsigned char only_rx;
 	unsigned char use_dma;
 	struct mutex spi_mutex;
-	struct mutex transaction_mutex;
 	struct semaphore sem;
 	struct list_node node;
 	struct device dev;
